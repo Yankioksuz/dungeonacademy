@@ -1,0 +1,873 @@
+{
+  "id": "shadows-of-the-spire",
+  "title": "Shadows of the Azure Spire",
+  "description": "Unmask the cabal inside the Azure Spire by choosing an infiltration route, surviving the twists, and confronting the mastermind in the mirror heart.",
+  "encounters": [
+    {
+      "id": "call-to-action",
+      "title": "Summons from the Silverwind",
+      "description": "Three days before you reach the Azure Spire, a silver courier hawk finds your caravan with a note sealed by Spymaster Kaela. It speaks of a mirror-born conspiracy and begs you to detour to the war camp before the council meeting.",
+      "type": "tutorial",
+      "options": [
+        {
+          "id": "read-letter",
+          "text": "Read Kaela’s sealed letter aloud.",
+          "type": "continue",
+          "outcome": "Kaela’s script explains that someone is forging scrying reports in the spire’s name. She needs a neutral champion—someone unaligned with the four banners—to expose the lie.",
+          "nextEncounterId": "call-to-action",
+          "stayInEncounter": true
+        },
+        {
+          "id": "debate-crew",
+          "text": "Ask your traveling companions if the detour is worth it.",
+          "type": "continue",
+          "outcome": "Merchants fear losing their cargo slots, soldiers worry about being branded mercenaries, and a young scholar begs you to help Kaela because her mentor vanished after speaking against the mirrors.",
+          "nextEncounterId": "call-to-action",
+          "stayInEncounter": true
+        },
+        {
+          "id": "agree-detour",
+          "text": "Agree to detour to Kaela’s war camp.",
+          "type": "continue",
+          "outcome": "You steer toward the camp at dusk, ready to hear what could topple an empire.",
+          "nextEncounterId": "camp-approach"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "camp-approach",
+      "title": "Nightfall at the War Camp",
+      "description": "You arrive at a wind-torn war camp outside the Azure Spire. Lanterns flicker across tents bearing four rival banners. Before you can announce yourself, a half-elf with ink-stained gloves approaches, flanked by two silent scouts.",
+      "type": "tutorial",
+      "tutorial": {
+        "title": "Meeting the Spymaster",
+        "content": "Before the mission begins, meet the handler who holds the threads. Use these options to learn names, stakes, and why you’ve been summoned."
+      },
+      "options": [
+        {
+          "id": "kaela-introduces",
+          "text": "Let the stranger speak.",
+          "type": "continue",
+          "outcome": "She introduces herself as Kaela of the Mirror Archives—now Spymaster to the battered banners. She repeats the courier passphrase from her letter, “Broken Prism, Unbroken Oath,” to prove she authored it, and explains that only an outsider can strike the Azure Spire without sparking war.",
+          "nextEncounterId": "camp-approach",
+          "stayInEncounter": true
+        },
+        {
+          "id": "verify-letter",
+          "text": "Show Kaela the Silverwind seal.",
+          "type": "continue",
+          "outcome": "You produce the sealed tube. Kaela relaxes when she sees the silverwind courier mark and thanks you for honoring the code phrase she used in the letter.",
+          "nextEncounterId": "camp-approach",
+          "stayInEncounter": true
+        },
+        {
+          "id": "ask-camp-state",
+          "text": "\"What happened here?\"",
+          "type": "continue",
+          "outcome": "Kaela gestures to the tents: refugees displaced when mirror-forged weapons erased their towns from scrying pools, envoys who no longer trust their own scribes, and soldiers who would rather duel each other than the cabal inside the spire.",
+          "nextEncounterId": "camp-approach",
+          "stayInEncounter": true
+        },
+        {
+          "id": "head-to-briefing",
+          "text": "Follow Kaela to her briefing pavilion.",
+          "type": "continue",
+          "outcome": "Kaela leads you beneath a pavilion strung with mirrored wards. She promises answers once you review her intel.",
+          "nextEncounterId": "intel-briefing"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "intel-briefing",
+      "title": "Briefing by Starlight",
+      "description": "Spymaster Kaela unfurls enchanted parchments showing the spire’s defenses and lays out how Councilor Vael and the unseen Archon Ryell have been feeding mirror-forged weapons to rival banners. If they finish attuning the mirror heart, they will rewrite scrying reports and launch wars in other peoples' names.",
+      "type": "tutorial",
+      "tutorial": {
+        "title": "Gather Intel",
+        "content": "Build leverage before picking a route. Skill checks here grant items and XP that can swing later scenes."
+      },
+      "options": [
+        {
+          "id": "reference-letter",
+          "text": "\"Your letter mentioned a code phrase—what was the plan if we refused?\"",
+          "type": "continue",
+          "outcome": "Kaela admits she would have used the Silverwind network to warn every village anyway, but your acceptance means she can invoke the 'Broken Prism' accord—authority to act on behalf of all four banners.",
+          "nextEncounterId": "intel-briefing",
+          "stayInEncounter": true
+        },
+        {
+          "id": "ask-kaela-betrayal",
+          "text": "\"Kaela, why would Vael turn on their own council?\"",
+          "type": "continue",
+          "outcome": "Kaela rubs sleep-starved eyes and explains that Vael was once the loudest voice for unity. Years of stalemate let Ryell whisper in their ear, promising the mirrors could force peace by faking hostile acts. The plan spiraled, and now the mirrors rewrite testimony faster than envoys can react.",
+          "nextEncounterId": "intel-briefing",
+          "stayInEncounter": true
+        },
+        {
+          "id": "ask-mirror-heart",
+          "text": "\"What exactly is the mirror heart?\"",
+          "type": "continue",
+          "outcome": "She points to the spinning glyphs at the center of her map. The mirror heart is a nexus that routes every scrying pool and diplomatic record through Ryell’s focus. If it locks, every truth in the empire will be filtered through Vael’s lies.",
+          "nextEncounterId": "intel-briefing",
+          "stayInEncounter": true
+        },
+        {
+          "id": "ask-kaela-role",
+          "text": "\"And who are you in all this, Kaela?\"",
+          "type": "continue",
+          "outcome": "Kaela was the spire’s archivist before the war, now elevated to spymaster after exposing a dozen double agents. She is one of the few people every banner trusts to hold their secrets—even as those same banners watch her for the slightest misstep.",
+          "nextEncounterId": "intel-briefing",
+          "stayInEncounter": true
+        },
+        {
+          "id": "review-dossiers",
+          "text": "Review council dossiers and mark suspicious names.",
+          "type": "skill",
+          "skill": "Investigation",
+          "ability": "Intelligence",
+          "difficultyClass": 12,
+          "successOutcome": "You spot forged signatures tying Vael's personal seal to Ryell’s mirror wards, plus ledgers showing shipments bound for foreign warfronts.",
+          "failureOutcome": "You misfile key notes but still glean the names of diplomats who suddenly vanished into the mirror network.",
+          "grantsItemIds": [
+            "silver-luck-charm"
+          ],
+          "xpReward": 40,
+          "successNextEncounterId": "war-camp-tensions",
+          "failureNextEncounterId": "war-camp-tensions"
+        },
+        {
+          "id": "scout-spire",
+          "text": "Send a stealth scouting party toward the spire.",
+          "type": "skill",
+          "skill": "Stealth",
+          "ability": "Dexterity",
+          "difficultyClass": 13,
+          "successOutcome": "They return with silhouettes of hidden entrances and a glimpse of mirrored messengers rehearsing Vael’s voice.",
+          "failureOutcome": "Wards singe your scouts, putting the garrison on edge and proving Ryell’s defenses are already adapting.",
+          "xpReward": 35,
+          "successNextEncounterId": "war-camp-tensions",
+          "failureNextEncounterId": "war-camp-tensions"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "war-camp-tensions",
+      "title": "Echoes Around the War Camp",
+      "description": "Word of Vael’s treachery spreads faster than Kaela can contain. Refugee banners huddle in silence, soldiers sharpen blades meant for allies, and mirrored messengers float above the tents listening for dissent. Before the council convenes, you can ground your team by hearing the people you’re trying to save.",
+      "type": "social",
+      "options": [
+        {
+          "id": "check-in-with-kaela",
+          "text": "Check in with Kaela before the council begins.",
+          "type": "continue",
+          "outcome": "Kaela confides that if any banner leaks this plan, the others will declare her a traitor. She needs you to gather leverage that even Vael cannot refute.",
+          "nextEncounterId": "war-camp-tensions",
+          "stayInEncounter": true
+        },
+        {
+          "id": "comfort-refugee",
+          "text": "Sit with the refugees displaced by the mirror forges.",
+          "type": "continue",
+          "outcome": "They describe how their villages vanished from scrying pools overnight and beg you to make the truth undeniable.",
+          "xpReward": 35,
+          "nextEncounterId": "council-prep"
+        },
+        {
+          "id": "challenge-envoy",
+          "text": "Confront a hawkish envoy who suspects Kaela of staging a coup.",
+          "type": "skill",
+          "skill": "Persuasion",
+          "ability": "Charisma",
+          "difficultyClass": 12,
+          "successOutcome": "You calm the envoy with glimpses of the forged ledgers, winning cautious support for whichever route you choose.",
+          "failureOutcome": "The envoy storms off to rally their banner, raising the stakes for failure inside the spire.",
+          "successNextEncounterId": "council-prep",
+          "failureNextEncounterId": "council-prep",
+          "xpReward": 45
+        },
+        {
+          "id": "intercept-mirror",
+          "text": "Intercept a mirrored messenger drifting toward Vael.",
+          "type": "skill",
+          "skill": "Arcana",
+          "ability": "Intelligence",
+          "difficultyClass": 13,
+          "successOutcome": "You snare the mirror sprite and glean that Ryell is querying every ward for your whereabouts.",
+          "failureOutcome": "The sprite slips free, projecting your face above the camp and forcing Kaela to rush the council meeting.",
+          "successNextEncounterId": "council-prep",
+          "failureNextEncounterId": "council-prep",
+          "xpReward": 45
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "council-prep",
+      "title": "Council of Unlikely Allies",
+      "description": "Envoys from every banner demand to know which infiltration plan you’ll lead. Kaela needs proof before accusing Vael, but if you hesitate the envoys will declare the strike a coup. Each route offers leverage to expose the mirror cabal without igniting war.",
+      "type": "social",
+      "options": [
+        {
+          "id": "question-envoys",
+          "text": "Ask the envoys why each route matters.",
+          "type": "continue",
+          "outcome": "The griffon-rider from the rookery warns that the pylons echo Vael’s decrees. The tunnel saboteur explains the forges were built with every banner’s gold. The masquerade herald whispers that nobles brag about erased towns between dances. All three ask you to repeat the \"Broken Prism\" passphrase so they know Kaela truly empowered you.",
+          "nextEncounterId": "council-prep",
+          "stayInEncounter": true
+        },
+        {
+          "id": "plan-skybridge",
+          "text": "Lead the skybridge assault from the rookery.",
+          "type": "continue",
+          "outcome": "Winged mounts are readied for a perilous glide toward the warded aerie where Vael stores the mirror pylons that rewrite testimony.",
+          "nextEncounterId": "skybridge-infiltration"
+        },
+        {
+          "id": "plan-underworks",
+          "text": "Slip through the steam tunnels beneath the spire.",
+          "type": "continue",
+          "outcome": "Saboteurs hand you maps of pipes, sluices, and forgotten catwalks that feed the mirror forges supplying Vael’s double agents.",
+          "nextEncounterId": "underworks-infiltration"
+        },
+        {
+          "id": "plan-masquerade",
+          "text": "Attend the mirror masquerade as honored guests.",
+          "type": "continue",
+          "outcome": "Tailors, heralds, and smugglers outfit you for a night of intrigue where the nobles who bankroll Vael’s plot brag about their sealed ledgers.",
+          "nextEncounterId": "masquerade-gala"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "skybridge-infiltration",
+      "title": "Skybridge Glide",
+      "description": "Wind howls across the crystal spans guarded by Vael’s sentry-rooks. One misstep sends you into the abyss and leaves Ryell free to finish the mirror nexus.",
+      "type": "skill",
+      "options": [
+        {
+          "id": "observe-wardlights",
+          "text": "Pause to study the wardlights and mirrored runes.",
+          "type": "continue",
+          "outcome": "You watch reflections ripple between pylons, each rune echoing council decrees in Vael’s own handwriting. Ryell bound the law itself to these bridges.",
+          "nextEncounterId": "skybridge-infiltration",
+          "stayInEncounter": true
+        },
+        {
+          "id": "hook-the-bridge",
+          "text": "Launch grappling hooks and sprint across the slick span.",
+          "type": "skill",
+          "skill": "Athletics",
+          "ability": "Strength",
+          "difficultyClass": 14,
+          "successOutcome": "You anchor the line and lead the squad across, spotting pylons inscribed with Vael’s courtroom decrees.",
+          "failureOutcome": "A hook slips, alarming the rookery and echoing Ryell’s mirrored chant down the span.",
+          "successNextEncounterId": "aerie-overlook",
+          "failureNextEncounterId": "skybridge-complication",
+          "xpReward": 70
+        },
+        {
+          "id": "elf-moonstep",
+          "text": "Elf: Moonstep along the wardlights.",
+          "type": "continue",
+          "requiresRace": "Elf",
+          "outcome": "The wardlights recognise your song, masking the assault.",
+          "xpReward": 70,
+          "nextEncounterId": "aerie-overlook"
+        },
+        {
+          "id": "ranger-eagles",
+          "text": "Ranger: Command the rookery eagles to create a diversion.",
+          "type": "continue",
+          "requiresClass": "Ranger",
+          "outcome": "Eagles screech through the skybridge, drawing sentries away.",
+          "xpReward": 70,
+          "nextEncounterId": "aerie-overlook"
+        },
+        {
+          "id": "halfling-crates",
+          "text": "Halfling: Ride spice crates ferried over pulley lines.",
+          "type": "continue",
+          "requiresRace": "Halfling",
+          "outcome": "You tuck into a crate and glide into the aerie kitchens unnoticed.",
+          "xpReward": 70,
+          "nextEncounterId": "aerie-overlook"
+        },
+        {
+          "id": "monk-wallrun",
+          "text": "Monk: Run along the vertical walls to bypass the gaps.",
+          "type": "continue",
+          "requiresClass": "Monk",
+          "outcome": "You sprint across the sheer crystal faces, defying gravity.",
+          "xpReward": 70,
+          "nextEncounterId": "aerie-overlook"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "skybridge-complication",
+      "title": "Sentinel Sweep",
+      "description": "Warded sentinels fan out after spotting the failed hook, repeating Vael’s accusations in mirrored chorus. You must silence them fast.",
+      "type": "combat",
+      "enemy": {
+        "name": "Ward Sentinels",
+        "armorClass": 13,
+        "hitPoints": 18,
+        "attackBonus": 4,
+        "damage": "1d8+1",
+        "xpReward": 80
+      },
+      "options": [
+        {
+          "id": "finish-sentinels",
+          "text": "Cut them down and regain the initiative.",
+          "type": "attack",
+          "outcome": "You dispatch the sentinels and race deeper into the aerie.",
+          "nextEncounterId": "aerie-overlook"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "aerie-overlook",
+      "title": "Warded Aerie",
+      "description": "Crystal pylons pulse above the council chamber, waiting to recast Vael’s lies as law. Disable them or let them misfire later.",
+      "type": "exploration",
+      "options": [
+        {
+          "id": "arcane-discharge",
+          "text": "Wizard: Redirect the energy into decoy mirrors.",
+          "type": "continue",
+          "requiresClass": "Wizard",
+          "outcome": "The pylons now answer to your gestures, granting an edge in the final chamber.",
+          "xpReward": 80,
+          "nextEncounterId": "mirror-heart"
+        },
+        {
+          "id": "fighter-anchors",
+          "text": "Fighter: Hammer in anchors to create cover for allies.",
+          "type": "continue",
+          "requiresClass": "Fighter",
+          "outcome": "Bolstered platforms will shield you during the confrontation.",
+          "xpReward": 70,
+          "nextEncounterId": "mirror-heart"
+        },
+        {
+          "id": "cleric-dispel",
+          "text": "Cleric: Appease the storm spirits bound to the pylons.",
+          "type": "continue",
+          "requiresClass": "Cleric",
+          "outcome": "The spirits agree to warn you if the cabal tries to flee.",
+          "xpReward": 70,
+          "nextEncounterId": "mirror-heart"
+        },
+        {
+          "id": "set-charges",
+          "text": "Plant alchemical charges to collapse the aerie later.",
+          "type": "skill",
+          "skill": "Sleight of Hand",
+          "ability": "Dexterity",
+          "difficultyClass": 13,
+          "successOutcome": "Charges are primed to blow on your signal.",
+          "failureOutcome": "A charge sputters loudly, alerting additional guards.",
+          "successNextEncounterId": "mirror-heart",
+          "failureNextEncounterId": "mirror-heart",
+          "xpReward": 75
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "underworks-infiltration",
+      "title": "Underworks Crawl",
+      "description": "Steam pipes hiss and glow beneath the spire. Smuggled mirror crates roll through here toward allied warfronts, and one valve wrong floods the tunnels with scalding brine.",
+      "type": "skill",
+      "options": [
+        {
+          "id": "hear-pipes",
+          "text": "Listen to the pipes for whispered orders.",
+          "type": "continue",
+          "outcome": "Steam carries the voices of foremen reading Vael’s requisitions aloud. Every blast of heat reminds you that the cabal is arming armies who think they’re receiving aid.",
+          "nextEncounterId": "underworks-infiltration",
+          "stayInEncounter": true
+        },
+        {
+          "id": "chart-valves",
+          "text": "Navigate using heat-scarred maps.",
+          "type": "skill",
+          "skill": "Survival",
+          "ability": "Wisdom",
+          "difficultyClass": 13,
+          "successOutcome": "You weave through dry sluices toward the forge and overhear engineers praising Vael for keeping the armies well fed.",
+          "failureOutcome": "A valve bursts, forcing you to reroute through hostile patrols who brag about Ryell’s new mirror supply lines.",
+          "successNextEncounterId": "ember-forge",
+          "failureNextEncounterId": "underworks-complication",
+          "xpReward": 70
+        },
+        {
+          "id": "dwarf-password",
+          "text": "Dwarf: Recite the mason’s passphrase etched into the support stones.",
+          "type": "continue",
+          "requiresRace": "Dwarf",
+          "outcome": "Maintenance doors unlock silently at your words.",
+          "xpReward": 70,
+          "nextEncounterId": "ember-forge"
+        },
+        {
+          "id": "rogue-shadow",
+          "text": "Rogue: Shadow the smugglers who use these tunnels.",
+          "type": "continue",
+          "requiresClass": "Rogue",
+          "outcome": "You tail smugglers carrying mirror shards and learn their drop sites.",
+          "xpReward": 70,
+          "nextEncounterId": "ember-forge"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "underworks-complication",
+      "title": "Boiling Interception",
+      "description": "A burst pipe showers steam while wardens close in, clutching requisition orders bearing Vael’s seal.",
+      "type": "skill",
+      "options": [
+        {
+          "id": "vent-pressure",
+          "text": "Force a vent to flood the hallway and escape.",
+          "type": "skill",
+          "skill": "Athletics",
+          "ability": "Strength",
+          "difficultyClass": 13,
+          "successOutcome": "The wardens shove through scalding water while you slip away with their stamped orders.",
+          "failureOutcome": "The valve jams; you’ll have to fight through the heat as their shouts echo Vael’s edicts.",
+          "successNextEncounterId": "ember-forge",
+          "failureNextEncounterId": "underworks-combat",
+          "xpReward": 60
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "underworks-combat",
+      "title": "Steam Tunnel Ambush",
+      "description": "The burst valve was a trap. Steam-warped constructs lurch from the walls, blocking your path to the forge.",
+      "type": "combat",
+      "enemy": {
+        "name": "Steam Sentinels",
+        "armorClass": 14,
+        "hitPoints": 20,
+        "attackBonus": 4,
+        "damage": "1d6+2",
+        "xpReward": 80
+      },
+      "options": [
+        {
+          "id": "defeat-constructs",
+          "text": "Smash the constructs and clear the path.",
+          "type": "attack",
+          "outcome": "You shatter the steam-powered cores and press on to the forge.",
+          "nextEncounterId": "ember-forge"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "ember-forge",
+      "title": "Ember Forge",
+      "description": "Deep beneath the spire, mirror crystals are tempered in lava wells before being shipped to foreign generals. Sabotage here can topple the cabal’s supply lines and prove Vael’s collusion.",
+      "type": "exploration",
+      "options": [
+        {
+          "id": "dragonborn-roar",
+          "text": "Dragonborn: Unleash a challenge roar to scatter the forge crew.",
+          "type": "continue",
+          "requiresRace": "Dragonborn",
+          "outcome": "Workers flee, leaving you free to sabotage the wells.",
+          "xpReward": 70,
+          "nextEncounterId": "mirror-heart"
+        },
+        {
+          "id": "barbarian-smash",
+          "text": "Barbarian: Smash the cooling vents with brute force.",
+          "type": "continue",
+          "requiresClass": "Barbarian",
+          "outcome": "You shatter the vents, causing the lava to cool and harden instantly.",
+          "xpReward": 70,
+          "nextEncounterId": "mirror-heart"
+        },
+        {
+          "id": "criminal-smugglers",
+          "text": "Criminal: Bribe smugglers to divert the mirror shipments.",
+          "type": "continue",
+          "requiresBackground": "Criminal",
+          "outcome": "They promise to mislabel cargo, starving the cabal of supplies.",
+          "grantsItemIds": [
+            "healing-potion"
+          ],
+          "xpReward": 70,
+          "nextEncounterId": "mirror-heart"
+        },
+        {
+          "id": "set-forge-runes",
+          "text": "Etch destabilizing runes into the crystal molds.",
+          "type": "skill",
+          "skill": "Arcana",
+          "ability": "Intelligence",
+          "difficultyClass": 14,
+          "successOutcome": "The molds will fracture at your signal.",
+          "failureOutcome": "A rune flares, summoning a molten guardian.",
+          "successNextEncounterId": "mirror-heart",
+          "failureNextEncounterId": "mirror-heart",
+          "xpReward": 80
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "masquerade-gala",
+      "title": "Mirror Masquerade",
+      "description": "Laughter echoes through mirrored halls while masked nobles toast Vael for keeping their trade routes open and quietly reference Ryell’s mirror ledger.",
+      "type": "social",
+      "options": [
+        {
+          "id": "mingle-gossip",
+          "text": "Mingle with nobles to hear the latest mirror gossip.",
+          "type": "continue",
+          "outcome": "Patrons brag about how Vael’s mirrors replaced inconvenient envoys and how Ryell can spin two contradictory proclamations at once.",
+          "nextEncounterId": "masquerade-gala",
+          "stayInEncounter": true
+        },
+        {
+          "id": "dance-of-lies",
+          "text": "Glide through the dance, eavesdropping on whispers.",
+          "type": "skill",
+          "skill": "Performance",
+          "ability": "Charisma",
+          "difficultyClass": 13,
+          "successOutcome": "You overhear the passphrase for the vault lifts along with gossip that Vael erased an entire envoy with mirror doubles.",
+          "failureOutcome": "A partner notices your distraction and questions you loudly about Kaela’s accusations.",
+          "successNextEncounterId": "gala-vault",
+          "failureNextEncounterId": "masquerade-complication",
+          "xpReward": 70
+        },
+        {
+          "id": "noble-pedigree",
+          "text": "Noble: Brandish your pedigree to command the heralds.",
+          "type": "continue",
+          "requiresBackground": "Noble",
+          "outcome": "Heralds usher you to the private gallery overlooking the vaults.",
+          "xpReward": 70,
+          "nextEncounterId": "gala-vault"
+        },
+        {
+          "id": "bard-distraction",
+          "text": "Bard: Perform a mesmerizing ballad to distract the room.",
+          "type": "continue",
+          "requiresClass": "Bard",
+          "outcome": "The guests are so captivated they don't notice your team slipping away.",
+          "xpReward": 70,
+          "nextEncounterId": "gala-vault"
+        },
+        {
+          "id": "acolyte-rites",
+          "text": "Acolyte: Bless the charity auction to win clergy support.",
+          "type": "continue",
+          "requiresBackground": "Acolyte",
+          "outcome": "Priests reveal a hidden service elevator.",
+          "xpReward": 65,
+          "nextEncounterId": "gala-vault"
+        },
+        {
+          "id": "sage-cipher",
+          "text": "Sage: Decode the mirrored toasts.",
+          "type": "continue",
+          "requiresBackground": "Sage",
+          "outcome": "Each toast maps to a lever combination for the vault floor.",
+          "xpReward": 65,
+          "nextEncounterId": "gala-vault"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "masquerade-complication",
+      "title": "Spotlight Interrogation",
+      "description": "A masked inquisitor drags you beneath a spotlight, accusing Kaela of treason in Vael’s name. Talk or trick your way out before they summon guards.",
+      "type": "skill",
+      "options": [
+        {
+          "id": "weave-cover",
+          "text": "Spin a convincing cover story.",
+          "type": "skill",
+          "skill": "Deception",
+          "ability": "Charisma",
+          "difficultyClass": 14,
+          "successOutcome": "The inquisitor applauds your wit and lets you go, muttering that Vael will not appreciate loose tongues.",
+          "failureOutcome": "They snap their fingers for enforcers who promise to inform Ryell.",
+          "successNextEncounterId": "gala-vault",
+          "failureNextEncounterId": "masquerade-combat",
+          "xpReward": 60
+        },
+        {
+          "id": "folkhero-rally",
+          "text": "Folk Hero: Rally the servants with a defiant toast.",
+          "type": "continue",
+          "requiresBackground": "Folk Hero",
+          "outcome": "Servants cheer, creating enough distraction for you to slip away.",
+          "xpReward": 60,
+          "nextEncounterId": "gala-vault"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "masquerade-combat",
+      "title": "Ballroom Brawl",
+      "description": "The inquisitor’s snap summons masked guards. You must silence them before they alert the entire gala.",
+      "type": "combat",
+      "enemy": {
+        "name": "Gala Guards",
+        "armorClass": 15,
+        "hitPoints": 22,
+        "attackBonus": 5,
+        "damage": "1d8+2",
+        "xpReward": 80
+      },
+      "options": [
+        {
+          "id": "defeat-guards",
+          "text": "Defeat the guards quietly.",
+          "type": "attack",
+          "outcome": "You knock out the guards and hide the bodies before entering the vault.",
+          "nextEncounterId": "gala-vault"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "gala-vault",
+      "title": "Gilded Vault",
+      "description": "You stand above the mirror vault, watching the cabal shunt incriminating evidence through portals and counting crates stamped with Vael’s seal.",
+      "type": "exploration",
+      "options": [
+        {
+          "id": "human-ledger",
+          "text": "Human: Cite the empire’s ledger laws to seize the vault.",
+          "type": "continue",
+          "requiresRace": "Human",
+          "outcome": "Clerks freeze, convinced an audit has arrived.",
+          "xpReward": 70,
+          "nextEncounterId": "mirror-heart"
+        },
+        {
+          "id": "wizard-stasis",
+          "text": "Suspend the vault in stasis to preserve proof.",
+          "type": "skill",
+          "skill": "Arcana",
+          "ability": "Intelligence",
+          "difficultyClass": 14,
+          "successOutcome": "Evidence hangs in midair, ready to be weaponized in council.",
+          "grantsItemIds": [
+            "healing-potion"
+          ],
+          "failureOutcome": "The stasis flickers, alerting the guards.",
+          "successNextEncounterId": "mirror-heart",
+          "failureNextEncounterId": "mirror-heart",
+          "xpReward": 80
+        },
+        {
+          "id": "dragonborn-duel",
+          "text": "Dragonborn: Challenge the chief steward to ritual combat over the vault keys.",
+          "type": "continue",
+          "requiresRace": "Dragonborn",
+          "outcome": "The steward yields the keys rather than lose face.",
+          "xpReward": 70,
+          "nextEncounterId": "mirror-heart"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "mirror-heart",
+      "title": "Mirror Heart Confrontation",
+      "description": "Councilor Vael and the unseen Archon Ryell appear amid towering mirrors while Kaela listens through a scrying focus. The intel you gathered sets the tone—show proof, trigger sabotage, or watch the council fall for Vael’s propaganda.",
+      "type": "social",
+      "options": [
+        {
+          "id": "question-vael-motive",
+          "text": "Demand to know why Vael risked civil war.",
+          "type": "continue",
+          "outcome": "Vael claims that unity through fear is better than endless skirmishes. They insist Ryell’s mirrors merely show people the endings they deserve.",
+          "nextEncounterId": "mirror-heart",
+          "stayInEncounter": true
+        },
+        {
+          "id": "probe-ryell",
+          "text": "Ask Ryell what they gain from the mirror nexus.",
+          "type": "continue",
+          "outcome": "Ryell admits the nexus lets them catalog every possible future. They hint that someone worse than Vael asked for the data, and only a new pact will keep the knowledge safe.",
+          "nextEncounterId": "mirror-heart",
+          "stayInEncounter": true
+        },
+        {
+          "id": "challenge-vael",
+          "text": "Challenge Vael publicly and demand their confession.",
+          "type": "continue",
+          "outcome": "Vael’s illusions ripple as you cite the betrayals you witnessed.",
+          "xpReward": 100,
+          "nextEncounterId": "council-reaction"
+        },
+        {
+          "id": "ally-with-ryell",
+          "text": "Hear Ryell’s plea and propose an alliance against darker threats.",
+          "type": "continue",
+          "outcome": "The Archon offers mirror schematics in exchange for discretion.",
+          "grantsItemIds": [
+            "gem"
+          ],
+          "xpReward": 100,
+          "nextEncounterId": "council-reaction"
+        },
+        {
+          "id": "trigger-aerie-pylons",
+          "text": "Detonate the aerie pylons to shatter Vael’s mirrors.",
+          "type": "continue",
+          "requiresVisitedEncounterId": "aerie-overlook",
+          "outcome": "Explosions rain shards, forcing the conspirators to their knees.",
+          "xpReward": 90,
+          "nextEncounterId": "council-reaction"
+        },
+        {
+          "id": "ignite-forge",
+          "text": "Ignite the sabotaged forge and threaten to collapse the spire’s supply lines.",
+          "type": "continue",
+          "requiresVisitedEncounterId": "ember-forge",
+          "outcome": "Cracks spread through the floor as Ryell begs for terms.",
+          "xpReward": 90,
+          "nextEncounterId": "council-reaction"
+        },
+        {
+          "id": "broadcast-gala",
+          "text": "Broadcast the vault evidence to the masquerade guests.",
+          "type": "continue",
+          "requiresVisitedEncounterId": "gala-vault",
+          "outcome": "Screens across the ballroom display Ryell’s orders, turning the crowd against them.",
+          "xpReward": 90,
+          "nextEncounterId": "council-reaction"
+        },
+        {
+          "id": "sage-network",
+          "text": "Sage: Decode the mirror nexus live, naming every conspirator.",
+          "type": "continue",
+          "requiresBackground": "Sage",
+          "outcome": "Holographic sigils point to every traitor still hiding in the city.",
+          "xpReward": 90,
+          "nextEncounterId": "council-reaction"
+        },
+        {
+          "id": "folkhero-call",
+          "text": "Folk Hero: Call to the crowds outside to storm the courtyard.",
+          "type": "continue",
+          "requiresBackground": "Folk Hero",
+          "outcome": "Chants thunder through the hall, cowing the council into surrender.",
+          "xpReward": 90,
+          "nextEncounterId": "council-reaction"
+        },
+        {
+          "id": "attack-vael",
+          "text": "Strike Vael down before they can speak.",
+          "type": "attack",
+          "outcome": "Vael retreats behind a wall of glass, summoning a construct to crush you.",
+          "nextEncounterId": "mirror-guard-combat"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "mirror-guard-combat",
+      "title": "The Mirror Guardian",
+      "description": "A towering construct of glass and steel steps from the mirror, its reflection showing your own death.",
+      "type": "combat",
+      "enemy": {
+        "name": "Mirror Construct",
+        "armorClass": 16,
+        "hitPoints": 35,
+        "attackBonus": 6,
+        "damage": "1d10+3",
+        "xpReward": 150
+      },
+      "options": [
+        {
+          "id": "shatter-construct",
+          "text": "Shatter the guardian.",
+          "type": "attack",
+          "outcome": "The construct explodes into harmless dust. Vael stands defenseless.",
+          "nextEncounterId": "council-reaction"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "council-reaction",
+      "title": "Council Reckoning",
+      "description": "With Vael exposed, envoys from every banner flood the mirror heart, demanding to see the proof promised in Kaela’s letter. The Silverwind passphrase echoes through the hall as scribes record every word.",
+      "type": "social",
+      "options": [
+        {
+          "id": "let-kaela-speak",
+          "text": "Let Kaela present the case to the envoys.",
+          "type": "continue",
+          "outcome": "Kaela recites the courier code and unfurls the ledgers, ensuring each banner signs the confession transcript.",
+          "xpReward": 40,
+          "nextEncounterId": "aftermath"
+        },
+        {
+          "id": "address-banners",
+          "text": "Address the banners yourself and display the proof.",
+          "type": "skill",
+          "skill": "Persuasion",
+          "ability": "Charisma",
+          "difficultyClass": 14,
+          "successOutcome": "Envoys pledge to honor the Broken Prism accord and await your recommendation.",
+          "failureOutcome": "Some envoys still glare, but Kaela steps in to keep them seated.",
+          "xpReward": 50,
+          "successNextEncounterId": "aftermath",
+          "failureNextEncounterId": "aftermath"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "aftermath",
+      "title": "Aftermath in the War Camp",
+      "description": "Back under Kaela’s pavilion, the envoys wait to hear whether Vael and Ryell were exposed. You decide how much of the mirror conspiracy to reveal—and how to wield the leverage you claimed.",
+      "type": "social",
+      "options": [
+        {
+          "id": "report-truth",
+          "text": "Deliver the full truth and prepare the council for upheaval.",
+          "type": "continue",
+          "outcome": "You remind Kaela of the promise stamped in her Silverwind letter. Together you present every scrap of proof, and she dispatches envoys to secure the spire while honoring her vow to keep the banners informed.",
+          "endsAdventure": true,
+          "xpReward": 60
+        },
+        {
+          "id": "conceal-secrets",
+          "text": "Conceal certain secrets to keep leverage for yourself.",
+          "type": "continue",
+          "outcome": "Instead of quoting the Silverwind oath, you slip a few mirrored fragments into your pack. Kaela notices but says nothing, assuming the courier code phrase no longer binds you.",
+          "grantsItemIds": [
+            "gold-coins"
+          ],
+          "endsAdventure": true,
+          "xpReward": 60
+        }
+      ],
+      "completed": false
+    }
+  ]
+}

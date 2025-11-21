@@ -1,0 +1,145 @@
+{
+  "races": [
+    {
+      "id": "human",
+      "name": "Human",
+      "description": "Humans are the most adaptable and ambitious people.",
+      "abilityScoreIncrease": {
+        "strength": 1,
+        "dexterity": 1,
+        "constitution": 1,
+        "intelligence": 1,
+        "wisdom": 1,
+        "charisma": 1
+      },
+      "traits": ["Versatile", "Extra Language", "Extra Skill Proficiency"]
+    },
+    {
+      "id": "elf",
+      "name": "Elf",
+      "description": "Elves are a magical people of otherworldly grace.",
+      "abilityScoreIncrease": {
+        "dexterity": 2
+      },
+      "traits": ["Darkvision", "Keen Senses", "Fey Ancestry", "Trance", "Elf Weapon Training"]
+    },
+    {
+      "id": "dwarf",
+      "name": "Dwarf",
+      "description": "Dwarves are a tough, tradition-abiding folk.",
+      "abilityScoreIncrease": {
+        "constitution": 2
+      },
+      "traits": ["Darkvision", "Dwarven Resilience", "Dwarven Combat Training", "Stonecunning"]
+    },
+    {
+      "id": "halfling",
+      "name": "Halfling",
+      "description": "Halflings are an affable and cheerful people.",
+      "abilityScoreIncrease": {
+        "dexterity": 2
+      },
+      "traits": ["Lucky", "Brave", "Halfling Nimbleness"]
+    },
+    {
+      "id": "dragonborn",
+      "name": "Dragonborn",
+      "description": "Dragonborn look like humanoid dragons.",
+      "abilityScoreIncrease": {
+        "strength": 2,
+        "charisma": 1
+      },
+      "traits": ["Draconic Ancestry", "Breath Weapon", "Damage Resistance"]
+    }
+  ],
+  "classes": [
+    {
+      "id": "fighter",
+      "name": "Fighter",
+      "description": "Masters of combat, fighters are versatile warriors.",
+      "hitDie": "d10",
+      "primaryAbility": "Strength or Dexterity",
+      "savingThrows": ["Strength", "Constitution"],
+      "features": ["Fighting Style", "Second Wind", "Action Surge", "Extra Attack"]
+    },
+    {
+      "id": "wizard",
+      "name": "Wizard",
+      "description": "Scholars of the arcane, wizards master magic through study.",
+      "hitDie": "d6",
+      "primaryAbility": "Intelligence",
+      "savingThrows": ["Intelligence", "Wisdom"],
+      "features": ["Spellcasting", "Arcane Recovery", "Spellbook", "Ritual Casting"]
+    },
+    {
+      "id": "cleric",
+      "name": "Cleric",
+      "description": "Divine agents of the gods, clerics channel divine power.",
+      "hitDie": "d8",
+      "primaryAbility": "Wisdom",
+      "savingThrows": ["Wisdom", "Charisma"],
+      "features": ["Spellcasting", "Divine Domain", "Channel Divinity", "Turn Undead"]
+    },
+    {
+      "id": "rogue",
+      "name": "Rogue",
+      "description": "Skilled and stealthy, rogues excel at sneaking and precision strikes.",
+      "hitDie": "d8",
+      "primaryAbility": "Dexterity",
+      "savingThrows": ["Dexterity", "Intelligence"],
+      "features": ["Expertise", "Sneak Attack", "Thieves' Cant", "Cunning Action"]
+    },
+    {
+      "id": "ranger",
+      "name": "Ranger",
+      "description": "Warriors of the wilderness, rangers are skilled trackers and hunters.",
+      "hitDie": "d10",
+      "primaryAbility": "Dexterity and Wisdom",
+      "savingThrows": ["Strength", "Dexterity"],
+      "features": ["Favored Enemy", "Natural Explorer", "Spellcasting", "Ranger Archetype"]
+    }
+  ],
+  "backgrounds": [
+    {
+      "id": "acolyte",
+      "name": "Acolyte",
+      "description": "You have spent your life in service to a temple.",
+      "skillProficiencies": ["Insight", "Religion"],
+      "languages": ["Two of your choice"],
+      "equipment": ["Holy symbol", "Prayer book", "5 sticks of incense", "Vestments", "Common clothes", "15 gp"]
+    },
+    {
+      "id": "criminal",
+      "name": "Criminal",
+      "description": "You are an experienced criminal with a history of breaking the law.",
+      "skillProficiencies": ["Deception", "Stealth"],
+      "languages": [],
+      "equipment": ["Crowbar", "Dark common clothes with hood", "15 gp"]
+    },
+    {
+      "id": "folk-hero",
+      "name": "Folk Hero",
+      "description": "You come from a humble social rank, but you are destined for so much more.",
+      "skillProficiencies": ["Animal Handling", "Survival"],
+      "languages": [],
+      "equipment": ["Artisan's tools", "Shovel", "Iron pot", "Common clothes", "10 gp"]
+    },
+    {
+      "id": "noble",
+      "name": "Noble",
+      "description": "You understand wealth, power, and privilege.",
+      "skillProficiencies": ["History", "Persuasion"],
+      "languages": ["One of your choice"],
+      "equipment": ["Fine clothes", "Signet ring", "Scroll of pedigree", "Purse with 25 gp"]
+    },
+    {
+      "id": "sage",
+      "name": "Sage",
+      "description": "You spent years learning the lore of the multiverse.",
+      "skillProficiencies": ["Arcana", "History"],
+      "languages": ["Two of your choice"],
+      "equipment": ["Bottle of black ink", "Quill", "Small knife", "Letter from a dead colleague", "Common clothes", "10 gp"]
+    }
+  ]
+}
+

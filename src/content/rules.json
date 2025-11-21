@@ -1,0 +1,83 @@
+[
+  {
+    "id": "ability-scores",
+    "title": "Ability Scores",
+    "description": "The six ability scores are Strength, Dexterity, Constitution, Intelligence, Wisdom, and Charisma.",
+    "category": "Core Mechanics",
+    "details": [
+      "Ability scores range from 1 to 20 for most characters",
+      "A score of 10 or 11 is average",
+      "Ability modifiers are calculated as (score - 10) / 2, rounded down",
+      "Strength affects melee attacks and carrying capacity",
+      "Dexterity affects armor class, initiative, and ranged attacks",
+      "Constitution affects hit points",
+      "Intelligence affects spellcasting for wizards and investigation checks",
+      "Wisdom affects perception, insight, and spellcasting for clerics and druids",
+      "Charisma affects social interactions and spellcasting for bards, sorcerers, and warlocks"
+    ]
+  },
+  {
+    "id": "saving-throws",
+    "title": "Saving Throws",
+    "description": "Saving throws are rolls made to resist harmful effects.",
+    "category": "Core Mechanics",
+    "details": [
+      "There are three types of saving throws: Strength, Dexterity, and Constitution (physical)",
+      "And Intelligence, Wisdom, and Charisma (mental)",
+      "You add your ability modifier and proficiency bonus (if proficient) to saving throws",
+      "A natural 20 on a saving throw always succeeds",
+      "A natural 1 on a saving throw always fails"
+    ]
+  },
+  {
+    "id": "skill-checks",
+    "title": "Skill Checks",
+    "description": "Skill checks determine success or failure of actions.",
+    "category": "Core Mechanics",
+    "details": [
+      "Roll a d20 and add your ability modifier",
+      "Add proficiency bonus if you're proficient in that skill",
+      "The DM sets the difficulty class (DC) for the check",
+      "Common DCs: Very Easy (5), Easy (10), Medium (15), Hard (20), Very Hard (25), Nearly Impossible (30)"
+    ]
+  },
+  {
+    "id": "combat-basics",
+    "title": "Combat Basics",
+    "description": "Combat is turn-based and uses rounds.",
+    "category": "Combat",
+    "details": [
+      "Each round represents 6 seconds of game time",
+      "Initiative determines turn order",
+      "On your turn, you can move and take one action",
+      "You can also take one bonus action and one reaction per round",
+      "Actions include: Attack, Cast a Spell, Dash, Disengage, Dodge, Help, Hide, Ready, Search, Use an Object"
+    ]
+  },
+  {
+    "id": "armor-class",
+    "title": "Armor Class (AC)",
+    "description": "Armor Class determines how hard you are to hit.",
+    "category": "Combat",
+    "details": [
+      "AC = 10 + Dexterity modifier (unarmored)",
+      "Armor provides base AC plus potential Dexterity modifier",
+      "Shields add +2 to AC",
+      "To hit a target, roll d20 + attack modifier >= target's AC"
+    ]
+  },
+  {
+    "id": "hit-points",
+    "title": "Hit Points",
+    "description": "Hit points represent your health and ability to avoid serious injury.",
+    "category": "Combat",
+    "details": [
+      "When you take damage, subtract it from your current hit points",
+      "At 0 hit points, you fall unconscious",
+      "You make death saving throws when at 0 hit points",
+      "Three successes stabilize you, three failures mean death",
+      "Healing restores hit points"
+    ]
+  }
+]
+

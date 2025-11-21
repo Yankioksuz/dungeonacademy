@@ -1,0 +1,15 @@
+{
+  "portraits": [
+    {"id": "human-m-01", "race": "human", "gender": "male", "name": "Knight of Dawn", "file": "human-m-01.png"},
+    {"id": "human-f-01", "race": "human", "gender": "female", "name": "Sunlit Envoy", "file": "human-f-01.png"},
+    {"id": "elf-m-01", "race": "elf", "gender": "male", "name": "Moonblade Scout", "file": "elf-m-01.png"},
+    {"id": "elf-f-01", "race": "elf", "gender": "female", "name": "Starlit Seer", "file": "elf-f-01.png"},
+    {"id": "dwarf-m-01", "race": "dwarf", "gender": "male", "name": "Stonewarden", "file": "dwarf-m-01.png"},
+    {"id": "dwarf-f-01", "race": "dwarf", "gender": "female", "name": "Forge Matron", "file": "dwarf-f-01.png"},
+    {"id": "halfling-m-01", "race": "halfling", "gender": "male", "name": "Market Trickster", "file": "halfling-m-01.png"},
+    {"id": "halfling-f-01", "race": "halfling", "gender": "female", "name": "Lucky Whisper", "file": "halfling-f-01.png"},
+    {"id": "dragonborn-m-01", "race": "dragonborn", "gender": "male", "name": "Crimson Herald", "file": "dragonborn-m-01.png"},
+    {"id": "dragonborn-f-01", "race": "dragonborn", "gender": "female", "name": "Azure Flame", "file": "dragonborn-f-01.png"},
+    {"id": "human-nb-01", "race": "human", "gender": "non-binary", "name": "Wayfarer", "file": "human-nb-01.png"}
+  ]
+}

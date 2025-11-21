@@ -1,0 +1,42 @@
+{
+  "races": {
+    "Versatile": "Humans gain +1 to all ability scores, making them adaptable to any class.",
+    "Extra Language": "You can speak, read, and write one additional language of your choice.",
+    "Extra Skill Proficiency": "You gain proficiency in one skill of your choice.",
+    "Darkvision": "You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light.",
+    "Keen Senses": "You have proficiency in the Perception skill.",
+    "Fey Ancestry": "You have advantage on saving throws against being charmed, and magic can't put you to sleep.",
+    "Trance": "Elves don't need to sleep. Instead, they meditate deeply for 4 hours a day.",
+    "Elf Weapon Training": "You have proficiency with the longsword, shortsword, shortbow, and longbow.",
+    "Dwarven Resilience": "You have advantage on saving throws against poison, and you have resistance against poison damage.",
+    "Dwarven Combat Training": "You have proficiency with the battleaxe, handaxe, light hammer, and warhammer.",
+    "Stonecunning": "Whenever you make an Intelligence (History) check related to the origin of stonework, you are considered proficient and add double your proficiency bonus.",
+    "Lucky": "When you roll a 1 on an attack roll, ability check, or saving throw, you can reroll the die and must use the new roll.",
+    "Brave": "You have advantage on saving throws against being frightened.",
+    "Halfling Nimbleness": "You can move through the space of any creature that is of a size larger than yours.",
+    "Draconic Ancestry": "You have draconic ancestry. Choose one type of dragon. Your breath weapon and damage resistance are determined by the dragon type.",
+    "Breath Weapon": "You can use your action to exhale destructive energy. Your draconic ancestry determines the size, shape, and damage type of the exhalation.",
+    "Damage Resistance": "You have resistance to the damage type associated with your draconic ancestry."
+  },
+  "classes": {
+    "Fighting Style": "You adopt a particular style of fighting as your specialty. Choose one fighting style option.",
+    "Second Wind": "You have a limited well of stamina that you can draw on to protect yourself from harm.",
+    "Action Surge": "You can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action.",
+    "Extra Attack": "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn.",
+    "Spellcasting": "As a student of arcane magic, you have a spellbook containing spells that show the first glimmerings of your true power.",
+    "Arcane Recovery": "You have learned to regain some of your magical energy by studying your spellbook.",
+    "Spellbook": "At 1st level, you have a spellbook containing six 1st-level wizard spells of your choice.",
+    "Ritual Casting": "You can cast a wizard spell as a ritual if that spell has the ritual tag and you have the spell in your spellbook.",
+    "Divine Domain": "Choose one domain related to your deity. Each domain is detailed at the end of the class description.",
+    "Channel Divinity": "At 2nd level, you gain the ability to channel divine energy directly from your deity.",
+    "Turn Undead": "As an action, you present your holy symbol and speak a prayer censuring the undead.",
+    "Expertise": "At 1st level, choose two of your skill proficiencies. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies.",
+    "Sneak Attack": "Beginning at 1st level, you know how to strike subtly and exploit a foe's distraction. Once per turn, you can deal extra damage to one creature you hit with an attack.",
+    "Thieves' Cant": "During your rogue training you learned thieves' cant, a secret mix of dialect, jargon, and code that allows you to hide messages in seemingly normal conversation.",
+    "Cunning Action": "Starting at 2nd level, your quick thinking and agility allow you to move and act quickly. You can take a bonus action on each of your turns.",
+    "Favored Enemy": "Beginning at 1st level, you have significant experience studying, tracking, hunting, and even talking to a certain type of enemy.",
+    "Natural Explorer": "You are particularly familiar with one type of natural environment and are adept at traveling and surviving in such regions.",
+    "Ranger Archetype": "At 3rd level, you choose an archetype that you strive to emulate."
+  }
+}
+

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "keen-observer",
+    "name": "Keen Observer",
+    "description": "Train your senses to spot hidden threats. Gain proficiency in Perception and advantage on checks to detect traps.",
+    "bonus": {
+      "type": "skill",
+      "value": "Perception"
+    }
+  },
+  {
+    "id": "battle-instinct",
+    "name": "Battle Instinct",
+    "description": "Years of drills let you react faster. Gain +1 to initiative rolls and a once-per-combat reroll on a missed attack.",
+    "bonus": {
+      "type": "combat",
+      "value": "Initiative+1"
+    }
+  },
+  {
+    "id": "silver-tongue",
+    "name": "Silver Tongue",
+    "description": "Words can be sharper than blades. Gain proficiency in Persuasion and advantage on social checks after a successful negotiation.",
+    "bonus": {
+      "type": "social",
+      "value": "Persuasion"
+    }
+  }
+]

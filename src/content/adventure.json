@@ -1,0 +1,1140 @@
+{
+  "id": "tutorial-adventure",
+  "title": "The First Quest",
+  "description": "A beginner-friendly adventure to learn the basics of D&D gameplay",
+  "encounters": [
+    {
+      "id": "intro",
+      "title": "Welcome to Your First Adventure",
+      "description": "You stand at the edge of Oakhaven, a village nestled in the shadow of the Whispering Woods. The sun dips below the horizon, casting long shadows across the cobblestone path. Warm light spills from cottage windows, but the usual cheerful sounds of evening are absent. A tense silence hangs in the air. Notice the Inventory button at the top - you'll need to manage your gear to survive what lies ahead!",
+      "type": "tutorial",
+      "tutorial": {
+        "title": "Adventure Basics",
+        "content": "In D&D, you'll explore the world, make choices, and interact with the story. Each situation you encounter is called an 'encounter'. You'll make decisions that affect what happens next! You can also manage your inventory, equipment, and items you find along the way.",
+        "concept": "Adventure Structure"
+      },
+      "options": [
+        {
+          "id": "enter-village",
+          "text": "Enter the village",
+          "type": "continue",
+          "outcome": "You walk confidently into the village, ready to begin your adventure.",
+          "nextEncounterId": "village-square"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "village-square",
+      "title": "The Village Square",
+      "description": "The village square is bustling with activity. You see a notice board with a quest posted, a merchant selling supplies, and a guard patrolling the area. A worried-looking farmer is also standing nearby.",
+      "type": "exploration",
+      "options": [
+        {
+          "id": "read-notice",
+          "text": "Read the notice board",
+          "type": "continue",
+          "outcome": "The notice reads: 'Goblins have been stealing from our farms! Reward offered for their capture.' You can now explore the square and talk to the villagers to learn more.",
+          "nextEncounterId": "village-square"
+        },
+        {
+          "id": "talk-merchant",
+          "text": "Talk to the merchant about supplies",
+          "repeatText": "Talk to the merchant again",
+          "type": "social",
+          "outcome": "The merchant greets you warmly. 'Looking for supplies, traveler? I've got healing potions and rope if you need them.'",
+          "nextEncounterId": "merchant-dialogue"
+        },
+        {
+          "id": "talk-guard",
+          "text": "Ask the guard about the situation",
+          "repeatText": "Check in with the guard again",
+          "type": "social",
+          "outcome": "The guard looks tired. 'We've had our hands full with these goblin raids. They're getting bolder every night.'",
+          "nextEncounterId": "guard-dialogue"
+        },
+        {
+          "id": "talk-farmer",
+          "text": "Approach the worried farmer",
+          "repeatText": "Check on the worried farmer again",
+          "type": "social",
+          "outcome": "The farmer looks relieved to see you. 'Please, adventurer, we need help!'",
+          "nextEncounterId": "talk-to-farmer"
+        }
+      ],
+      "completed": false,
+      "repeatable": true
+    },
+    {
+      "id": "merchant-dialogue",
+      "title": "Conversation with Pip the Merchant",
+      "description": "The merchant, a friendly halfling named Pip, gestures energetically to his wares with entrepreneurial enthusiasm. 'Welcome, welcome! You look like an adventurer! These goblins have been bad for business - nobody wants to travel the roads anymore. But you... you have the look of someone who can fix problems!'",
+      "type": "social",
+      "tutorial": {
+        "title": "Social Interactions",
+        "content": "In D&D, how you interact with NPCs matters! You can be friendly, intimidating, persuasive, or deceptive. Your Charisma-based skills help with these interactions. NPCs may also react to your race, class, and background! Pay attention to personality - Pip is chatty and business-minded, while Thora is gruff and militaristic.",
+        "concept": "Roleplay"
+      },
+      "options": [
+        {
+          "id": "ask-about-goblins",
+          "text": "\"What can you tell me about these goblins?\"",
+          "type": "continue",
+          "outcome": "Pip leans in conspiratorially, glancing around. 'Between you and me? They come from the old ruins to the east - you know, the ancient elven watchtower. Very organized for goblins, if you ask me. Almost like someone's leading them. And goblins usually HATE elven places - too spooky for them. So what changed?'",
+          "nextEncounterId": "village-square-return",
+          "stayInEncounter": true
+        },
+        {
+          "id": "buy-supplies",
+          "text": "\"I'd like to buy a healing potion.\"",
+          "type": "continue",
+          "outcome": "Pip's face lights up. 'Now we're talking! You know what, I like your initiative.' He hands you a small red potion. 'On the house! Consider it an investment in our village's safety. Plus, if you survive, you'll need more supplies later!' He winks. 'Good business sense, see?'",
+          "nextEncounterId": "village-square-return",
+          "stayInEncounter": true,
+          "grantsItemIds": [
+            "healing-potion"
+          ]
+        },
+        {
+          "id": "persuade-info",
+          "text": "[Persuasion] \"Any insider advice for dealing with goblins?\"",
+          "type": "skill",
+          "skill": "Persuasion",
+          "outcome": "Pip appreciates your direct approach. He lowers his voice like he's sharing trade secrets. 'Alright, here's what I know from traveling: Goblins are cowards at heart. Show real strength and they'll scatter like rats. But watch out for traps - they LOVE those. Oh, and fire! Goblins hate fire. Makes 'em panic.'",
+          "nextEncounterId": "merchant-dialogue",
+          "stayInEncounter": true
+        },
+        {
+          "id": "halfling-kinship",
+          "text": "[Halfling] \"As one halfling to another, what do you really think?\"",
+          "type": "continue",
+          "outcome": "Pip's expression changes instantly, becoming serious. He steps closer. 'A fellow halfling! Listen, friend - I've traveled enough to know normal goblin behavior. This? This ain't it. These goblins are TOO organized, too disciplined. Something or someone is controlling them. Watch your back out there, and trust your luck.' He pats his own lucky coin.",
+          "nextEncounterId": "village-square-return",
+          "requiresRace": "Halfling",
+          "stayInEncounter": true
+        },
+        {
+          "id": "wizard-arcana",
+          "text": "[Wizard] \"Have you noticed any magical disturbances?\"",
+          "type": "continue",
+          "outcome": "Pip's eyes widen with respect at your arcane bearing. 'A wizard! Oh, yes, you'd want to know about this. There's been strange lights near the ruins at night - blue and green flashes, pulsing in patterns. Definitely not normal. And I swear I felt the air crackle with energy when I passed by three days ago. Made my hair stand on end!'",
+          "nextEncounterId": "village-square-return",
+          "requiresClass": "Wizard",
+          "stayInEncounter": true
+        },
+        {
+          "id": "merchant-background",
+          "text": "[Guild Artisan/Merchant] \"One merchant to another - what's the real cost here?\"",
+          "type": "continue",
+          "outcome": "Pip's face becomes grave. 'Ah, you understand trade. The truth? This village will be economically ruined if this continues. Three farms hit means no harvest. No harvest means no trade. No trade means... well, ghost town by spring. The human cost is tragic, yes, but the economic domino effect will devastate everyone. We NEED this stopped.'",
+          "nextEncounterId": "village-square-return",
+          "requiresBackground": "Guild Artisan",
+          "stayInEncounter": true
+        },
+        {
+          "id": "leave-merchant",
+          "text": "\"Thanks, Pip. I should check on the others.\"",
+          "type": "continue",
+          "outcome": "Pip gives an understanding nod. 'Of course! Talk to whoever you need. I'll be right here if you think of more questions.'",
+          "nextEncounterId": "village-square-return",
+          "isExitOption": true
+        }
+      ],
+      "skillCheck": {
+        "skill": "Persuasion",
+        "difficultyClass": 10,
+        "ability": "Charisma",
+        "success": "Pip lights up at your friendly manner! 'You know what? I like you! Here's a merchant secret: I've been trading for twenty years, and I've learned goblins are predictable. They always post sentries on the north side of camps - it's cultural or something. So if you approach from the south, you'll have the element of surprise. Also...' He reaches under his counter. 'Take this extra rope. Free of charge!'",
+        "failure": "Pip remains friendly and talkative, but keeps the conversation surface-level. Business is business, after all.",
+        "rewardItemIds": [
+          "adventurers-rope"
+        ]
+      },
+      "completed": false,
+      "repeatable": true
+    },
+    {
+      "id": "village-square-return",
+      "title": "Back in the Village Square",
+      "description": "You've gathered some information. The village square is still bustling. You can talk to more people to learn more, or seek out the farmer who needs help.",
+      "type": "exploration",
+      "options": [
+        {
+          "id": "talk-more-merchant",
+          "text": "Talk to Pip the merchant",
+          "repeatText": "Talk to Pip the merchant again",
+          "type": "social",
+          "outcome": "You return to Pip, who waves cheerfully as you approach.",
+          "nextEncounterId": "merchant-dialogue-return",
+          "firstTimeEncounterId": "merchant-dialogue"
+        },
+        {
+          "id": "talk-more-guard",
+          "text": "Talk to Thora the guard",
+          "repeatText": "Talk to Thora the guard again",
+          "type": "social",
+          "outcome": "Thora nods in recognition as you approach.",
+          "nextEncounterId": "guard-dialogue-return",
+          "firstTimeEncounterId": "guard-dialogue"
+        },
+        {
+          "id": "read-notice-again",
+          "text": "Check the notice board",
+          "type": "continue",
+          "outcome": "The notice still reads: 'Goblins have been stealing from our farms! Reward offered for their capture.' Below it, someone has scrawled: 'Ruins to the east - DANGEROUS!'",
+          "nextEncounterId": "village-square-return"
+        },
+        {
+          "id": "find-farmer",
+          "text": "Find the worried farmer to help",
+          "repeatText": "Find the worried farmer again",
+          "type": "continue",
+          "outcome": "You decide to seek out the farmer and offer your aid.",
+          "nextEncounterId": "talk-to-farmer"
+        },
+        {
+          "id": "head-to-farms",
+          "text": "Head toward the farms (Quest Accepted)",
+          "type": "continue",
+          "outcome": "You leave the village square and head toward the farms where the goblins were last seen.",
+          "nextEncounterId": "skill-check-path",
+          "requiresVisitedEncounterId": "quest-accept"
+        }
+      ],
+      "completed": false,
+      "repeatable": true
+    },
+    {
+      "id": "merchant-dialogue-return",
+      "title": "Pip the Merchant - Follow-up",
+      "description": "Pip smiles warmly. 'Back again? I've been thinking about what you asked. Let me share something else...'",
+      "type": "social",
+      "options": [
+        {
+          "id": "ask-about-ruins",
+          "text": "\"Tell me more about those ruins you mentioned.\"",
+          "type": "continue",
+          "outcome": "Pip's expression darkens. 'Ah, the old elven watchtower. Abandoned centuries ago. Strange thing is, goblins usually avoid elven ruins - they're superstitious. Something's drawing them there.'",
+          "nextEncounterId": "village-square-return",
+          "stayInEncounter": true
+        },
+        {
+          "id": "ask-other-npcs",
+          "text": "\"Has anyone else reported seeing these goblins?\"",
+          "type": "continue",
+          "outcome": "Pip nods vigorously. 'Oh yes! Talk to Thora - she's been tracking their patterns. And old Eldred, the farmer - his daughter actually saw them up close. Brave girl, that Mara.'",
+          "nextEncounterId": "village-square-return",
+          "stayInEncounter": true
+        },
+        {
+          "id": "buy-more-supplies",
+          "text": "\"Do you have any other supplies that might help?\"",
+          "type": "continue",
+          "outcome": "Pip rummages through his pack. 'I've got rope - goblins hate being tied up! And this torch oil burns nice and bright. Goblins have sensitive eyes, you know.'",
+          "nextEncounterId": "village-square-return",
+          "stayInEncounter": true,
+          "grantsItemIds": [
+            "adventurers-rope",
+            "torch-oil"
+          ]
+        },
+        {
+          "id": "criminal-contact",
+          "text": "[Criminal] \"Any... unofficial information about the area?\"",
+          "type": "continue",
+          "outcome": "Pip glances around and whispers. 'Ah, one who knows the game! There's a hidden entrance to the ruins - south side, behind the collapsed wall. The goblins don't guard it well.'",
+          "nextEncounterId": "village-square-return",
+          "requiresBackground": "Criminal",
+          "stayInEncounter": true
+        },
+        {
+          "id": "done-talking-merchant",
+          "text": "\"Thanks for the information.\"",
+          "type": "continue",
+          "outcome": "Pip gives you a thumbs up. 'May the road rise to meet you, friend! And if you find any interesting loot, I'm always buying!'",
+          "nextEncounterId": "village-square-return",
+          "isExitOption": true
+        }
+      ],
+      "completed": false,
+      "repeatable": true
+    },
+    {
+      "id": "guard-dialogue-return",
+      "title": "Thora the Guard - Follow-up",
+      "description": "Thora straightens up. 'You're still here? Good. Shows you're serious. What else do you need to know?'",
+      "type": "social",
+      "options": [
+        {
+          "id": "ask-attack-patterns",
+          "text": "\"You mentioned they're organized. What patterns have you noticed?\"",
+          "type": "continue",
+          "outcome": "Thora pulls out a worn map. 'They hit three farms in as many nights - always just after midnight, always from the east. They steal food and tools, but never weapons. That tells me they're provisioning for something bigger.'",
+          "nextEncounterId": "village-square-return",
+          "stayInEncounter": true
+        },
+        {
+          "id": "ask-backup",
+          "text": "\"Why aren't you going after them yourself?\"",
+          "type": "continue",
+          "outcome": "Thora's jaw tightens. 'I'm the only guard left. The others went to the capital for the midsummer festival. Typical timing. I can't leave the village undefended, so I'm stuck waiting for help. Which is why I'm glad you're here.'",
+          "nextEncounterId": "village-square-return",
+          "stayInEncounter": true
+        },
+        {
+          "id": "tactical-advice",
+          "text": "\"Any tactical advice for approaching the ruins?\"",
+          "type": "continue",
+          "outcome": "Thora nods approvingly. 'Smart to ask. Goblins post sentries but they're lazy. Circle around to the south - there's less cover but fewer guards. And whatever you do, don't let them surround you. They fight dirty.'",
+          "nextEncounterId": "village-square-return",
+          "stayInEncounter": true
+        },
+        {
+          "id": "ranger-tracking",
+          "text": "[Ranger] \"I could track them back to their lair. Have you seen their trail?\"",
+          "type": "continue",
+          "outcome": "Thora's eyes light up. 'A tracker! Perfect. Yes, their trail leads east toward the ruins. Look for broken branches about three feet high - goblin height. They're not careful about covering their tracks.'",
+          "nextEncounterId": "village-square-return",
+          "requiresClass": "Ranger",
+          "stayInEncounter": true
+        },
+        {
+          "id": "cleric-bless",
+          "text": "[Cleric] \"May I offer you a blessing before I go?\"",
+          "type": "continue",
+          "outcome": "Thora looks touched. 'A blessing? I... thank you. My deity appreciates your service, and so do I. Here, take this - my lucky shield emblem. May it protect you as it has protected me.'",
+          "nextEncounterId": "village-square-return",
+          "requiresClass": "Cleric",
+          "stayInEncounter": true,
+          "grantsItemIds": [
+            "lucky-shield-emblem"
+          ]
+        },
+        {
+          "id": "done-talking-guard",
+          "text": "\"I have what I need. I'll handle this.\"",
+          "type": "continue",
+          "outcome": "Thora salutes you. 'Good hunting. Return victorious, and the first round at the tavern is on me!'",
+          "nextEncounterId": "village-square-return",
+          "isExitOption": true
+        }
+      ],
+      "completed": false,
+      "repeatable": true
+    },
+    {
+      "id": "guard-dialogue",
+      "title": "Conversation with Thora the Guard",
+      "description": "The guard, a battle-scarred dwarf named Thora, sizes you up with professional assessment. Her hand rests casually on her axe handle, and her stance suggests years of military training. 'You look capable enough. Are you here to help, or just another tourist gawking at our misery?'",
+      "type": "social",
+      "options": [
+        {
+          "id": "offer-help",
+          "text": "\"I'm here to help. Give me a tactical briefing.\"",
+          "type": "continue",
+          "outcome": "Thora's expression softens slightly with approval. 'Finally, someone who talks sense. Right. The goblins have been raiding for three nights - always between midnight and two bells. Always hit-and-run. Precision strikes on the most vulnerable farms. This isn't opportunistic raiding. This is planned, coordinated warfare on a small scale.'",
+          "nextEncounterId": "village-square-return",
+          "stayInEncounter": true
+        },
+        {
+          "id": "intimidate-info",
+          "text": "[Intimidation] \"I'll handle these goblins. Just point me in the right direction.\"",
+          "type": "skill",
+          "skill": "Intimidation",
+          "outcome": "Thora doesn't flinch, but studies you carefully. Her warrior's eye assesses your bearing, your equipment, your confidence.",
+          "nextEncounterId": "guard-dialogue",
+          "stayInEncounter": true
+        },
+        {
+          "id": "ask-tactics",
+          "text": "\"What's your tactical assessment of their operations?\"",
+          "type": "continue",
+          "outcome": "Thora's eyes light up - she appreciates the military phrasing. 'Smart question. They're executing textbook raid tactics: hit the farms on the outskirts - minimal defenders. Steal food and tools - provisioning. Always escape east - known egress route. Someone with real combat training is commanding them. Not your average goblin boss.'",
+          "nextEncounterId": "village-square-return",
+          "stayInEncounter": true
+        },
+        {
+          "id": "dwarf-solidarity",
+          "text": "[Dwarf] \"Cousin! What's your assessment from one dwarf to another?\"",
+          "type": "continue",
+          "outcome": "Thora's stern face breaks into a genuine grin. She grasps your forearm in the traditional dwarven greeting. 'Ha! Kin! Good to see another stout heart. Alright, straight talk: they've fortified the ruins. Definitely traps - goblins love their traps. My advice? Go in hard and fast like our ancestors taught us. Overwhelming force, no mercy. That's the dwarven way!'",
+          "nextEncounterId": "village-square-return",
+          "requiresRace": "Dwarf",
+          "stayInEncounter": true
+        },
+        {
+          "id": "fighter-tactics",
+          "text": "[Fighter] \"As one warrior to another, how would you handle this?\"",
+          "type": "continue",
+          "outcome": "Thora eyes your weapons and armor with obvious respect. 'A fellow warrior - and properly equipped too. Listen, I'd go with you myself, but I'm the only guard left. Damn midsummer festival.' She pauses. 'My tactical recommendation: dawn assault. They'll be drowsy. Use standard ambush doctrine - cut off their retreat, then squeeze. And keep your shield up - these ones actually aim.'",
+          "nextEncounterId": "village-square-return",
+          "requiresClass": "Fighter",
+          "stayInEncounter": true
+        },
+        {
+          "id": "soldier-background",
+          "text": "[Soldier] \"This has all the marks of military-style raids. What unit did you serve with?\"",
+          "type": "continue",
+          "outcome": "Thora stands straighter, respect evident in her eyes. 'You've seen service! Iron Guard, Third Regiment. And yes - you've spotted it exactly. This isn't normal goblin behavior. Someone with real military training is commanding them. They're using proper reconnaissance, hit-and-run tactics, even maintaining operational security. Watch yourself out there, soldier. Whoever's leading them knows what they're doing.'",
+          "nextEncounterId": "village-square-return",
+          "requiresBackground": "Soldier",
+          "stayInEncounter": true
+        },
+        {
+          "id": "ranger-tracking",
+          "text": "[Ranger] \"I'm a tracker. What signs should I look for?\"",
+          "type": "continue",
+          "outcome": "Thora nods with satisfaction. 'A ranger! Perfect. Their tracks lead east every time - they're not even trying to cover them. Broken branches at goblin height, small footprints in pairs. But here's the interesting bit: there's also one set of larger prints, deeper. Someone bigger is with them, or they're carrying something heavy.'",
+          "nextEncounterId": "village-square-return",
+          "requiresClass": "Ranger",
+          "stayInEncounter": true
+        },
+        {
+          "id": "done-talking-guard-initial",
+          "text": "\"That's enough for now. I'll regroup.\"",
+          "type": "continue",
+          "outcome": "Thora nods crisply. 'Understood. Report back if you learn anything new.'",
+          "nextEncounterId": "village-square-return",
+          "isExitOption": true
+        }
+      ],
+      "skillCheck": {
+        "skill": "Intimidation",
+        "difficultyClass": 12,
+        "ability": "Charisma",
+        "success": "Thora evaluates you with a warrior's eye and gives a curt nod of respect. 'You've got the bearing of someone who's walked through fire and come out tempered. Alright, here's useful intel: the goblins fear fire. Their leader tried to hide it, but when our blacksmith's forge flared during a raid, they scattered like roaches. Use that.'",
+        "failure": "Thora's expression remains neutral, professional but distant. 'Confidence is good. Overconfidence gets you killed. Prove yourself out there first.'"
+      },
+      "completed": false,
+      "repeatable": true
+    },
+    {
+      "id": "talk-to-farmer",
+      "title": "The Farmer's Plea",
+      "description": "The farmer, an elderly human named Eldred, clutches his hat nervously. 'My daughter saw them last night - goblins, at least six of them! They took our whole harvest. We'll starve this winter if someone doesn't stop them!'",
+      "type": "social",
+      "options": [
+        {
+          "id": "comfort-farmer",
+          "text": "\"Don't worry, I'll get your harvest back.\"",
+          "type": "continue",
+          "outcome": "Eldred's face lights up with hope. 'Bless you! My daughter Mara saw them clearly. Please, speak with her - she's right here.'",
+          "nextEncounterId": "daughter-dialogue"
+        },
+        {
+          "id": "ask-daughter",
+          "text": "\"Can I speak with your daughter? She might have useful information.\"",
+          "type": "continue",
+          "outcome": "Eldred nods eagerly. 'Of course! She's brave, that one. She'll tell you everything she saw.'",
+          "nextEncounterId": "daughter-dialogue"
+        },
+        {
+          "id": "ask-reward",
+          "text": "\"What's in it for me?\"",
+          "type": "continue",
+          "outcome": "Eldred looks disappointed but desperate. 'I... I don't have much. But the village will surely offer a reward! My daughter Mara saw everything, please ask her.'",
+          "nextEncounterId": "daughter-dialogue"
+        },
+        {
+          "id": "mention-pip",
+          "text": "\"Pip the merchant mentioned you've been hit hard.\"",
+          "type": "continue",
+          "outcome": "Eldred nods gratefully. 'Pip's a good soul. Gave us food when we had nothing. These goblins... they took everything. Our grain, our tools, even Mara's lucky charm. She's heartbroken.'",
+          "nextEncounterId": "daughter-dialogue",
+          "requiresVisitedEncounterId": "merchant-dialogue"
+        },
+        {
+          "id": "mention-thora",
+          "text": "\"Thora said you were the worst hit. Tell me what happened.\"",
+          "type": "continue",
+          "outcome": "Eldred's hands shake. 'They came just after midnight. Mara heard them first - she always was sharp. By the time I got outside, they were already loading our grain onto their backs. Six of them, moving like a trained unit. Not like any goblins I've heard of.'",
+          "nextEncounterId": "daughter-dialogue",
+          "requiresVisitedEncounterId": "guard-dialogue"
+        }
+      ],
+      "completed": false,
+      "repeatable": true
+    },
+    {
+      "id": "daughter-dialogue",
+      "title": "The Farmer's Daughter",
+      "description": "A young woman with determined eyes approaches. 'I'm Mara. I saw the goblins clearly - there were six of them, led by one with a skull painted on its face. They headed toward the old ruins.'",
+      "type": "social",
+      "tutorial": {
+        "title": "Gathering Information",
+        "content": "Talking to NPCs before a quest can give you valuable information! Pay attention to details - they might help you later. Notice how Mara provides specific, tactical information that could be useful in your quest!",
+        "concept": "Investigation"
+      },
+      "options": [
+        {
+          "id": "ask-details",
+          "text": "\"Tell me everything you remember about the leader.\"",
+          "type": "continue",
+          "outcome": "Mara thinks carefully. 'The leader was different - wore leather armor, not rags. It shouted orders in Common, not just goblin-speak. Very unusual. And it carried a curved blade that glinted in the moonlight - definitely not goblin craftsmanship.'",
+          "nextEncounterId": "daughter-dialogue",
+          "stayInEncounter": true
+        },
+        {
+          "id": "insight-check",
+          "text": "[Insight] Try to read if she's hiding something",
+          "type": "skill",
+          "skill": "Insight",
+          "outcome": "You study Mara's expression carefully...",
+          "nextEncounterId": "daughter-dialogue",
+          "stayInEncounter": true
+        },
+        {
+          "id": "ask-tactics",
+          "text": "\"How did they move? What was their formation?\"",
+          "type": "continue",
+          "outcome": "Mara's eyes widen with respect. 'You've got a tactical mind! They moved in pairs - two on lookout, two carrying loot, two ready to fight. When I accidentally knocked over a bucket, they reacted instantly, forming a defensive circle. These weren't ordinary raiders.'",
+          "nextEncounterId": "daughter-dialogue",
+          "stayInEncounter": true
+        },
+        {
+          "id": "thank-her",
+          "text": "\"Thank you for the information. Stay safe.\"",
+          "type": "continue",
+          "outcome": "Mara grasps your arm. 'Wait - take this.' She hands you a small silver charm. 'It's my lucky piece. The goblins dropped it when they fled. Maybe it'll bring you luck too. And... please, get our harvest back. We have nothing without it.'",
+          "nextEncounterId": "quest-accept",
+          "grantsItemIds": [
+            "silver-luck-charm"
+          ]
+        },
+        {
+          "id": "elf-perception",
+          "text": "[Elf] \"Your keen eyes might have noticed something others missed...\"",
+          "type": "continue",
+          "outcome": "Mara looks relieved. 'Yes! You understand. The leader had pointed ears - not like a goblin. More like... well, like yours. But twisted somehow, corrupted. And its eyes... they glowed faintly red. I didn't want to say and sound crazy, but you'd believe me.'",
+          "nextEncounterId": "daughter-dialogue",
+          "requiresRace": "Elf",
+          "stayInEncounter": true
+        },
+        {
+          "id": "rogue-streetwise",
+          "text": "[Rogue] \"I know the signs of an organized operation when I see one.\"",
+          "type": "continue",
+          "outcome": "Mara leans in conspiratorially. 'Exactly! This wasn't random. They knew which farms to hit, avoided the dogs, worked in perfect coordination. They even had signals - three clicks meant retreat, two meant advance. Someone with real experience is commanding them.'",
+          "nextEncounterId": "daughter-dialogue",
+          "requiresClass": "Rogue",
+          "stayInEncounter": true
+        },
+        {
+          "id": "dragonborn-intimidate",
+          "text": "[Dragonborn] \"Did they seem afraid of anything specific?\"",
+          "type": "continue",
+          "outcome": "Mara pauses thoughtfully. 'Now that you mention it... when our dog barked, they didn't flinch. But when thunder rumbled in the distance, they all looked up nervously. And the leader hissed something about 'the sky watcher.' Strange, right?'",
+          "nextEncounterId": "daughter-dialogue",
+          "requiresRace": "Dragonborn",
+          "stayInEncounter": true
+        },
+        {
+          "id": "mention-pip-info",
+          "text": "\"Pip mentioned the ruins are elven. Did you notice anything about that?\"",
+          "type": "continue",
+          "outcome": "Mara's expression brightens. 'Yes! That's what's so strange. My grandmother told me stories about those ruins - goblins were supposed to fear them. But these ones seemed drawn to them, almost like they were... called there.'",
+          "nextEncounterId": "daughter-dialogue",
+          "stayInEncounter": true,
+          "requiresVisitedEncounterId": "merchant-dialogue"
+        },
+        {
+          "id": "mention-thora-tactics",
+          "text": "\"Thora mentioned they hit multiple farms. Were they looking for something specific?\"",
+          "type": "continue",
+          "outcome": "Mara nods vigorously. 'I thought about that too! They took grain and tools, yes, but they also ransacked father's study. They were searching through his old maps and books. Why would goblins care about maps?'",
+          "nextEncounterId": "daughter-dialogue",
+          "stayInEncounter": true,
+          "requiresVisitedEncounterId": "guard-dialogue"
+        },
+        {
+          "id": "criminal-background",
+          "text": "[Criminal] \"This sounds like a gang operation, not random raids.\"",
+          "type": "continue",
+          "outcome": "Mara's eyes widen. 'Yes! They even had signals - whistles and bird calls. It reminded me of... well, organized crime back in the city. Professional, coordinated, ruthless.'",
+          "nextEncounterId": "daughter-dialogue",
+          "requiresBackground": "Criminal",
+          "stayInEncounter": true
+        },
+        {
+          "id": "leave-mara",
+          "text": "\"I need to think about this. I'll be back.\"",
+          "type": "continue",
+          "outcome": "Mara nods understandingly. 'Of course. This is dangerous work. Come find me when you're ready.'",
+          "nextEncounterId": "village-square-return",
+          "isExitOption": true
+        }
+      ],
+      "skillCheck": {
+        "skill": "Insight",
+        "difficultyClass": 13,
+        "ability": "Wisdom",
+        "success": "You sense Mara is holding back something - she's more frightened than she lets on, but also strangely fascinated by what she saw. She whispers: 'The leader... it looked right at me through the window. And smiled. Not a goblin sneer - a real, intelligent smile. That scared me more than anything.'",
+        "failure": "Mara seems honest and forthcoming. She's clearly shaken but trying to be helpful."
+      },
+      "completed": false,
+      "repeatable": true
+    },
+    {
+      "id": "quest-accept",
+      "title": "Ready to Help",
+      "description": "After talking with the villagers and gathering information about the goblin raids, you've decided to help. The goblins have been stealing from the farms at night, and their camp is rumored to be in the old ruins to the east.",
+      "type": "tutorial",
+      "tutorial": {
+        "title": "Welcome to D&D!",
+        "content": "In Dungeons & Dragons, you explore a world, talk to characters, and fight monsters. Your choices matter! You'll also gain Experience Points (XP) as you overcome challenges. Collect enough XP to Level Up and become stronger!",
+        "concept": "Core Loop"
+      },
+      "options": [
+        {
+          "id": "prepare-town",
+          "text": "\"I should prepare more in town before heading out.\"",
+          "type": "continue",
+          "outcome": "You let the villagers know you'll gather more supplies and information before leaving. The village square awaits with people eager to help.",
+          "nextEncounterId": "village-square-return"
+        },
+        {
+          "id": "accept-quest",
+          "text": "\"Count on me. I'll head to the farms now.\"",
+          "type": "continue",
+          "outcome": "You assure Eldred and Thora that you're on the case and head toward the farms where the goblins were last seen.",
+          "nextEncounterId": "skill-check-path",
+          "xpReward": 25
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "skill-check-path",
+      "title": "Finding the Path",
+      "description": "You're heading toward the farms, but the path splits. You need to find the right way. This is a perfect time to make a skill check!",
+      "type": "skill",
+      "tutorial": {
+        "title": "Skill Checks",
+        "content": "When you want to do something that might fail, you make a skill check. Roll a d20, add your ability modifier, and add your proficiency bonus if you're proficient. The DM sets a Difficulty Class (DC) - if your total meets or beats the DC, you succeed!",
+        "concept": "Skill Checks"
+      },
+      "skillCheck": {
+        "skill": "Survival",
+        "difficultyClass": 12,
+        "ability": "Wisdom",
+        "success": "You spot goblin tracks leading into the woods. Following them, you find a hidden path that bypasses their traps.",
+        "failure": "You lose the trail for a moment and stumble into a thorny bush, but eventually find your way.",
+        "xpReward": 50
+      },
+      "options": [
+        {
+          "id": "investigate",
+          "text": "Make an Investigation check to find the path",
+          "type": "skill",
+          "skill": "Survival",
+          "ability": "Wisdom",
+          "outcome": "Roll a d20 and add your Wisdom modifier. If you're proficient in Survival, add your proficiency bonus too!",
+          "nextEncounterId": "goblin-encounter",
+          "failureOutcome": "You take a wrong turn and spend hours backtracking. You eventually find the camp, but you're tired and frustrated."
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "goblin-encounter",
+      "title": "The Goblin Camp",
+      "description": "You've found the goblin camp! Two goblin lookouts pace atop a crude palisade, arguing over who has to report to their hobgoblin commander. Smoke from cook fires drifts over a maze of traps and supply crates. They haven't noticed you yet, giving you several ways to approach.",
+      "type": "combat",
+      "tutorial": {
+        "title": "Combat Basics",
+        "content": "Combat in D&D is turn-based. When you attack, you'll roll for initiative to determine turn order. Each turn, you can Attack or Defend. Watch the HP bars and combat log to track what happens! If you win, you'll find items as rewards. Remember - combat isn't always the only solution!",
+        "concept": "Combat"
+      },
+      "enemy": {
+        "name": "Goblin Lookouts",
+        "armorClass": 15,
+        "hitPoints": 7,
+        "attackBonus": 4,
+        "damage": "1d6+2"
+      },
+      "options": [
+        {
+          "id": "attack",
+          "text": "⚔️ Charge in and attack!",
+          "type": "attack",
+          "outcome": "You draw your weapon and charge with a battle cry! The goblins scramble to defend themselves.",
+          "nextEncounterId": "goblin-camp-combat"
+        },
+        {
+          "id": "sneak",
+          "text": "🤫 Try to sneak past them (Stealth check)",
+          "type": "skill",
+          "skill": "Stealth",
+          "ability": "Dexterity",
+          "difficultyClass": 13,
+          "outcome": "You attempt to move silently...",
+          "successOutcome": "You move like a shadow, slipping past the guards without a sound.",
+          "failureOutcome": "You step on a dry twig! SNAP! The goblins spin around instantly.",
+          "successNextEncounterId": "sneak-success",
+          "failureNextEncounterId": "goblin-camp-combat"
+        },
+        {
+          "id": "intimidate",
+          "text": "😠 Step out and intimidate them (Intimidation check)",
+          "type": "skill",
+          "skill": "Intimidation",
+          "ability": "Charisma",
+          "difficultyClass": 13,
+          "outcome": "You step into the light, looming over them...",
+          "successOutcome": "You roar with such ferocity that the goblins drop their weapons in terror!",
+          "failureOutcome": "The goblins just laugh at your attempt. 'You think you scary? Boss much scarier!'",
+          "successNextEncounterId": "intimidate-goblins",
+          "failureNextEncounterId": "goblin-camp-combat"
+        },
+        {
+          "id": "observe",
+          "text": "👁️ Observe them first (Perception check)",
+          "type": "skill",
+          "skill": "Perception",
+          "difficultyClass": 12,
+          "outcome": "You watch from the shadows...",
+          "successOutcome": "You spot a third goblin in the back wearing strange armor - the leader!",
+          "failureOutcome": "You can't make out much detail in the dim light besides the two guards.",
+          "successNextEncounterId": "observe-camp-success",
+          "failureNextEncounterId": "observe-camp-failure"
+        },
+        {
+          "id": "barbarian-rage",
+          "text": "[Barbarian] Enter a rage and charge!",
+          "type": "attack",
+          "outcome": "You let out a battle cry and enter your rage! Your eyes glow with fury as you charge. The goblins look terrified!",
+          "nextEncounterId": "combat-resolution",
+          "requiresClass": "Barbarian"
+        },
+        {
+          "id": "wizard-sleep",
+          "text": "[Wizard] Cast Sleep spell on the guards",
+          "type": "continue",
+          "outcome": "You weave your hands in an arcane pattern and whisper the sleep incantation. Magical energy washes over the goblins, and they slump to the ground, snoring softly. Well done!",
+          "nextEncounterId": "combat-resolution",
+          "requiresClass": "Wizard"
+        },
+        {
+          "id": "cleric-command",
+          "text": "[Cleric] Use divine authority to command them to flee",
+          "type": "continue",
+          "outcome": "You raise your holy symbol and speak with divine authority: 'FLEE!' The goblins' eyes widen in terror at your divine presence, and they scatter into the woods without looking back!",
+          "nextEncounterId": "combat-resolution",
+          "requiresClass": "Cleric"
+        },
+        {
+          "id": "ranger-nature",
+          "text": "[Ranger] Use your knowledge of goblin behavior",
+          "type": "continue",
+          "outcome": "Your experience as a ranger tells you these goblins are stressed and on edge. You make a few sounds mimicking a larger predator. The goblins panic and run, leaving the camp unguarded!",
+          "nextEncounterId": "combat-resolution",
+          "requiresClass": "Ranger"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "observe-camp-success",
+      "title": "Tactical Observation",
+      "description": "Your keen eyes reveal a crucial detail: a third goblin is pacing near the ruined tower entrance. It wears leather armor and carries a curved blade - definitely the leader Mara described. The two guards seem afraid of it.",
+      "type": "exploration",
+      "options": [
+        {
+          "id": "attack-leader",
+          "text": "Ambush the leader!",
+          "type": "attack",
+          "outcome": "You focus your attack on the leader!",
+          "nextEncounterId": "goblin-camp-combat-ambush"
+        },
+        {
+          "id": "try-talking-success",
+          "text": "Try to negotiate (knowing about the leader)",
+          "type": "continue",
+          "outcome": "You decide to try talking, armed with knowledge about their leader.",
+          "nextEncounterId": "negotiate-goblins"
+        },
+        {
+          "id": "sneak-after-observe",
+          "text": "Use what you learned to sneak past",
+          "type": "skill",
+          "skill": "Stealth",
+          "outcome": "Knowing their patrol pattern, you attempt to slip by...",
+          "successOutcome": "You time your movements perfectly, avoiding the leader's gaze.",
+          "failureOutcome": "The leader spots you despite your care!",
+          "successNextEncounterId": "sneak-success",
+          "failureNextEncounterId": "goblin-camp-combat"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "observe-camp-failure",
+      "title": "Unclear Situation",
+      "description": "You strain your eyes, but the flickering campfire makes it hard to see deep into the ruins. You see the two guards clearly, but shadows obscure the rest of the camp. You'll have to act on limited information.",
+      "type": "exploration",
+      "options": [
+        {
+          "id": "attack-blind",
+          "text": "Attack the guards",
+          "type": "attack",
+          "outcome": "You charge at the guards you can see!",
+          "nextEncounterId": "goblin-camp-combat"
+        },
+        {
+          "id": "try-talking-failure",
+          "text": "Try to negotiate",
+          "type": "continue",
+          "outcome": "You step out to talk.",
+          "nextEncounterId": "negotiate-goblins"
+        },
+        {
+          "id": "retreat-reconsider",
+          "text": "Retreat and reconsider your approach",
+          "type": "continue",
+          "outcome": "You quietly back away from the camp to think of a better strategy.",
+          "nextEncounterId": "goblin-encounter"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "intimidate-goblins",
+      "title": "Intimidation Attempt",
+      "description": "Your fierce display works! The goblins drop their weapons, abandon the camp, and sprint into the woods.",
+      "type": "social",
+      "options": [
+        {
+          "id": "intimidate-success",
+          "text": "Continue into the now-empty camp",
+          "type": "continue",
+          "outcome": "With the camp empty, you can look through their supplies without opposition.",
+          "nextEncounterId": "combat-resolution",
+          "xpReward": 50,
+          "grantsItemIds": [
+            "adventurers-rope"
+          ]
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "negotiate-goblins",
+      "title": "Negotiation",
+      "description": "You step out with your hands visible, showing you want to talk. The goblins are surprised but haven't attacked yet. 'What you want, human?' one squeaks nervously.",
+      "type": "social",
+      "tutorial": {
+        "title": "Non-Combat Solutions",
+        "content": "D&D isn't just about fighting! Persuasion, deception, and negotiation can sometimes achieve your goals without bloodshed. Different approaches use different skills - Persuasion appeals to reason, Deception relies on trickery, and Intimidation uses fear.",
+        "concept": "Diplomacy"
+      },
+      "options": [
+        {
+          "id": "persuade-leave",
+          "text": "[Persuasion] \"Leave now and no one gets hurt.\"",
+          "type": "skill",
+          "skill": "Persuasion",
+          "ability": "Charisma",
+          "difficultyClass": 14,
+          "outcome": "You try to convince them that leaving is in their best interest...",
+          "successOutcome": "The goblins exchange fearful glances. 'We not want die! We go!' They drop their weapons and flee.",
+          "failureOutcome": "The goblins snarl. 'We kill you first!'",
+          "successNextEncounterId": "persuasion-result",
+          "failureNextEncounterId": "goblin-camp-combat"
+        },
+        {
+          "id": "offer-deal",
+          "text": "[Persuasion] \"I know someone's forcing you to do this. Tell me who.\"",
+          "type": "skill",
+          "skill": "Persuasion",
+          "ability": "Charisma",
+          "difficultyClass": 14,
+          "outcome": "You appeal to their situation...",
+          "successOutcome": "'Big hobgoblin make us!' one squeaks. 'He say he kill us! But you look strong. We go if you fight him!'",
+          "failureOutcome": "'You know nothing! Boss kill you!'",
+          "successNextEncounterId": "persuasion-result",
+          "failureNextEncounterId": "goblin-camp-combat"
+        },
+        {
+          "id": "deceive-them",
+          "text": "[Deception] \"Your boss sent me to check on you.\"",
+          "type": "skill",
+          "skill": "Deception",
+          "ability": "Charisma",
+          "difficultyClass": 15,
+          "outcome": "You attempt to trick them...",
+          "successOutcome": "Your act is convincing! 'Boss say nothing about inspector! What you need?'",
+          "failureOutcome": "One goblin squints at you. 'You lie! Boss never send human! Attack!'",
+          "successNextEncounterId": "deception-result",
+          "failureNextEncounterId": "goblin-camp-combat"
+        },
+        {
+          "id": "change-mind-fight",
+          "text": "Actually, just attack them",
+          "type": "attack",
+          "outcome": "You decide talking won't work and attack!",
+          "nextEncounterId": "goblin-camp-combat"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "persuasion-result",
+      "title": "Persuasion Outcome",
+      "description": "The goblins seem torn between their fear of you and their fear of their boss. Your words have had an impact.",
+      "type": "social",
+      "options": [
+        {
+          "id": "goblins-flee-persuade",
+          "text": "Watch them run away",
+          "type": "continue",
+          "outcome": "The goblins scatter into the forest. You've learned something important - a hobgoblin is behind this!",
+          "nextEncounterId": "combat-resolution",
+          "xpReward": 50,
+          "grantsItemIds": [
+            "silver-luck-charm"
+          ]
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "goblin-camp-combat-ambush",
+      "title": "Ambush Attack!",
+      "description": "You catch the goblins completely by surprise! The leader is shouting orders, but they are scrambling to react. You have the advantage!",
+      "type": "combat",
+      "autoStartCombat": true,
+      "playerAdvantage": true,
+      "enemy": {
+        "name": "Goblin Leader",
+        "armorClass": 13,
+        "hitPoints": 15,
+        "attackBonus": 4,
+        "damage": "1d6+2",
+        "xpReward": 100
+      },
+      "options": [
+        {
+          "id": "forced-combat",
+          "text": "Fight the goblins!",
+          "type": "attack",
+          "outcome": "You strike first!",
+          "nextEncounterId": "combat-resolution"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "goblin-camp-combat",
+      "title": "Goblins Attack!",
+      "description": "The camp erupts into chaos as the main guard team rallies. Snares line the ground, and the hobgoblin lieutenant barks orders from the ruined tower. Whether you charge straight in or spring a trap of your own, this is the decisive clash.",
+      "type": "combat",
+      "autoStartCombat": true,
+      "enemy": {
+        "name": "Goblin Leader",
+        "armorClass": 13,
+        "hitPoints": 15,
+        "attackBonus": 4,
+        "damage": "1d6+2",
+        "xpReward": 100
+      },
+      "options": [
+        {
+          "id": "forced-combat",
+          "text": "Fight the goblins!",
+          "type": "attack",
+          "outcome": "They charge straight at you! Roll initiative!",
+          "nextEncounterId": "combat-resolution"
+        },
+        {
+          "id": "spring-snares",
+          "text": "Trigger the traps you mapped out earlier",
+          "type": "action",
+          "outcome": "Using the routes you observed, you spring one of the goblins' own snares. One guard is bloodied before blades are even drawn.",
+          "xpReward": 25,
+          "stayInEncounter": true,
+          "requiresVisitedEncounterId": "observe-camp-success"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "deception-result",
+      "title": "Deception Success",
+      "description": "Your act is convincing! The goblins believe you're sent by their boss. 'Boss say nothing about inspector! What you need?' They nervously answer your questions about the hobgoblin leader before you slip away into the shadows.",
+      "type": "social",
+      "options": [
+        {
+          "id": "deception-success",
+          "text": "Use the information you gained",
+          "type": "continue",
+          "outcome": "You've learned valuable information through clever deception! The goblins mentioned a hobgoblin leader - crucial intel.",
+          "nextEncounterId": "combat-resolution",
+          "xpReward": 75,
+          "grantsItemIds": [
+            "lucky-shield-emblem"
+          ]
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "combat-resolution",
+      "title": "Camp Secured",
+      "description": "Whether by blade, wit, or stealth, you've driven the goblins from the ruins and reclaimed the villagers' stolen supplies. Crates of grain, tools, and a few curious trinkets lie scattered around the clearing.",
+      "type": "tutorial",
+      "tutorial": {
+        "title": "Items and Inventory",
+        "content": "After securing the camp, you find items and gear among the goblin stash. Click the Inventory button to manage your loot. Equip weapons for better attack damage, armor for higher AC, and use potions to restore HP. Items you find will help you in future encounters!",
+        "concept": "Inventory Management"
+      },
+      "options": [
+        {
+          "id": "check-inventory",
+          "text": "Check your new items in the Inventory",
+          "type": "continue",
+          "outcome": "You sort through the reclaimed gear and stash anything useful in your pack before heading back.",
+          "nextEncounterId": "inventory-tutorial"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "inventory-tutorial",
+      "title": "Managing Your Inventory",
+      "description": "You've collected some loot! Let's learn how to use your inventory. Click the Inventory button at the top of the screen to open it. You'll see categories for Weapons, Armor, Potions, and Treasure.",
+      "type": "tutorial",
+      "tutorial": {
+        "title": "Using Your Inventory",
+        "content": "In your inventory: 1) Click on an item to select it. 2) Equip weapons and armor to boost your combat stats. 3) Use potions to heal during adventures. 4) Treasure can be sold later for gold. Your equipped items show in the Equipment Slots at the top. Try equipping something now!",
+        "concept": "Inventory System"
+      },
+      "options": [
+        {
+          "id": "continue-adventure",
+          "text": "Continue the adventure",
+          "type": "continue",
+          "outcome": "With your new equipment ready, you continue on your quest!",
+          "nextEncounterId": "return-to-village"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "sneak-success",
+      "title": "Sneaking Past",
+      "description": "You successfully sneak past the goblins! You've avoided combat this time, but you've learned about stealth and skill checks.",
+      "type": "tutorial",
+      "tutorial": {
+        "title": "Alternative Solutions",
+        "content": "In D&D, there's often more than one way to solve a problem! You can fight, sneak, negotiate, or find creative solutions. The choice is yours!",
+        "concept": "Multiple Solutions"
+      },
+      "options": [
+        {
+          "id": "continue",
+          "text": "Continue exploring",
+          "type": "continue",
+          "outcome": "You've learned that D&D offers many ways to approach challenges!",
+          "nextEncounterId": "combat-resolution",
+          "grantsItemIds": [
+            "torch-oil"
+          ]
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "return-to-village",
+      "title": "Return to the Village",
+      "description": "With the stolen supplies secured, you make your way back to the village square. Villagers gather as you arrive, eager to hear the news and reclaim what was taken.",
+      "type": "social",
+      "options": [
+        {
+          "id": "speak-to-eldred",
+          "text": "Return the harvest to Eldred",
+          "repeatText": "Check in with Eldred again",
+          "type": "continue",
+          "outcome": "You hand Eldred the crates of grain and tools. He can hardly believe his eyes.",
+          "nextEncounterId": "eldred-thanks"
+        },
+        {
+          "id": "report-to-thora",
+          "text": "Report to Thora the guard",
+          "repeatText": "Report back to Thora again",
+          "type": "continue",
+          "outcome": "You find Thora still on patrol. She pauses, hopeful for good news.",
+          "nextEncounterId": "thora-thanks"
+        },
+        {
+          "id": "wrap-up-quest",
+          "text": "Let the village celebrate your success",
+          "type": "continue",
+          "outcome": "You take in the grateful faces around you as the village begins to celebrate.",
+          "nextEncounterId": "victory"
+        }
+      ],
+      "completed": false,
+      "repeatable": true
+    },
+    {
+      "id": "eldred-thanks",
+      "title": "Eldred's Gratitude",
+      "description": "Eldred hugs the crates like lost family heirlooms. Tears well in his eyes as he thanks you over and over.",
+      "type": "social",
+      "options": [
+        {
+          "id": "eldred-back-to-square",
+          "text": "Give him a reassuring nod and return to the square",
+          "type": "continue",
+          "outcome": "The villagers cheer as you make your way back.",
+          "nextEncounterId": "return-to-village"
+        }
+      ],
+      "completed": false,
+      "repeatable": true
+    },
+    {
+      "id": "thora-thanks",
+      "title": "Thora's Respect",
+      "description": "Thora listens to your report, then clasps your forearm with a proud grin. 'You handled it like a seasoned warrior.'",
+      "type": "social",
+      "options": [
+        {
+          "id": "thora-back-to-square",
+          "text": "Share a final nod before rejoining the villagers",
+          "type": "continue",
+          "outcome": "Word of your success spreads as you cross the square again.",
+          "nextEncounterId": "return-to-village"
+        }
+      ],
+      "completed": false,
+      "repeatable": true
+    },
+    {
+      "id": "victory",
+      "title": "Quest Complete!",
+      "description": "Congratulations! You've completed your first D&D adventure and saved the village from the goblin raids. Take a moment to reflect on what you've learned before starting a new journey.",
+      "type": "tutorial",
+      "tutorial": {
+        "title": "What You've Learned",
+        "content": "You've experienced: Character creation, making choices, skill checks, turn-based combat with initiative, inventory management, equipment, item rewards, and creative problem-solving. You've also learned about auto-save and the Save/Load system in the menu. These are the core concepts of D&D!",
+        "concept": "Adventure Complete"
+      },
+      "options": [
+        {
+          "id": "restart",
+          "text": "Start a new adventure",
+          "type": "continue",
+          "outcome": "Ready for your next adventure!",
+          "endsAdventure": true,
+          "xpReward": 150,
+          "grantsItemIds": [
+            "gold-coins",
+            "silver-luck-charm"
+          ]
+        }
+      ],
+      "completed": false
+    }
+  ]
+}

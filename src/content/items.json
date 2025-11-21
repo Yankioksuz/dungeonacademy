@@ -1,0 +1,109 @@
+{
+  "weapons": [
+    {
+      "id": "shortsword",
+      "name": "Shortsword",
+      "type": "weapon",
+      "description": "A short, versatile blade favored by rogues",
+      "damage": "1d6",
+      "value": 10
+    },
+    {
+      "id": "longsword",
+      "name": "Longsword",
+      "type": "weapon",
+      "description": "A reliable steel blade",
+      "damage": "1d8",
+      "value": 15
+    },
+    {
+      "id": "staff",
+      "name": "Quarterstaff",
+      "type": "weapon",
+      "description": "A simple wooden staff",
+      "damage": "1d6",
+      "value": 2
+    }
+  ],
+  "armor": [
+    {
+      "id": "leather",
+      "name": "Leather Armor",
+      "type": "armor",
+      "description": "Light, flexible leather armor",
+      "armorClass": 11,
+      "value": 10
+    },
+    {
+      "id": "chain",
+      "name": "Chain Mail",
+      "type": "armor",
+      "description": "Heavy metal rings woven together",
+      "armorClass": 16,
+      "value": 75
+    }
+  ],
+  "potions": [
+    {
+      "id": "healing-potion",
+      "name": "Potion of Healing",
+      "type": "potion",
+      "description": "Restores 2d4+2 hit points",
+      "healing": 6,
+      "value": 50
+    },
+    {
+      "id": "greater-healing",
+      "name": "Potion of Greater Healing",
+      "type": "potion",
+      "description": "Restores 4d4+4 hit points",
+      "healing": 14,
+      "value": 150
+    }
+  ],
+  "treasure": [
+    {
+      "id": "gold-coins",
+      "name": "Gold Coins",
+      "type": "treasure",
+      "description": "Shiny gold pieces",
+      "value": 25
+    },
+    {
+      "id": "gem",
+      "name": "Precious Gem",
+      "type": "treasure",
+      "description": "A sparkling gemstone",
+      "value": 100
+    },
+    {
+      "id": "adventurers-rope",
+      "name": "Adventurer's Rope",
+      "type": "treasure",
+      "description": "50 feet of sturdy rope, useful for climbing or securing gear",
+      "value": 5
+    },
+    {
+      "id": "torch-oil",
+      "name": "Torch Oil",
+      "type": "treasure",
+      "description": "A flask of oil that fuels torches and lanterns",
+      "value": 3
+    },
+    {
+      "id": "lucky-shield-emblem",
+      "name": "Lucky Shield Emblem",
+      "type": "treasure",
+      "description": "A polished emblem blessed for protection",
+      "value": 15
+    },
+    {
+      "id": "silver-luck-charm",
+      "name": "Silver Luck Charm",
+      "type": "treasure",
+      "description": "A delicate charm said to bring fortune to the wearer",
+      "value": 20
+    }
+  ]
+}
+

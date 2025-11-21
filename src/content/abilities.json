@@ -1,0 +1,51 @@
+[
+  {
+    "id": "sneak-attack",
+    "name": "Sneak Attack",
+    "class": "Rogue",
+    "level": 1,
+    "description": "Once per turn, you can deal extra damage to one creature you hit with an attack if you have advantage on the attack roll. The attack must use a finesse or a ranged weapon.",
+    "type": "feature"
+  },
+  {
+    "id": "action-surge",
+    "name": "Action Surge",
+    "class": "Fighter",
+    "level": 2,
+    "description": "On your turn, you can take one additional action on top of your regular action and a possible bonus action.",
+    "type": "feature"
+  },
+  {
+    "id": "second-wind",
+    "name": "Second Wind",
+    "class": "Fighter",
+    "level": 1,
+    "description": "You have a limited well of stamina that you can draw on to protect yourself from harm. On your turn, you can use a bonus action to regain hit points equal to 1d10 + your fighter level.",
+    "type": "feature"
+  },
+  {
+    "id": "arcane-recovery",
+    "name": "Arcane Recovery",
+    "class": "Wizard",
+    "level": 1,
+    "description": "You have learned to regain some of your magical energy by studying your spellbook. Once per day when you finish a short rest, you can choose expended spell slots to recover.",
+    "type": "feature"
+  },
+  {
+    "id": "channel-divinity",
+    "name": "Channel Divinity",
+    "class": "Cleric",
+    "level": 2,
+    "description": "At 2nd level, you gain the ability to channel divine energy directly from your deity, using that energy to fuel magical effects.",
+    "type": "feature"
+  },
+  {
+    "id": "expertise",
+    "name": "Expertise",
+    "class": "Rogue",
+    "level": 1,
+    "description": "At 1st level, choose two of your skill proficiencies, or one of your skill proficiencies and your proficiency with thieves' tools. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies.",
+    "type": "feature"
+  }
+]
+

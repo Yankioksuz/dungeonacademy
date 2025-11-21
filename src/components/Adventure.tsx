@@ -1,0 +1,989 @@
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { useGame } from '@/contexts/GameContext';
+import { Button } from './ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { Badge } from './ui/badge';
+import { useTranslation } from 'react-i18next';
+import { Sword, BookOpen, Dice6, DoorOpen, CheckCircle2, Backpack, X, Tent, ShoppingBag } from 'lucide-react';
+import type { Item, TalentOption, Encounter } from '@/types';
+import { cn } from '@/lib/utils';
+import { CombatEncounter } from './CombatEncounter';
+import { Inventory } from './Inventory';
+import { DiceRollModal } from './DiceRollModal';
+import { LevelUpModal } from './LevelUpModal';
+import itemsData from '@/content/items.json';
+import talentsContent from '@/content/talents.json';
+import { QuestTracker } from './QuestTracker';
+import { JournalPanel } from './JournalPanel';
+import { Shop } from './Shop';
+
+const itemCollections = [
+  itemsData.weapons,
+  itemsData.armor,
+  itemsData.potions,
+  itemsData.treasure,
+];
+
+const findItemTemplate = (itemId: string): Item | undefined => {
+  for (const collection of itemCollections) {
+    const match = collection.find((item) => item.id === itemId);
+    if (match) {
+      return match as unknown as Item;
+    }
+  }
+  return undefined;
+};
+
+const createItemInstance = (item: Item): Item => {
+  const uniqueSuffix =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  return {
+    ...item,
+    templateId: item.templateId ?? item.id,
+    id: `${item.id}-${uniqueSuffix}`,
+  };
+};
+
+interface RollResult {
+  roll: number;
+  total: number;
+  isCritical: boolean;
+  isCriticalFailure: boolean;
+}
+
+interface SkillCheckState {
+  skill: string;
+  ability: string;
+  dc: number;
+  modifier: number;
+  breakdown: string;
+}
+
+const rollRandom = (sides: number) => Math.floor(Math.random() * sides) + 1;
+type EncounterOptionType = Encounter['options'][0];
+
+export function Adventure() {
+  const { t } = useTranslation();
+  const {
+    character,
+    adventure,
+    completeEncounter,
+    advanceToNextEncounter,
+    endAdventure,
+    reset,
+    addItem,
+    equipItem,
+    unequipItem,
+    useItem,
+    updateCharacter,
+    quests,
+    addQuest,
+    updateQuestStatus,
+    updateQuestObjective,
+    addJournalEntry,
+    journal,
+    gainXp,
+    tutorialsEnabled
+  } = useGame();
+  const currentEncounter = useMemo<Encounter | null>(() => {
+    if (!adventure || !adventure.encounters || adventure.encounters.length === 0) {
+      return null;
+    }
+    const index = adventure.currentEncounterIndex;
+    if (index >= 0 && index < adventure.encounters.length) {
+      return adventure.encounters[index];
+    }
+    return adventure.encounters[0];
+  }, [adventure]);
+  const [narrativeLog, setNarrativeLog] = useState<{ id: string; message: string }[]>([]);
+  const hasNarrativeEntries = narrativeLog.length > 0;
+  const [showDiceModal, setShowDiceModal] = useState(false);
+  const [diceRoll, setDiceRoll] = useState<number | null>(null);
+  const [rollResult, setRollResult] = useState<RollResult | null>(null);
+  const [isRollingDice, setIsRollingDice] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+  const [currentSkillCheck, setCurrentSkillCheck] = useState<SkillCheckState | null>(null);
+  const [showTutorial, setShowTutorial] = useState(tutorialsEnabled);
+  const [inCombat, setInCombat] = useState(false);
+  const [showInventory, setShowInventory] = useState(false);
+  const [showQuestJournal, setShowQuestJournal] = useState(false);
+  const [showRestMenu, setShowRestMenu] = useState(false);
+  const [showShop, setShowShop] = useState(false);
+  const [outcomeMessage, setOutcomeMessage] = useState<string | null>(null);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+
+  const [selectedOptions, setSelectedOptions] = useState<Set<string>>(new Set());
+
+  const [showGameOver, setShowGameOver] = useState(false);
+  const [showLevelUp, setShowLevelUp] = useState(false);
+  const [levelUpData, setLevelUpData] = useState({ level: 1, hpIncrease: 0 });
+  const questEvents = useRef<Set<string>>(new Set());
+  const PRIMARY_QUEST_ID = 'stop-goblin-raids';
+  const allTalents = talentsContent as TalentOption[];
+  const [availableTalents, setAvailableTalents] = useState<TalentOption[]>([]);
+  const [selectedTalentId, setSelectedTalentId] = useState<string | null>(null);
+
+  const visitedEncounters = adventure?.visitedEncounterIds || [];
+
+  useEffect(() => {
+    setShowTutorial(tutorialsEnabled);
+  }, [tutorialsEnabled]);
+
+  useEffect(() => {
+    if (!currentEncounter) return;
+    const encounterId = currentEncounter.id;
+    const triggered = questEvents.current;
+    const hasPrimaryQuest = quests.some((quest) => quest.id === PRIMARY_QUEST_ID);
+
+    if (!hasPrimaryQuest && (encounterId === 'village-square' || encounterId === 'talk-to-farmer')) {
+      addQuest({
+        id: PRIMARY_QUEST_ID,
+        title: 'Stop the Goblin Raids',
+        description: 'Help Oakhaven by gathering intel, tracking the goblins to their camp, and securing the stolen supplies.',
+        status: 'available',
+        category: 'main',
+        objectives: [
+          { id: 'gather-intel', text: 'Gather information in the village square', completed: false },
+          { id: 'reach-camp', text: 'Follow the trail to the goblin camp', completed: false },
+          { id: 'secure-supplies', text: 'Recover the stolen supplies for the villagers', completed: false },
+        ],
+        rewards: ['XP bonus', 'Village gratitude', 'Recovered loot'],
+      });
+      addJournalEntry('Villagers pleaded for help to stop the goblin raids.', 'New Quest');
+    }
+
+    if (encounterId === 'quest-accept' && !triggered.has('quest-started')) {
+      triggered.add('quest-started');
+      updateQuestStatus(PRIMARY_QUEST_ID, 'active');
+      updateQuestObjective(PRIMARY_QUEST_ID, 'gather-intel', true);
+      addJournalEntry('You accepted the quest and set out toward the farms.', 'Quest Updated');
+    }
+
+    if (encounterId === 'goblin-encounter' && !triggered.has('quest-reach-camp')) {
+      triggered.add('quest-reach-camp');
+      updateQuestObjective(PRIMARY_QUEST_ID, 'reach-camp', true);
+      addJournalEntry('You located the goblin camp in the ruins.', 'Quest Updated');
+    }
+
+    if ((encounterId === 'combat-resolution' || encounterId === 'return-to-village') && !triggered.has('quest-complete')) {
+      triggered.add('quest-complete');
+      updateQuestObjective(PRIMARY_QUEST_ID, 'secure-supplies', true);
+      updateQuestStatus(PRIMARY_QUEST_ID, 'completed');
+      addJournalEntry('The villagers have their supplies back and the raids are over—for now.', 'Quest Complete');
+    }
+
+    if (encounterId === 'observe-camp-success' && !triggered.has('hobgoblin-note')) {
+      triggered.add('hobgoblin-note');
+      addJournalEntry('You spotted a hobgoblin lieutenant directing the camp. This intel could prove useful.', 'Observation');
+    }
+  }, [
+    currentEncounter,
+    quests,
+    addQuest,
+    updateQuestStatus,
+    updateQuestObjective,
+    addJournalEntry
+  ]);
+
+  useEffect(() => {
+    if (
+      currentEncounter &&
+      currentEncounter.type === 'combat' &&
+      currentEncounter.autoStartCombat &&
+      currentEncounter.enemy
+    ) {
+      setInCombat(true);
+    }
+  }, [currentEncounter]);
+
+  // Adventure is started from Game component, no auto-start needed
+
+  const addToNarrativeLog = (message: string) => {
+    setNarrativeLog((prev) => {
+      const entry = { id: `${Date.now()}-${Math.random()}`, message };
+      const next = [entry, ...prev];
+      return next.slice(0, 25);
+    });
+  };
+
+  const grantItems = (itemIds?: string[]) => {
+    if (!itemIds?.length) return;
+    itemIds.forEach((itemId) => {
+      const template = findItemTemplate(itemId);
+      if (template) {
+        addItem(createItemInstance(template));
+      }
+    });
+  };
+
+  const resetDiceState = () => {
+    setDiceRoll(null);
+    setRollResult(null);
+    setIsRollingDice(false);
+  };
+  const rollDice = (sides: number = 20) => {
+    setIsRollingDice(true);
+    const roll = rollRandom(sides);
+    setDiceRoll(roll);
+    return roll;
+  };
+
+  const handleDiceRollComplete = () => {
+    setIsRollingDice(false);
+  };
+
+  const handleModalClose = () => {
+    setShowDiceModal(false);
+    if (pendingAction) {
+      pendingAction();
+      setPendingAction(null);
+    }
+  };
+
+  const handleSkillCheck = (skill: string, difficultyClass: number, ability: string) => {
+    if (!character) {
+      return false;
+    }
+    const roll = rollDice(20);
+
+    // Calculate modifiers
+    const abilityKey = ability.toLowerCase() as keyof typeof character.abilityScores;
+    const abilityScore = character.abilityScores[abilityKey] || 10;
+    const abilityMod = Math.floor((abilityScore - 10) / 2);
+
+    const isProficient = character.skills.includes(skill);
+    const proficiencyBonus = isProficient ? 2 : 0;
+
+    const totalModifier = abilityMod + proficiencyBonus;
+    const total = roll + totalModifier;
+
+    const success = total >= difficultyClass;
+
+    // Store detailed result for the modal/log
+    setRollResult({
+      roll,
+      total,
+      isCritical: roll === 20,
+      isCriticalFailure: roll === 1,
+    });
+
+    // Store check details for narrative log
+    setCurrentSkillCheck({
+      skill,
+      ability,
+      dc: difficultyClass,
+      modifier: totalModifier,
+      breakdown: `(Roll: ${roll} + ${ability.substring(0, 3)}: ${abilityMod} + Prof: ${proficiencyBonus})`
+    });
+
+    return success;
+  };
+
+  // Watch for level up to show modal
+  const prevLevelRef = useRef(character?.level || 1);
+  useEffect(() => {
+    if (character && character.level > prevLevelRef.current) {
+      setShowLevelUp(true);
+      setLevelUpData({
+        level: character.level,
+        hpIncrease: 10 // Simplified, ideally calculated or passed
+      });
+      // Generate talents based on new level if needed
+      const newTalents = allTalents.filter(t => !character.talents?.includes(t.id)).slice(0, 3);
+      setAvailableTalents(newTalents);
+    }
+    prevLevelRef.current = character?.level || 1;
+  }, [character?.level, allTalents, character]);
+
+  const handleOptionClick = (option: EncounterOptionType) => {
+    if (!currentEncounter || !character) return;
+    resetDiceState();
+
+    // Mark option as selected
+    const optionKey = `${currentEncounter.id}-${option.id}`;
+    setSelectedOptions(prev => new Set(prev).add(optionKey));
+    addToNarrativeLog(`${character.name} chooses "${option.text}"`);
+
+    // Show outcome message if there is one
+    if (option.outcome) {
+      setOutcomeMessage(option.outcome);
+      addToNarrativeLog(option.outcome);
+    } else {
+      setOutcomeMessage(null);
+    }
+
+    let targetEncounterId = option.nextEncounterId;
+    const delay = option.outcome ? 3000 : 1500;
+    const stayInEncounter = option.stayInEncounter ?? false;
+
+    if (option.firstTimeEncounterId) {
+      const hasVisitedFirst = visitedEncounters.includes(option.firstTimeEncounterId);
+      if (!hasVisitedFirst) {
+        targetEncounterId = option.firstTimeEncounterId;
+      }
+    }
+
+    if (option.grantsItemIds) {
+      grantItems(option.grantsItemIds);
+    }
+
+    if (option.xpReward) {
+      gainXp(option.xpReward);
+    }
+
+    if (option.type === 'skill') {
+      // Use skill from option if specified, otherwise use from encounter skillCheck
+      const skillToUse = option.skill || currentEncounter.skillCheck?.skill;
+      const dcToUse = option.difficultyClass || currentEncounter.skillCheck?.difficultyClass || 10;
+      const abilityToUse = option.ability || currentEncounter.skillCheck?.ability || 'Charisma';
+
+      if (skillToUse) {
+        setShowDiceModal(true);
+        const success = handleSkillCheck(skillToUse, dcToUse, abilityToUse);
+        const successMsg = option.successOutcome || currentEncounter.skillCheck?.success;
+        const failureMsg = option.failureOutcome || currentEncounter.skillCheck?.failure;
+
+        // Prepare the action to run after modal closes
+        setPendingAction(() => () => {
+          if (successMsg || failureMsg) {
+            setOutcomeMessage(success ? (successMsg || '') : (failureMsg || ''));
+          }
+
+          const baseRoll = diceRoll ?? rollResult?.total ?? 0;
+          const totalRoll = rollResult?.total ?? baseRoll;
+          const dcValue = currentSkillCheck?.dc ?? dcToUse;
+          const skillName = currentSkillCheck?.skill || skillToUse;
+          const breakdown = currentSkillCheck?.breakdown || '';
+          const resultText = success ? t('adventure.success') : t('adventure.failure');
+
+          addToNarrativeLog(
+            `Skill Check (${skillName}): ${totalRoll} vs DC ${dcValue} → ${resultText} ${breakdown}`
+          );
+
+          if (success && currentEncounter.skillCheck?.rewardItemIds) {
+            grantItems(currentEncounter.skillCheck.rewardItemIds);
+          }
+
+          if (success && currentEncounter.skillCheck?.xpReward) {
+            gainXp(currentEncounter.skillCheck.xpReward);
+          }
+
+          if (option.endsAdventure) {
+            const finalDelay = option.outcome ? 3000 : 1500;
+            completeEncounter(currentEncounter.id);
+            setTimeout(() => {
+              setShowTutorial(tutorialsEnabled);
+              endAdventure('success', option.outcome || t('adventure.completed'));
+            }, finalDelay);
+            return;
+          }
+
+          let finalTargetId = targetEncounterId;
+          if (success && option.successNextEncounterId) {
+            finalTargetId = option.successNextEncounterId;
+          } else if (!success && option.failureNextEncounterId) {
+            finalTargetId = option.failureNextEncounterId;
+          }
+
+          if (!stayInEncounter) {
+            const isReturningToHub = finalTargetId === 'village-square-return' ||
+              finalTargetId === 'village-square';
+            const isRepeatableEncounter = currentEncounter.repeatable;
+
+            if (!isRepeatableEncounter && !isReturningToHub) {
+              completeEncounter(currentEncounter.id);
+            }
+          }
+
+          if (finalTargetId) {
+            advanceToNextEncounter(finalTargetId);
+            setShowTutorial(tutorialsEnabled);
+          }
+        });
+
+        return; // Stop execution here, wait for modal
+      }
+    } else if (option.type === 'attack' && currentEncounter.enemy) {
+      // Enter full combat mode instead of simple attack
+      setInCombat(true);
+      return; // Don't complete encounter yet
+    }
+
+    if (option.endsAdventure) {
+      completeEncounter(currentEncounter.id);
+      setTimeout(() => {
+        setShowTutorial(tutorialsEnabled);
+        endAdventure('success', option.outcome || t('adventure.completed'));
+      }, delay);
+      return;
+    }
+
+    if (stayInEncounter) {
+      return;
+    }
+
+    // Only mark encounter as completed if it's progressing the story (not returning to hub)
+    // Social/exploration encounters that return to village square shouldn't be marked completed
+    const isReturningToHub = targetEncounterId === 'village-square-return' ||
+      targetEncounterId === 'village-square';
+    const isRepeatableEncounter = currentEncounter.repeatable;
+
+    if (!isRepeatableEncounter && !isReturningToHub) {
+      completeEncounter(currentEncounter.id);
+    }
+
+    // Navigate to next encounter by ID
+    if (targetEncounterId) {
+      setTimeout(() => {
+        advanceToNextEncounter(targetEncounterId);
+        setShowTutorial(tutorialsEnabled);
+      }, delay);
+    }
+  };
+
+  const handleTalentConfirm = () => {
+    const selectedTalent = availableTalents.find((talent) => talent.id === selectedTalentId);
+
+    if (selectedTalent) {
+      updateCharacter((prev) => {
+        if (!prev) return prev;
+        const existingTalents = prev.talents || [];
+        const newTalents = existingTalents.includes(selectedTalent.id)
+          ? existingTalents
+          : [...existingTalents, selectedTalent.id];
+
+        let updatedSkills = prev.skills || [];
+        if (selectedTalent.bonus.type === 'skill' && selectedTalent.bonus.value && !updatedSkills.includes(selectedTalent.bonus.value)) {
+          updatedSkills = [...updatedSkills, selectedTalent.bonus.value];
+        }
+
+        return {
+          ...prev,
+          talents: newTalents,
+          skills: updatedSkills,
+        };
+      });
+
+      addJournalEntry(`Learned the ${selectedTalent.name} talent. ${selectedTalent.description}`, 'Talent Gained');
+    }
+
+    setAvailableTalents([]);
+    setSelectedTalentId(null);
+    setShowLevelUp(false);
+  };
+
+  const handleCombatVictory = () => {
+    if (!currentEncounter) return;
+    setInCombat(false);
+    completeEncounter(currentEncounter.id);
+
+    // Award random item as reward
+    const lootPool = [...itemsData.weapons, ...itemsData.armor, ...itemsData.potions, ...itemsData.treasure];
+    const randomTemplate = lootPool[Math.floor(Math.random() * lootPool.length)];
+    addItem(createItemInstance(randomTemplate as unknown as Item));
+
+    // Award XP for victory
+    const xpReward = currentEncounter.enemy?.xpReward || currentEncounter.xpReward || 50;
+    gainXp(xpReward);
+
+    setTimeout(() => {
+      const combatOption = currentEncounter.options.find(opt => opt.type === 'attack');
+      if (combatOption?.nextEncounterId) {
+        advanceToNextEncounter(combatOption.nextEncounterId);
+      }
+    }, 2000);
+  };
+
+  const handleCombatDefeat = () => {
+    // First hide combat interface
+    setInCombat(false);
+    // Then immediately show game over screen
+    setShowGameOver(true);
+  };
+
+  const getAbilityModifier = (ability: string) => {
+    if (!character) return 0;
+    const abilityKey = ability.toLowerCase() as keyof typeof character.abilityScores;
+    const score = character.abilityScores[abilityKey];
+    return Math.floor((score - 10) / 2);
+  };
+
+  const handleShortRest = () => {
+    if (!character) return;
+    // Short Rest: Heal using Hit Dice (simplified: heal 50% of max HP)
+    // In full 5e, you roll hit dice. Here we'll just give a flat boost for now or roll 1 hit die.
+    const hitDieStr = character.class.hitDie || 'd8';
+    const hitDieVal = parseInt(hitDieStr.replace('d', '')) || 8;
+    const conMod = Math.floor((character.abilityScores.constitution - 10) / 2);
+    const healAmount = Math.max(1, rollDice(hitDieVal) + conMod);
+
+    updateCharacter((prev) => ({
+      ...prev,
+      hitPoints: Math.min(prev.maxHitPoints, prev.hitPoints + healAmount)
+    }));
+
+    addJournalEntry(`Took a short rest and regained ${healAmount} HP.`, 'Rest');
+    setShowRestMenu(false);
+
+    // Advance time/world state if we had that, for now just close menu
+  };
+
+  const handleLongRest = () => {
+    if (!character) return;
+    // Long Rest: Full HP and Spell Slots
+    updateCharacter((prev) => ({
+      ...prev,
+      hitPoints: prev.maxHitPoints,
+      spellSlots: prev.spellSlots ? Object.fromEntries(
+        Object.entries(prev.spellSlots).map(([level, slot]) => [level, { ...slot, current: slot.max }])
+      ) : undefined
+    }));
+
+    addJournalEntry('Took a long rest. HP and Spell Slots fully restored.', 'Rest');
+    setShowRestMenu(false);
+  };
+
+  if (!adventure || !currentEncounter) {
+    return null;
+  }
+
+  if (showGameOver) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 fade-in">
+        <div className="text-center space-y-6 p-8 max-w-md">
+          <h2 className="text-5xl font-bold text-red-600 mb-4 animate-pulse">YOU DIED</h2>
+          <p className="text-xl text-gray-300">
+            Your journey has come to a tragic end. But every end is a new beginning.
+          </p>
+          <Button
+            onClick={() => {
+              setShowGameOver(false);
+              reset();
+            }}
+            className="w-full py-6 text-xl bg-red-700 hover:bg-red-800 text-white border-2 border-red-500"
+          >
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!character) {
+    return (
+      <div className="container mx-auto px-4 py-8 fade-in">
+        <Card className="w-full max-w-2xl mx-auto scroll-parchment slide-up">
+          <CardHeader className="text-center">
+            <CardTitle className="text-3xl">{t('adventure.noCharacter')}</CardTitle>
+            <CardDescription className="text-lg mt-2">
+              {t('adventure.createCharacterFirst')}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  if (inCombat && currentEncounter.enemy) {
+    return (
+      <div className="container mx-auto px-4 py-8 fade-in">
+        <CombatEncounter
+          character={character}
+          enemies={[currentEncounter.enemy]}
+          onVictory={handleCombatVictory}
+          onDefeat={handleCombatDefeat}
+          playerAdvantage={currentEncounter.playerAdvantage}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8 fade-in">
+      <DiceRollModal
+        isOpen={showDiceModal}
+        isRolling={isRollingDice}
+        diceRoll={diceRoll}
+        rollResult={rollResult}
+        onRollComplete={handleDiceRollComplete}
+        onClose={handleModalClose}
+        skillName={currentSkillCheck?.skill}
+        difficultyClass={currentSkillCheck?.dc}
+        modifier={currentSkillCheck?.modifier}
+      />
+
+      <LevelUpModal
+        isOpen={showLevelUp}
+        level={levelUpData.level}
+        hpIncrease={levelUpData.hpIncrease}
+        talents={availableTalents}
+        selectedTalentId={selectedTalentId}
+        onSelectTalent={setSelectedTalentId}
+        onConfirm={handleTalentConfirm}
+      />
+      {showExitConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="max-w-md w-full bg-fantasy-dark-card border border-fantasy-purple/40 rounded-lg p-6 space-y-4">
+            <h3 className="text-xl font-bold text-fantasy-gold">{t('adventure.exitTitle', 'Leave adventure?')}</h3>
+            <p className="text-sm text-muted-foreground">
+              {t('adventure.exitBody', 'You will return to camp. Progress in this adventure will be lost unless it has been completed.')}
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setShowExitConfirm(false)}>
+                {t('common.cancel', 'Cancel')}
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  setShowExitConfirm(false);
+                  endAdventure('abandoned', t('adventure.abandoned', 'Abandoned the adventure.'));
+                }}
+              >
+                {t('adventure.exitConfirm', 'Return to Camp')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Character Stats Bar */}
+      <div className="mb-6 flex flex-wrap gap-4 justify-center items-center">
+        <Badge variant="fantasy" className="text-sm px-4 py-2">
+          {character.name} - {character.race.name} {character.class.name}
+        </Badge>
+        <Badge variant="gold" className="text-sm px-4 py-2">
+          HP: {character.hitPoints}/{character.maxHitPoints}
+        </Badge>
+        <Badge variant="outline" className="text-sm px-4 py-2 flex flex-col items-start gap-1 min-w-[120px]">
+          <div className="flex justify-between w-full text-xs gap-3">
+            <span>Level {character.level}</span>
+            <span className="text-muted-foreground">{character.xp}/{character.maxXp || 300} XP</span>
+          </div>
+          <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+            <div
+              className="h-full bg-fantasy-gold transition-all duration-500"
+              style={{ width: `${Math.min(100, ((character.xp || 0) / (character.maxXp || 300)) * 100)}%` }}
+            />
+          </div>
+        </Badge>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowInventory(true)}
+            className="flex items-center gap-2"
+          >
+            <Backpack className="h-4 w-4" />
+            {t('adventure.inventory', 'Inventory')} {character.inventory && character.inventory.length > 0 && `(${character.inventory.length})`}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowQuestJournal(true)}
+            className="flex items-center gap-2"
+          >
+            <BookOpen className="h-4 w-4" />
+            {t('adventure.questJournal', 'Quests & Journal')}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowRestMenu(true)}
+            className="flex items-center gap-2"
+            disabled={inCombat}
+          >
+            <Tent className="h-4 w-4" />
+            {t('adventure.rest', 'Rest')}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowShop(true)}
+            className="flex items-center gap-2"
+            disabled={inCombat}
+          >
+            <ShoppingBag className="h-4 w-4" />
+            Merchant
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setShowExitConfirm(true)}
+            className="flex items-center gap-2"
+            disabled={inCombat}
+          >
+            <DoorOpen className="h-4 w-4" />
+            {t('adventure.exit', 'Leave Adventure')}
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        <div className="w-full lg:w-1/3 order-2 lg:order-1">
+          <Card className="bg-fantasy-dark-card/80 border border-fantasy-purple/20 lg:sticky lg:top-24">
+            <CardHeader>
+              <CardTitle className="text-lg">{t('adventure.narrativeLog', 'Narrative Log')}</CardTitle>
+              <CardDescription>{t('adventure.narrativeLogHint', 'Key actions and dice rolls from your journey.')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+              {hasNarrativeEntries ? (
+                narrativeLog.map((entry) => (
+                  <p key={entry.id} className="text-sm text-muted-foreground border-b border-white/5 pb-2 last:border-0 last:pb-0">
+                    • {entry.message}
+                  </p>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {t('adventure.narrativeLogEmpty', 'Your choices will be tracked here once the adventure begins.')}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+        <div className="w-full lg:flex-1 order-1 lg:order-2">
+          <Card className="w-full scroll-parchment slide-up">
+            <CardHeader>
+              <div className="flex items-center justify-between mb-2">
+                <Badge variant="fantasy">{currentEncounter.type}</Badge>
+                {currentEncounter.completed && (
+                  <Badge variant="gold">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    {t('adventure.completed')}
+                  </Badge>
+                )}
+              </div>
+              <CardTitle className="text-2xl">{currentEncounter.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Tutorial Box */}
+              {currentEncounter.tutorial && showTutorial && (
+                <div className="p-4 bg-fantasy-purple/20 border border-fantasy-purple/50 rounded-md">
+                  <div className="flex items-start gap-3">
+                    <BookOpen className="h-5 w-5 text-fantasy-gold mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-fantasy-gold mb-1">
+                        {t('adventure.tutorial')}: {currentEncounter.tutorial.title}
+                      </h4>
+                      <p className="text-sm">{currentEncounter.tutorial.content}</p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="mt-2"
+                        onClick={() => setShowTutorial(false)}
+                      >
+                        {t('adventure.hideTutorial')}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Description */}
+              <div className="space-y-2">
+                <p className="text-lg">{currentEncounter.description}</p>
+
+                {/* Outcome Message from Last Choice */}
+                {outcomeMessage && !isRollingDice && (
+                  <div className="p-4 bg-fantasy-purple/20 border border-fantasy-purple/50 rounded-md my-4 fade-in">
+                    <p className="text-sm italic text-fantasy-gold">{outcomeMessage}</p>
+                  </div>
+                )}
+
+                {/* Dynamic character-specific flavor text */}
+                {showTutorial && currentEncounter.type === 'combat' && character.class.name === 'Wizard' && (
+                  <p className="text-sm text-fantasy-purple italic">
+                    Your arcane training gives you a moment to assess the magical energies in the area...
+                  </p>
+                )}
+                {showTutorial && currentEncounter.type === 'combat' && character.class.name === 'Barbarian' && (
+                  <p className="text-sm text-red-400 italic">
+                    You feel the battle rage stirring within you, ready to be unleashed...
+                  </p>
+                )}
+              </div>
+
+              {/* Enemy Stats */}
+              {currentEncounter.enemy && (
+                <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-md">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sword className="h-5 w-5 text-red-400" />
+                    <h4 className="font-semibold text-red-400">{currentEncounter.enemy.name}</h4>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>AC: {currentEncounter.enemy.armorClass}</div>
+                    <div>HP: {currentEncounter.enemy.hitPoints}</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Options */}
+              <div className="space-y-3">
+                <h4 className="font-semibold">{t('adventure.whatDoYouDo')}</h4>
+                {currentEncounter.options
+                  .filter((option) => {
+                    // Filter options based on character requirements
+                    if (option.requiresRace && character.race.name !== option.requiresRace) {
+                      return false;
+                    }
+                    if (option.requiresClass && character.class.name !== option.requiresClass) {
+                      return false;
+                    }
+                    if (option.requiresBackground && character.background.name !== option.requiresBackground) {
+                      return false;
+                    }
+                    if (option.requiresVisitedEncounterId && !visitedEncounters.includes(option.requiresVisitedEncounterId)) {
+                      return false;
+                    }
+                    return true;
+                  })
+                  .map((option) => {
+                    const hasVisitedTarget = option.nextEncounterId
+                      ? visitedEncounters.includes(option.nextEncounterId)
+                      : false;
+                    const optionLabel = hasVisitedTarget && option.repeatText ? option.repeatText : option.text;
+                    const isSkillCheck = option.type === 'skill';
+                    const isSelected = selectedOptions.has(`${currentEncounter.id}-${option.id}`);
+                    const skillData = isSkillCheck
+                      ? {
+                        skill: option.skill || currentEncounter.skillCheck?.skill,
+                        ability: option.ability || currentEncounter.skillCheck?.ability,
+                        difficulty: option.difficultyClass || currentEncounter.skillCheck?.difficultyClass,
+                        success: option.successOutcome || currentEncounter.skillCheck?.success,
+                        failure: option.failureOutcome || currentEncounter.skillCheck?.failure,
+                      }
+                      : null;
+                    const abilityModifier = skillData?.ability ? getAbilityModifier(skillData.ability) : null;
+
+                    return (
+                      <div key={option.id}>
+                        <Button
+                          variant={option.type === 'attack' ? 'destructive' : 'outline'}
+                          className={cn(
+                            "w-full justify-start text-left h-auto py-4 px-4",
+                            (option.requiresRace || option.requiresClass || option.requiresBackground) &&
+                            "border-fantasy-gold/50 bg-fantasy-gold/10 hover:bg-fantasy-gold/20",
+                            isSelected && "opacity-60 text-muted-foreground"
+                          )}
+                          onClick={() => handleOptionClick(option)}
+                          disabled={currentEncounter.completed}
+                        >
+                          <div className="flex flex-wrap items-center gap-3 w-full">
+                            <span className="flex items-center gap-2 text-left">
+                              {option.isExitOption && <DoorOpen className="h-4 w-4 text-muted-foreground" />}
+                              {isSkillCheck && <Dice6 className="h-4 w-4 text-fantasy-purple" />}
+                              <span>{optionLabel}</span>
+                            </span>
+                            {skillData && skillData.skill && skillData.ability && skillData.difficulty && (
+                              <span className="flex items-center gap-2 text-xs text-fantasy-purple">
+                                <span className="font-semibold whitespace-nowrap">
+                                  {skillData.skill} • {skillData.ability} (DC {skillData.difficulty})
+                                </span>
+                                {typeof abilityModifier === 'number' && (
+                                  <Badge variant="outline" className="text-[11px] px-2 py-0 whitespace-nowrap">
+                                    {skillData.ability}: {abilityModifier >= 0 ? '+' : ''}{abilityModifier}
+                                  </Badge>
+                                )}
+                              </span>
+                            )}
+                            {(option.requiresRace || option.requiresClass || option.requiresBackground) && (
+                              <Badge variant="gold" className="ml-auto text-xs">Special</Badge>
+                            )}
+                          </div>
+                        </Button>
+                      </div>
+                    );
+                  })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      {showQuestJournal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="relative w-full max-w-4xl">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
+              onClick={() => setShowQuestJournal(false)}
+            >
+              <X className="h-6 w-6" />
+            </Button>
+            <div className="grid gap-4 md:grid-cols-2">
+              <QuestTracker quests={quests} />
+              <JournalPanel journal={journal} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showRestMenu && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="relative w-full max-w-md">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
+              onClick={() => setShowRestMenu(false)}
+            >
+              <X className="h-6 w-6" />
+            </Button>
+            <Card className="border-fantasy-gold bg-fantasy-dark-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Tent className="h-6 w-6 text-fantasy-gold" />
+                  Rest & Recovery
+                </CardTitle>
+                <CardDescription>
+                  Take a moment to tend to your wounds and prepare for the journey ahead.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button
+                  variant="outline"
+                  className="w-full justify-between h-auto py-4"
+                  onClick={handleShortRest}
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="font-bold">Short Rest</span>
+                    <span className="text-xs text-muted-foreground">Spend 1 Hit Die to regain HP.</span>
+                  </div>
+                  <Badge variant="secondary">1 hr</Badge>
+                </Button>
+                <Button
+                  variant="fantasy"
+                  className="w-full justify-between h-auto py-4"
+                  onClick={handleLongRest}
+                >
+                  <div className="flex flex-col items-start">
+                    <span className="font-bold">Long Rest</span>
+                    <span className="text-xs text-white/80">Restore all HP and Spell Slots.</span>
+                  </div>
+                  <Badge variant="secondary" className="bg-black/20">8 hrs</Badge>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* Shop Modal */}
+      {showShop && (
+        <Shop onClose={() => setShowShop(false)} />
+      )}
+
+      {/* Inventory Modal */}
+      {showInventory && (
+        <Inventory
+          character={character}
+          onEquipItem={equipItem}
+          onUnequipItem={unequipItem}
+          onUseItem={useItem}
+          onClose={() => setShowInventory(false)}
+        />
+      )}
+    </div>
+  );
+}
