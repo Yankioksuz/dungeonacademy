@@ -14,6 +14,7 @@ import { useSaveSystem } from '@/hooks/useSaveSystem';
 import tutorialAdventure from '@/content/adventure.json';
 import spireAdventure from '@/content/adventure-shadows.json';
 import spellsContent from '@/content/spells.json';
+import { getMaxPreparedSpells } from '@/lib/spells';
 
 type CharacterUpdater =
   | Partial<PlayerCharacter>
@@ -42,6 +43,12 @@ interface GameContextType {
   unequipItem: (slot: 'weapon' | 'armor') => void;
   useItem: (item: Item) => void;
   updateCharacter: (updates: CharacterUpdater) => void;
+  startConcentration: (spellId: string, spellName: string) => void;
+  endConcentration: () => void;
+  prepareSpell: (spellId: string) => void;
+  unprepareSpell: (spellId: string) => void;
+  spendSpellSlot: (level: number) => boolean;
+  restoreSpellSlots: () => void;
   addQuest: (quest: QuestEntry) => void;
   updateQuestStatus: (questId: string, status: QuestStatus) => void;
   updateQuestObjective: (questId: string, objectiveId: string, completed: boolean) => void;
@@ -299,10 +306,30 @@ export function GameProvider({ children }: { children: ReactNode }) {
         },
         knownSpells: spellsContent
           .filter(spell =>
-            spell.level === 1 &&
+            spell.level <= 1 &&
             spell.classes.includes(updatedCharacter.class.name)
           )
           .map(spell => spell.id),
+        preparedSpells: (() => {
+          const known = spellsContent
+            .filter(spell =>
+              spell.level <= 1 &&
+              spell.classes.includes(updatedCharacter.class.name)
+            )
+            .map(spell => spell.id);
+          const nonCantripKnown = spellsContent
+            .filter(spell =>
+              spell.level > 0 &&
+              spell.level <= 1 &&
+              spell.classes.includes(updatedCharacter.class.name)
+            )
+            .map(spell => spell.id);
+          const maxPrepared = getMaxPreparedSpells(updatedCharacter as PlayerCharacter);
+          if (maxPrepared <= 0) return known;
+          // Cantrips stay in knownSpells; only non-cantrips count toward prepared limit
+          const preparedNonCantrips = nonCantripKnown.slice(0, maxPrepared);
+          return [...preparedNonCantrips];
+        })(),
       };
     });
     // Don't reset characterCreationStep here - let the Game component handle the flow
@@ -468,6 +495,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
         };
       }
 
+      if (item.type === 'scroll') {
+        return {
+          ...prev,
+          inventory: (prev.inventory || []).filter(i => i.id !== item.id),
+        };
+      }
+
       return prev;
     });
   }, []);
@@ -479,6 +513,79 @@ export function GameProvider({ children }: { children: ReactNode }) {
         return updates(prev);
       }
       return { ...prev, ...updates };
+    });
+  }, []);
+
+  const startConcentration = useCallback((spellId: string, spellName: string) => {
+    setCharacter((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        concentratingOn: {
+          spellId,
+          spellName,
+          startedAt: Date.now(),
+        },
+      };
+    });
+  }, []);
+
+  const endConcentration = useCallback(() => {
+    setCharacter((prev) => {
+      if (!prev) return null;
+      if (!prev.concentratingOn) return prev;
+      return { ...prev, concentratingOn: undefined };
+    });
+  }, []);
+
+  const prepareSpell = useCallback((spellId: string) => {
+    setCharacter((prev) => {
+      if (!prev) return null;
+      const maxPrepared = getMaxPreparedSpells(prev);
+      if (maxPrepared <= 0) return prev;
+      const current = prev.preparedSpells || [];
+      if (current.includes(spellId) || current.length >= maxPrepared) return prev;
+      return { ...prev, preparedSpells: [...current, spellId] };
+    });
+  }, []);
+
+  const unprepareSpell = useCallback((spellId: string) => {
+    setCharacter((prev) => {
+      if (!prev) return null;
+      const current = prev.preparedSpells || [];
+      return { ...prev, preparedSpells: current.filter((id) => id !== spellId) };
+    });
+  }, []);
+
+  const spendSpellSlot = useCallback((level: number) => {
+    let spent = false;
+    setCharacter((prev) => {
+      if (!prev) return null;
+      const slots = prev.spellSlots?.[level];
+      if (!slots || slots.current <= 0) return prev;
+      spent = true;
+      return {
+        ...prev,
+        spellSlots: {
+          ...prev.spellSlots,
+          [level]: {
+            ...slots,
+            current: slots.current - 1,
+          },
+        },
+      };
+    });
+    return spent;
+  }, []);
+
+  const restoreSpellSlots = useCallback(() => {
+    setCharacter((prev) => {
+      if (!prev || !prev.spellSlots) return prev;
+      const restored: PlayerCharacter['spellSlots'] = {};
+      Object.entries(prev.spellSlots).forEach(([level, pool]) => {
+        restored[Number(level)] = { ...pool, current: pool.max };
+      });
+      return { ...prev, spellSlots: restored };
     });
   }, []);
 
@@ -594,6 +701,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
         unequipItem,
         useItem,
         updateCharacter,
+        startConcentration,
+        endConcentration,
+        prepareSpell,
+        unprepareSpell,
+        spendSpellSlot,
+        restoreSpellSlots,
         addQuest,
         updateQuestStatus,
         updateQuestObjective,

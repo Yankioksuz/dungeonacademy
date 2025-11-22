@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { useTranslation } from 'react-i18next';
-import { Backpack, Sword, Shield, Heart, Gem, X, Check } from 'lucide-react';
+import { Backpack, Sword, Shield, Heart, Gem, X, Check, Scroll } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PlayerCharacter, Item } from '@/types';
 
@@ -23,6 +23,7 @@ export function Inventory({ character, onEquipItem, onUnequipItem, onUseItem, on
   const weapons = inventory.filter(item => item.type === 'weapon');
   const armor = inventory.filter(item => item.type === 'armor');
   const potions = inventory.filter(item => item.type === 'potion');
+  const scrolls = inventory.filter(item => item.type === 'scroll');
   const treasure = inventory.filter(item => item.type === 'treasure');
 
   const getItemIcon = (type: Item['type']) => {
@@ -30,6 +31,7 @@ export function Inventory({ character, onEquipItem, onUnequipItem, onUseItem, on
       case 'weapon': return <Sword className="h-4 w-4" />;
       case 'armor': return <Shield className="h-4 w-4" />;
       case 'potion': return <Heart className="h-4 w-4 text-red-400" />;
+      case 'scroll': return <Scroll className="h-4 w-4 text-amber-300" />;
       case 'treasure': return <Gem className="h-4 w-4" />;
       default: return <Backpack className="h-4 w-4" />;
     }
@@ -48,7 +50,7 @@ export function Inventory({ character, onEquipItem, onUnequipItem, onUseItem, on
       return;
     }
 
-    if (item.type === 'potion') {
+    if (item.type === 'potion' || item.type === 'scroll') {
       setPendingConsumable(item);
       return;
     }
@@ -210,6 +212,16 @@ export function Inventory({ character, onEquipItem, onUnequipItem, onUseItem, on
             </div>
           )}
 
+          {/* Scrolls */}
+          {scrolls.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="font-semibold">📜 {t('inventory.scrolls', 'Scrolls')} ({scrolls.length})</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {scrolls.map(renderItemCard)}
+              </div>
+            </div>
+          )}
+
           {/* Treasure */}
           {treasure.length > 0 && (
             <div className="space-y-3">
@@ -229,17 +241,21 @@ export function Inventory({ character, onEquipItem, onUnequipItem, onUseItem, on
           )}
 
           {/* Consumable confirmation */}
-          {pendingConsumable && pendingConsumable.type === 'potion' && (
+          {pendingConsumable && (pendingConsumable.type === 'potion' || pendingConsumable.type === 'scroll') && (
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-4 border-t border-fantasy-purple/20">
               <div>
                 <p className="font-semibold">{pendingConsumable.name}</p>
                 <p className="text-sm text-muted-foreground">
-                  {t('inventory.usePotionPrompt', 'Use this potion now? This will consume it.')}
+                  {pendingConsumable.type === 'potion'
+                    ? t('inventory.usePotionPrompt', 'Use this potion now? This will consume it.')
+                    : t('inventory.useScrollPrompt', 'Use this scroll now? This will consume it.')}
                 </p>
               </div>
               <div className="flex gap-2">
                 <Button variant="ghost" onClick={() => setPendingConsumable(null)}>
-                  {t('inventory.keepPotion', 'Keep Potion')}
+                  {pendingConsumable.type === 'potion'
+                    ? t('inventory.keepPotion', 'Keep Potion')
+                    : t('inventory.keepScroll', 'Keep Scroll')}
                 </Button>
                 <Button
                   variant="fantasy"

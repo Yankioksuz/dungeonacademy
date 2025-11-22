@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Badge } from './ui/badge';
 import { useTranslation } from 'react-i18next';
-import { Sword, BookOpen, Dice6, DoorOpen, CheckCircle2, Backpack, X, Tent, ShoppingBag } from 'lucide-react';
+import { Sword, BookOpen, Dice6, DoorOpen, CheckCircle2, Backpack, X, Tent, ShoppingBag, Brain, Wand2 } from 'lucide-react';
 import type { Item, TalentOption, Encounter } from '@/types';
 import { cn } from '@/lib/utils';
 import { CombatEncounter } from './CombatEncounter';
@@ -12,15 +12,27 @@ import { Inventory } from './Inventory';
 import { DiceRollModal } from './DiceRollModal';
 import { LevelUpModal } from './LevelUpModal';
 import itemsData from '@/content/items.json';
+import spellsData from '@/content/spells.json';
 import talentsContent from '@/content/talents.json';
 import { QuestTracker } from './QuestTracker';
 import { JournalPanel } from './JournalPanel';
 import { Shop } from './Shop';
+import {
+  canRitualCast,
+  getAvailableSlotLevels,
+  getScaledCantripDamage,
+  getSpellcastingAbility,
+  getUpcastDamageOrEffect,
+  isPreparedCaster,
+  shouldCheckScrollUse,
+  getProficiencyBonus,
+} from '@/lib/spells';
 
 const itemCollections = [
   itemsData.weapons,
   itemsData.armor,
   itemsData.potions,
+  itemsData.scrolls,
   itemsData.treasure,
 ];
 
@@ -84,9 +96,12 @@ export function Adventure() {
     updateQuestObjective,
     addJournalEntry,
     journal,
-    gainXp,
-    tutorialsEnabled
-  } = useGame();
+  gainXp,
+  tutorialsEnabled,
+  startConcentration,
+  endConcentration,
+  spendSpellSlot
+} = useGame();
   const currentEncounter = useMemo<Encounter | null>(() => {
     if (!adventure || !adventure.encounters || adventure.encounters.length === 0) {
       return null;
@@ -113,6 +128,7 @@ export function Adventure() {
   const [showShop, setShowShop] = useState(false);
   const [outcomeMessage, setOutcomeMessage] = useState<string | null>(null);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [showSpellMenu, setShowSpellMenu] = useState(false);
 
   const [selectedOptions, setSelectedOptions] = useState<Set<string>>(new Set());
 
@@ -126,6 +142,12 @@ export function Adventure() {
   const [selectedTalentId, setSelectedTalentId] = useState<string | null>(null);
 
   const visitedEncounters = adventure?.visitedEncounterIds || [];
+  const slotBadges = useMemo(() => {
+    if (!character?.spellSlots) return [];
+    return Object.entries(character.spellSlots)
+      .sort(([a], [b]) => Number(a) - Number(b))
+      .map(([lvl, pool]) => `L${lvl} ${pool.current}/${pool.max}`);
+  }, [character?.spellSlots]);
 
   useEffect(() => {
     setShowTutorial(tutorialsEnabled);
@@ -230,6 +252,19 @@ export function Adventure() {
     return roll;
   };
 
+  const parseDice = (formula: string) => {
+    const [dicePart, modifierPart] = formula.split('+');
+    const [countStr, sidesStr] = dicePart.split('d');
+    const count = parseInt(countStr || '1', 10);
+    const sides = parseInt(sidesStr || '6', 10);
+    const modifier = parseInt(modifierPart || '0', 10);
+    let total = modifier;
+    for (let i = 0; i < count; i++) {
+      total += rollRandom(sides);
+    }
+    return total;
+  };
+
   const handleDiceRollComplete = () => {
     setIsRollingDice(false);
   };
@@ -279,6 +314,108 @@ export function Adventure() {
     });
 
     return success;
+  };
+
+  const handleEndConcentration = () => {
+    if (!character?.concentratingOn) return;
+    addToNarrativeLog(`Concentration on ${character.concentratingOn.spellName} ends.`);
+    endConcentration();
+  };
+
+  const handleAdventureCast = (
+    spellId: string,
+    options?: {
+      slotLevel?: number;
+      castAsRitual?: boolean;
+      fromScroll?: boolean;
+      bypassPreparation?: boolean;
+      source?: 'scroll' | 'spellbook';
+    }
+  ) => {
+    if (!character) return false;
+    const spell = spellsData.find((s) => s.id === spellId);
+    if (!spell) {
+      addToNarrativeLog('The spell fizzles. (Unknown spell)');
+      return false;
+    }
+
+    const castAsRitual = options?.castAsRitual ?? false;
+    const fromScroll = options?.fromScroll ?? false;
+    const preparedList = character.preparedSpells ?? character.knownSpells ?? [];
+    const preparedOk = options?.bypassPreparation
+      ? true
+      : !isPreparedCaster(character.class.name) || preparedList.includes(spellId);
+
+    if (!preparedOk) {
+      addToNarrativeLog(`${spell.name} is not prepared.`);
+      return false;
+    }
+
+    const isCantrip = spell.level === 0;
+    const computedSlotLevel = spell.level > 0 && !castAsRitual && !fromScroll
+      ? (options?.slotLevel ?? getAvailableSlotLevels(character, spell)[0])
+      : undefined;
+    if (spell.level > 0 && !castAsRitual && !fromScroll) {
+      const slotPool = character.spellSlots?.[computedSlotLevel ?? spell.level];
+      if (!computedSlotLevel || !slotPool || slotPool.current <= 0) {
+        addToNarrativeLog(`No available slots to cast ${spell.name}.`);
+        return false;
+      }
+      const spent = spendSpellSlot(computedSlotLevel);
+      if (!spent) {
+        addToNarrativeLog(`Unable to spend a level ${computedSlotLevel} slot.`);
+        return false;
+      }
+    }
+
+    const abilityKey = getSpellcastingAbility(character.class.name);
+    const abilityMod = Math.floor((character.abilityScores[abilityKey] - 10) / 2);
+    const effectiveSlotLevel = fromScroll
+      ? (options?.slotLevel ?? spell.level)
+      : (computedSlotLevel ?? spell.level);
+
+    const buildFormula = () => {
+      if (isCantrip) return getScaledCantripDamage(spell, character.level) || spell.damage || spell.healing || '';
+      return getUpcastDamageOrEffect(spell, effectiveSlotLevel) || spell.damage || spell.healing || '';
+    };
+
+    const effectFormula = buildFormula();
+    let effectMessage = '';
+
+    if (spell.healing && effectFormula) {
+      let healTotal = parseDice(effectFormula);
+      healTotal += abilityMod;
+      const before = character.hitPoints;
+      const newHp = Math.min(character.maxHitPoints, before + healTotal);
+      const actualHeal = Math.max(0, newHp - before);
+      updateCharacter((prev) => {
+        if (!prev) return prev;
+        return { ...prev, hitPoints: newHp };
+      });
+      effectMessage = `restoring ${actualHeal} HP`;
+    } else {
+      effectMessage = 'the spell takes effect';
+    }
+
+    if (spell.concentration) {
+      if (character.concentratingOn && character.concentratingOn.spellId !== spell.id) {
+        addToNarrativeLog(`Concentration on ${character.concentratingOn.spellName} ends as ${spell.name} begins.`);
+      }
+      startConcentration(spell.id, spell.name);
+    }
+
+    const labels: string[] = [];
+    if (castAsRitual) labels.push('ritual');
+    if (fromScroll) labels.push('scroll');
+    if (effectiveSlotLevel && effectiveSlotLevel > spell.level) {
+      labels.push(`upcast to L${effectiveSlotLevel}`);
+    }
+
+    const labelText = labels.length ? ` (${labels.join(', ')})` : '';
+    addToNarrativeLog(`${character.name} casts ${spell.name}${labelText}, ${effectMessage}.`);
+    addJournalEntry(`${character.name} cast ${spell.name}${labelText}.`, 'Spell Cast');
+    setShowSpellMenu(false);
+    return true;
   };
 
   // Watch for level up to show modal
@@ -503,6 +640,62 @@ export function Adventure() {
     setShowGameOver(true);
   };
 
+  const handleUseInventoryItem = (item: Item) => {
+    if (!character) return;
+
+    if (item.type === 'potion' && typeof item.healing === 'number') {
+      const before = character.hitPoints;
+      useItem(item);
+      const actualHeal = Math.max(0, Math.min(character.maxHitPoints - before, item.healing));
+      addToNarrativeLog(`${character.name} drinks ${item.name} and recovers ${actualHeal} HP.`);
+      addJournalEntry(`${character.name} used ${item.name}.`, 'Item Used');
+      setShowInventory(false);
+      return;
+    }
+
+    if (item.type === 'scroll' && item.spellId) {
+      const scrollSpell = spellsData.find((s) => s.id === item.spellId);
+      if (!scrollSpell) {
+        addToNarrativeLog('The scroll is illegible.');
+        useItem(item);
+        setShowInventory(false);
+        return;
+      }
+
+      const { requiresCheck, dc, abilityMod } = shouldCheckScrollUse(character, scrollSpell);
+      let failed = false;
+      if (requiresCheck) {
+        const roll = rollRandom(20);
+        const total = roll + abilityMod + getProficiencyBonus(character.level);
+        if (total < dc) {
+          failed = true;
+          addToNarrativeLog(`${character.name} fails to cast ${scrollSpell.name} from the scroll (rolled ${total} vs DC ${dc}).`);
+        } else {
+          addToNarrativeLog(`${character.name} manages to cast ${scrollSpell.name} from the scroll (rolled ${total} vs DC ${dc}).`);
+        }
+      } else {
+        addToNarrativeLog(`${character.name} casts ${scrollSpell.name} from the scroll.`);
+      }
+
+      if (!failed) {
+        const castResult = handleAdventureCast(scrollSpell.id, {
+          slotLevel: item.spellLevel ?? scrollSpell.level,
+          fromScroll: true,
+          bypassPreparation: true,
+          source: 'scroll'
+        });
+        if (castResult !== false) {
+          useItem(item);
+        }
+      }
+      setShowInventory(false);
+      return;
+    }
+
+    useItem(item);
+    setShowInventory(false);
+  };
+
   const getAbilityModifier = (ability: string) => {
     if (!character) return 0;
     const abilityKey = ability.toLowerCase() as keyof typeof character.abilityScores;
@@ -521,7 +714,8 @@ export function Adventure() {
 
     updateCharacter((prev) => ({
       ...prev,
-      hitPoints: Math.min(prev.maxHitPoints, prev.hitPoints + healAmount)
+      hitPoints: Math.min(prev.maxHitPoints, prev.hitPoints + healAmount),
+      concentratingOn: undefined,
     }));
 
     addJournalEntry(`Took a short rest and regained ${healAmount} HP.`, 'Rest');
@@ -536,6 +730,7 @@ export function Adventure() {
     updateCharacter((prev) => ({
       ...prev,
       hitPoints: prev.maxHitPoints,
+      concentratingOn: undefined,
       spellSlots: prev.spellSlots ? Object.fromEntries(
         Object.entries(prev.spellSlots).map(([level, slot]) => [level, { ...slot, current: slot.max }])
       ) : undefined
@@ -656,6 +851,23 @@ export function Adventure() {
         <Badge variant="gold" className="text-sm px-4 py-2">
           HP: {character.hitPoints}/{character.maxHitPoints}
         </Badge>
+        {slotBadges.length > 0 && (
+          <Badge variant="outline" className="text-sm px-3 py-2 flex items-center gap-2">
+            <span>Slots:</span>
+            <span className="text-xs text-muted-foreground">{slotBadges.join(' | ')}</span>
+          </Badge>
+        )}
+        {character.concentratingOn && (
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-sm px-3 py-2 flex items-center gap-2">
+              <Brain className="h-4 w-4" />
+              <span>Concentration: {character.concentratingOn.spellName}</span>
+            </Badge>
+            <Button variant="ghost" size="sm" onClick={handleEndConcentration}>
+              End
+            </Button>
+          </div>
+        )}
         <Badge variant="outline" className="text-sm px-4 py-2 flex flex-col items-start gap-1 min-w-[120px]">
           <div className="flex justify-between w-full text-xs gap-3">
             <span>Level {character.level}</span>
@@ -696,6 +908,16 @@ export function Adventure() {
           >
             <Tent className="h-4 w-4" />
             {t('adventure.rest', 'Rest')}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowSpellMenu(true)}
+            className="flex items-center gap-2"
+            disabled={inCombat || !character.knownSpells?.length}
+          >
+            <Wand2 className="h-4 w-4" />
+            Cast Spell
           </Button>
           <Button
             variant="outline"
@@ -965,14 +1187,120 @@ export function Adventure() {
                 </Button>
               </CardContent>
             </Card>
-          </div>
-        </div>
-      )}
+      </div>
+    </div>
+  )}
 
-      {/* Shop Modal */}
-      {showShop && (
-        <Shop onClose={() => setShowShop(false)} />
-      )}
+  {showSpellMenu && !inCombat && character && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+      <div className="relative w-full max-w-2xl">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
+          onClick={() => setShowSpellMenu(false)}
+        >
+          <X className="h-6 w-6" />
+        </Button>
+        <Card className="border-fantasy-purple bg-fantasy-dark-card">
+          <CardHeader>
+            <CardTitle className="flex justify-between items-center">
+              <span>Spellbook</span>
+              {slotBadges.length > 0 && (
+                <Badge variant="outline">
+                  {slotBadges.join(' | ')}
+                </Badge>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-2 max-h-[70vh] overflow-y-auto">
+            {character.knownSpells?.map((spellId) => {
+              const spell = spellsData.find((s) => s.id === spellId);
+              if (!spell) return null;
+              const availableSlotLevels = getAvailableSlotLevels(character, spell);
+              const canCastAsRitual = spell.ritual && canRitualCast(character);
+              const isCantrip = spell.level === 0;
+              const noResources =
+                !isCantrip &&
+                availableSlotLevels.length === 0 &&
+                !canCastAsRitual;
+              const preparedRequirement =
+                !isPreparedCaster(character.class.name) ||
+                (character.preparedSpells || character.knownSpells || []).includes(spellId);
+
+              return (
+                <div
+                  key={spellId}
+                  className="w-full rounded-md border border-fantasy-purple/30 p-3 hover:bg-fantasy-purple/10 transition"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex flex-col items-start text-left">
+                      <span className="font-bold flex items-center gap-2">
+                        {spell.name}
+                        {spell.concentration && (
+                          <Badge variant="outline" className="text-[11px] flex items-center gap-1">
+                            <Brain className="h-3 w-3" /> Concentration
+                          </Badge>
+                        )}
+                      </span>
+                      <span className="text-xs text-muted-foreground line-clamp-2">{spell.description}</span>
+                      {!preparedRequirement && (
+                        <span className="text-[11px] text-amber-400 mt-1">Not prepared</span>
+                      )}
+                    </div>
+                    <Badge variant="secondary" className="ml-2 shrink-0">Lvl {spell.level}</Badge>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {isCantrip && (
+                      <Button
+                        size="sm"
+                        variant="fantasy"
+                        onClick={() => handleAdventureCast(spellId)}
+                      >
+                        Cast Cantrip
+                      </Button>
+                    )}
+                    {availableSlotLevels.map((lvl) => (
+                      <Button
+                        key={`${spellId}-slot-${lvl}-adv`}
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleAdventureCast(spellId, { slotLevel: lvl })}
+                        disabled={!preparedRequirement}
+                      >
+                        Use Lvl {lvl} Slot
+                      </Button>
+                    ))}
+                    {canCastAsRitual && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleAdventureCast(spellId, { castAsRitual: true })}
+                        disabled={!preparedRequirement}
+                      >
+                        Cast as Ritual
+                      </Button>
+                    )}
+                    {noResources && (
+                      <span className="text-xs text-muted-foreground">No slots remaining</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+            {(!character.knownSpells || character.knownSpells.length === 0) && (
+              <p className="text-center text-muted-foreground py-4">You don't know any spells.</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )}
+
+  {/* Shop Modal */}
+  {showShop && (
+    <Shop onClose={() => setShowShop(false)} />
+  )}
 
       {/* Inventory Modal */}
       {showInventory && (
@@ -980,7 +1308,7 @@ export function Adventure() {
           character={character}
           onEquipItem={equipItem}
           onUnequipItem={unequipItem}
-          onUseItem={useItem}
+          onUseItem={handleUseInventoryItem}
           onClose={() => setShowInventory(false)}
         />
       )}

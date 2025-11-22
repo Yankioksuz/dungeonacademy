@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { useTranslation } from 'react-i18next';
-import { Sword, Shield, Heart, Skull, Backpack, X, Flame, Wand, Activity, HeartPulse, Dice6 } from 'lucide-react';
+import { Sword, Shield, Heart, Skull, Backpack, X, Flame, Wand, Activity, HeartPulse, Dice6, Brain, Zap, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DiceRoller } from './DiceRoller';
 import { Inventory } from './Inventory';
@@ -13,6 +13,18 @@ import { useGame } from '@/contexts/GameContext';
 import { createLogEntry, formatRollBreakdown } from '@/utils/combatLogger';
 import { CombatLogPanel } from './CombatLogPanel';
 import spellsData from '@/content/spells.json';
+import {
+  canRitualCast,
+  getAvailableSlotLevels,
+  getScaledCantripDamage,
+  getSpellcastingAbility,
+  getSpellSaveDC,
+  getUpcastDamageOrEffect,
+  rollConcentrationCheck,
+  isPreparedCaster,
+  shouldCheckScrollUse,
+  getProficiencyBonus,
+} from '@/lib/spells';
 
 interface StatusEffect {
   id: string;
@@ -42,7 +54,13 @@ interface CombatEncounterProps {
 
 export function CombatEncounter({ character, enemies: initialEnemies, onVictory, onDefeat, playerAdvantage }: CombatEncounterProps) {
   const { t } = useTranslation();
-  const { updateCharacter, useItem: consumeItem } = useGame();
+  const {
+    updateCharacter,
+    useItem: consumeItem,
+    startConcentration,
+    endConcentration,
+    spendSpellSlot
+  } = useGame();
 
   // Combat state - ensure HP is a valid number
   const [playerHp, setPlayerHp] = useState(() => {
@@ -78,6 +96,14 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   const [victoryAchieved, setVictoryAchieved] = useState(false);
   const [deathSaves, setDeathSaves] = useState({ successes: 0, failures: 0 });
   const [isStable, setIsStable] = useState(false);
+  const isFighter = character.class.name.toLowerCase() === 'fighter';
+  const isRogue = character.class.name.toLowerCase() === 'rogue';
+  const [actionSurgeAvailable, setActionSurgeAvailable] = useState(isFighter);
+  const [secondWindAvailable, setSecondWindAvailable] = useState(isFighter);
+  const [sneakAttackReady, setSneakAttackReady] = useState(false);
+  const [sneakAttackUsedThisTurn, setSneakAttackUsedThisTurn] = useState(false);
+  const [actionSurgeActive, setActionSurgeActive] = useState(false);
+  const [cunningAttackBonus, setCunningAttackBonus] = useState(0);
 
   const findTorchOilItem = () =>
     (character.inventory || []).find(
@@ -137,6 +163,12 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     setCombatLog(prev => [...prev, entry]);
   }, []);
 
+  const getEnemyEffectiveAC = (enemy: CombatEnemyState) => {
+    const shovePenalty = enemy.statusEffects.find((eff) => eff.data?.acPenalty);
+    const penalty = shovePenalty ? Number(shovePenalty.data?.acPenalty) : 0;
+    return enemy.armorClass - penalty;
+  };
+
   const rollDice = (sides: number = 20) => {
     return Math.floor(Math.random() * sides) + 1;
   };
@@ -164,6 +196,14 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     }
 
     if (updatedEnemy.isDefeated) {
+      nextTurn();
+      return;
+    }
+
+    const grappled = updatedEnemy.statusEffects.some((eff) => eff.id.startsWith('grappled'));
+    if (grappled) {
+      addLog(`${updatedEnemy.name} struggles against the grapple and cannot act this turn.`, 'condition');
+      setEnemies(prev => prev.map(e => e.id === enemyId ? updatedEnemy : e));
       nextTurn();
       return;
     }
@@ -220,6 +260,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
             }
             return newHp;
           });
+          handleConcentrationCheck(damageRoll);
         }
       } else {
         // Miss
@@ -251,13 +292,17 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       const attackAbility = character.class.primaryAbility.includes('Dexterity') ? 'dexterity' : 'strength';
       const abilityMod = Math.floor((character.abilityScores[attackAbility] - 10) / 2);
       const proficiencyBonus = 2;
-      const totalAttack = attackRoll + abilityMod + proficiencyBonus;
+      const totalAttack = attackRoll + abilityMod + proficiencyBonus + cunningAttackBonus;
       const attackDetails = formatRollBreakdown(attackRoll, [
         { label: 'Ability', value: abilityMod },
         { label: 'Prof', value: proficiencyBonus }
       ]);
+      const enemyAC = enemy ? getEnemyEffectiveAC(enemy) : 10;
+      if (cunningAttackBonus) {
+        attackDetails.push({ label: 'Cunning Edge', value: cunningAttackBonus });
+      }
 
-      if (totalAttack >= enemy.armorClass) {
+      if (totalAttack >= enemyAC) {
         // Hit!
         // Calculate damage based on weapon
         let damageRoll = abilityMod;
@@ -274,6 +319,20 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           // Unarmed strike (1 + STR mod, but we'll be generous with 1d4)
           damageRoll += rollDice(4);
         }
+
+        // Sneak Attack rider for rogues (once per turn)
+        if (isRogue && !sneakAttackUsedThisTurn && sneakAttackReady) {
+          const sneakDice = Math.max(1, Math.ceil(character.level / 2));
+          let sneakBonus = 0;
+          for (let i = 0; i < sneakDice; i++) {
+            sneakBonus += rollDice(6);
+          }
+          damageRoll += sneakBonus;
+          setSneakAttackUsedThisTurn(true);
+          setSneakAttackReady(false);
+          addLog(`${character.name} unleashes Sneak Attack for +${sneakBonus} damage!`, 'damage');
+        }
+
         addLog(`${character.name} ${t('combat.hits')} ${enemy.name} ${t('combat.for')} ${damageRoll} ${t('combat.damage')}!`, 'damage', attackDetails);
 
         setEnemies(prev => prev.map(e => {
@@ -288,8 +347,16 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         addLog(`${character.name} ${t('combat.attacks')} ${enemy.name} ${t('combat.butMisses')}`, 'miss', attackDetails);
       }
 
+      setCunningAttackBonus(0);
       setIsRolling(false);
       setDiceResult(null);
+
+      if (actionSurgeActive) {
+        addLog('Action Surge grants another action!', 'info');
+        setActionSurgeActive(false);
+        return; // Keep player turn
+      }
+
       nextTurn();
     }, 2000);
 
@@ -344,51 +411,205 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     nextTurn();
   };
 
-  const handleCastSpell = (spellId: string) => {
+  const handleSecondWind = () => {
+    if (!isFighter || !secondWindAvailable || isRolling) return;
+    const healAmount = rollDice(10) + character.level;
+    setPlayerHp(prev => Math.min(character.maxHitPoints, prev + healAmount));
+    updateCharacter((prev) => prev ? { ...prev, hitPoints: Math.min(prev.maxHitPoints, prev.hitPoints + healAmount) } : prev);
+    addLog(`${character.name} uses Second Wind and regains ${healAmount} HP!`, 'heal');
+    setSecondWindAvailable(false);
+    nextTurn();
+  };
+
+  const handleActionSurge = () => {
+    if (!isFighter || !actionSurgeAvailable || isRolling) return;
+    addLog(`${character.name} uses Action Surge for an extra action this turn!`, 'info');
+    setActionSurgeAvailable(false);
+    setActionSurgeActive(true);
+  };
+
+  const handleCunningAction = (type: 'dash' | 'disengage' | 'hide') => {
+    if (!isRogue || isRolling) return;
+    if (type === 'dash') {
+      addLog(`${character.name} uses Cunning Action: Dash.`, 'info');
+    } else if (type === 'disengage') {
+      addLog(`${character.name} uses Cunning Action: Disengage (harder to pin down).`, 'info');
+      setPlayerStatusEffects((prev) => [
+        ...prev.filter((e) => e.id !== 'cunning-disengage'),
+        { id: 'cunning-disengage', name: 'Disengaged', duration: 1, type: 'buff' }
+      ]);
+    } else if (type === 'hide') {
+      addLog(`${character.name} uses Cunning Action: Hide. Advantageous strike readied.`, 'info');
+      setSneakAttackReady(true);
+      setCunningAttackBonus(2);
+    }
+    nextTurn();
+  };
+
+  const handleShove = () => {
+    if (!selectedEnemy || isRolling) return;
+    const enemy = enemies.find(e => e.id === selectedEnemy);
+    if (!enemy || enemy.isDefeated) return;
+    setIsRolling(true);
+    const roll = rollDice(20);
+    const abilityMod = Math.floor((character.abilityScores.strength - 10) / 2);
+    const proficiencyBonus = 2;
+    const total = roll + abilityMod + proficiencyBonus;
+    const targetAC = getEnemyEffectiveAC(enemy);
+
+    setTimeout(() => {
+      if (total >= targetAC) {
+        addLog(`${character.name} shoves ${enemy.name} prone (AC -2 this round)!`, 'condition');
+        const shoveEffect: StatusEffect = {
+          id: `shoved-${Date.now()}`,
+          name: 'Shoved/Prone',
+          duration: 1,
+          type: 'debuff',
+          data: { acPenalty: 2 }
+        };
+        setEnemies(prev => prev.map(e => e.id === enemy.id ? { ...e, statusEffects: [...e.statusEffects, shoveEffect] } : e));
+      } else {
+        addLog(`${character.name} tries to shove ${enemy.name} but fails.`, 'miss');
+      }
+      setIsRolling(false);
+      setDiceResult(null);
+      nextTurn();
+    }, 1200);
+  };
+
+  const handleGrapple = () => {
+    if (!selectedEnemy || isRolling) return;
+    const enemy = enemies.find(e => e.id === selectedEnemy);
+    if (!enemy || enemy.isDefeated) return;
+    setIsRolling(true);
+    const roll = rollDice(20);
+    const abilityMod = Math.floor((character.abilityScores.strength - 10) / 2);
+    const proficiencyBonus = 2;
+    const total = roll + abilityMod + proficiencyBonus;
+    const targetAC = getEnemyEffectiveAC(enemy);
+
+    setTimeout(() => {
+      if (total >= targetAC) {
+        addLog(`${character.name} grapples ${enemy.name}! They lose their next action.`, 'condition');
+        const grappleEffect: StatusEffect = {
+          id: `grappled-${Date.now()}`,
+          name: 'Grappled',
+          duration: 1,
+          type: 'debuff'
+        };
+        setEnemies(prev => prev.map(e => e.id === enemy.id ? { ...e, statusEffects: [...e.statusEffects, grappleEffect] } : e));
+      } else {
+        addLog(`${character.name} fails to grapple ${enemy.name}.`, 'miss');
+      }
+      setIsRolling(false);
+      setDiceResult(null);
+      nextTurn();
+    }, 1200);
+  };
+
+  const handleConcentrationCheck = useCallback((damage: number) => {
+    if (!character.concentratingOn) return;
+    const result = rollConcentrationCheck(character, damage);
+    if (result.success) {
+      addLog(
+        `${character.name} maintains concentration (DC ${result.dc}, rolled ${result.total}).`,
+        'info'
+      );
+      return;
+    }
+    addLog(
+      `${character.name} loses concentration on ${character.concentratingOn.spellName}! (DC ${result.dc}, rolled ${result.total})`,
+      'condition'
+    );
+    endConcentration();
+  }, [character, addLog, endConcentration]);
+
+  const parseDice = (formula: string) => {
+    const [dicePart, modifierPart] = formula.split('+');
+    const [countStr, sidesStr] = dicePart.split('d');
+    const count = parseInt(countStr || '1', 10);
+    const sides = parseInt(sidesStr || '6', 10);
+    const modifier = parseInt(modifierPart || '0', 10);
+    let total = modifier;
+    for (let i = 0; i < count; i++) {
+      total += rollDice(sides);
+    }
+    return total;
+  };
+
+  const handleCastSpell = (
+    spellId: string,
+    options?: {
+      slotLevel?: number;
+      castAsRitual?: boolean;
+      fromScroll?: boolean;
+      bypassPreparation?: boolean;
+    }
+  ) => {
     const spell = spellsData.find(s => s.id === spellId) as SpellContent | undefined;
     if (!spell) return;
 
-    // Check slots
-    const level = spell.level;
-    const slots = character.spellSlots?.[level];
-    if (!slots || slots.current <= 0) {
-      addLog(`${character.name} has no level ${level} spell slots remaining!`, 'miss');
+    const castAsRitual = options?.castAsRitual ?? false;
+    const fromScroll = options?.fromScroll ?? false;
+
+    const preparedList = character.preparedSpells ?? character.knownSpells ?? [];
+    const preparedOk = options?.bypassPreparation
+      ? true
+      : !isPreparedCaster(character.class.name) || preparedList.includes(spellId);
+    if (!preparedOk) {
+      addLog(`${spell.name} is not prepared.`, 'miss');
       return;
     }
 
-    // Deduct slot
-    updateCharacter(prev => ({
-      ...prev,
-      spellSlots: {
-        ...prev.spellSlots,
-        [level]: {
-          ...prev.spellSlots![level],
-          current: prev.spellSlots![level].current - 1
-        }
+    const abilityKey = getSpellcastingAbility(character.class.name);
+    const abilityMod = Math.floor((character.abilityScores[abilityKey] - 10) / 2);
+    const proficiencyBonus = Math.max(2, Math.floor((character.level - 1) / 4) + 2);
+
+    const isCantrip = spell.level === 0;
+    const computedSlotLevel = spell.level > 0 && !castAsRitual
+      ? (options?.slotLevel ?? getAvailableSlotLevels(character, spell)[0])
+      : undefined;
+    const effectiveSlotLevel = fromScroll
+      ? (options?.slotLevel ?? spell.level)
+      : computedSlotLevel;
+    if (spell.level > 0 && !castAsRitual && !fromScroll) {
+      const slotPool = character.spellSlots?.[computedSlotLevel ?? spell.level];
+      if (!computedSlotLevel || !slotPool || slotPool.current <= 0) {
+        addLog(`${character.name} has no available slots to cast ${spell.name}.`, 'miss');
+        return;
       }
-    }));
+      const spent = spendSpellSlot(computedSlotLevel);
+      if (!spent) {
+        addLog(`Unable to spend a level ${computedSlotLevel} slot.`, 'miss');
+        return;
+      }
+    }
+
+    const buildDamageFormula = () => {
+      if (isCantrip) {
+        return getScaledCantripDamage(spell, character.level) || '';
+      }
+      if (effectiveSlotLevel) {
+        return getUpcastDamageOrEffect(spell, effectiveSlotLevel) || spell.damage || spell.healing || '';
+      }
+      return spell.damage || spell.healing || '';
+    };
 
     // Process Spell Effect
-    if (spell.damage) {
+    const damageOrHealingFormula = buildDamageFormula();
+
+    if (spell.damage || spell.level === 0) {
       // Attack Spell
       if (!selectedEnemy) return;
 
-      // Simple damage roll parsing (e.g. "8d6" -> roll 8 times d6)
-      const [count, sides] = (spell.damage.split('+')[0] || '1d6').split('d').map(Number);
-      const modifier = parseInt(spell.damage.split('+')[1] || '0');
-
-      let damageTotal = modifier;
-      for (let i = 0; i < count; i++) {
-        damageTotal += rollDice(sides);
-      }
+      const damageTotal = parseDice(damageOrHealingFormula || '1d6');
 
       let finalDamage = damageTotal;
       let saveMessage = '';
 
       // Handle Saving Throw
       if (spell.saveType) {
-        const spellAbility = character.class.primaryAbility.toLowerCase() as keyof typeof character.abilityScores;
-        const spellDC = 8 + 2 + Math.floor((character.abilityScores[spellAbility] - 10) / 2); // 8 + Prof(2) + Mod
+        const spellDC = getSpellSaveDC(character);
 
         const enemy = enemies.find(e => e.id === selectedEnemy);
         if (enemy) {
@@ -416,17 +637,8 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       addLog(`${character.name} casts ${spell.name} on ${selectedEnemyData?.name} for ${finalDamage} ${spell.damageType} damage!${saveMessage}`, 'damage');
     } else if (spell.healing) {
       // Healing Spell
-      const [count, sides] = (spell.healing.split('+')[0] || '1d4').split('d').map(Number);
-      const modifier = parseInt(spell.healing.split('+')[1] || '0');
-
-      let healTotal = modifier;
-      // Add spellcasting ability modifier if needed (simplified here)
-      const spellAbility = character.class.primaryAbility.toLowerCase() as keyof typeof character.abilityScores;
-      healTotal += Math.floor((character.abilityScores[spellAbility] - 10) / 2);
-
-      for (let i = 0; i < count; i++) {
-        healTotal += rollDice(sides);
-      }
+      let healTotal = parseDice(damageOrHealingFormula || spell.healing);
+      healTotal += abilityMod;
 
       setPlayerHp(prev => {
         const newHp = Math.min(character.maxHitPoints, prev + healTotal);
@@ -449,6 +661,13 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         },
       ]);
       addLog(`${character.name} casts Shield! (+5 AC)`, 'info');
+    }
+
+    if (spell.concentration) {
+      if (character.concentratingOn && character.concentratingOn.spellId !== spell.id) {
+        addLog(`Concentration on ${character.concentratingOn.spellName} ends as you begin ${spell.name}.`, 'condition');
+      }
+      startConcentration(spell.id, spell.name);
     }
 
     setShowSpellMenu(false);
@@ -554,11 +773,31 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       setPlayerStatusEffects(prev =>
         prev.filter(effect => effect.id !== 'defense-bonus' || effect.data?.expiresOn !== 'next-turn')
       );
+      setSneakAttackUsedThisTurn(false);
+      setSneakAttackReady(false);
     }
   }, [isPlayerTurn]);
 
   const torchOilAvailable = Boolean(findTorchOilItem());
   const selectedEnemyData = selectedEnemy ? enemies.find(e => e.id === selectedEnemy) : null;
+  const canCastAnySpell = useMemo(() => {
+    if (!character.knownSpells) return false;
+    return character.knownSpells.some((spellId) => {
+      const spell = spellsData.find((s) => s.id === spellId);
+      if (!spell) return false;
+      if (spell.level === 0) return true;
+      const pool = character.spellSlots?.[spell.level];
+      return Boolean(pool && pool.current > 0);
+    });
+  }, [character.knownSpells, character.spellSlots]);
+
+  const slotSummary = useMemo(() => {
+    if (!character.spellSlots) return '';
+    return Object.entries(character.spellSlots)
+      .sort(([a], [b]) => Number(a) - Number(b))
+      .map(([lvl, pool]) => `L${lvl}: ${pool.current}/${pool.max}`)
+      .join(' · ');
+  }, [character.spellSlots]);
 
   return (
     <div className="space-y-6">
@@ -592,6 +831,28 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
               value={(playerHp / character.maxHitPoints) * 100}
               className="h-3"
             />
+            <div className="flex flex-wrap gap-2 mt-2">
+              {character.concentratingOn && (
+                <Badge variant="outline" className="text-xs flex items-center gap-1">
+                  <Brain className="h-3 w-3" /> Concentrating on {character.concentratingOn.spellName}
+                </Badge>
+              )}
+              {isFighter && (
+                <>
+                  <Badge variant={actionSurgeAvailable ? 'fantasy' : 'outline'} className="text-xs">
+                    Action Surge {actionSurgeAvailable ? 'Ready' : 'Used'}
+                  </Badge>
+                  <Badge variant={secondWindAvailable ? 'fantasy' : 'outline'} className="text-xs">
+                    Second Wind {secondWindAvailable ? 'Ready' : 'Used'}
+                  </Badge>
+                </>
+              )}
+              {isRogue && (
+                <Badge variant="outline" className="text-xs">
+                  Sneak Attack {sneakAttackUsedThisTurn ? 'Used this turn' : 'Available'}
+                </Badge>
+              )}
+            </div>
             {playerStatusEffects.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
                 {playerStatusEffects.map(effect => (
@@ -742,17 +1003,81 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
               <Button
                 variant="outline"
                 className="w-full"
+                onClick={handleShove}
+                disabled={!selectedEnemyData || selectedEnemyData.isDefeated}
+              >
+                <Sword className="h-4 w-4 mr-2" />
+                Shove (Prone)
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleGrapple}
+                disabled={!selectedEnemyData || selectedEnemyData.isDefeated}
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Grapple
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
                 onClick={handleUseTorchOil}
                 disabled={!torchOilAvailable || !selectedEnemyData || selectedEnemyData.isDefeated}
               >
                 <Flame className="h-4 w-4 mr-2 text-orange-400" />
                 {t('combat.useTorchOil', 'Use Torch Oil')}
               </Button>
+              {isFighter && (
+                <>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleActionSurge}
+                    disabled={!actionSurgeAvailable || !selectedEnemyData || selectedEnemyData.isDefeated}
+                  >
+                    <Zap className="h-4 w-4 mr-2 text-yellow-400" />
+                    Action Surge
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleSecondWind}
+                    disabled={!secondWindAvailable}
+                  >
+                    <Heart className="h-4 w-4 mr-2 text-green-400" />
+                    Second Wind
+                  </Button>
+                </>
+              )}
+              {isRogue && (
+                <>
+                  <Button
+                    variant={sneakAttackReady ? 'fantasy' : 'outline'}
+                    className="w-full"
+                    onClick={() => setSneakAttackReady((prev) => !prev)}
+                    disabled={sneakAttackUsedThisTurn}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2 text-pink-300" />
+                    {sneakAttackReady ? 'Sneak Attack Ready' : 'Ready Sneak Attack'}
+                  </Button>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Button variant="outline" onClick={() => handleCunningAction('dash')}>
+                      Dash
+                    </Button>
+                    <Button variant="outline" onClick={() => handleCunningAction('disengage')}>
+                      Disengage
+                    </Button>
+                    <Button variant="outline" onClick={() => handleCunningAction('hide')}>
+                      Hide
+                    </Button>
+                  </div>
+                </>
+              )}
               <Button
                 variant="outline"
                 className="w-full"
                 onClick={() => setShowSpellMenu(true)}
-                disabled={!character.knownSpells?.length || !character.spellSlots?.[1]?.current}
+                disabled={!character.knownSpells?.length || !canCastAnySpell}
               >
                 <Wand className="h-4 w-4 mr-2 text-purple-400" />
                 {t('combat.castSpell', 'Cast Spell')}
@@ -850,6 +1175,51 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                     addLog(`${character.name} uses ${item.name} and recovers ${actualHeal} HP!`, 'heal');
                     nextTurn();
                     setShowInventory(false);
+                    return;
+                  }
+                  if (item.type === 'scroll' && item.spellId) {
+                    const scrollSpell = spellsData.find(s => s.id === item.spellId);
+                    if (!scrollSpell) {
+                      addLog('The scroll is illegible.', 'miss');
+                      consumeItem(item);
+                      nextTurn();
+                      setShowInventory(false);
+                      return;
+                    }
+
+                    const { requiresCheck, dc, abilityMod } = shouldCheckScrollUse(character, scrollSpell);
+                    let failed = false;
+                    if (requiresCheck) {
+                      const roll = rollDice(20);
+                      const total = roll + abilityMod + getProficiencyBonus(character.level);
+                      if (total < dc) {
+                        failed = true;
+                        addLog(
+                          `${character.name} fails to cast ${scrollSpell.name} from the scroll (rolled ${total} vs DC ${dc}).`,
+                          'miss'
+                        );
+                      } else {
+                        addLog(
+                          `${character.name} reads the scroll and manages to cast ${scrollSpell.name}! (rolled ${total} vs DC ${dc})`,
+                          'spell'
+                        );
+                      }
+                    } else {
+                      addLog(`${character.name} casts ${scrollSpell.name} from the scroll.`, 'spell');
+                    }
+
+                    if (!failed) {
+                      consumeItem(item);
+                      handleCastSpell(scrollSpell.id, {
+                        slotLevel: item.spellLevel ?? scrollSpell.level,
+                        fromScroll: true,
+                        bypassPreparation: true
+                      });
+                    } else {
+                      nextTurn();
+                    }
+                    setShowInventory(false);
+                    return;
                   }
                 }}
               />
@@ -874,29 +1244,86 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                 <CardHeader>
                   <CardTitle className="flex justify-between items-center">
                     <span>Spellbook</span>
-                    <Badge variant="outline">
-                      Slots Lvl 1: {character.spellSlots?.[1]?.current}/{character.spellSlots?.[1]?.max}
-                    </Badge>
+                    {slotSummary && (
+                      <Badge variant="outline">
+                        {slotSummary}
+                      </Badge>
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-2 max-h-[60vh] overflow-y-auto">
                   {character.knownSpells?.map(spellId => {
                     const spell = spellsData.find(s => s.id === spellId);
                     if (!spell) return null;
+                    const availableSlotLevels = getAvailableSlotLevels(character, spell);
+                    const canCastAsRitual = spell.ritual && canRitualCast(character);
+                    const isCantrip = spell.level === 0;
+                    const noResources =
+                      !isCantrip &&
+                      availableSlotLevels.length === 0 &&
+                      !canCastAsRitual;
+                    const preparedRequirement =
+                      !isPreparedCaster(character.class.name) ||
+                      (character.preparedSpells || character.knownSpells || []).includes(spellId);
+
                     return (
-                      <Button
+                      <div
                         key={spellId}
-                        variant="ghost"
-                        className="w-full justify-between h-auto py-3 hover:bg-fantasy-purple/20"
-                        onClick={() => handleCastSpell(spellId)}
-                        disabled={!character.spellSlots?.[spell.level]?.current}
+                        className="w-full rounded-md border border-fantasy-purple/30 p-3 hover:bg-fantasy-purple/10 transition"
                       >
-                        <div className="flex flex-col items-start text-left">
-                          <span className="font-bold">{spell.name}</span>
-                          <span className="text-xs text-muted-foreground line-clamp-2">{spell.description}</span>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex flex-col items-start text-left">
+                            <span className="font-bold flex items-center gap-2">
+                              {spell.name}
+                              {spell.concentration && (
+                                <Badge variant="outline" className="text-[11px] flex items-center gap-1">
+                                  <Brain className="h-3 w-3" /> Concentration
+                                </Badge>
+                              )}
+                            </span>
+                            <span className="text-xs text-muted-foreground line-clamp-2">{spell.description}</span>
+                            {!preparedRequirement && (
+                              <span className="text-[11px] text-amber-400 mt-1">Not prepared</span>
+                            )}
+                          </div>
+                          <Badge variant="secondary" className="ml-2 shrink-0">Lvl {spell.level}</Badge>
                         </div>
-                        <Badge variant="secondary" className="ml-2 shrink-0">Lvl {spell.level}</Badge>
-                      </Button>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {isCantrip && (
+                            <Button
+                              size="sm"
+                              variant="fantasy"
+                              onClick={() => handleCastSpell(spellId)}
+                            >
+                              Cast Cantrip
+                            </Button>
+                          )}
+                          {availableSlotLevels.map((lvl) => (
+                            <Button
+                              key={`${spellId}-slot-${lvl}`}
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleCastSpell(spellId, { slotLevel: lvl })}
+                              disabled={!preparedRequirement}
+                            >
+                              Use Lvl {lvl} Slot
+                            </Button>
+                          ))}
+                          {canCastAsRitual && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleCastSpell(spellId, { castAsRitual: true })}
+                              disabled={!preparedRequirement}
+                            >
+                              Cast as Ritual
+                            </Button>
+                          )}
+                          {noResources && (
+                            <span className="text-xs text-muted-foreground">No slots remaining</span>
+                          )}
+                        </div>
+                      </div>
                     );
                   })}
                   {(!character.knownSpells || character.knownSpells.length === 0) && (

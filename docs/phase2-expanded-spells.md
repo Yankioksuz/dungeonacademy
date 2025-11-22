@@ -45,7 +45,7 @@ export interface Spell {
   
   // Scaling
   upcastDescription?: string;
-  cantrip Scaling?: {
+  cantripScaling?: {
     level5: string;
     level11: string;
     level17: string;
@@ -181,16 +181,16 @@ export function castRitual(
 ### 3. Spell Preparation
 
 **Rules:**
-- Prepared casters (Cleric, Druid, Paladin) can prepare spells from full class list
+- Prepared casters (Cleric, Druid, Paladin, Wizard) can prepare from their class list/book
 - Number prepared = spellcasting modifier + level
 - Can change prepared spells after long rest
-- Known casters (Wizard, Sorcerer, Bard) don't prepare
+- Known casters (Sorcerer, Bard, Warlock, Ranger) cast from known list only
 
 **Implementation:**
 
 ```typescript
 export function getMaxPreparedSpells(character: PlayerCharacter): number {
-  const preparedCasters = ['Cleric', 'Druid', 'Paladin'];
+  const preparedCasters = ['Cleric', 'Druid', 'Paladin', 'Wizard'];
   
   if (!preparedCasters.includes(character.class.name)) {
     return 0; // Not a prepared caster
@@ -424,6 +424,14 @@ Add concentration, ritual, components, upcast info to all spells.
 
 ## ✅ Testing Checklist
 
+### Integration Smoke (run in this order)
+- [ ] Unit: concentration helpers (DC math, War Caster advantage) with deterministic RNG
+- [ ] Unit: cantrip scaling + upcast calculators
+- [ ] Unit: prepared spell limits per class/ability
+- [ ] Component: spell casting modal shows upcast + ritual toggle + slot counts
+- [ ] Component: combat flow auto-prompts concentration save on damage
+- [ ] E2E: cast concentration spell → take damage → fail save ends effect; ritual cast doesn’t consume slot; prepared/known restrictions enforced
+
 ### Concentration
 - [ ] Only one concentration spell active
 - [ ] New concentration ends previous
@@ -461,6 +469,31 @@ Add concentration, ritual, components, upcast info to all spells.
 - [ ] Effects increase correctly
 - [ ] UI shows upcast options
 - [ ] Damage/targets scale properly
+
+---
+
+## 🧭 Repo-Specific Implementation Plan
+- `src/types/index.ts`: add fields above; ensure `PlayerCharacter` has `concentratingOn`, `preparedSpells`, and slot tracking per level.
+- `src/content/spells.json`: add concentration/ritual/components/upcast/cantripScaling metadata; tag ritual-eligible spells.
+- `src/lib/spells.ts` (new): concentration DC helper, upcast calculators, cantrip scaling, prepared-spell limits, ritual eligibility.
+- `src/contexts/GameContext.tsx`: persist `concentratingOn`; expose `startConcentration`, `endConcentration`, `prepareSpell`, `unprepareSpell`, `spendSpellSlot`, `restoreSpellSlots`; enforce one concentration at a time.
+- `src/components/Adventure.tsx` + `src/components/CombatEncounter.tsx`: on damage, trigger concentration save; on cast, gate by slots/prepared/ritual; push results to combat log/journal.
+- `src/components/SpellCastingModal` (new or existing): slot picker with upcast preview, ritual toggle (no slot spend, +10m note), components display.
+- `src/components/CharacterSheet` (when added): show prepared spells, slots by level, concentration banner.
+- `src/content/items.json`: add scroll items and expensive component consumables.
+
+---
+
+## 🧪 Manual Test Script
+1) Cast Bless (concentration) → portrait badge + log entry.
+2) Take 12 damage at level 3 (+2 CON, no proficiency to concentration) → DC 10; fail save ends Bless; log shows end reason.
+3) Cast Detect Magic as ritual on Wizard → slot unchanged; time advances; log ritual note.
+4) Attempt ritual on non-ritual spell → error message; no slot change.
+5) Cleric WIS 16 level 3 prepare spells → max 6; cannot exceed; unprepare/reprepare after simulated long rest.
+6) Fire Bolt at levels 1/5/11/17 → damage shows 1d10/2d10/3d10/4d10.
+7) Upcast Cure Wounds with level 3 slot → 3d8 shown; slot decremented at level 3.
+8) Fighter uses Fireball scroll → INT 10 check vs DC 13; failure fizzles scroll; success consumes scroll and deals 8d6.
+9) Start concentration on spell A, then cast concentration spell B → A ends, B active.
 
 ---
 

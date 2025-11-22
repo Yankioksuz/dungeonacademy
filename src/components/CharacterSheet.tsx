@@ -27,6 +27,7 @@ import {
     Scroll,
     Dna
 } from 'lucide-react';
+import spellsData from '@/content/spells.json';
 
 interface CharacterSheetProps {
     character: PlayerCharacter;
@@ -44,6 +45,16 @@ export function CharacterSheet({ character }: CharacterSheetProps) {
 
     // Calculate XP progress
     const xpProgress = (character.xp / character.maxXp) * 100;
+    const slotEntries = character.spellSlots
+        ? Object.entries(character.spellSlots).sort(([a], [b]) => Number(a) - Number(b))
+        : [];
+    const getSpellById = (id: string) => spellsData.find((s) => s.id === id);
+    const preparedSpells = (character.preparedSpells || [])
+        .map(getSpellById)
+        .filter((spell): spell is typeof spellsData[number] => Boolean(spell));
+    const knownSpellsDetailed = (character.knownSpells || [])
+        .map(getSpellById)
+        .filter((spell): spell is typeof spellsData[number] => Boolean(spell));
 
     const abilities: (keyof PlayerCharacter['abilityScores'])[] = [
         'strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'
@@ -210,12 +221,15 @@ export function CharacterSheet({ character }: CharacterSheetProps) {
                 {/* Equipment + features */}
                 <div className="md:col-span-4">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl border border-fantasy-purple/40 bg-black/40 p-1">
-                            <TabsTrigger value="equipment" className="rounded-xl px-3 py-2 text-xs uppercase tracking-[0.3em]">
+                        <TabsList className="flex w-full flex-wrap gap-2 rounded-2xl border border-fantasy-purple/40 bg-black/40 p-2">
+                            <TabsTrigger value="equipment" className="flex-1 min-w-[0] justify-center rounded-xl px-3 py-2 text-xs uppercase tracking-[0.15em] text-center">
                                 <Backpack className="mr-2 h-4 w-4" /> Equipment
                             </TabsTrigger>
-                            <TabsTrigger value="features" className="rounded-xl px-3 py-2 text-xs uppercase tracking-[0.3em]">
+                            <TabsTrigger value="features" className="flex-1 min-w-[0] justify-center rounded-xl px-3 py-2 text-xs uppercase tracking-[0.15em] text-center">
                                 <Dna className="mr-2 h-4 w-4" /> Features
+                            </TabsTrigger>
+                            <TabsTrigger value="spells" className="flex-1 min-w-[0] justify-center rounded-xl px-3 py-2 text-xs uppercase tracking-[0.15em] text-center">
+                                <Scroll className="mr-2 h-4 w-4" /> Spells
                             </TabsTrigger>
                         </TabsList>
 
@@ -306,25 +320,75 @@ export function CharacterSheet({ character }: CharacterSheetProps) {
                                             </ul>
                                         </div>
 
-                                        {character.knownSpells && character.knownSpells.length > 0 && (
-                                            <div>
-                                                <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-fantasy-gold">
-                                                    <Scroll className="h-4 w-4 text-fantasy-gold" /> Known Spells
-                                                </h3>
-                                                <div className="mt-3 grid grid-cols-1 gap-2">
-                                                    {character.knownSpells.map((spellId, idx) => (
-                                                        <div
-                                                            key={idx}
-                                                            className="rounded-xl border border-fantasy-purple/30 bg-fantasy-purple/10 px-3 py-2 text-sm capitalize text-white"
-                                                        >
-                                                            {spellId.replace(/-/g, ' ')}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
                                     </div>
                                 </ScrollArea>
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent value="spells" className="mt-4 space-y-4">
+                            <div className="rounded-2xl border border-fantasy-purple/40 bg-black/30 p-5">
+                                <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                                    <span className="font-semibold text-fantasy-gold flex items-center gap-2">
+                                        <Scroll className="h-4 w-4 text-fantasy-gold" /> Spell Slots
+                                    </span>
+                                    {slotEntries.length > 0 ? (
+                                        slotEntries.map(([lvl, pool]) => (
+                                            <Badge key={lvl} variant="outline" className="text-[11px]">
+                                                L{lvl}: {pool.current}/{pool.max}
+                                            </Badge>
+                                        ))
+                                    ) : (
+                                        <span className="text-muted-foreground">No slots available</span>
+                                    )}
+                                    {character.concentratingOn && (
+                                        <Badge variant="fantasy" className="text-[11px] flex items-center gap-2">
+                                            <Brain className="h-3 w-3" /> Concentrating: {character.concentratingOn.spellName}
+                                        </Badge>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="rounded-2xl border border-fantasy-purple/30 bg-black/30 p-5 space-y-3">
+                                <h3 className="text-xs font-semibold uppercase tracking-[0.3em] text-fantasy-gold">
+                                    Prepared Spells
+                                </h3>
+                                {preparedSpells.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                        {preparedSpells.map((spell) => (
+                                            <div key={spell.id} className="rounded-xl border border-fantasy-purple/30 bg-fantasy-purple/10 px-3 py-2 text-sm text-white">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-semibold">{spell.name}</span>
+                                                    <Badge variant="secondary">Lvl {spell.level}</Badge>
+                                                </div>
+                                                <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                                                    {spell.concentration && <Badge variant="outline" className="text-[10px]">Concentration</Badge>}
+                                                    {spell.ritual && <Badge variant="outline" className="text-[10px]">Ritual</Badge>}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">No spells prepared.</p>
+                                )}
+                            </div>
+                            <div className="rounded-2xl border border-fantasy-purple/30 bg-black/30 p-5 space-y-3">
+                                <h3 className="text-xs font-semibold uppercase tracking-[0.3em] text-fantasy-gold">
+                                    Known Spells
+                                </h3>
+                                {knownSpellsDetailed.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                        {knownSpellsDetailed.map((spell) => (
+                                            <div key={spell.id} className="rounded-xl border border-white/5 bg-black/40 px-3 py-2 text-sm text-white">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-semibold">{spell.name}</span>
+                                                    <Badge variant="secondary">Lvl {spell.level}</Badge>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground line-clamp-2">{spell.description}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">No known spells.</p>
+                                )}
                             </div>
                         </TabsContent>
                     </Tabs>

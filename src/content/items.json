@@ -61,6 +61,35 @@
       "value": 150
     }
   ],
+  "scrolls": [
+    {
+      "id": "scroll-fireball",
+      "name": "Spell Scroll (Fireball)",
+      "type": "scroll",
+      "description": "A scroll containing the Fireball spell. It can be cast without expending a slot.",
+      "value": 150,
+      "spellId": "fireball",
+      "spellLevel": 3
+    },
+    {
+      "id": "scroll-detect-magic",
+      "name": "Spell Scroll (Detect Magic)",
+      "type": "scroll",
+      "description": "A scroll containing Detect Magic. Can be cast without a slot.",
+      "value": 50,
+      "spellId": "detect-magic",
+      "spellLevel": 1
+    },
+    {
+      "id": "scroll-healing-word",
+      "name": "Spell Scroll (Healing Word)",
+      "type": "scroll",
+      "description": "A scroll containing Healing Word. Casts without a slot.",
+      "value": 60,
+      "spellId": "healing-word",
+      "spellLevel": 1
+    }
+  ],
   "treasure": [
     {
       "id": "gold-coins",

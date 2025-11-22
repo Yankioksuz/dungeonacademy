@@ -89,6 +89,20 @@ export interface SpellContent {
   healing?: string;
   damageType?: string;
   saveType?: string;
+  concentration?: boolean;
+  ritual?: boolean;
+  upcastDescription?: string;
+  cantripScaling?: {
+    level5?: string;
+    level11?: string;
+    level17?: string;
+  };
+  componentTags?: {
+    verbal: boolean;
+    somatic: boolean;
+    material: boolean;
+    materialDescription?: string;
+  };
 }
 
 export interface AbilityContent {
@@ -141,6 +155,12 @@ export interface PlayerCharacter {
     };
   };
   knownSpells?: string[];
+  preparedSpells?: string[];
+  concentratingOn?: {
+    spellId: string;
+    spellName: string;
+    startedAt: number;
+  };
   adventureHistory?: AdventureHistoryEntry[];
 }
 
@@ -181,6 +201,8 @@ export interface Item {
   healing?: number;
   value?: number;
   equipped?: boolean;
+  spellId?: string;
+  spellLevel?: number;
 }
 
 export interface CombatEnemy {
