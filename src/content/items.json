@@ -103,7 +103,13 @@
       "type": "treasure",
       "description": "A delicate charm said to bring fortune to the wearer",
       "value": 20
+    },
+    {
+      "id": "marked-courier-map",
+      "name": "Marked Courier Map",
+      "type": "treasure",
+      "description": "A weathered map with a fresh charcoal route drawn toward the Azure Spire and a note to deliver it to Spymaster Kaela",
+      "value": 1
     }
   ]
 }
-

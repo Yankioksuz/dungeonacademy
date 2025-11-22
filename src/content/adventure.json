@@ -1113,7 +1113,7 @@
     {
       "id": "victory",
       "title": "Quest Complete!",
-      "description": "Congratulations! You've completed your first D&D adventure and saved the village from the goblin raids. Take a moment to reflect on what you've learned before starting a new journey.",
+      "description": "Congratulations! You've completed your first D&D adventure and saved the village from the goblin raids. As the celebration swells, Thora quietly presses the worn map into your hands again—now with a new charcoal mark tracing a courier route toward the Azure Spire. \"If you pass that way,\" she says, \"deliver this to Spymaster Kaela. She'll want to know why the goblins were hunting maps.\"",
       "type": "tutorial",
       "tutorial": {
         "title": "What You've Learned",
@@ -1125,12 +1125,13 @@
           "id": "restart",
           "text": "Start a new adventure",
           "type": "continue",
-          "outcome": "Ready for your next adventure!",
+          "outcome": "Ready for your next adventure! The marked map sits at the top of your pack, pointing you toward the Azure Spire and the contact named Kaela.",
           "endsAdventure": true,
           "xpReward": 150,
           "grantsItemIds": [
             "gold-coins",
-            "silver-luck-charm"
+            "silver-luck-charm",
+            "marked-courier-map"
           ]
         }
       ],
