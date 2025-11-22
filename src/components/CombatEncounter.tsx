@@ -4,12 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { useTranslation } from 'react-i18next';
-import { Sword, Shield, Heart, Skull, Zap, Backpack, X, Flame, Wand, Activity, HeartPulse, Dice6 } from 'lucide-react';
+import { Sword, Shield, Heart, Skull, Backpack, X, Flame, Wand, Activity, HeartPulse, Dice6 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DiceRoller } from './DiceRoller';
 import { Inventory } from './Inventory';
-import type { PlayerCharacter, CombatEnemy, CombatLogEntry, SpellContent } from '@/types';
+import type { PlayerCharacter, CombatEnemy, CombatLogEntry, SpellContent, CombatLogEntryType } from '@/types';
 import { useGame } from '@/contexts/GameContext';
+import { createLogEntry, formatRollBreakdown } from '@/utils/combatLogger';
+import { CombatLogPanel } from './CombatLogPanel';
 import spellsData from '@/content/spells.json';
 
 interface StatusEffect {
@@ -130,14 +132,9 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     return { updatedEnemy, messages };
   }, []);
 
-  const addLog = useCallback((message: string, type: CombatLogEntry['type']) => {
-    const entry: CombatLogEntry = {
-      id: `log-${Date.now()}-${Math.random()}`,
-      message,
-      type,
-      timestamp: Date.now(),
-    };
-    setCombatLog(prev => [entry, ...prev].slice(0, 10)); // Keep last 10 entries
+  const addLog = useCallback((message: string, type: CombatLogEntryType, details?: string, source?: string, target?: string) => {
+    const entry = createLogEntry(type, message, details, source, target);
+    setCombatLog(prev => [...prev, entry]);
   }, []);
 
   const rollDice = (sides: number = 20) => {
@@ -255,6 +252,10 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       const abilityMod = Math.floor((character.abilityScores[attackAbility] - 10) / 2);
       const proficiencyBonus = 2;
       const totalAttack = attackRoll + abilityMod + proficiencyBonus;
+      const attackDetails = formatRollBreakdown(attackRoll, [
+        { label: 'Ability', value: abilityMod },
+        { label: 'Prof', value: proficiencyBonus }
+      ]);
 
       if (totalAttack >= enemy.armorClass) {
         // Hit!
@@ -273,7 +274,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           // Unarmed strike (1 + STR mod, but we'll be generous with 1d4)
           damageRoll += rollDice(4);
         }
-        addLog(`${character.name} ${t('combat.hits')} ${enemy.name} ${t('combat.for')} ${damageRoll} ${t('combat.damage')}!`, 'damage');
+        addLog(`${character.name} ${t('combat.hits')} ${enemy.name} ${t('combat.for')} ${damageRoll} ${t('combat.damage')}!`, 'damage', attackDetails);
 
         setEnemies(prev => prev.map(e => {
           if (e.id === selectedEnemy) {
@@ -284,7 +285,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         }));
       } else {
         // Miss
-        addLog(`${character.name} ${t('combat.attacks')} ${enemy.name} ${t('combat.butMisses')}`, 'miss');
+        addLog(`${character.name} ${t('combat.attacks')} ${enemy.name} ${t('combat.butMisses')}`, 'miss', attackDetails);
       }
 
       setIsRolling(false);
@@ -909,30 +910,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       }
 
       {/* Combat Log */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm flex items-center gap-2">
-            <Zap className="h-4 w-4" />
-            {t('combat.combatLog')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-1 max-h-40 overflow-y-auto">
-          {combatLog.map(entry => (
-            <p
-              key={entry.id}
-              className={cn(
-                "text-sm",
-                entry.type === 'damage' && "text-red-400",
-                entry.type === 'miss' && "text-gray-400",
-                entry.type === 'heal' && "text-green-400",
-                entry.type === 'defeat' && "text-fantasy-gold font-bold"
-              )}
-            >
-              • {entry.message}
-            </p>
-          ))}
-        </CardContent>
-      </Card>
+      <CombatLogPanel logs={combatLog} className="max-h-60" />
     </div >
   );
 }

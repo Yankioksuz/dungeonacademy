@@ -209,6 +209,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
           },
           hitPoints: 0,
           maxHitPoints: 0,
+          hitDice: {
+            current: 1,
+            max: 1,
+            die: 'd8'
+          },
           level: 1,
           xp: 0, // Initialize xp here
           maxXp: 300, // Initialize maxXp here
@@ -282,6 +287,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
         ...updatedCharacter,
         maxHitPoints: calculatedMaxHP,
         hitPoints: calculatedMaxHP,
+        hitDice: {
+          current: updatedCharacter.level,
+          max: updatedCharacter.level,
+          die: updatedCharacter.class.hitDie || 'd8'
+        },
         skills: allSkills,
         talents: updatedCharacter.talents || [],
         spellSlots: {
@@ -398,6 +408,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const addItem = useCallback((item: Item) => {
     setCharacter((prev) => {
       if (!prev) return null;
+
+      const isGoldLoot =
+        item.type === 'treasure' &&
+        (item.id?.toLowerCase().includes('gold') || item.name.toLowerCase().includes('gold'));
+
+      if (isGoldLoot) {
+        const goldAmount = item.value ?? 0;
+        return {
+          ...prev,
+          gold: prev.gold + goldAmount,
+        };
+      }
+
       return {
         ...prev,
         inventory: [...(prev.inventory || []), item],

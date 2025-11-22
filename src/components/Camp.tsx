@@ -4,7 +4,7 @@ import { useGame } from '@/contexts/GameContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { MapPin, Trash2, Swords, ShieldCheck, Scroll, History } from 'lucide-react';
+import { MapPin, Trash2, Swords, ShieldCheck, Scroll, History, User } from 'lucide-react';
 import adventureData from '@/content/adventure.json';
 import intrigueAdventure from '@/content/adventure-shadows.json';
 import type { Adventure as AdventureType } from '@/types';
@@ -15,6 +15,9 @@ import spireArtwork from '@/assets/campaigns/shadows-of-the-spire.png';
 import { Switch } from './ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { AdventureHistory } from './AdventureHistory';
+import { CharacterSheet } from './CharacterSheet';
+import { RestModal } from './RestModal';
+import { Moon } from 'lucide-react';
 
 const AVAILABLE_ADVENTURES = [
   {
@@ -43,6 +46,7 @@ export function Camp() {
   const [selectedAdventureId, setSelectedAdventureId] = useState(AVAILABLE_ADVENTURES[0]?.id);
   const [isStarting, setIsStarting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showRestModal, setShowRestModal] = useState(false);
   const [showPortraitModal, setShowPortraitModal] = useState(false);
   const [pendingPortraitId, setPendingPortraitId] = useState<string | null>(character?.portraitId || null);
   const [activeTab, setActiveTab] = useState("adventures");
@@ -141,6 +145,10 @@ export function Camp() {
                 <Button variant="fantasy" className="w-full text-lg tracking-wide" onClick={handleStartAdventure} disabled={!selectedAdventure || isStarting}>
                   {isStarting ? t('game.starting') : t('camp.embark', 'Embark on Adventure')}
                 </Button>
+                <Button variant="secondary" className="w-full" onClick={() => setShowRestModal(true)}>
+                  <Moon className="h-4 w-4 mr-2" />
+                  {t('camp.rest', 'Rest')}
+                </Button>
                 <Button variant="outline" className="w-full" onClick={() => setShowDeleteConfirm(true)}>
                   <Trash2 className="h-4 w-4 mr-2" />
                   {t('camp.deleteHero', 'Retire Hero')}
@@ -153,10 +161,14 @@ export function Camp() {
         <div className="lg:col-span-2 space-y-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
             <div className="flex items-center justify-between mb-2">
-              <TabsList className="grid w-full max-w-md grid-cols-2 bg-black/40 border border-fantasy-purple/30">
+              <TabsList className="grid w-full max-w-md grid-cols-3 bg-black/40 border border-fantasy-purple/30">
                 <TabsTrigger value="adventures" className="flex items-center gap-2 data-[state=active]:bg-fantasy-gold/20 data-[state=active]:text-fantasy-gold">
                   <Scroll className="h-4 w-4" />
                   {t('camp.adventures', 'Adventures')}
+                </TabsTrigger>
+                <TabsTrigger value="character" className="flex items-center gap-2 data-[state=active]:bg-fantasy-gold/20 data-[state=active]:text-fantasy-gold">
+                  <User className="h-4 w-4" />
+                  {t('camp.character', 'Character')}
                 </TabsTrigger>
                 <TabsTrigger value="history" className="flex items-center gap-2 data-[state=active]:bg-fantasy-gold/20 data-[state=active]:text-fantasy-gold">
                   <History className="h-4 w-4" />
@@ -229,6 +241,10 @@ export function Camp() {
                   ))}
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="character" className="flex-1 mt-0">
+              <CharacterSheet character={character} />
             </TabsContent>
 
             <TabsContent value="history" className="flex-1 mt-0">
@@ -307,6 +323,8 @@ export function Camp() {
           </div>
         </div>
       )}
+
+      <RestModal isOpen={showRestModal} onClose={() => setShowRestModal(false)} />
     </div>
   );
 }

@@ -1,3 +1,5 @@
+export const TYPES_VERSION = '1.0.0';
+
 export interface QuizQuestion {
   id: string;
   question: string;
@@ -117,6 +119,11 @@ export interface PlayerCharacter {
   };
   hitPoints: number;
   maxHitPoints: number;
+  hitDice: {
+    current: number;
+    max: number;
+    die: string; // e.g., "d10"
+  };
   level: number;
   xp: number;
   maxXp: number;
@@ -136,6 +143,8 @@ export interface PlayerCharacter {
   knownSpells?: string[];
   adventureHistory?: AdventureHistoryEntry[];
 }
+
+
 
 export interface AdventureHistoryEntry {
   id: string;
@@ -200,11 +209,18 @@ export interface CombatState {
   combatLog: CombatLogEntry[];
 }
 
+export type CombatLogEntryType =
+  | 'attack' | 'damage' | 'heal' | 'miss' | 'defeat' | 'info' | 'xp' | 'levelup'
+  | 'spell' | 'condition' | 'initiative';
+
 export interface CombatLogEntry {
   id: string;
   message: string;
-  type: 'attack' | 'damage' | 'heal' | 'miss' | 'defeat' | 'info' | 'xp' | 'levelup';
+  type: CombatLogEntryType;
   timestamp: number;
+  details?: string;
+  source?: string;
+  target?: string;
 }
 
 export interface Encounter {
