@@ -197,9 +197,8 @@ export function CharacterSheet({ character }: CharacterSheetProps) {
                                     return (
                                         <div
                                             key={skill}
-                                            className={`flex items-center justify-between rounded-xl border border-transparent px-2 py-1 text-sm ${
-                                                isProficient ? 'bg-fantasy-purple/10 border-fantasy-purple/40 text-white' : 'text-muted-foreground'
-                                            }`}
+                                            className={`flex items-center justify-between rounded-xl border border-transparent px-2 py-1 text-sm ${isProficient ? 'bg-fantasy-purple/10 border-fantasy-purple/40 text-white' : 'text-muted-foreground'
+                                                }`}
                                         >
                                             <div className="flex items-center gap-2">
                                                 <span className="text-[11px] uppercase tracking-[0.3em] text-fantasy-gold/70">
@@ -221,14 +220,14 @@ export function CharacterSheet({ character }: CharacterSheetProps) {
                 {/* Equipment + features */}
                 <div className="md:col-span-4">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                        <TabsList className="flex w-full flex-wrap gap-2 rounded-2xl border border-fantasy-purple/40 bg-black/40 p-2">
-                            <TabsTrigger value="equipment" className="flex-1 min-w-[0] justify-center rounded-xl px-3 py-2 text-xs uppercase tracking-[0.15em] text-center">
+                        <TabsList className="flex w-full flex-wrap h-auto gap-2 rounded-2xl border border-fantasy-purple/40 bg-black/40 p-2">
+                            <TabsTrigger value="equipment" className="flex-1 justify-center rounded-xl px-3 py-2 text-xs uppercase tracking-[0.15em] text-center">
                                 <Backpack className="mr-2 h-4 w-4" /> Equipment
                             </TabsTrigger>
-                            <TabsTrigger value="features" className="flex-1 min-w-[0] justify-center rounded-xl px-3 py-2 text-xs uppercase tracking-[0.15em] text-center">
+                            <TabsTrigger value="features" className="flex-1 justify-center rounded-xl px-3 py-2 text-xs uppercase tracking-[0.15em] text-center">
                                 <Dna className="mr-2 h-4 w-4" /> Features
                             </TabsTrigger>
-                            <TabsTrigger value="spells" className="flex-1 min-w-[0] justify-center rounded-xl px-3 py-2 text-xs uppercase tracking-[0.15em] text-center">
+                            <TabsTrigger value="spells" className="flex-1 justify-center rounded-xl px-3 py-2 text-xs uppercase tracking-[0.15em] text-center">
                                 <Scroll className="mr-2 h-4 w-4" /> Spells
                             </TabsTrigger>
                         </TabsList>

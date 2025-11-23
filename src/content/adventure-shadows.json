@@ -375,8 +375,32 @@
           "successOutcome": "Charges are primed to blow on your signal.",
           "failureOutcome": "A charge sputters loudly, alerting additional guards.",
           "successNextEncounterId": "mirror-heart",
-          "failureNextEncounterId": "mirror-heart",
+          "failureNextEncounterId": "aerie-guard-combat",
           "xpReward": 75
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "aerie-guard-combat",
+      "title": "Aerie Wardens",
+      "description": "The sputtered charge draws the attention of the elite Sky Wardens. They swoop down from the rafters, lances crackling with lightning.",
+      "type": "combat",
+      "enemy": {
+        "name": "Sky Wardens",
+        "armorClass": 15,
+        "hitPoints": 25,
+        "attackBonus": 5,
+        "damage": "1d8+2",
+        "xpReward": 90
+      },
+      "options": [
+        {
+          "id": "defeat-wardens",
+          "text": "Ground the wardens.",
+          "type": "attack",
+          "outcome": "You clip their wings and clear the platform, securing your position for the final confrontation.",
+          "nextEncounterId": "mirror-heart"
         }
       ],
       "completed": false
@@ -521,8 +545,32 @@
           "successOutcome": "The molds will fracture at your signal.",
           "failureOutcome": "A rune flares, summoning a molten guardian.",
           "successNextEncounterId": "mirror-heart",
-          "failureNextEncounterId": "mirror-heart",
+          "failureNextEncounterId": "molten-guardian-combat",
           "xpReward": 80
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "molten-guardian-combat",
+      "title": "Molten Guardian",
+      "description": "The rune you etched flares with unstable magic, pulling magma from the wells to form a hulking sentinel. It blocks the exit, radiating heat that warps the air.",
+      "type": "combat",
+      "enemy": {
+        "name": "Molten Guardian",
+        "armorClass": 15,
+        "hitPoints": 30,
+        "attackBonus": 5,
+        "damage": "1d8+3",
+        "xpReward": 100
+      },
+      "options": [
+        {
+          "id": "defeat-molten",
+          "text": "Cool the guardian's fury.",
+          "type": "attack",
+          "outcome": "The magma cools into harmless slag as the guardian crumbles, leaving the path to the mirror heart open.",
+          "nextEncounterId": "mirror-heart"
         }
       ],
       "completed": false
@@ -674,9 +722,9 @@
           "grantsItemIds": [
             "healing-potion"
           ],
-          "failureOutcome": "The stasis flickers, alerting the guards.",
+          "failureOutcome": "The stasis flickers, alerting the vault guardians.",
           "successNextEncounterId": "mirror-heart",
-          "failureNextEncounterId": "mirror-heart",
+          "failureNextEncounterId": "vault-guard-combat",
           "xpReward": 80
         },
         {
@@ -686,6 +734,30 @@
           "requiresRace": "Dragonborn",
           "outcome": "The steward yields the keys rather than lose face.",
           "xpReward": 70,
+          "nextEncounterId": "mirror-heart"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "vault-guard-combat",
+      "title": "Vault Guardians",
+      "description": "The stasis spell shatters, triggering silent alarms. Armored constructs step from the alcoves, their halberds leveled at intruders.",
+      "type": "combat",
+      "enemy": {
+        "name": "Vault Wardens",
+        "armorClass": 16,
+        "hitPoints": 28,
+        "attackBonus": 5,
+        "damage": "1d8+2",
+        "xpReward": 100
+      },
+      "options": [
+        {
+          "id": "disable-wardens",
+          "text": "Dismantle the constructs.",
+          "type": "attack",
+          "outcome": "You dismantle the constructs and secure the vault before reinforcements arrive.",
           "nextEncounterId": "mirror-heart"
         }
       ],
@@ -725,7 +797,7 @@
           "id": "ally-with-ryell",
           "text": "Hear Ryell’s plea and propose an alliance against darker threats.",
           "type": "continue",
-          "outcome": "The Archon offers mirror schematics in exchange for discretion.",
+          "outcome": "The Archon offers mirror schematics and turns on Vael to secure their own survival.",
           "grantsItemIds": [
             "gem"
           ],
@@ -844,14 +916,14 @@
     {
       "id": "aftermath",
       "title": "Aftermath in the War Camp",
-      "description": "Back under Kaela’s pavilion, the envoys wait to hear whether Vael and Ryell were exposed. You decide how much of the mirror conspiracy to reveal—and how to wield the leverage you claimed.",
+      "description": "The confrontation is over. Vael has been taken into custody, and the mirror cabal is broken. Back at the war camp, the envoys look to you and Kaela to finalize the official record of these events. The choices you made will shape the peace that follows.",
       "type": "social",
       "options": [
         {
           "id": "report-truth",
           "text": "Deliver the full truth and prepare the council for upheaval.",
           "type": "continue",
-          "outcome": "You remind Kaela of the promise stamped in her Silverwind letter. Together you present every scrap of proof, and she dispatches envoys to secure the spire while honoring her vow to keep the banners informed.",
+          "outcome": "You remind Kaela of the promise stamped in her Silverwind letter. Together you present every scrap of proof, and she dispatches envoys to secure the spire while honoring her vow to keep the banners informed. The war is averted, for now.",
           "endsAdventure": true,
           "xpReward": 60
         },
@@ -859,7 +931,7 @@
           "id": "conceal-secrets",
           "text": "Conceal certain secrets to keep leverage for yourself.",
           "type": "continue",
-          "outcome": "Instead of quoting the Silverwind oath, you slip a few mirrored fragments into your pack. Kaela notices but says nothing, assuming the courier code phrase no longer binds you.",
+          "outcome": "Instead of quoting the Silverwind oath, you slip a few mirrored fragments into your pack. Kaela notices but says nothing, assuming the courier code phrase no longer binds you. You leave the camp with a heavy purse and a dangerous secret.",
           "grantsItemIds": [
             "gold-coins"
           ],
