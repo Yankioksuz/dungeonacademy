@@ -171,7 +171,7 @@
           "id": "comfort-refugee",
           "text": "Sit with the refugees displaced by the mirror forges.",
           "type": "continue",
-          "outcome": "They describe how their villages vanished from scrying pools overnight and beg you to make the truth undeniable.",
+          "outcome": "They describe how their villages vanished from scrying pools overnight and beg you to make the truth undeniable. Their pleas steel your resolve as you head to the command tent.",
           "xpReward": 35,
           "nextEncounterId": "council-prep"
         },
@@ -195,7 +195,7 @@
           "skill": "Arcana",
           "ability": "Intelligence",
           "difficultyClass": 13,
-          "successOutcome": "You snare the mirror sprite and glean that Ryell is querying every ward for your whereabouts.",
+          "successOutcome": "You snare the mirror sprite and glean that Ryell is querying every ward for your whereabouts. Armed with this intel, you enter the council tent.",
           "failureOutcome": "The sprite slips free, projecting your face above the camp and forcing Kaela to rush the council meeting.",
           "successNextEncounterId": "council-prep",
           "failureNextEncounterId": "council-prep",
@@ -399,7 +399,7 @@
           "id": "defeat-wardens",
           "text": "Ground the wardens.",
           "type": "attack",
-          "outcome": "You clip their wings and clear the platform, securing your position for the final confrontation.",
+          "outcome": "You clip their wings and clear the platform, hastily finishing the sabotage before the final confrontation.",
           "nextEncounterId": "mirror-heart"
         }
       ],
@@ -569,7 +569,7 @@
           "id": "defeat-molten",
           "text": "Cool the guardian's fury.",
           "type": "attack",
-          "outcome": "The magma cools into harmless slag as the guardian crumbles, leaving the path to the mirror heart open.",
+          "outcome": "The magma cools into harmless slag as the guardian crumbles. You quickly etch the last rune, ensuring the sabotage is set.",
           "nextEncounterId": "mirror-heart"
         }
       ],
@@ -757,7 +757,7 @@
           "id": "disable-wardens",
           "text": "Dismantle the constructs.",
           "type": "attack",
-          "outcome": "You dismantle the constructs and secure the vault before reinforcements arrive.",
+          "outcome": "You dismantle the constructs and secure the vault evidence before reinforcements arrive.",
           "nextEncounterId": "mirror-heart"
         }
       ],
@@ -886,7 +886,7 @@
     {
       "id": "council-reaction",
       "title": "Council Reckoning",
-      "description": "With Vael exposed, envoys from every banner flood the mirror heart, demanding to see the proof promised in Kaela’s letter. The Silverwind passphrase echoes through the hall as scribes record every word.",
+      "description": "With Vael’s treachery laid bare, envoys from every banner flood the mirror heart. Chaos threatens to erupt, but the Silverwind passphrase cuts through the noise. All eyes turn to you and Kaela to seal the council’s fate.",
       "type": "social",
       "options": [
         {
