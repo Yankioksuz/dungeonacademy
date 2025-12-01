@@ -9,7 +9,10 @@
     "components": "V, S",
     "duration": "Instantaneous",
     "description": "A mote of fire flashes toward a creature or object within range.",
-    "classes": ["Sorcerer", "Wizard"],
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
     "damage": "1d10",
     "damageType": "fire",
     "cantripScaling": {
@@ -33,10 +36,13 @@
     "components": "V, S",
     "duration": "Instantaneous",
     "description": "Flame-like radiance descends on a creature that you can see within range. The target must succeed on a Dexterity saving throw or take radiant damage.",
-    "classes": ["Cleric"],
+    "classes": [
+      "Cleric"
+    ],
     "damage": "1d8",
     "damageType": "radiant",
     "saveType": "dexterity",
+    "targets": "1 creature",
     "cantripScaling": {
       "level5": "2d8",
       "level11": "3d8",
@@ -58,13 +64,21 @@
     "components": "V, S, M (a tiny ball of bat guano and sulfur)",
     "duration": "Instantaneous",
     "description": "A bright streak flashes from your pointing finger to a point you choose within range and then blossoms with a low roar into an explosion of flame.",
-    "classes": ["Sorcerer", "Wizard"],
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
     "damage": "8d6",
     "damageType": "fire",
     "saveType": "dexterity",
     "concentration": false,
     "ritual": false,
     "upcastDescription": "Add 1d6 damage for each slot level above 3rd.",
+    "areaOfEffect": {
+      "type": "sphere",
+      "size": 20
+    },
+    "targets": "All creatures in area",
     "componentTags": {
       "verbal": true,
       "somatic": true,
@@ -82,7 +96,11 @@
     "components": "V",
     "duration": "Instantaneous",
     "description": "A creature of your choice that you can see within range regains hit points equal to 1d4 + your spellcasting ability modifier.",
-    "classes": ["Bard", "Cleric", "Druid"],
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid"
+    ],
     "healing": "1d4",
     "damageType": "healing",
     "ritual": false,
@@ -104,7 +122,10 @@
     "components": "V, S",
     "duration": "Instantaneous",
     "description": "You create three glowing darts of magical force. Each dart hits a creature of your choice that you can see within range.",
-    "classes": ["Sorcerer", "Wizard"],
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
     "damage": "3d4+3",
     "damageType": "force",
     "upcastDescription": "Create one additional dart for each slot level above 1st.",
@@ -124,7 +145,10 @@
     "components": "V, S",
     "duration": "1 round",
     "description": "An invisible barrier of magical force appears and protects you. Until the start of your next turn, you have a +5 bonus to AC.",
-    "classes": ["Sorcerer", "Wizard"],
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
     "ritual": false,
     "concentration": false,
     "componentTags": {
@@ -143,7 +167,13 @@
     "components": "V, S",
     "duration": "Instantaneous",
     "description": "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier.",
-    "classes": ["Bard", "Cleric", "Druid", "Paladin", "Ranger"],
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger"
+    ],
     "healing": "1d8",
     "damageType": "healing",
     "concentration": false,
@@ -165,7 +195,15 @@
     "components": "V, S",
     "duration": "Concentration, up to 10 minutes",
     "description": "For the duration, you sense the presence of magic within 30 feet of you.",
-    "classes": ["Bard", "Cleric", "Druid", "Paladin", "Ranger", "Sorcerer", "Wizard"],
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Ranger",
+      "Sorcerer",
+      "Wizard"
+    ],
     "concentration": true,
     "ritual": true,
     "componentTags": {

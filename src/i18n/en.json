@@ -130,7 +130,10 @@
     "butMisses": "but misses!",
     "victory": "Victory! All enemies defeated!",
     "defeat": "You have been defeated...",
-    "takesDefensiveStance": "takes a defensive stance!"
+    "takesDefensiveStance": "takes a defensive stance!",
+    "actions": "Combat Actions",
+    "castSpell": "Cast Spell",
+    "item": "Use Item"
   },
   "saveLoad": {
     "title": "Save & Load",

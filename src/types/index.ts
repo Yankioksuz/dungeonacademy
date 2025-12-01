@@ -1,4 +1,58 @@
-export const TYPES_VERSION = '1.0.0';
+export const TYPES_VERSION = '2.0.0'; // Updated for D&D 5e mechanics
+
+// ============================================================================
+// D&D 5e Core Mechanics Types
+// ============================================================================
+
+// Skill System
+export type SkillName =
+  | 'acrobatics' | 'animal-handling' | 'arcana' | 'athletics'
+  | 'deception' | 'history' | 'insight' | 'intimidation'
+  | 'investigation' | 'medicine' | 'nature' | 'perception'
+  | 'performance' | 'persuasion' | 'religion' | 'sleight-of-hand'
+  | 'stealth' | 'survival';
+
+export interface SkillProficiency {
+  proficient: boolean;
+  expertise: boolean; // Double proficiency bonus
+}
+
+export type Skills = Record<SkillName, SkillProficiency>;
+
+// Ability names for type safety
+export type AbilityName = 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma';
+
+// Condition System
+export type ConditionType =
+  | 'blinded' | 'charmed' | 'deafened' | 'frightened'
+  | 'grappled' | 'incapacitated' | 'invisible' | 'paralyzed'
+  | 'petrified' | 'poisoned' | 'prone' | 'restrained'
+  | 'stunned' | 'unconscious';
+
+export interface Condition {
+  type: ConditionType;
+  name: string;
+  description: string;
+  duration?: number; // rounds, -1 for indefinite
+  source?: string; // spell or ability that caused it
+}
+
+// Death Saving Throws
+export interface DeathSaves {
+  successes: number; // 0-3
+  failures: number; // 0-3
+}
+
+// Roll Modifiers
+export type RollModifier = 'advantage' | 'disadvantage' | 'normal';
+
+// Saving Throw Proficiencies
+export type SavingThrowProficiencies = Record<AbilityName, boolean>;
+
+// ============================================================================
+// Quiz and Content Types
+// ============================================================================
+
 
 export interface QuizQuestion {
   id: string;
@@ -61,7 +115,8 @@ export interface Class {
   description: string;
   hitDie: string;
   primaryAbility: string;
-  savingThrows: string[];
+  savingThrows: string[]; // Will be converted to savingThrowProficiencies
+  savingThrowProficiencies?: AbilityName[]; // NEW: Type-safe saving throws
   features: string[];
 }
 
@@ -103,6 +158,14 @@ export interface SpellContent {
     material: boolean;
     materialDescription?: string;
   };
+
+  // NEW: Enhanced spell properties
+  areaOfEffect?: {
+    type: 'sphere' | 'cone' | 'cube' | 'cylinder' | 'line';
+    size: number; // in feet
+  };
+  attackType?: 'melee' | 'ranged' | 'none';
+  targets?: string; // e.g., "1 creature", "up to 3 creatures"
 }
 
 export interface AbilityContent {
@@ -133,6 +196,7 @@ export interface PlayerCharacter {
   };
   hitPoints: number;
   maxHitPoints: number;
+  temporaryHitPoints: number; // NEW: Temporary HP
   hitDice: {
     current: number;
     max: number;
@@ -142,7 +206,20 @@ export interface PlayerCharacter {
   xp: number;
   maxXp: number;
   gold: number;
-  skills: string[];
+
+  // NEW: D&D 5e Mechanics
+  proficiencyBonus: number; // Calculated from level: +2 (1-4), +3 (5-8), +4 (9-12), etc.
+  skills: Skills; // UPDATED: Changed from string[] to Skills object
+  savingThrowProficiencies: SavingThrowProficiencies; // NEW: Saving throw proficiencies from class
+  conditions: Condition[]; // NEW: Active conditions
+  deathSaves: DeathSaves; // NEW: Death saving throws (when at 0 HP)
+
+  // Passive Scores (calculated)
+  passivePerception: number;
+  passiveInvestigation: number;
+  passiveInsight: number;
+
+  // Existing fields
   spells?: SpellContent[];
   inventory?: Item[];
   equippedWeapon?: Item;
@@ -210,6 +287,7 @@ export interface CombatEnemy {
   name: string;
   currentHp: number;
   maxHp: number;
+  temporaryHp: number; // NEW: Temporary HP for enemies
   armorClass: number;
   attackBonus: number;
   damage: string;
@@ -217,6 +295,7 @@ export interface CombatEnemy {
   isDefeated: boolean;
   xpReward?: number;
   savingThrowBonus?: number;
+  conditions: Condition[]; // NEW: Active conditions on enemy
 }
 
 export interface CombatState {

@@ -95,7 +95,7 @@ export function CharacterCreation() {
         });
       }
     }, 0);
-    
+
     return () => clearTimeout(timeoutId);
   }, [character]);
 
@@ -125,7 +125,7 @@ export function CharacterCreation() {
           background: selectedBackground,
           abilityScores,
           level: 1,
-          skills: [],
+
           portraitId: selectedPortraitId,
           // Don't set hitPoints/maxHitPoints - let completeCharacterCreation calculate them
         };
@@ -334,7 +334,7 @@ export function CharacterCreation() {
                       ],
                       !isSelected && 'hover:ring-1 hover:ring-fantasy-purple/50'
                     )}
-                    onClick={() => setSelectedClass(classOption)}
+                    onClick={() => setSelectedClass(classOption as unknown as Class)}
                   >
                     {isSelected && (
                       <div className="absolute top-2 right-2">

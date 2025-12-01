@@ -130,7 +130,10 @@
     "butMisses": "ama ıskaladı!",
     "victory": "Zafer! Tüm düşmanlar yenildi!",
     "defeat": "Yenildiniz...",
-    "takesDefensiveStance": "savunma duruşu aldı!"
+    "takesDefensiveStance": "savunma duruşu aldı!",
+    "actions": "Savaş Eylemleri",
+    "castSpell": "Büyü Yap",
+    "item": "Eşya Kullan"
   },
   "saveLoad": {
     "title": "Kaydet ve Yükle",

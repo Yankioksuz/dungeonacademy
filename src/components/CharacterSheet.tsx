@@ -7,9 +7,9 @@ import {
     calculatePassiveScore,
     calculateProficiencyBonus,
     getSavingThrowModifier,
-    getSkillModifier,
-    SKILLS_ABILITY_MAP
 } from '@/utils/characterStats';
+import { SkillList } from './SkillList';
+import { ConditionList } from './ConditionList';
 import { portraits } from '@/data/portraits';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -20,7 +20,6 @@ import {
     Zap,
     Heart,
     Swords,
-    Brain,
     Eye,
     Footprints,
     Backpack,
@@ -182,39 +181,8 @@ export function CharacterSheet({ character }: CharacterSheetProps) {
                             <span>Spell Slots: {character.spellSlots ? Object.values(character.spellSlots).reduce((acc, slot) => acc + slot.current, 0) : 0}</span>
                         </div>
                     </div>
-                    <div className="rounded-2xl border border-fantasy-purple/40 bg-black/30 p-0 shadow-inner">
-                        <div className="flex items-center gap-2 border-b border-fantasy-purple/30 px-5 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                            <Brain className="h-4 w-4 text-fantasy-gold" />
-                            Skills
-                        </div>
-                        <ScrollArea className="h-[460px] px-5 py-3">
-                            <div className="space-y-1">
-                                {Object.keys(SKILLS_ABILITY_MAP).sort().map((skill) => {
-                                    const mod = getSkillModifier(character, skill);
-                                    const isProficient = character.skills.includes(skill);
-                                    const ability = SKILLS_ABILITY_MAP[skill];
-
-                                    return (
-                                        <div
-                                            key={skill}
-                                            className={`flex items-center justify-between rounded-xl border border-transparent px-2 py-1 text-sm ${isProficient ? 'bg-fantasy-purple/10 border-fantasy-purple/40 text-white' : 'text-muted-foreground'
-                                                }`}
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[11px] uppercase tracking-[0.3em] text-fantasy-gold/70">
-                                                    {ability.substring(0, 3)}
-                                                </span>
-                                                <span className="capitalize">{skill}</span>
-                                            </div>
-                                            <span className="font-mono text-base font-semibold text-fantasy-gold">
-                                                {mod >= 0 ? `+${mod}` : mod}
-                                            </span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </ScrollArea>
-                    </div>
+                    <ConditionList character={character} />
+                    <SkillList character={character} />
                 </div>
 
                 {/* Equipment + features */}
@@ -341,7 +309,7 @@ export function CharacterSheet({ character }: CharacterSheetProps) {
                                     )}
                                     {character.concentratingOn && (
                                         <Badge variant="fantasy" className="text-[11px] flex items-center gap-2">
-                                            <Brain className="h-3 w-3" /> Concentrating: {character.concentratingOn.spellName}
+                                            <Dna className="h-3 w-3" /> Concentrating: {character.concentratingOn.spellName}
                                         </Badge>
                                     )}
                                 </div>

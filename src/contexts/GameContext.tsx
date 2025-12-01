@@ -8,6 +8,11 @@ import type {
   QuestStatus,
   JournalEntry,
   AdventureHistoryEntry,
+  Condition,
+  ConditionType,
+  AbilityName,
+  SavingThrowProficiencies,
+  SkillName,
 } from '@/types';
 import characterCreationContent from '@/content/characterCreation.json';
 import { useSaveSystem } from '@/hooks/useSaveSystem';
@@ -15,6 +20,7 @@ import tutorialAdventure from '@/content/adventure.json';
 import spireAdventure from '@/content/adventure-shadows.json';
 import spellsContent from '@/content/spells.json';
 import { getMaxPreparedSpells } from '@/lib/spells';
+import { getProficiencyBonus, createDefaultSkills, getPassiveScore } from '@/utils/skillUtils';
 
 type CharacterUpdater =
   | Partial<PlayerCharacter>
@@ -56,6 +62,14 @@ interface GameContextType {
   loadFromSave: (isAutoSave?: boolean) => boolean;
   gainXp: (amount: number) => void;
   deleteHistoryEntry: (entryId: string) => void;
+  // NEW: Condition management
+  addCondition: (condition: Condition) => void;
+  removeCondition: (conditionType: ConditionType) => void;
+  // NEW: Death saves
+  recordDeathSave: (success: boolean) => void;
+  resetDeathSaves: () => void;
+  // NEW: Temporary HP
+  addTemporaryHitPoints: (amount: number) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -123,6 +137,74 @@ const mergeAdventureWithLatestData = (savedAdventure: Adventure | null): Adventu
   };
 };
 
+// Helper to migrate old character data to new format
+const migrateCharacter = (char: any): PlayerCharacter => {
+  if (!char) return char;
+
+  // Calculate proficiency bonus if missing
+  const level = char.level || 1;
+  const proficiencyBonus = char.proficiencyBonus || getProficiencyBonus(level);
+
+  // Migrate skills from array to object if needed
+  let skills = char.skills;
+  if (Array.isArray(skills)) {
+    const defaultSkills = createDefaultSkills();
+    skills.forEach((skillName: string) => {
+      const normalized = skillName.toLowerCase().replace(/ /g, '-') as SkillName;
+      if (defaultSkills[normalized]) {
+        defaultSkills[normalized].proficient = true;
+      }
+    });
+    skills = defaultSkills;
+  } else if (!skills) {
+    skills = createDefaultSkills();
+  }
+
+  // Ensure conditions array exists
+  const conditions = Array.isArray(char.conditions) ? char.conditions : [];
+
+  // Ensure death saves exist
+  const deathSaves = char.deathSaves || { successes: 0, failures: 0 };
+
+  // Ensure saving throw proficiencies exist
+  let savingThrowProficiencies = char.savingThrowProficiencies;
+  if (!savingThrowProficiencies && char.class) {
+    // Try to get from class definition
+    const classDef = characterCreationContent.classes.find(c => c.name === char.class.name);
+    if (classDef && classDef.savingThrowProficiencies) {
+      savingThrowProficiencies = {};
+      classDef.savingThrowProficiencies.forEach((ability: string) => {
+        (savingThrowProficiencies as any)[ability] = true;
+      });
+    } else {
+      // Fallback defaults based on class name
+      savingThrowProficiencies = {
+        strength: false, dexterity: false, constitution: false,
+        intelligence: false, wisdom: false, charisma: false
+      };
+      // Set defaults based on class name logic would go here, but we'll rely on class defs mostly
+    }
+  }
+
+  // Calculate passive scores if missing
+  const passivePerception = char.passivePerception || getPassiveScore({ ...char, skills, proficiencyBonus } as PlayerCharacter, 'perception');
+  const passiveInvestigation = char.passiveInvestigation || getPassiveScore({ ...char, skills, proficiencyBonus } as PlayerCharacter, 'investigation');
+  const passiveInsight = char.passiveInsight || getPassiveScore({ ...char, skills, proficiencyBonus } as PlayerCharacter, 'insight');
+
+  return {
+    ...char,
+    proficiencyBonus,
+    skills,
+    conditions,
+    deathSaves,
+    savingThrowProficiencies: savingThrowProficiencies || {},
+    temporaryHitPoints: char.temporaryHitPoints || 0,
+    passivePerception,
+    passiveInvestigation,
+    passiveInsight,
+  };
+};
+
 export function GameProvider({ children }: { children: ReactNode }) {
   const { saveGame, loadGame } = useSaveSystem();
   const [character, setCharacter] = useState<PlayerCharacter | null>(null);
@@ -137,7 +219,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const hydrateFromSave = useCallback((savedGame: ReturnType<typeof loadGame> | null) => {
     if (!savedGame) return false;
 
-    setCharacter(savedGame.character);
+    // Migrate character data
+    const migratedCharacter = savedGame.character ? migrateCharacter(savedGame.character) : null;
+    setCharacter(migratedCharacter);
     const mergedAdventure = mergeAdventureWithLatestData(savedGame.adventure);
     const savedAdventure = mergedAdventure
       ? {
@@ -216,6 +300,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
           },
           hitPoints: 0,
           maxHitPoints: 0,
+          temporaryHitPoints: 0,
           hitDice: {
             current: 1,
             max: 1,
@@ -225,7 +310,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
           xp: 0, // Initialize xp here
           maxXp: 300, // Initialize maxXp here
           gold: 10, // Initialize gold here
-          skills: [],
+          skills: createDefaultSkills(),
+          conditions: [],
+          deathSaves: { successes: 0, failures: 0 },
+          proficiencyBonus: 2,
+          savingThrowProficiencies: {
+            strength: false, dexterity: false, constitution: false,
+            intelligence: false, wisdom: false, charisma: false
+          },
+          passivePerception: 10,
+          passiveInvestigation: 10,
+          passiveInsight: 10,
           talents: [],
           ...updates,
         } as PlayerCharacter;
@@ -246,7 +341,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
         id: 'player-1',
         name: 'Hero',
         race: characterCreationContent.races[0],
-        class: characterCreationContent.classes[0],
+        class: {
+          ...characterCreationContent.classes[0],
+          savingThrowProficiencies: characterCreationContent.classes[0].savingThrowProficiencies as AbilityName[]
+        },
         background: characterCreationContent.backgrounds[0],
         portraitId: undefined,
         abilityScores: {
@@ -259,19 +357,36 @@ export function GameProvider({ children }: { children: ReactNode }) {
         },
         hitPoints: 0,
         maxHitPoints: 0,
+        temporaryHitPoints: 0,
         level: 1,
         xp: 0,
         maxXp: 300,
         gold: 10,
-        skills: [],
+        skills: createDefaultSkills(),
+        conditions: [],
+        deathSaves: { successes: 0, failures: 0 },
+        proficiencyBonus: 2,
+        savingThrowProficiencies: {
+          strength: false, dexterity: false, constitution: false,
+          intelligence: false, wisdom: false, charisma: false
+        },
+        passivePerception: 10,
+        passiveInvestigation: 10,
+        passiveInsight: 10,
         talents: [],
       };
 
-      const updatedCharacter = { ...baseCharacter, ...finalData };
+      const updatedCharacter = {
+        ...baseCharacter,
+        ...finalData,
+        class: finalData?.class ? {
+          ...finalData.class,
+          savingThrowProficiencies: finalData.class.savingThrowProficiencies as AbilityName[]
+        } : baseCharacter.class
+      };
 
       // Calculate HP based on class hit die + CON modifier
       const conModifier = Math.floor((updatedCharacter.abilityScores.constitution - 10) / 2);
-      // Parse hitDie from string format "d8" to number 8
       const hitDieString = updatedCharacter.class.hitDie || 'd8';
       const baseHP = parseInt(hitDieString.replace('d', '')) || 8;
       const calculatedMaxHP = baseHP + conModifier;
@@ -285,11 +400,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
         calculatedMaxHP
       });
 
-      // Merge skills from race and background
-      const raceSkills = updatedCharacter.race?.traits?.filter(t => t.includes('Proficiency')).map(t => t.split(':')[1]?.trim()) || [];
-      const backgroundSkills = Array.isArray(updatedCharacter.background.skillProficiencies) ? updatedCharacter.background.skillProficiencies : [];
-      const allSkills = [...raceSkills, ...backgroundSkills].filter(Boolean);
-
       return {
         ...updatedCharacter,
         maxHitPoints: calculatedMaxHP,
@@ -299,7 +409,37 @@ export function GameProvider({ children }: { children: ReactNode }) {
           max: updatedCharacter.level,
           die: updatedCharacter.class.hitDie || 'd8'
         },
-        skills: allSkills,
+        skills: (() => {
+          const skills = createDefaultSkills();
+          // Apply race skills
+          const raceSkills = updatedCharacter.race?.traits?.filter(t => t.includes('Proficiency')).map(t => t.split(':')[1]?.trim()) || [];
+          // Apply background skills
+          const backgroundSkills = Array.isArray(updatedCharacter.background.skillProficiencies) ? updatedCharacter.background.skillProficiencies : [];
+
+          [...raceSkills, ...backgroundSkills].filter(Boolean).forEach(skillName => {
+            const normalized = skillName.toLowerCase().replace(/ /g, '-') as SkillName;
+            if (skills[normalized]) {
+              skills[normalized].proficient = true;
+            }
+          });
+          return skills;
+        })(),
+        savingThrowProficiencies: (() => {
+          const profs: any = {
+            strength: false, dexterity: false, constitution: false,
+            intelligence: false, wisdom: false, charisma: false
+          };
+          // Get from class definition
+          const classDef = characterCreationContent.classes.find(c => c.name === updatedCharacter.class.name);
+          if (classDef && classDef.savingThrowProficiencies) {
+            classDef.savingThrowProficiencies.forEach((ability: string) => {
+              if (profs[ability as AbilityName] !== undefined) {
+                profs[ability as AbilityName] = true;
+              }
+            });
+          }
+          return profs as SavingThrowProficiencies;
+        })(),
         talents: updatedCharacter.talents || [],
         spellSlots: {
           1: { current: 2, max: 2 } // Default 2 level 1 slots for everyone for now
@@ -677,6 +817,74 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const addCondition = useCallback((condition: Condition) => {
+    setCharacter((prev) => {
+      if (!prev) return null;
+      // Check if already has condition
+      const existing = prev.conditions.find(c => c.type === condition.type);
+      if (existing) {
+        // Update existing
+        return {
+          ...prev,
+          conditions: prev.conditions.map(c => c.type === condition.type ? condition : c)
+        };
+      }
+      return {
+        ...prev,
+        conditions: [...prev.conditions, condition]
+      };
+    });
+  }, []);
+
+  const removeCondition = useCallback((conditionType: ConditionType) => {
+    setCharacter((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        conditions: prev.conditions.filter(c => c.type !== conditionType)
+      };
+    });
+  }, []);
+
+  const recordDeathSave = useCallback((success: boolean) => {
+    setCharacter((prev) => {
+      if (!prev) return null;
+      const current = prev.deathSaves;
+      if (success) {
+        return {
+          ...prev,
+          deathSaves: { ...current, successes: Math.min(3, current.successes + 1) }
+        };
+      } else {
+        return {
+          ...prev,
+          deathSaves: { ...current, failures: Math.min(3, current.failures + 1) }
+        };
+      }
+    });
+  }, []);
+
+  const resetDeathSaves = useCallback(() => {
+    setCharacter((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        deathSaves: { successes: 0, failures: 0 }
+      };
+    });
+  }, []);
+
+  const addTemporaryHitPoints = useCallback((amount: number) => {
+    setCharacter((prev) => {
+      if (!prev) return null;
+      // Temp HP doesn't stack, take higher value
+      return {
+        ...prev,
+        temporaryHitPoints: Math.max(prev.temporaryHitPoints, amount)
+      };
+    });
+  }, []);
+
   return (
     <GameContext.Provider
       value={{
@@ -715,6 +923,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
         gainXp,
         setTutorialsEnabled,
         deleteHistoryEntry,
+        addCondition,
+        removeCondition,
+        recordDeathSave,
+        resetDeathSaves,
+        addTemporaryHitPoints,
       }}
     >
       {children}

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/
 import { Badge } from './ui/badge';
 import { useTranslation } from 'react-i18next';
 import { Sword, BookOpen, Dice6, DoorOpen, CheckCircle2, Backpack, X, Tent, ShoppingBag, Brain, Wand2 } from 'lucide-react';
-import type { Item, TalentOption, Encounter } from '@/types';
+import type { Item, TalentOption, Encounter, SkillName, SpellContent } from '@/types';
 import { cn } from '@/lib/utils';
 import { CombatEncounter } from './CombatEncounter';
 import { Inventory } from './Inventory';
@@ -27,6 +27,8 @@ import {
   shouldCheckScrollUse,
   getProficiencyBonus,
 } from '@/lib/spells';
+
+// Force update check
 
 const itemCollections = [
   itemsData.weapons,
@@ -96,12 +98,12 @@ export function Adventure() {
     updateQuestObjective,
     addJournalEntry,
     journal,
-  gainXp,
-  tutorialsEnabled,
-  startConcentration,
-  endConcentration,
-  spendSpellSlot
-} = useGame();
+    gainXp,
+    tutorialsEnabled,
+    startConcentration,
+    endConcentration,
+    spendSpellSlot
+  } = useGame();
   const currentEncounter = useMemo<Encounter | null>(() => {
     if (!adventure || !adventure.encounters || adventure.encounters.length === 0) {
       return null;
@@ -288,8 +290,8 @@ export function Adventure() {
     const abilityScore = character.abilityScores[abilityKey] || 10;
     const abilityMod = Math.floor((abilityScore - 10) / 2);
 
-    const isProficient = character.skills.includes(skill);
-    const proficiencyBonus = isProficient ? 2 : 0;
+    const isProficient = character.skills[skill as SkillName]?.proficient;
+    const proficiencyBonus = isProficient ? getProficiencyBonus(character.level) : 0;
 
     const totalModifier = abilityMod + proficiencyBonus;
     const total = roll + totalModifier;
@@ -333,7 +335,7 @@ export function Adventure() {
     }
   ) => {
     if (!character) return false;
-    const spell = spellsData.find((s) => s.id === spellId);
+    const spell = spellsData.find((s) => s.id === spellId) as unknown as SpellContent;
     if (!spell) {
       addToNarrativeLog('The spell fizzles. (Unknown spell)');
       return false;
@@ -591,9 +593,15 @@ export function Adventure() {
           ? existingTalents
           : [...existingTalents, selectedTalent.id];
 
-        let updatedSkills = prev.skills || [];
-        if (selectedTalent.bonus.type === 'skill' && selectedTalent.bonus.value && !updatedSkills.includes(selectedTalent.bonus.value)) {
-          updatedSkills = [...updatedSkills, selectedTalent.bonus.value];
+        let updatedSkills = { ...prev.skills };
+        if (selectedTalent.bonus.type === 'skill' && selectedTalent.bonus.value) {
+          const skillName = selectedTalent.bonus.value as SkillName;
+          if (!updatedSkills[skillName]?.proficient) {
+            updatedSkills[skillName] = {
+              ...updatedSkills[skillName],
+              proficient: true
+            };
+          }
         }
 
         return {
@@ -654,7 +662,7 @@ export function Adventure() {
     }
 
     if (item.type === 'scroll' && item.spellId) {
-      const scrollSpell = spellsData.find((s) => s.id === item.spellId);
+      const scrollSpell = spellsData.find((s) => s.id === item.spellId) as unknown as SpellContent;
       if (!scrollSpell) {
         addToNarrativeLog('The scroll is illegible.');
         useItem(item);
@@ -1187,120 +1195,120 @@ export function Adventure() {
                 </Button>
               </CardContent>
             </Card>
-      </div>
-    </div>
-  )}
+          </div>
+        </div>
+      )}
 
-  {showSpellMenu && !inCombat && character && (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-      <div className="relative w-full max-w-2xl">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
-          onClick={() => setShowSpellMenu(false)}
-        >
-          <X className="h-6 w-6" />
-        </Button>
-        <Card className="border-fantasy-purple bg-fantasy-dark-card">
-          <CardHeader>
-            <CardTitle className="flex justify-between items-center">
-              <span>Spellbook</span>
-              {slotBadges.length > 0 && (
-                <Badge variant="outline">
-                  {slotBadges.join(' | ')}
-                </Badge>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-2 max-h-[70vh] overflow-y-auto">
-            {character.knownSpells?.map((spellId) => {
-              const spell = spellsData.find((s) => s.id === spellId);
-              if (!spell) return null;
-              const availableSlotLevels = getAvailableSlotLevels(character, spell);
-              const canCastAsRitual = spell.ritual && canRitualCast(character);
-              const isCantrip = spell.level === 0;
-              const noResources =
-                !isCantrip &&
-                availableSlotLevels.length === 0 &&
-                !canCastAsRitual;
-              const preparedRequirement =
-                !isPreparedCaster(character.class.name) ||
-                (character.preparedSpells || character.knownSpells || []).includes(spellId);
+      {showSpellMenu && !inCombat && character && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="relative w-full max-w-2xl">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
+              onClick={() => setShowSpellMenu(false)}
+            >
+              <X className="h-6 w-6" />
+            </Button>
+            <Card className="border-fantasy-purple bg-fantasy-dark-card">
+              <CardHeader>
+                <CardTitle className="flex justify-between items-center">
+                  <span>Spellbook</span>
+                  {slotBadges.length > 0 && (
+                    <Badge variant="outline">
+                      {slotBadges.join(' | ')}
+                    </Badge>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-2 max-h-[70vh] overflow-y-auto">
+                {character.knownSpells?.map((spellId) => {
+                  const spell = spellsData.find((s) => s.id === spellId) as unknown as SpellContent;
+                  if (!spell) return null;
+                  const availableSlotLevels = getAvailableSlotLevels(character, spell);
+                  const canCastAsRitual = spell.ritual && canRitualCast(character);
+                  const isCantrip = spell.level === 0;
+                  const noResources =
+                    !isCantrip &&
+                    availableSlotLevels.length === 0 &&
+                    !canCastAsRitual;
+                  const preparedRequirement =
+                    !isPreparedCaster(character.class.name) ||
+                    (character.preparedSpells || character.knownSpells || []).includes(spellId);
 
-              return (
-                <div
-                  key={spellId}
-                  className="w-full rounded-md border border-fantasy-purple/30 p-3 hover:bg-fantasy-purple/10 transition"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex flex-col items-start text-left">
-                      <span className="font-bold flex items-center gap-2">
-                        {spell.name}
-                        {spell.concentration && (
-                          <Badge variant="outline" className="text-[11px] flex items-center gap-1">
-                            <Brain className="h-3 w-3" /> Concentration
-                          </Badge>
+                  return (
+                    <div
+                      key={spellId}
+                      className="w-full rounded-md border border-fantasy-purple/30 p-3 hover:bg-fantasy-purple/10 transition"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex flex-col items-start text-left">
+                          <span className="font-bold flex items-center gap-2">
+                            {spell.name}
+                            {spell.concentration && (
+                              <Badge variant="outline" className="text-[11px] flex items-center gap-1">
+                                <Brain className="h-3 w-3" /> Concentration
+                              </Badge>
+                            )}
+                          </span>
+                          <span className="text-xs text-muted-foreground line-clamp-2">{spell.description}</span>
+                          {!preparedRequirement && (
+                            <span className="text-[11px] text-amber-400 mt-1">Not prepared</span>
+                          )}
+                        </div>
+                        <Badge variant="secondary" className="ml-2 shrink-0">Lvl {spell.level}</Badge>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {isCantrip && (
+                          <Button
+                            size="sm"
+                            variant="fantasy"
+                            onClick={() => handleAdventureCast(spellId)}
+                          >
+                            Cast Cantrip
+                          </Button>
                         )}
-                      </span>
-                      <span className="text-xs text-muted-foreground line-clamp-2">{spell.description}</span>
-                      {!preparedRequirement && (
-                        <span className="text-[11px] text-amber-400 mt-1">Not prepared</span>
-                      )}
+                        {availableSlotLevels.map((lvl) => (
+                          <Button
+                            key={`${spellId}-slot-${lvl}-adv`}
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleAdventureCast(spellId, { slotLevel: lvl })}
+                            disabled={!preparedRequirement}
+                          >
+                            Use Lvl {lvl} Slot
+                          </Button>
+                        ))}
+                        {canCastAsRitual && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleAdventureCast(spellId, { castAsRitual: true })}
+                            disabled={!preparedRequirement}
+                          >
+                            Cast as Ritual
+                          </Button>
+                        )}
+                        {noResources && (
+                          <span className="text-xs text-muted-foreground">No slots remaining</span>
+                        )}
+                      </div>
                     </div>
-                    <Badge variant="secondary" className="ml-2 shrink-0">Lvl {spell.level}</Badge>
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {isCantrip && (
-                      <Button
-                        size="sm"
-                        variant="fantasy"
-                        onClick={() => handleAdventureCast(spellId)}
-                      >
-                        Cast Cantrip
-                      </Button>
-                    )}
-                    {availableSlotLevels.map((lvl) => (
-                      <Button
-                        key={`${spellId}-slot-${lvl}-adv`}
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleAdventureCast(spellId, { slotLevel: lvl })}
-                        disabled={!preparedRequirement}
-                      >
-                        Use Lvl {lvl} Slot
-                      </Button>
-                    ))}
-                    {canCastAsRitual && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleAdventureCast(spellId, { castAsRitual: true })}
-                        disabled={!preparedRequirement}
-                      >
-                        Cast as Ritual
-                      </Button>
-                    )}
-                    {noResources && (
-                      <span className="text-xs text-muted-foreground">No slots remaining</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-            {(!character.knownSpells || character.knownSpells.length === 0) && (
-              <p className="text-center text-muted-foreground py-4">You don't know any spells.</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  )}
+                  );
+                })}
+                {(!character.knownSpells || character.knownSpells.length === 0) && (
+                  <p className="text-center text-muted-foreground py-4">You don't know any spells.</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
 
-  {/* Shop Modal */}
-  {showShop && (
-    <Shop onClose={() => setShowShop(false)} />
-  )}
+      {/* Shop Modal */}
+      {showShop && (
+        <Shop onClose={() => setShowShop(false)} />
+      )}
 
       {/* Inventory Modal */}
       {showInventory && (
