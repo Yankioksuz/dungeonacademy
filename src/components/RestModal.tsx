@@ -57,6 +57,8 @@ export function RestModal({ isOpen, onClose }: RestModalProps) {
         onClose();
     };
 
+    const hasTrance = (character.race?.traits || []).includes('Trance');
+
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="max-w-lg w-full relative text-white">
@@ -156,7 +158,7 @@ export function RestModal({ isOpen, onClose }: RestModalProps) {
                                     className="w-full py-6 text-lg bg-fantasy-gold text-black hover:bg-fantasy-gold/90"
                                 >
                                     <Moon className="mr-2 h-5 w-5" />
-                                    Rest for 8 Hours
+                                    {hasTrance ? 'Rest for 4 Hours (Trance)' : 'Rest for 8 Hours'}
                                 </Button>
 
                                 <p className="text-xs text-muted-foreground text-center italic">

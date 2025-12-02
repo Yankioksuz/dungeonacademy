@@ -49,6 +49,28 @@ export function CharacterCreation() {
     charisma: 10,
   });
 
+  const DRACONIC_ANCESTRIES = [
+    { type: 'Black', damageType: 'Acid', breathCone: false },
+    { type: 'Blue', damageType: 'Lightning', breathCone: false },
+    { type: 'Brass', damageType: 'Fire', breathCone: false },
+    { type: 'Bronze', damageType: 'Lightning', breathCone: false },
+    { type: 'Copper', damageType: 'Acid', breathCone: false },
+    { type: 'Gold', damageType: 'Fire', breathCone: true },
+    { type: 'Green', damageType: 'Poison', breathCone: true },
+    { type: 'Red', damageType: 'Fire', breathCone: true },
+    { type: 'Silver', damageType: 'Cold', breathCone: true },
+    { type: 'White', damageType: 'Cold', breathCone: true },
+  ];
+
+  const EXTRA_LANGUAGES = [
+    'Dwarvish', 'Elvish', 'Giant', 'Gnomish', 'Goblin', 'Halfling', 'Orc',
+    'Abyssal', 'Celestial', 'Draconic', 'Deep Speech', 'Infernal', 'Primordial', 'Sylvan', 'Undercommon'
+  ];
+
+  // NEW: Racial Options State
+  const [draconicAncestry, setDraconicAncestry] = useState<{ type: string; damageType: string; breathCone: boolean } | null>(null);
+  const [extraLanguage, setExtraLanguage] = useState<string>('');
+
   // Update local state when character changes (e.g., when going back or starting fresh)
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -128,6 +150,11 @@ export function CharacterCreation() {
 
           portraitId: selectedPortraitId,
           // Don't set hitPoints/maxHitPoints - let completeCharacterCreation calculate them
+
+          // Pass racial options
+          draconicAncestry: draconicAncestry || undefined,
+          // Pass extra language if selected (will be merged with others in GameContext)
+          languages: extraLanguage ? [extraLanguage] : [],
         };
 
         // Complete with all final data
@@ -227,7 +254,7 @@ export function CharacterCreation() {
                         <div className="space-y-2">
                           <p className="text-xs font-semibold text-fantasy-gold mb-1">Racial Traits:</p>
                           <div className="flex flex-wrap gap-1">
-                            {race.traits.map((trait) => {
+                            {(race.traits || []).map((trait) => {
                               const explanation = traitExplanations.races[trait as keyof typeof traitExplanations.races];
                               return (
                                 <Tooltip key={trait} content={explanation || trait}>
@@ -248,6 +275,58 @@ export function CharacterCreation() {
                 })}
               </div>
             </div>
+
+            {/* Racial Sub-Selections */}
+            {selectedRace?.id === 'dragonborn' && (
+              <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30">
+                <p className="text-sm font-semibold mb-3">Draconic Ancestry</p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Choose your draconic ancestry. This determines your breath weapon and damage resistance.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {DRACONIC_ANCESTRIES.map((ancestry) => (
+                    <Button
+                      key={ancestry.type}
+                      type="button"
+                      variant={draconicAncestry?.type === ancestry.type ? 'default' : 'outline'}
+                      className={cn(
+                        "justify-start text-xs",
+                        draconicAncestry?.type === ancestry.type && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                      )}
+                      onClick={() => setDraconicAncestry(ancestry)}
+                    >
+                      <span className="font-bold mr-1">{ancestry.type}</span>
+                      <span className="text-[10px] opacity-80">({ancestry.damageType})</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedRace?.id === 'human' && (
+              <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30">
+                <p className="text-sm font-semibold mb-3">Extra Language</p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Humans learn one extra language of their choice.
+                </p>
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                  {EXTRA_LANGUAGES.filter(l => l !== 'Common').map((lang) => (
+                    <Button
+                      key={lang}
+                      type="button"
+                      variant={extraLanguage === lang ? 'default' : 'outline'}
+                      className={cn(
+                        "text-xs",
+                        extraLanguage === lang && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                      )}
+                      onClick={() => setExtraLanguage(lang)}
+                    >
+                      {lang}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Gender Selection */}
             <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30">

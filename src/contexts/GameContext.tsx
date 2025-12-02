@@ -409,10 +409,73 @@ export function GameProvider({ children }: { children: ReactNode }) {
           max: updatedCharacter.level,
           die: updatedCharacter.class.hitDie || 'd8'
         },
+        // NEW: Racial & Class Details
+        languages: (() => {
+          const langs = ['Common'];
+          const raceName = updatedCharacter.race?.name;
+          if (raceName === 'Elf') langs.push('Elvish');
+          if (raceName === 'Dwarf') langs.push('Dwarvish');
+          if (raceName === 'Dragonborn') langs.push('Draconic');
+          if (raceName === 'Tiefling') langs.push('Infernal');
+          if (raceName === 'Gnome') langs.push('Gnomish');
+          if (raceName === 'Half-Orc') langs.push('Orc');
+          // Add extra languages passed from creation
+          if (updatedCharacter.languages) {
+            langs.push(...updatedCharacter.languages);
+          }
+          return [...new Set(langs)];
+        })(),
+        weaponProficiencies: (() => {
+          const profs: string[] = [];
+          const raceTraits = updatedCharacter.race?.traits || [];
+          if (raceTraits.includes('Elf Weapon Training')) {
+            profs.push('Longsword', 'Shortsword', 'Shortbow', 'Longbow');
+          }
+          if (raceTraits.includes('Dwarven Combat Training')) {
+            profs.push('Battleaxe', 'Handaxe', 'Light Hammer', 'Warhammer');
+          }
+          // Simple class defaults (can be expanded)
+          const className = updatedCharacter.class.name;
+          if (['Fighter', 'Paladin', 'Ranger', 'Barbarian'].includes(className)) {
+            profs.push('Simple Weapons', 'Martial Weapons');
+          } else if (['Cleric', 'Druid', 'Rogue', 'Warlock'].includes(className)) {
+            profs.push('Simple Weapons');
+          } else {
+            profs.push('Dagger', 'Dart', 'Sling', 'Quarterstaff', 'Light Crossbow');
+          }
+          return profs;
+        })(),
+        armorProficiencies: (() => {
+          const profs: string[] = [];
+          const className = updatedCharacter.class.name;
+          if (['Fighter', 'Paladin'].includes(className)) profs.push('All Armor', 'Shields');
+          else if (['Ranger', 'Cleric', 'Barbarian', 'Druid'].includes(className)) profs.push('Light Armor', 'Medium Armor', 'Shields');
+          else if (['Rogue', 'Warlock'].includes(className)) profs.push('Light Armor');
+          return profs;
+        })(),
+        senses: (() => {
+          const senses: string[] = [];
+          const raceTraits = updatedCharacter.race?.traits || [];
+          if (raceTraits.includes('Darkvision')) senses.push('Darkvision (60 ft)');
+          return senses;
+        })(),
+        draconicAncestry: updatedCharacter.draconicAncestry, // Preserve passed value
         skills: (() => {
           const skills = createDefaultSkills();
           // Apply race skills
-          const raceSkills = updatedCharacter.race?.traits?.filter(t => t.includes('Proficiency')).map(t => t.split(':')[1]?.trim()) || [];
+          // Apply race skills
+          const raceSkills: string[] = [];
+          const traits = updatedCharacter.race?.traits || [];
+
+          if (traits.includes('Keen Senses')) raceSkills.push('Perception');
+          if (traits.includes('Menacing')) raceSkills.push('Intimidation');
+
+          // Legacy/Generic support
+          traits.forEach(t => {
+            if (t.includes('Proficiency:')) {
+              raceSkills.push(t.split(':')[1]?.trim());
+            }
+          });
           // Apply background skills
           const backgroundSkills = Array.isArray(updatedCharacter.background.skillProficiencies) ? updatedCharacter.background.skillProficiencies : [];
 
@@ -444,12 +507,23 @@ export function GameProvider({ children }: { children: ReactNode }) {
         spellSlots: {
           1: { current: 2, max: 2 } // Default 2 level 1 slots for everyone for now
         },
-        knownSpells: spellsContent
-          .filter(spell =>
-            spell.level <= 1 &&
-            spell.classes.includes(updatedCharacter.class.name)
-          )
-          .map(spell => spell.id),
+        knownSpells: (() => {
+          const classSpells = spellsContent
+            .filter(spell =>
+              spell.level <= 1 &&
+              spell.classes.includes(updatedCharacter.class.name)
+            )
+            .map(spell => spell.id);
+
+          // Racial Spells
+          const racialSpells: string[] = [];
+          const traits = updatedCharacter.race?.traits || [];
+
+          if (traits.includes('Infernal Legacy')) racialSpells.push('thaumaturgy');
+          // Add other racial spells here if needed (e.g., Drow Magic)
+
+          return [...new Set([...classSpells, ...racialSpells])];
+        })(),
         preparedSpells: (() => {
           const known = spellsContent
             .filter(spell =>

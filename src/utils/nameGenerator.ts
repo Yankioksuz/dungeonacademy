@@ -85,6 +85,32 @@ const namesByRace = {
       'Creed', 'Despair', 'Excellence', 'Fear', 'Glory', 'Hope', 'Ideal', 'Music'
     ],
   },
+  Gnome: {
+    male: [
+      'Alston', 'Alvyn', 'Boddynock', 'Brocc', 'Burgell', 'Dimble', 'Eldon', 'Erky',
+      'Fonkin', 'Frug', 'Gerbo', 'Gimble', 'Glim', 'Jebeddo', 'Kellen', 'Namfoodle',
+      'Orryn', 'Roondar', 'Seebo', 'Sindri', 'Warryn', 'Wrenn', 'Zook'
+    ],
+    female: [
+      'Bimpnottin', 'Breena', 'Caramip', 'Carlin', 'Donella', 'Duvamil', 'Ella', 'Ellyjobell',
+      'Ellywick', 'Lilli', 'Loopmottin', 'Lorilla', 'Mardnab', 'Nissa', 'Nyx', 'Oda',
+      'Orla', 'Roywyn', 'Shamil', 'Tana', 'Waywocket', 'Zanna'
+    ],
+  },
+  'Half-Elf': {
+    male: [
+      // Mix of Human and Elf names
+      'Adran', 'Aelar', 'Beiro', 'Carric', 'Davan', 'Ero', 'Galin', 'Himo',
+      'Immeral', 'Kieran', 'Laucian', 'Mindartis', 'Pae', 'Peren', 'Quarion', 'Riardon',
+      'Rolen', 'Soveliss', 'Thamior', 'Tharivol', 'Theren', 'Varis'
+    ],
+    female: [
+      // Mix of Human and Elf names
+      'Adrie', 'Althaea', 'Anastrianna', 'Andraste', 'Antinua', 'Bethrynna', 'Birel', 'Caelynn',
+      'Drusilia', 'Enna', 'Felosial', 'Ielenia', 'Jelenneth', 'Keyleth', 'Leshanna', 'Lia',
+      'Meriele', 'Mialee', 'Naivara', 'Quelenna', 'Silaqui', 'Theirastra', 'Thia', 'Vadania'
+    ],
+  },
 };
 
 // Surnames by race
@@ -125,16 +151,27 @@ const surnamesByRace = {
     'Ashenheart', 'Darkflame', 'Embervein', 'Fiendish', 'Grimhorn', 'Hellfire',
     'Nightborn', 'Shadowclaw', 'Soulforge', 'Bloodthorn', 'Cinderfall', 'Doomwhisper'
   ],
+  Gnome: [
+    'Beren', 'Daergel', 'Folkor', 'Garrick', 'Nackle', 'Murnig', 'Ningel', 'Raulnor',
+    'Scheppen', 'Timbers', 'Turen', 'Badger', 'Cloak', 'Doublelock', 'Filchbatter', 'Fnipper',
+    'Ku', 'Nim', 'Oneshoe', 'Pock', 'Sparklegem', 'Stumbleduck'
+  ],
+  'Half-Elf': [
+    // Often use Elven or Human surnames
+    'Amastacia', 'Amakiir', 'Galanodel', 'Holimion', 'Liadon', 'Meliamne', 'Naïlo', 'Siannodel',
+    'Ilphelkiir', 'Xiloscient', 'Bramblefoot', 'Dumein', 'Jassan', 'Khalzza', 'McStout',
+    'Tarantella', 'Windrivver', 'Zat', 'Brightmoon', 'Evenwood', 'Hazelwood', 'Starflower'
+  ],
 };
 
 export function generateRandomName(raceName?: string, gender?: 'male' | 'female' | 'non-binary' | 'other'): string {
   // Default to Human if no race specified
   const race = raceName || 'Human';
-  
+
   // Get names for the race, fallback to Human if race not found
   const raceNames = namesByRace[race as keyof typeof namesByRace] || namesByRace.Human;
   const raceSurnames = surnamesByRace[race as keyof typeof surnamesByRace] || surnamesByRace.Human;
-  
+
   // Determine which gender names to use
   let genderForNames: 'male' | 'female';
   if (gender === 'male' || gender === 'female') {
@@ -143,23 +180,23 @@ export function generateRandomName(raceName?: string, gender?: 'male' | 'female'
     // For non-binary/other/not specified, randomly choose from available names
     genderForNames = Math.random() > 0.5 ? 'male' : 'female';
   }
-  
+
   const firstNames = raceNames[genderForNames];
-  
+
   // Pick random first name and surname
   const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
   const surname = raceSurnames[Math.floor(Math.random() * raceSurnames.length)];
-  
+
   // Some races use full names, others just first names
   if (race === 'Elf' || race === 'Dwarf' || race === 'Human') {
     return `${firstName} ${surname}`;
   }
-  
+
   // Halflings, Dragonborn, Half-Orcs, and Tieflings can have surnames but not always
   if (Math.random() > 0.3) {
     return `${firstName} ${surname}`;
   }
-  
+
   return firstName;
 }
 
@@ -167,12 +204,12 @@ export function generateMultipleNames(raceName?: string, count: number = 5): str
   const names = new Set<string>();
   let attempts = 0;
   const maxAttempts = count * 3; // Prevent infinite loop
-  
+
   while (names.size < count && attempts < maxAttempts) {
     names.add(generateRandomName(raceName));
     attempts++;
   }
-  
+
   return Array.from(names);
 }
 

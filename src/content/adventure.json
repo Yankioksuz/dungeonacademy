@@ -138,6 +138,33 @@
           "outcome": "Pip gives an understanding nod. 'Of course! Talk to whoever you need. I'll be right here if you think of more questions.'",
           "nextEncounterId": "village-square-return",
           "isExitOption": true
+        },
+        {
+          "id": "gnome-bargain",
+          "text": "[Gnome] \"As a fellow small folk, surely you can offer a better deal?\"",
+          "type": "continue",
+          "outcome": "Pip winks. 'Us small folk have to stick together in this big world! Tell you what - for you, I'll throw in a discount on your next purchase.'",
+          "nextEncounterId": "village-square-return",
+          "requiresRace": "Gnome",
+          "stayInEncounter": true
+        },
+        {
+          "id": "bard-song",
+          "text": "[Bard] \"I could compose a ballad about your fine wares to attract customers.\"",
+          "type": "continue",
+          "outcome": "Pip clasps his hands together. 'Music to my ears! Literally! You bring the customers, I'll make sure you're well-equipped. A fair trade!'",
+          "nextEncounterId": "village-square-return",
+          "requiresClass": "Bard",
+          "stayInEncounter": true
+        },
+        {
+          "id": "tiefling-understanding",
+          "text": "[Tiefling] \"People often misjudge us. I hope you're different.\"",
+          "type": "continue",
+          "outcome": "Pip nods solemnly. 'Gold has no horns, friend. And neither does character. You're welcome at my stall anytime.'",
+          "nextEncounterId": "village-square-return",
+          "requiresRace": "Tiefling",
+          "stayInEncounter": true
         }
       ],
       "skillCheck": {
@@ -396,6 +423,33 @@
           "outcome": "Thora nods crisply. 'Understood. Report back if you learn anything new.'",
           "nextEncounterId": "village-square-return",
           "isExitOption": true
+        },
+        {
+          "id": "halforc-intimidate",
+          "text": "[Half-Orc] \"I know a thing or two about intimidation. Need help?\"",
+          "type": "continue",
+          "outcome": "Thora grins, revealing a missing tooth. 'I bet you do. If you can scare these goblins half as much as you scare the locals, we'll be fine.'",
+          "nextEncounterId": "village-square-return",
+          "requiresRace": "Half-Orc",
+          "stayInEncounter": true
+        },
+        {
+          "id": "paladin-oath",
+          "text": "[Paladin] \"I am sworn to protect the innocent. I will aid you.\"",
+          "type": "continue",
+          "outcome": "Thora salutes. 'A holy warrior. We're lucky to have you. May your shield be strong and your aim true.'",
+          "nextEncounterId": "village-square-return",
+          "requiresClass": "Paladin",
+          "stayInEncounter": true
+        },
+        {
+          "id": "barbarian-crush",
+          "text": "[Barbarian] \"Point me to the biggest goblin. I will crush them.\"",
+          "type": "continue",
+          "outcome": "Thora laughs heartily. 'I like your spirit! The leader is the one you want. Big, nasty, and thinks he's a king. Smash him for me.'",
+          "nextEncounterId": "village-square-return",
+          "requiresClass": "Barbarian",
+          "stayInEncounter": true
         }
       ],
       "skillCheck": {
@@ -450,6 +504,46 @@
           "outcome": "Eldred's hands shake. 'They came just after midnight. Mara heard them first - she always was sharp. By the time I got outside, they were already loading our grain onto their backs. Six of them, moving like a trained unit. Not like any goblins I've heard of.'",
           "nextEncounterId": "daughter-dialogue",
           "requiresVisitedEncounterId": "guard-dialogue"
+        },
+        {
+          "id": "druid-heal",
+          "text": "[Druid] \"I can help heal your land once the goblins are gone.\"",
+          "type": "continue",
+          "outcome": "Eldred wipes a tear. 'The land is resilient, like us. But your help would be a blessing. Thank you, guardian of the wild.'",
+          "nextEncounterId": "daughter-dialogue",
+          "requiresClass": "Druid"
+        },
+        {
+          "id": "halfelf-world",
+          "text": "[Half-Elf] \"I walk between worlds, like your village on the edge of the wild.\"",
+          "type": "continue",
+          "outcome": "Eldred nods slowly. 'Then you understand the balance we try to keep. These goblins... they upset that balance. Please, restore it.'",
+          "nextEncounterId": "daughter-dialogue",
+          "requiresRace": "Half-Elf"
+        },
+        {
+          "id": "monk-balance",
+          "text": "[Monk] \"I seek balance. These goblins disrupt the harmony of your life.\"",
+          "type": "continue",
+          "outcome": "Eldred bows his head. 'Harmony is all we ask for. A quiet life, a good harvest. Is that too much to ask?'",
+          "nextEncounterId": "daughter-dialogue",
+          "requiresClass": "Monk"
+        },
+        {
+          "id": "sorcerer-magic",
+          "text": "[Sorcerer] \"My magic is wild, but I can control it to protect you.\"",
+          "type": "continue",
+          "outcome": "Eldred looks a bit fearful but grateful. 'Magic can be a tool or a weapon. Use it wisely, and save our home.'",
+          "nextEncounterId": "daughter-dialogue",
+          "requiresClass": "Sorcerer"
+        },
+        {
+          "id": "warlock-friends",
+          "text": "[Warlock] \"I have powerful friends in high (and low) places.\"",
+          "type": "continue",
+          "outcome": "Eldred shudders slightly. 'I don't ask where your power comes from, stranger. As long as it stops those goblins, I am grateful.'",
+          "nextEncounterId": "daughter-dialogue",
+          "requiresClass": "Warlock"
         }
       ],
       "completed": false,

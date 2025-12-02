@@ -27,7 +27,7 @@ export type ConditionType =
   | 'blinded' | 'charmed' | 'deafened' | 'frightened'
   | 'grappled' | 'incapacitated' | 'invisible' | 'paralyzed'
   | 'petrified' | 'poisoned' | 'prone' | 'restrained'
-  | 'stunned' | 'unconscious';
+  | 'stunned' | 'unconscious' | 'hexed' | 'turned';
 
 export interface Condition {
   type: ConditionType;
@@ -214,6 +214,17 @@ export interface PlayerCharacter {
   conditions: Condition[]; // NEW: Active conditions
   deathSaves: DeathSaves; // NEW: Death saving throws (when at 0 HP)
 
+  // NEW: Racial & Class Details
+  languages: string[];
+  weaponProficiencies: string[];
+  armorProficiencies: string[];
+  senses: string[]; // e.g. "Darkvision (60 ft)"
+  draconicAncestry?: {
+    type: string; // e.g. "Red", "Blue"
+    damageType: string; // e.g. "Fire", "Lightning"
+    breathCone: boolean; // true for cone, false for line
+  };
+
   // Passive Scores (calculated)
   passivePerception: number;
   passiveInvestigation: number;
@@ -280,6 +291,8 @@ export interface Item {
   equipped?: boolean;
   spellId?: string;
   spellLevel?: number;
+  properties?: string[];
+  attackBonus?: number;
 }
 
 export interface CombatEnemy {

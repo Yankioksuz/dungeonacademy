@@ -55,52 +55,6 @@
         },
         {
           "id": "verify-letter",
-          "text": "Show Kaela the Silverwind seal.",
-          "type": "continue",
-          "outcome": "You produce the sealed tube. Kaela relaxes when she sees the silverwind courier mark and thanks you for honoring the code phrase she used in the letter.",
-          "nextEncounterId": "camp-approach",
-          "stayInEncounter": true
-        },
-        {
-          "id": "ask-camp-state",
-          "text": "\"What happened here?\"",
-          "type": "continue",
-          "outcome": "Kaela gestures to the tents: refugees displaced when mirror-forged weapons erased their towns from scrying pools, envoys who no longer trust their own scribes, and soldiers who would rather duel each other than the cabal inside the spire.",
-          "nextEncounterId": "camp-approach",
-          "stayInEncounter": true
-        },
-        {
-          "id": "head-to-briefing",
-          "text": "Follow Kaela to her briefing pavilion.",
-          "type": "continue",
-          "outcome": "Kaela leads you beneath a pavilion strung with mirrored wards. She promises answers once you review her intel.",
-          "nextEncounterId": "intel-briefing"
-        }
-      ],
-      "completed": false
-    },
-    {
-      "id": "intel-briefing",
-      "title": "Briefing by Starlight",
-      "description": "Spymaster Kaela unfurls enchanted parchments showing the spire’s defenses and lays out how Councilor Vael and the unseen Archon Ryell have been feeding mirror-forged weapons to rival banners. If they finish attuning the mirror heart, they will rewrite scrying reports and launch wars in other peoples' names.",
-      "type": "tutorial",
-      "tutorial": {
-        "title": "Gather Intel",
-        "content": "Build leverage before picking a route. Skill checks here grant items and XP that can swing later scenes."
-      },
-      "options": [
-        {
-          "id": "reference-letter",
-          "text": "\"Your letter mentioned a code phrase—what was the plan if we refused?\"",
-          "type": "continue",
-          "outcome": "Kaela admits she would have used the Silverwind network to warn every village anyway, but your acceptance means she can invoke the 'Broken Prism' accord—authority to act on behalf of all four banners.",
-          "nextEncounterId": "intel-briefing",
-          "stayInEncounter": true
-        },
-        {
-          "id": "ask-kaela-betrayal",
-          "text": "\"Kaela, why would Vael turn on their own council?\"",
-          "type": "continue",
           "outcome": "Kaela rubs sleep-starved eyes and explains that Vael was once the loudest voice for unity. Years of stalemate let Ryell whisper in their ear, promising the mirrors could force peace by faking hostile acts. The plan spiraled, and now the mirrors rewrite testimony faster than envoys can react.",
           "nextEncounterId": "intel-briefing",
           "stayInEncounter": true

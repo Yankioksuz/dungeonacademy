@@ -36,7 +36,7 @@
     {
       "id": "dwarf",
       "name": "Dwarf",
-      "description": "Dwarves are a tough, tradition-abiding folk.",
+      "description": "Bold and hardy, dwarves are known as skilled warriors, miners, and workers of stone and metal.",
       "abilityScoreIncrease": {
         "constitution": 2
       },
@@ -50,7 +50,7 @@
     {
       "id": "halfling",
       "name": "Halfling",
-      "description": "Halflings are an affable and cheerful people.",
+      "description": "The diminutive halflings survive in a world full of larger creatures by avoiding notice or, barring that, avoiding offense.",
       "abilityScoreIncrease": {
         "dexterity": 2
       },
@@ -63,7 +63,7 @@
     {
       "id": "dragonborn",
       "name": "Dragonborn",
-      "description": "Dragonborn look like humanoid dragons.",
+      "description": "Dragonborn look very much like dragons standing erect in humanoid form, though they lack wings or a tail.",
       "abilityScoreIncrease": {
         "strength": 2,
         "charisma": 1
@@ -73,55 +73,54 @@
         "Breath Weapon",
         "Damage Resistance"
       ]
+    },
+    {
+      "id": "tiefling",
+      "name": "Tiefling",
+      "description": "To be greeted with stares and whispers, to suffer violence and insult on the street, to see mistrust and fear in every eye: this is the lot of the tiefling.",
+      "abilityScoreIncrease": {
+        "charisma": 2,
+        "intelligence": 1
+      },
+      "traits": [
+        "Darkvision",
+        "Hellish Resistance",
+        "Infernal Legacy"
+      ]
+    },
+    {
+      "id": "gnome",
+      "name": "Gnome",
+      "description": "A constant hum of busy activity pervades the warrens and neighborhoods where gnomes form their close-knit communities.",
+      "abilityScoreIncrease": {
+        "intelligence": 2
+      },
+      "traits": [
+        "Darkvision",
+        "Gnome Cunning"
+      ]
+    },
+    {
+      "id": "half-orc",
+      "name": "Half-Orc",
+      "description": "Half-orcs' grayish pigmentation, sloping foreheads, jutting jaws, prominent teeth, and towering builds make their orcish heritage plain for all to see.",
+      "abilityScoreIncrease": {
+        "strength": 2,
+        "constitution": 1
+      },
+      "traits": [
+        "Darkvision",
+        "Menacing",
+        "Relentless Endurance",
+        "Savage Attacks"
+      ]
     }
   ],
   "classes": [
     {
-      "id": "fighter",
-      "name": "Fighter",
-      "description": "Masters of combat, fighters are versatile warriors.",
-      "hitDie": "d10",
-      "primaryAbility": "Strength or Dexterity",
-      "savingThrows": [
-        "Strength",
-        "Constitution"
-      ],
-      "savingThrowProficiencies": [
-        "strength",
-        "constitution"
-      ],
-      "features": [
-        "Fighting Style",
-        "Second Wind",
-        "Action Surge",
-        "Extra Attack"
-      ]
-    },
-    {
-      "id": "wizard",
-      "name": "Wizard",
-      "description": "Scholars of the arcane, wizards master magic through study.",
-      "hitDie": "d6",
-      "primaryAbility": "Intelligence",
-      "savingThrows": [
-        "Intelligence",
-        "Wisdom"
-      ],
-      "savingThrowProficiencies": [
-        "intelligence",
-        "wisdom"
-      ],
-      "features": [
-        "Spellcasting",
-        "Arcane Recovery",
-        "Spellbook",
-        "Ritual Casting"
-      ]
-    },
-    {
       "id": "cleric",
       "name": "Cleric",
-      "description": "Divine agents of the gods, clerics channel divine power.",
+      "description": "A priestly champion who wields divine magic in service of a higher power.",
       "hitDie": "d8",
       "primaryAbility": "Wisdom",
       "savingThrows": [
@@ -179,6 +178,179 @@
         "Natural Explorer",
         "Spellcasting",
         "Ranger Archetype"
+      ]
+    },
+    {
+      "id": "barbarian",
+      "name": "Barbarian",
+      "description": "A fierce warrior of primitive background who can enter a battle rage.",
+      "hitDie": "d12",
+      "primaryAbility": "Strength",
+      "savingThrows": [
+        "Strength",
+        "Constitution"
+      ],
+      "savingThrowProficiencies": [
+        "strength",
+        "constitution"
+      ],
+      "features": [
+        "Rage",
+        "Unarmored Defense"
+      ]
+    },
+    {
+      "id": "bard",
+      "name": "Bard",
+      "description": "An inspiring magician whose power echoes the music of creation.",
+      "hitDie": "d8",
+      "primaryAbility": "Charisma",
+      "savingThrows": [
+        "Dexterity",
+        "Charisma"
+      ],
+      "savingThrowProficiencies": [
+        "dexterity",
+        "charisma"
+      ],
+      "features": [
+        "Spellcasting",
+        "Bardic Inspiration"
+      ]
+    },
+    {
+      "id": "druid",
+      "name": "Druid",
+      "description": "A priest of the Old Faith, wielding the powers of nature and adopting animal forms.",
+      "hitDie": "d8",
+      "primaryAbility": "Wisdom",
+      "savingThrows": [
+        "Intelligence",
+        "Wisdom"
+      ],
+      "savingThrowProficiencies": [
+        "intelligence",
+        "wisdom"
+      ],
+      "features": [
+        "Druidic",
+        "Spellcasting",
+        "Wild Shape"
+      ]
+    },
+    {
+      "id": "monk",
+      "name": "Monk",
+      "description": "A master of martial arts, harnessing the power of the body in pursuit of physical and spiritual perfection.",
+      "hitDie": "d8",
+      "primaryAbility": "Dexterity and Wisdom",
+      "savingThrows": [
+        "Strength",
+        "Dexterity"
+      ],
+      "savingThrowProficiencies": [
+        "strength",
+        "dexterity"
+      ],
+      "features": [
+        "Unarmored Defense",
+        "Martial Arts"
+      ]
+    },
+    {
+      "id": "paladin",
+      "name": "Paladin",
+      "description": "A holy warrior bound to a sacred oath.",
+      "hitDie": "d10",
+      "primaryAbility": "Strength and Charisma",
+      "savingThrows": [
+        "Wisdom",
+        "Charisma"
+      ],
+      "savingThrowProficiencies": [
+        "wisdom",
+        "charisma"
+      ],
+      "features": [
+        "Divine Sense",
+        "Lay on Hands"
+      ]
+    },
+    {
+      "id": "sorcerer",
+      "name": "Sorcerer",
+      "description": "A spellcaster who draws on inherent magic from a gift or bloodline.",
+      "hitDie": "d6",
+      "primaryAbility": "Charisma",
+      "savingThrows": [
+        "Constitution",
+        "Charisma"
+      ],
+      "savingThrowProficiencies": [
+        "constitution",
+        "charisma"
+      ],
+      "features": [
+        "Spellcasting",
+        "Sorcerous Origin"
+      ]
+    },
+    {
+      "id": "warlock",
+      "name": "Warlock",
+      "description": "A wielder of magic that is derived from a bargain with an extraplanar entity.",
+      "hitDie": "d8",
+      "primaryAbility": "Charisma",
+      "savingThrows": [
+        "Wisdom",
+        "Charisma"
+      ],
+      "savingThrowProficiencies": [
+        "wisdom",
+        "charisma"
+      ],
+      "features": [
+        "Pact Magic",
+        "Eldritch Invocations"
+      ]
+    },
+    {
+      "id": "fighter",
+      "name": "Fighter",
+      "description": "A master of martial combat, skilled with a variety of weapons and armor.",
+      "hitDie": "d10",
+      "primaryAbility": "Strength or Dexterity",
+      "savingThrows": [
+        "Strength",
+        "Constitution"
+      ],
+      "savingThrowProficiencies": [
+        "strength",
+        "constitution"
+      ],
+      "features": [
+        "Fighting Style",
+        "Second Wind",
+        "Action Surge"
+      ]
+    },
+    {
+      "id": "wizard",
+      "name": "Wizard",
+      "description": "A scholarly magic-user capable of manipulating the structures of reality.",
+      "hitDie": "d6",
+      "primaryAbility": "Intelligence",
+      "savingThrows": [
+        "Intelligence",
+        "Wisdom"
+      ],
+      "savingThrowProficiencies": [
+        "intelligence",
+        "wisdom"
+      ],
+      "features": [
+        "Spellcasting",
+        "Arcane Recovery"
       ]
     }
   ],

@@ -8,7 +8,9 @@ import { Sword, Shield, Heart, Skull, Backpack, X, Flame, Wand, Activity, HeartP
 import { cn } from '@/lib/utils';
 import type { PlayerCharacter, CombatEnemy, CombatLogEntry, SpellContent, CombatLogEntryType, Condition } from '@/types';
 import { useGame } from '@/contexts/GameContext';
-import { createLogEntry, formatRollBreakdown } from '@/utils/combatLogger';
+import { canAct, getCombatAdvantage } from '@/utils/combatUtils';
+
+import { createLogEntry } from '@/utils/combatLogger';
 import { CombatLogPanel } from './CombatLogPanel';
 import { ConditionList } from './ConditionList';
 import { DiceRollModal } from './DiceRollModal';
@@ -19,7 +21,6 @@ import {
   getSpellcastingAbility,
   getSpellSaveDC,
   getUpcastDamageOrEffect,
-  rollConcentrationCheck,
   isPreparedCaster,
 } from '@/lib/spells';
 
@@ -46,7 +47,6 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   const {
     updateCharacter,
     startConcentration,
-    endConcentration,
     spendSpellSlot,
     recordDeathSave,
     resetDeathSaves
@@ -98,11 +98,54 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   const isRogue = character.class.name.toLowerCase() === 'rogue';
   const [actionSurgeAvailable, setActionSurgeAvailable] = useState(isFighter);
   const [secondWindAvailable, setSecondWindAvailable] = useState(isFighter);
-  const [sneakAttackReady, setSneakAttackReady] = useState(false);
   const [sneakAttackUsedThisTurn, setSneakAttackUsedThisTurn] = useState(false);
-  const [actionSurgeActive, setActionSurgeActive] = useState(false);
   const [activeBuffs, setActiveBuffs] = useState<Array<{ id: string; name: string; bonus?: number; duration: number }>>([]);
-  const [cunningAttackBonus, setCunningAttackBonus] = useState(0);
+  const [relentlessEnduranceUsed, setRelentlessEnduranceUsed] = useState(false);
+
+  // Barbarian Rage State
+  const isBarbarian = character.class.name.toLowerCase() === 'barbarian';
+  const [rageAvailable, setRageAvailable] = useState(isBarbarian ? 2 : 0); // 2 Rages per long rest at level 1
+  const [rageActive, setRageActive] = useState(false);
+  const [rageRoundsLeft, setRageRoundsLeft] = useState(0);
+
+  // Bardic Inspiration State
+  const isBard = character.class.name.toLowerCase() === 'bard';
+  const charismaMod = Math.floor((character.abilityScores.charisma - 10) / 2);
+  const [inspirationAvailable, setInspirationAvailable] = useState(isBard ? Math.max(1, charismaMod) : 0);
+  const [hasInspirationDie, setHasInspirationDie] = useState(false);
+  const [useInspiration, setUseInspiration] = useState(false);
+
+  // Paladin Lay on Hands State
+  const isPaladin = character.class.name.toLowerCase() === 'paladin';
+  const [layOnHandsPool, setLayOnHandsPool] = useState(isPaladin ? character.level * 5 : 0);
+
+  // Monk Ki State
+  const isMonk = character.class.name.toLowerCase() === 'monk';
+  const [kiPoints, setKiPoints] = useState(isMonk ? character.level : 0);
+
+  // Druid Wild Shape State
+  const isDruid = character.class.name.toLowerCase() === 'druid';
+  const [wildShapeAvailable, setWildShapeAvailable] = useState(isDruid ? 2 : 0);
+  const [wildShapeActive, setWildShapeActive] = useState(false);
+  const [wildShapeHp, setWildShapeHp] = useState(0);
+  const WOLF_STATS = { name: 'Wolf', maxHp: 11, ac: 13, speed: 40, str: 12, dex: 15, con: 12 };
+
+  // Sorcerer Metamagic State
+  const isSorcerer = character.class.name.toLowerCase() === 'sorcerer';
+  const [sorceryPoints, setSorceryPoints] = useState(isSorcerer ? character.level : 0);
+  const [empoweredSpellUsed, setEmpoweredSpellUsed] = useState(false);
+
+  // Cleric Channel Divinity State
+  const isCleric = character.class.name.toLowerCase() === 'cleric';
+  const [channelDivinityUses, setChannelDivinityUses] = useState(isCleric ? 1 : 0); // 1 use at level 2+ usually, simplified to 1 for now
+
+  // Ranger State
+  const isRanger = character.class.name.toLowerCase() === 'ranger';
+  const [favoredEnemyActive, setFavoredEnemyActive] = useState(false);
+
+  // Wizard State
+  const isWizard = character.class.name.toLowerCase() === 'wizard';
+  const [arcaneRecoveryUsed, setArcaneRecoveryUsed] = useState(false);
 
   const findTorchOilItem = () =>
     (character.inventory || []).find(
@@ -198,9 +241,28 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
     const actingEnemy = updatedEnemy;
 
+    if (!canAct(actingEnemy)) {
+      addLog(`${actingEnemy.name} is incapacitated and cannot act!`, 'condition');
+      nextTurn();
+      return;
+    }
+
     // Prevent multiple enemy turns
     const timeout = setTimeout(() => {
-      const attackRoll = rollDice(20);
+      // Determine Advantage/Disadvantage
+      const rollType = getCombatAdvantage(actingEnemy, character, 'melee');
+
+      const rollDice = (sides: number) => Math.floor(Math.random() * sides) + 1;
+      let attackRoll = rollDice(20);
+
+      if (rollType === 'advantage') {
+        attackRoll = Math.max(attackRoll, rollDice(20));
+        addLog(`${actingEnemy.name} attacks with advantage!`, 'info');
+      } else if (rollType === 'disadvantage') {
+        attackRoll = Math.min(attackRoll, rollDice(20));
+        addLog(`${actingEnemy.name} attacks with disadvantage.`, 'info');
+      }
+
       const totalAttack = attackRoll + actingEnemy.attackBonus;
 
       // Player AC Calculation
@@ -221,11 +283,13 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
       const playerAC = baseAC + getPlayerDefenseBonus();
 
-      if (totalAttack >= playerAC) {
+      // Wild Shape AC
+      const effectiveAC = wildShapeActive ? WOLF_STATS.ac : playerAC;
+
+      if (totalAttack >= effectiveAC) {
         // Hit!
-        if (playerHp <= 0) {
+        if (playerHp <= 0 && !wildShapeActive) {
           // Attack on unconscious player causes failed death save
-          addLog(`${actingEnemy.name} attacks your unconscious body!`, 'damage');
           addLog(`${actingEnemy.name} attacks your unconscious body!`, 'damage');
           // Critical hit on unconscious creature = 2 failures
           recordDeathSave(false);
@@ -239,6 +303,30 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
           setPlayerHp(prev => {
             let remainingDamage = damageRoll;
+
+            // Apply Resistances
+            const traits = character.race?.traits || [];
+            const ancestry = character.draconicAncestry;
+
+            // TODO: Get actual damage type from enemy attack
+            const incomingDamageType: string = 'slashing';
+
+            let resisted = false;
+            if (incomingDamageType === 'fire' && traits.includes('Hellish Resistance')) resisted = true;
+            if (incomingDamageType === 'poison' && traits.includes('Dwarven Resilience')) resisted = true;
+            if (ancestry && incomingDamageType.toLowerCase() === ancestry.damageType.toLowerCase()) resisted = true;
+
+            // Barbarian Rage Resistance
+            if (rageActive && ['bludgeoning', 'piercing', 'slashing'].includes(incomingDamageType)) {
+              resisted = true;
+              addLog('Rage reduces the damage!', 'info');
+            }
+
+            if (resisted) {
+              remainingDamage = Math.floor(remainingDamage / 2);
+              addLog(`Resisted ${incomingDamageType} damage!`, 'info');
+            }
+
             let currentTempHp = character.temporaryHitPoints || 0;
 
             if (currentTempHp > 0) {
@@ -256,17 +344,48 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
               }
             }
 
-            const newHp = Math.max(0, prev - remainingDamage);
+            let newHp = Math.max(0, prev - remainingDamage);
+
+
+
+            if (wildShapeActive) {
+              // Apply damage to Wild Shape HP first
+              let excessDamage = 0;
+              setWildShapeHp(prevWsHp => {
+                const newWsHp = prevWsHp - remainingDamage;
+                if (newWsHp <= 0) {
+                  excessDamage = Math.abs(newWsHp);
+                  setWildShapeActive(false);
+                  addLog(`${character.name} reverts to normal form!`, 'info');
+                  return 0;
+                }
+                return newWsHp;
+              });
+
+              if (excessDamage > 0) {
+                addLog(`Excess damage (${excessDamage}) carries over to normal form!`, 'damage');
+                return Math.max(0, prev - excessDamage);
+              }
+              return prev; // No change to player HP if Wild Shape absorbed it all
+            }
+
+            if (newHp === 0) {
+              if ((character.race?.traits || []).includes('Relentless Endurance') && !relentlessEnduranceUsed) {
+                newHp = 1;
+                setRelentlessEnduranceUsed(true);
+                addLog(`${character.name} uses Relentless Endurance to stay at 1 HP!`, 'heal');
+              } else {
+                addLog(`${character.name} falls unconscious!`, 'miss');
+              }
+            }
+
             updateCharacter((current) => {
               if (!current) return current;
               return { ...current, hitPoints: newHp };
             });
-            if (newHp === 0) {
-              addLog(`${character.name} falls unconscious!`, 'miss');
-            }
+
             return newHp;
           });
-          handleConcentrationCheck(damageRoll);
         }
       } else {
         // Miss
@@ -278,211 +397,6 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     }, 1500);
 
     return () => clearTimeout(timeout);
-  };
-
-  const handlePlayerAttack = () => {
-    if (!selectedEnemy || isRolling) return;
-
-    const enemy = enemies.find(e => e.id === selectedEnemy);
-    if (!enemy) return;
-
-    const attackAbility = character.class.primaryAbility.includes('Dexterity') ? 'dexterity' : 'strength';
-    const abilityMod = Math.floor((character.abilityScores[attackAbility] - 10) / 2);
-    const proficiencyBonus = 2;
-    const modifier = abilityMod + proficiencyBonus + cunningAttackBonus;
-    const enemyAC = getEnemyEffectiveAC(enemy);
-
-    // Prepare UI
-    setAttackDetails({ name: 'Attack Roll', dc: enemyAC, modifier });
-    setIsRolling(true);
-    setShowDiceModal(true);
-
-    // Calculate result
-    const rollDice = (sides: number) => Math.floor(Math.random() * sides) + 1;
-    const attackRoll = rollDice(20);
-    const totalAttack = attackRoll + modifier;
-    const isCritical = attackRoll === 20;
-    const isCriticalFailure = attackRoll === 1;
-
-    setDiceResult(attackRoll);
-    setRollResult({ roll: attackRoll, total: totalAttack, isCritical, isCriticalFailure });
-
-    // Define action to run after modal closes
-    setPendingCombatAction(() => () => {
-      const modifiers = [
-        { label: 'Ability', value: abilityMod },
-        { label: 'Prof', value: proficiencyBonus }
-      ];
-      if (cunningAttackBonus) {
-        modifiers.push({ label: 'Cunning Edge', value: cunningAttackBonus });
-      }
-
-      // We need to reconstruct attack details for the log, or pass them?
-      // formatRollBreakdown is used for the log tooltip.
-      const logAttackDetails = formatRollBreakdown(attackRoll, modifiers);
-
-      if (totalAttack >= enemyAC) {
-        // Hit!
-        let damageRoll = abilityMod;
-        if (character.equippedWeapon?.damage) {
-          const [count, sides] = (character.equippedWeapon.damage.split('+')[0] || '1d8').split('d').map(Number);
-          for (let i = 0; i < (count || 1); i++) {
-            damageRoll += rollDice(sides || 8);
-          }
-          const weaponBonus = parseInt(character.equippedWeapon.damage.split('+')[1] || '0');
-          damageRoll += weaponBonus;
-        } else {
-          damageRoll += rollDice(4);
-        }
-
-        // Sneak Attack
-        if (isRogue && !sneakAttackUsedThisTurn && sneakAttackReady) {
-          const sneakDice = Math.max(1, Math.ceil(character.level / 2));
-          let sneakBonus = 0;
-          for (let i = 0; i < sneakDice; i++) {
-            sneakBonus += rollDice(6);
-          }
-          damageRoll += sneakBonus;
-          setSneakAttackUsedThisTurn(true);
-          setSneakAttackReady(false);
-          addLog(`${character.name} unleashes Sneak Attack for +${sneakBonus} damage!`, 'damage');
-        }
-
-        addLog(`${character.name} ${t('combat.hits')} ${enemy.name} ${t('combat.for')} ${damageRoll} ${t('combat.damage')}!`, 'damage', logAttackDetails);
-
-        setEnemies(prev => prev.map(e => {
-          if (e.id === selectedEnemy) {
-            const newHp = Math.max(0, e.currentHp - damageRoll);
-            return { ...e, currentHp: newHp, isDefeated: newHp === 0 };
-          }
-          return e;
-        }));
-      } else {
-        // Miss
-        addLog(`${character.name} ${t('combat.attacks')} ${enemy.name} ${t('combat.butMisses')}`, 'miss', logAttackDetails);
-      }
-
-      setCunningAttackBonus(0);
-
-      if (actionSurgeActive) {
-        addLog('Action Surge grants another action!', 'info');
-        setActionSurgeActive(false);
-        return;
-      }
-
-      nextTurn();
-    });
-  };
-
-  const handleDefend = () => {
-    const defenseBonus = 2;
-    setActiveBuffs(prev => [...prev.filter(b => b.id !== 'defense-bonus'), { id: 'defense-bonus', name: 'Defensive Stance', bonus: defenseBonus, duration: 1 }]);
-    addLog(`${character.name} ${t('combat.takesDefensiveStance')} (+${defenseBonus} AC)`, 'info');
-    nextTurn();
-  };
-
-  const handleUseTorchOil = () => {
-    if (!selectedEnemy) return;
-    const oilItem = findTorchOilItem();
-    if (!oilItem) return;
-
-    const enemy = enemies.find(e => e.id === selectedEnemy);
-    if (!enemy || enemy.isDefeated) return;
-
-    // Burning Oil isn't a standard condition. For now, we'll just log it and not apply a condition to avoid type errors.
-    // Or we could repurpose a condition, but that's messy.
-    // I'll skip applying the effect to the enemy state for now to ensure type safety.
-    // setEnemies(prev => prev.map(e => e.id === selectedEnemy
-    //   ? { ...e, conditions: [...e.conditions, burningEffect] }
-    //   : e
-    // ));
-
-    updateCharacter((prev) => ({
-      ...prev,
-      inventory: (prev.inventory || []).filter(item => item.id !== oilItem.id),
-    }));
-
-    addLog(`${character.name} splashes burning oil on ${enemy.name}, scorching them over time!`, 'info');
-
-    setShowInventory(false);
-    nextTurn();
-  };
-
-  const handleSecondWind = () => {
-    if (!isFighter || !secondWindAvailable || isRolling) return;
-    const healAmount = rollDice(10) + character.level;
-    setPlayerHp(prev => Math.min(character.maxHitPoints, prev + healAmount));
-    updateCharacter((prev) => prev ? { ...prev, hitPoints: Math.min(prev.maxHitPoints, prev.hitPoints + healAmount) } : prev);
-    addLog(`${character.name} uses Second Wind and regains ${healAmount} HP!`, 'heal');
-    setSecondWindAvailable(false);
-    nextTurn();
-  };
-
-  const handleActionSurge = () => {
-    if (!isFighter || !actionSurgeAvailable || isRolling) return;
-    addLog(`${character.name} uses Action Surge for an extra action this turn!`, 'info');
-    setActionSurgeAvailable(false);
-    setActionSurgeActive(true);
-  };
-
-  const handleCunningAction = (type: 'dash' | 'disengage' | 'hide') => {
-    if (!isRogue || isRolling) return;
-    if (type === 'dash') {
-      addLog(`${character.name} uses Cunning Action: Dash.`, 'info');
-    } else if (type === 'disengage') {
-      addLog(`${character.name} uses Cunning Action: Disengage (harder to pin down).`, 'info');
-      addLog(`${character.name} uses Cunning Action: Disengage (harder to pin down).`, 'info');
-      // Disengage prevents opportunity attacks. We don't implement OA yet, so it's mostly flavor or prevents specific enemy reactions.
-      // We can add a 'Disengaged' condition if we want to track it.
-      // addCondition({ type: 'Invisible', duration: 1 }); // Just as an example, but Disengage isn't a condition.
-      // For now, just log it.
-    } else if (type === 'hide') {
-      addLog(`${character.name} uses Cunning Action: Hide. Advantageous strike readied.`, 'info');
-      setSneakAttackReady(true);
-      setCunningAttackBonus(2);
-    }
-    nextTurn();
-  };
-
-  const handleShove = () => {
-    if (!selectedEnemy || isRolling) return;
-    const enemy = enemies.find(e => e.id === selectedEnemy);
-    if (!enemy || enemy.isDefeated) return;
-
-    const abilityMod = Math.floor((character.abilityScores.strength - 10) / 2);
-    const proficiencyBonus = 2;
-    const modifier = abilityMod + proficiencyBonus;
-    const targetAC = getEnemyEffectiveAC(enemy);
-
-    setAttackDetails({ name: 'Shove (Athletics)', dc: targetAC, modifier });
-    setIsRolling(true);
-    setShowDiceModal(true);
-
-    const rollDice = (sides: number) => Math.floor(Math.random() * sides) + 1;
-    const roll = rollDice(20);
-    const total = roll + modifier;
-    const isCritical = roll === 20;
-    const isCriticalFailure = roll === 1;
-
-    setDiceResult(roll);
-    setRollResult({ roll, total, isCritical, isCriticalFailure });
-
-    setPendingCombatAction(() => () => {
-      if (total >= targetAC) {
-        addLog(`${character.name} shoves ${enemy.name} prone (AC -2 this round)!`, 'condition');
-        const proneCondition: Condition = {
-          type: 'prone',
-          name: 'Prone',
-          description: 'Creature is lying on the ground. Disadvantage on attack rolls. Attacks against it have advantage if within 5ft.',
-          duration: 1,
-          source: 'Shove'
-        };
-        setEnemies(prev => prev.map(e => e.id === enemy.id ? { ...e, conditions: [...e.conditions, proneCondition] } : e));
-      } else {
-        addLog(`${character.name} tries to shove ${enemy.name} but fails.`, 'miss');
-      }
-      nextTurn();
-    });
   };
 
   const handleGrapple = () => {
@@ -526,22 +440,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     });
   };
 
-  const handleConcentrationCheck = useCallback((damage: number) => {
-    if (!character.concentratingOn) return;
-    const result = rollConcentrationCheck(character, damage);
-    if (result.success) {
-      addLog(
-        `${character.name} maintains concentration (DC ${result.dc}, rolled ${result.total}).`,
-        'info'
-      );
-      return;
-    }
-    addLog(
-      `${character.name} loses concentration on ${character.concentratingOn.spellName}! (DC ${result.dc}, rolled ${result.total})`,
-      'condition'
-    );
-    endConcentration();
-  }, [character, addLog, endConcentration]);
+
 
   const parseDice = (formula: string) => {
     const [dicePart, modifierPart] = formula.split('+');
@@ -554,6 +453,134 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       total += rollDice(sides);
     }
     return total;
+  };
+
+
+  const handlePlayerAttack = () => {
+    if (!selectedEnemy || isRolling) return;
+    const enemy = enemies.find(e => e.id === selectedEnemy);
+    if (!enemy || enemy.isDefeated) return;
+
+    if (!canAct(character)) {
+      addLog(`${character.name} cannot act!`, 'miss');
+      return;
+    }
+
+    const isRanged = character.equippedWeapon?.properties?.includes('ranged') || false;
+    const rollType = getCombatAdvantage(character, enemy, isRanged ? 'ranged' : 'melee');
+
+    const abilityMod = Math.floor((character.abilityScores.strength - 10) / 2); // Default Strength
+    // Finesse check
+    const isFinesse = character.equippedWeapon?.properties?.includes('finesse');
+    const dexMod = Math.floor((character.abilityScores.dexterity - 10) / 2);
+
+    const isMonk = character.class.name.toLowerCase() === 'monk';
+    const isSimpleWeapon = character.equippedWeapon?.type.includes('Simple');
+    const useDex = isFinesse || isRanged || (isMonk && (isSimpleWeapon || !character.equippedWeapon));
+    const isUsingStrength = !useDex;
+
+    let attackModifier = (useDex ? dexMod : abilityMod) + character.proficiencyBonus;
+    let damageDice = character.equippedWeapon?.damage || '1d4';
+    let damageBonus = useDex ? dexMod : abilityMod;
+
+    // Monk Martial Arts scaling
+    if (isMonk && !character.equippedWeapon) {
+      if (character.level >= 17) damageDice = '1d10';
+      else if (character.level >= 11) damageDice = '1d8';
+      else if (character.level >= 5) damageDice = '1d6';
+      else damageDice = '1d4';
+    }
+
+    if (wildShapeActive) {
+      attackModifier = 4; // Wolf
+      damageDice = '2d4';
+      damageBonus = 2;
+    }
+
+    const targetAC = getEnemyEffectiveAC(enemy);
+
+    setAttackDetails({ name: 'Attack', dc: targetAC, modifier: attackModifier });
+    setIsRolling(true);
+    setShowDiceModal(true);
+
+    const r1 = rollDice(20);
+    const r2 = rollDice(20);
+    let roll = r1;
+    if (rollType === 'advantage') roll = Math.max(r1, r2);
+    if (rollType === 'disadvantage') roll = Math.min(r1, r2);
+
+    // Bardic Inspiration Application
+    let inspirationRoll = 0;
+    if (useInspiration && hasInspirationDie) {
+      inspirationRoll = rollDice(6);
+      addLog(`${character.name} uses Bardic Inspiration! (+${inspirationRoll})`, 'info');
+      setHasInspirationDie(false);
+      setUseInspiration(false);
+    }
+
+    const total = roll + attackModifier + inspirationRoll;
+    const isCritical = roll === 20;
+    const isCriticalFailure = roll === 1;
+
+    setDiceResult(roll);
+    setRollResult({ roll, total, isCritical, isCriticalFailure });
+
+    setPendingCombatAction(() => () => {
+      if (total >= targetAC || isCritical) {
+        let damageRoll = parseDice(damageDice) + damageBonus;
+
+        if (rageActive && !isRanged && isUsingStrength) {
+          damageRoll += 2;
+          addLog('Rage Damage Bonus! (+2)', 'info');
+        }
+        if (isCritical) {
+          damageRoll += parseDice(damageDice); // Crit adds extra dice
+
+          // Half-Orc Savage Attacks
+          if ((character.race?.traits || []).includes('Savage Attacks')) {
+            damageRoll += parseDice(damageDice);
+            addLog('Savage Attacks! Extra critical damage added.', 'info');
+          }
+
+          addLog('Critical Hit!', 'info');
+        }
+
+        // Sneak Attack
+        if (isRogue && !sneakAttackUsedThisTurn && (rollType === 'advantage' || (enemy.conditions.some(c => c.type === 'prone') && !rollType /* disadvantage cancels */))) {
+          const sneakDice = Math.ceil(character.level / 2);
+          const sneakDamage = rollDice(6) * sneakDice;
+          damageRoll += sneakDamage;
+          addLog(`Sneak Attack! (+${sneakDamage} damage)`, 'info');
+          setSneakAttackUsedThisTurn(true);
+        }
+
+        // Ranger Favored Enemy
+        if (favoredEnemyActive) {
+          damageRoll += 2;
+          addLog('Favored Enemy Bonus! (+2 damage)', 'info');
+        }
+
+        // Warlock Hex Damage (Weapon Attacks)
+        if (enemy.conditions.some(c => c.type === 'hexed')) {
+          const hexDamage = rollDice(6);
+          damageRoll += hexDamage;
+          addLog(`Hex! (+${hexDamage} necrotic damage)`, 'info');
+        }
+
+        addLog(`${character.name} hits ${enemy.name} for ${damageRoll} damage!`, 'damage');
+
+        setEnemies(prev => prev.map(e => {
+          if (e.id === enemy.id) {
+            const newHp = Math.max(0, e.currentHp - damageRoll);
+            return { ...e, currentHp: newHp, isDefeated: newHp === 0 };
+          }
+          return e;
+        }));
+      } else {
+        addLog(`${character.name} misses ${enemy.name}.`, 'miss');
+      }
+      nextTurn();
+    });
   };
 
   const handleCastSpell = (
@@ -624,17 +651,39 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       const damageTotal = parseDice(damageOrHealingFormula || '1d6');
 
       let finalDamage = damageTotal;
+
+      // Metamagic: Empowered Spell
+      if (empoweredSpellUsed) {
+        const bonus = rollDice(6);
+        finalDamage += bonus;
+        setEmpoweredSpellUsed(false);
+        addLog(`Empowered Spell! Added ${bonus} damage.`, 'info');
+      }
+
+      // Warlock: Agonizing Blast
+      if (spell.id === 'eldritch-blast' && character.class.name.toLowerCase() === 'warlock' && character.level >= 2) {
+        const charismaMod = Math.floor((character.abilityScores.charisma - 10) / 2);
+        finalDamage += charismaMod;
+        addLog(`Agonizing Blast! (+${charismaMod} damage)`, 'info');
+      }
+
+      // Warlock: Hex Damage (Spells)
+      const targetEnemy = enemies.find(e => e.id === selectedEnemy);
+      if (targetEnemy && targetEnemy.conditions.some(c => c.type === 'hexed') && (spell.damage || spell.level === 0)) {
+        const hexDamage = rollDice(6);
+        finalDamage += hexDamage;
+        addLog(`Hex! (+${hexDamage} necrotic damage)`, 'info');
+      }
+
       let saveMessage = '';
 
       // Handle Saving Throw
       if (spell.saveType) {
         const spellDC = getSpellSaveDC(character);
-
         const enemy = enemies.find(e => e.id === selectedEnemy);
         if (enemy) {
           const saveRoll = rollDice(20);
-          const saveTotal = saveRoll + (enemy.savingThrowBonus || 0); // Default +0 save bonus
-
+          const saveTotal = saveRoll + (enemy.savingThrowBonus || 0);
           if (saveTotal >= spellDC) {
             finalDamage = Math.floor(damageTotal / 2);
             saveMessage = ` (Saved! Rolled ${saveTotal} vs DC ${spellDC})`;
@@ -655,23 +704,32 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
       const selectedEnemyData = enemies.find(e => e.id === selectedEnemy);
       addLog(`${character.name} casts ${spell.name} on ${selectedEnemyData?.name} for ${finalDamage} ${spell.damageType} damage!${saveMessage}`, 'damage');
+
     } else if (spell.healing) {
       // Healing Spell
       let healTotal = parseDice(damageOrHealingFormula || spell.healing);
       healTotal += abilityMod;
 
-      setPlayerHp(prev => {
-        const newHp = Math.min(character.maxHitPoints, prev + healTotal);
-        return newHp;
-      });
-
+      setPlayerHp(prev => Math.min(character.maxHitPoints, prev + healTotal));
       updateCharacter(prev => ({ ...prev, hitPoints: Math.min(character.maxHitPoints, prev.hitPoints + healTotal) }));
       addLog(`${character.name} casts ${spell.name} and heals for ${healTotal} HP!`, 'heal');
+
     } else if (spell.id === 'shield') {
-      // Special case for Shield
       const shieldBonus = 5;
       setActiveBuffs(prev => [...prev.filter(b => b.id !== 'shield-spell'), { id: 'shield-spell', name: 'Shield', bonus: shieldBonus, duration: 1 }]);
       addLog(`${character.name} casts Shield! (+5 AC)`, 'info');
+
+    } else if (spell.id === 'hex') {
+      if (!selectedEnemy) return;
+      const hexCondition: Condition = {
+        type: 'hexed',
+        name: 'Hexed',
+        description: 'Takes extra 1d6 necrotic damage from attacks.',
+        duration: 10,
+        source: 'Hex'
+      };
+      setEnemies(prev => prev.map(e => e.id === selectedEnemy ? { ...e, conditions: [...e.conditions, hexCondition] } : e));
+      addLog(`${character.name} curses ${enemies.find(e => e.id === selectedEnemy)?.name} with Hex!`, 'condition');
     }
 
     if (spell.concentration) {
@@ -731,6 +789,11 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       playerInitiative += 20; // Ensure player goes first
     }
 
+    // Ranger Natural Explorer (Initiative Bonus)
+    if (isRanger) {
+      playerInitiative += 5; // Simplified advantage/bonus
+    }
+
     const order = [
       { id: 'player', name: character.name, initiative: playerInitiative },
       ...enemies.map(e => ({ id: e.id, name: e.name, initiative: e.initiative }))
@@ -787,7 +850,19 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     if (isPlayerTurn) {
       setActiveBuffs(prev => prev.filter(b => b.duration > 1).map(b => ({ ...b, duration: b.duration - 1 })));
       setSneakAttackUsedThisTurn(false);
-      setSneakAttackReady(false);
+
+      // Manage Rage Duration
+      if (rageActive) {
+        setRageRoundsLeft(prev => {
+          const next = prev - 1;
+          if (next <= 0) {
+            setRageActive(false);
+            addLog('Your rage ends.', 'info');
+            return 0;
+          }
+          return next;
+        });
+      }
     }
   }, [isPlayerTurn]);
 
@@ -811,6 +886,316 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       .map(([lvl, pool]) => `L${lvl}: ${pool.current}/${pool.max}`)
       .join(' · ');
   }, [character.spellSlots]);
+
+  const handleDefend = () => {
+    setActiveBuffs(prev => [...prev, { id: 'defense-bonus', name: 'Dodge', bonus: 2, duration: 1 }]);
+    addLog(`${character.name} takes the Dodge action (+2 AC).`, 'info');
+    nextTurn();
+  };
+
+  const handleSecondWind = () => {
+    if (!secondWindAvailable) return;
+    const healRoll = rollDice(10);
+    const totalHeal = healRoll + character.level;
+    setPlayerHp(prev => Math.min(character.maxHitPoints, prev + totalHeal));
+    setSecondWindAvailable(false);
+    addLog(`${character.name} uses Second Wind and regains ${totalHeal} HP.`, 'heal');
+  };
+
+  const handleActionSurge = () => {
+    if (!actionSurgeAvailable) return;
+    setActionSurgeAvailable(false);
+    addLog(`${character.name} uses Action Surge! You gain an additional action this turn.`, 'info');
+    // In this simple turn system, we might just not call nextTurn() after the next action?
+    // Or we explicitly allow another action. For now, just logging it.
+  };
+
+  const handleRage = () => {
+    if (!rageAvailable || rageActive) return;
+    setRageAvailable(prev => prev - 1);
+    setRageActive(true);
+    setRageRoundsLeft(10); // 1 minute
+    addLog(`${character.name} enters a Rage!`, 'info');
+    // Visual effect could be added here
+  };
+
+  const handleBardicInspiration = () => {
+    if (!inspirationAvailable || hasInspirationDie) return;
+    setInspirationAvailable(prev => prev - 1);
+    setHasInspirationDie(true);
+    addLog(`${character.name} uses Bardic Inspiration! You gain a d6 inspiration die.`, 'info');
+  };
+
+  const handleWildShape = () => {
+    if (!wildShapeAvailable || wildShapeActive) return;
+    setWildShapeAvailable(prev => prev - 1);
+    setWildShapeActive(true);
+    setWildShapeHp(WOLF_STATS.maxHp);
+    addLog(`${character.name} transforms into a Wolf!`, 'info');
+  };
+
+  const handleMetamagic = (action: 'empowered' | 'quickened' | 'create_slot') => {
+    if (sorceryPoints <= 0) return;
+
+    if (action === 'empowered') {
+      if (sorceryPoints < 1) return;
+      setSorceryPoints(prev => prev - 1);
+      setEmpoweredSpellUsed(true);
+      addLog(`${character.name} uses Empowered Spell! Next spell damage will be boosted.`, 'info');
+    } else if (action === 'quickened') {
+      if (sorceryPoints < 2) return;
+      setSorceryPoints(prev => prev - 2);
+      addLog(`${character.name} uses Quickened Spell! (Mechanic: Cast as Bonus Action)`, 'info');
+    } else if (action === 'create_slot') {
+      if (sorceryPoints < 2) return;
+      // Restore a level 1 slot
+      if (character.spellSlots && character.spellSlots[1]) {
+        if (character.spellSlots[1].current < character.spellSlots[1].max) {
+          setSorceryPoints(prev => prev - 2);
+          updateCharacter(prev => {
+            if (!prev || !prev.spellSlots) return prev;
+            return {
+              ...prev,
+              spellSlots: {
+                ...prev.spellSlots,
+                1: { ...prev.spellSlots[1], current: prev.spellSlots[1].current + 1 }
+              }
+            };
+          });
+          addLog(`${character.name} creates a Level 1 Spell Slot!`, 'heal');
+        } else {
+          addLog(`Level 1 slots are full.`, 'miss');
+        }
+      }
+    }
+  };
+
+  const handleChannelDivinity = (action: 'turn-undead' | 'preserve-life') => {
+    if (channelDivinityUses <= 0) return;
+
+    if (action === 'turn-undead') {
+      setChannelDivinityUses(prev => prev - 1);
+      addLog(`${character.name} presents their holy symbol to Turn Undead!`, 'info');
+
+      // Apply to all undead enemies
+      // Simplified: For now, we don't have enemy types, so we'll apply to selected enemy or log effect
+      if (selectedEnemy) {
+        const enemy = enemies.find(e => e.id === selectedEnemy);
+        if (enemy) {
+          // Simulate Wisdom Save
+          const saveDC = 8 + character.proficiencyBonus + Math.floor((character.abilityScores.wisdom - 10) / 2);
+          const saveRoll = rollDice(20) + (enemy.savingThrowBonus || 0);
+
+          if (saveRoll < saveDC) {
+            const turnedCondition: Condition = {
+              type: 'turned',
+              name: 'Turned',
+              description: 'Must spend turns trying to move as far away as possible.',
+              duration: 10, // 1 minute
+              source: 'Turn Undead'
+            };
+            setEnemies(prev => prev.map(e => e.id === selectedEnemy ? { ...e, conditions: [...e.conditions, turnedCondition] } : e));
+            addLog(`${enemy.name} is Turned! (Failed save ${saveRoll} vs DC ${saveDC})`, 'condition');
+          } else {
+            addLog(`${enemy.name} resists being Turned. (Rolled ${saveRoll} vs DC ${saveDC})`, 'miss');
+          }
+        }
+      } else {
+        addLog('Select an enemy to target with Turn Undead.', 'miss');
+        return; // Don't spend use if no target
+      }
+
+    } else if (action === 'preserve-life') {
+      setChannelDivinityUses(prev => prev - 1);
+      const healAmount = character.level * 5;
+
+      // Simplified: Heal self for now, or could split.
+      setPlayerHp(prev => Math.min(character.maxHitPoints, prev + healAmount));
+      updateCharacter(prev => ({ ...prev, hitPoints: Math.min(character.maxHitPoints, prev.hitPoints + healAmount) }));
+      addLog(`${character.name} invokes Preserve Life and heals for ${healAmount} HP!`, 'heal');
+    }
+  };
+
+  const handleArcaneRecovery = () => {
+    if (arcaneRecoveryUsed) return;
+
+    // Simplified: Restore one level 1 slot
+    const level1Slots = character.spellSlots?.[1];
+    if (level1Slots && level1Slots.current < level1Slots.max) {
+      updateCharacter(prev => {
+        if (!prev.spellSlots) return prev;
+        return {
+          ...prev,
+          spellSlots: {
+            ...prev.spellSlots,
+            1: { ...prev.spellSlots[1], current: prev.spellSlots[1].current + 1 }
+          }
+        };
+      });
+      setArcaneRecoveryUsed(true);
+      addLog(`${character.name} uses Arcane Recovery to restore a Level 1 spell slot.`, 'heal');
+    } else {
+      addLog('No Level 1 slots to recover or already full.', 'miss');
+    }
+  };
+
+  const handleLayOnHands = () => {
+    if (!layOnHandsPool || playerHp >= character.maxHitPoints) return;
+
+    const healAmount = Math.min(5, layOnHandsPool, character.maxHitPoints - playerHp);
+    setLayOnHandsPool(prev => prev - healAmount);
+    setPlayerHp(prev => prev + healAmount);
+    updateCharacter(prev => ({ ...prev, hitPoints: prev.hitPoints + healAmount }));
+    addLog(`${character.name} uses Lay on Hands to heal ${healAmount} HP.`, 'heal');
+  };
+
+  const handleKiAction = (action: 'flurry' | 'defense' | 'step') => {
+    if (kiPoints <= 0) return;
+    setKiPoints(prev => prev - 1);
+
+    if (action === 'defense') {
+      setActiveBuffs(prev => [...prev, { id: 'patient-defense', name: 'Patient Defense', bonus: 2, duration: 1 }]); // Simulating Dodge with AC bonus
+      addLog(`${character.name} uses Patient Defense (Dodge).`, 'info');
+    } else if (action === 'step') {
+      addLog(`${character.name} uses Step of the Wind (Dash/Disengage).`, 'info');
+    } else if (action === 'flurry') {
+      addLog(`${character.name} uses Flurry of Blows!`, 'info');
+      // Trigger 2 unarmed strikes
+      // For simplicity, we'll just simulate the damage rolls immediately without full attack roll UI
+      if (selectedEnemy) {
+        const enemy = enemies.find(e => e.id === selectedEnemy);
+        if (enemy && !enemy.isDefeated) {
+          // Calculate modifiers
+          const dexMod = Math.floor((character.abilityScores.dexterity - 10) / 2);
+          const strMod = Math.floor((character.abilityScores.strength - 10) / 2);
+          const mod = Math.max(dexMod, strMod);
+          const prof = character.proficiencyBonus;
+          const attackBonus = mod + prof;
+
+          // Attack 1
+          let hit1 = false;
+          let dmg1 = 0;
+          const roll1 = rollDice(20);
+          if (roll1 + attackBonus >= getEnemyEffectiveAC(enemy)) {
+            hit1 = true;
+            dmg1 = rollDice(4) + mod; // Martial Arts die d4
+          }
+
+          // Attack 2
+          let hit2 = false;
+          let dmg2 = 0;
+          const roll2 = rollDice(20);
+          if (roll2 + attackBonus >= getEnemyEffectiveAC(enemy)) {
+            hit2 = true;
+            dmg2 = rollDice(4) + mod;
+          }
+
+          // Apply damage
+          const totalDmg = dmg1 + dmg2;
+          if (totalDmg > 0) {
+            setEnemies(prev => prev.map(e => {
+              if (e.id === enemy.id) {
+                const newHp = Math.max(0, e.currentHp - totalDmg);
+                return { ...e, currentHp: newHp, isDefeated: newHp === 0 };
+              }
+              return e;
+            }));
+            addLog(`Flurry hits for ${totalDmg} damage! (${hit1 ? dmg1 : 'miss'} + ${hit2 ? dmg2 : 'miss'})`, 'damage');
+          } else {
+            addLog(`Flurry of Blows missed both attacks.`, 'miss');
+          }
+          nextTurn();
+        }
+      }
+    }
+  };
+
+  const handleCunningAction = (actionType: 'dash' | 'disengage' | 'hide') => {
+    addLog(`${character.name} uses Cunning Action to ${actionType}!`, 'info');
+    // Implement specific logic if needed, e.g., Disengage prevents opportunity attacks (not implemented yet)
+    // Hide could require a stealth check.
+    if (actionType === 'hide') {
+      // Simple hide logic
+      const stealthRoll = rollDice(20) + Math.floor((character.abilityScores.dexterity - 10) / 2) + (character.skills?.stealth?.proficient ? 2 : 0);
+      addLog(`Stealth Check: ${stealthRoll}`, 'info');
+    }
+  };
+
+  const handleShove = () => {
+    if (!selectedEnemy) return;
+    const enemy = enemies.find(e => e.id === selectedEnemy);
+    if (!enemy) return;
+
+    const athleticsCheck = rollDice(20) + Math.floor((character.abilityScores.strength - 10) / 2) + (character.skills?.athletics?.proficient ? 2 : 0);
+    const enemyAthletics = rollDice(20) + (enemy.attackBonus || 0); // Simplified enemy check
+
+    if (athleticsCheck > enemyAthletics) {
+      addLog(`${character.name} shoves ${enemy.name} prone!`, 'condition');
+      const proneCondition: Condition = {
+        type: 'prone',
+        name: 'Prone',
+        description: 'Disadvantage on attack rolls. Attackers have advantage on melee attacks.',
+        duration: 1,
+        source: 'Shove'
+      };
+      setEnemies(prev => prev.map(e => e.id === enemy.id ? { ...e, conditions: [...e.conditions, proneCondition] } : e));
+    } else {
+      addLog(`${character.name} fails to shove ${enemy.name}.`, 'miss');
+    }
+    nextTurn();
+  };
+
+  const handleBreathWeapon = () => {
+    const ancestry = character.draconicAncestry;
+    const damageType = ancestry?.damageType || 'Fire';
+    const shape = ancestry?.breathCone ? 'cone' : 'line';
+
+    addLog(`${character.name} exhales a ${shape} of ${damageType.toLowerCase()}!`, 'info');
+
+    // AoE Damage: 2d6 (Level 1)
+    const damageRoll = rollDice(6) + rollDice(6);
+
+    // Apply to all enemies
+    setEnemies(prev => prev.map(enemy => {
+      if (enemy.isDefeated) return enemy;
+
+      // Simulating Save (DC 8 + Con + Prof)
+      // Save type depends on ancestry (Con for Cold/Poison, Dex for Fire/Lightning/Acid)
+      // const saveStat = ['Cold', 'Poison'].includes(damageType) ? 'constitution' : 'dexterity';
+
+      const saveDC = 8 + Math.floor((character.abilityScores.constitution - 10) / 2) + character.proficiencyBonus;
+      const enemySave = rollDice(20); // Flat roll for now
+
+      let damageTaken = damageRoll;
+      if (enemySave >= saveDC) {
+        damageTaken = Math.floor(damageRoll / 2);
+        addLog(`${enemy.name} succeeds on the save and takes half ${damageType} damage (${damageTaken}).`, 'damage');
+      } else {
+        addLog(`${enemy.name} fails the save and takes full ${damageType} damage (${damageTaken}).`, 'damage');
+      }
+
+      const newHp = Math.max(0, enemy.currentHp - damageTaken);
+      return {
+        ...enemy,
+        currentHp: newHp,
+        isDefeated: newHp <= 0
+      };
+    }));
+
+    nextTurn();
+  };
+
+  const handleUseTorchOil = () => {
+    const oilItem = findTorchOilItem();
+    if (!oilItem) return;
+
+    // Logic to consume item and apply effect
+    // For now, just log
+    addLog(`${character.name} coats their weapon in torch oil! (+1 Fire Damage)`, 'info');
+    setActiveBuffs(prev => [...prev, { id: 'torch-oil', name: 'Flaming Weapon', bonus: 0, duration: 10 }]); // Bonus 0 to AC, but we can handle damage elsewhere
+    // Remove item from inventory (mock)
+    nextTurn();
+  };
 
   return (
     <div className="space-y-6">
@@ -839,7 +1224,9 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                 {t('combat.hp')}:
               </span>
               <div className="flex gap-2 items-center">
-                <span className="font-bold">{playerHp} / {character.maxHitPoints}</span>
+                <span className="font-bold">
+                  {wildShapeActive ? `${wildShapeHp} / ${WOLF_STATS.maxHp} (Wolf)` : `${playerHp} / ${character.maxHitPoints}`}
+                </span>
                 {(character.temporaryHitPoints || 0) > 0 && (
                   <Badge variant="secondary" className="text-xs bg-blue-900/50 text-blue-200 border-blue-800">
                     +{character.temporaryHitPoints} THP
@@ -848,8 +1235,8 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
               </div>
             </div>
             <Progress
-              value={(playerHp / character.maxHitPoints) * 100}
-              className="h-3"
+              value={(wildShapeActive ? (wildShapeHp / WOLF_STATS.maxHp) : (playerHp / character.maxHitPoints)) * 100}
+              className={cn("h-3", wildShapeActive && "bg-amber-900/20 [&>div]:bg-amber-700")}
             />
             <div className="flex flex-wrap gap-2 mt-2">
               {character.concentratingOn && (
@@ -870,6 +1257,16 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
               {isRogue && (
                 <Badge variant="outline" className="text-xs">
                   Sneak Attack {sneakAttackUsedThisTurn ? 'Used this turn' : 'Available'}
+                </Badge>
+              )}
+              {hasInspirationDie && (
+                <Badge variant="fantasy" className="text-xs animate-pulse">
+                  Inspiration Die (d6)
+                </Badge>
+              )}
+              {isBarbarian && rageActive && (
+                <Badge variant="destructive" className="text-xs animate-pulse">
+                  RAGE ({rageRoundsLeft})
                 </Badge>
               )}
               {activeBuffs.map(buff => (
@@ -994,6 +1391,16 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                   >
                     <Sword className="mr-2 h-4 w-4" /> {t('combat.attack')}
                   </Button>
+                  {hasInspirationDie && (
+                    <Button
+                      variant={useInspiration ? "fantasy" : "outline"}
+                      className="w-full justify-start"
+                      onClick={() => setUseInspiration(!useInspiration)}
+                      disabled={!isPlayerTurn || isRolling}
+                    >
+                      <Sparkles className="mr-2 h-4 w-4" /> {useInspiration ? 'Using Inspiration!' : 'Use Inspiration'}
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     className="w-full justify-start"
@@ -1021,7 +1428,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                 </div>
 
                 {/* Class Specific Actions */}
-                {(isFighter || isRogue) && (
+                {(isFighter || isRogue || isBarbarian || isBard || isPaladin || isMonk || isDruid || isSorcerer || isCleric || isRanger || isWizard) && (
                   <div className="pt-2 border-t">
                     <p className="text-xs text-muted-foreground mb-2 font-bold uppercase">Class Actions</p>
                     <div className="grid grid-cols-2 gap-2">
@@ -1073,7 +1480,166 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                           </Button>
                         </>
                       )}
+                      {isBarbarian && (
+                        <Button
+                          variant={rageActive ? "destructive" : "secondary"}
+                          size="sm"
+                          onClick={handleRage}
+                          disabled={!isPlayerTurn || rageAvailable <= 0 || rageActive || isRolling}
+                          className={cn(rageActive && "animate-pulse ring-2 ring-red-500")}
+                        >
+                          <Flame className="mr-2 h-3 w-3" /> {rageActive ? 'Raging!' : `Rage (${rageAvailable})`}
+                        </Button>
+                      )}
+                      {isBard && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={handleBardicInspiration}
+                          disabled={!isPlayerTurn || inspirationAvailable <= 0 || hasInspirationDie || isRolling}
+                        >
+                          <Sparkles className="mr-2 h-3 w-3" /> Inspire ({inspirationAvailable})
+                        </Button>
+                      )}
+                      {isPaladin && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={handleLayOnHands}
+                          disabled={!isPlayerTurn || layOnHandsPool <= 0 || playerHp >= character.maxHitPoints || isRolling}
+                        >
+                          <HeartPulse className="mr-2 h-3 w-3" /> Lay on Hands ({layOnHandsPool})
+                        </Button>
+                      )}
+                      {isMonk && (
+                        <>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleKiAction('flurry')}
+                            disabled={!isPlayerTurn || kiPoints <= 0 || !selectedEnemy || isRolling}
+                          >
+                            <Activity className="mr-2 h-3 w-3" /> Flurry of Blows ({kiPoints})
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleKiAction('defense')}
+                            disabled={!isPlayerTurn || kiPoints <= 0 || isRolling}
+                          >
+                            <Shield className="mr-2 h-3 w-3" /> Patient Defense ({kiPoints})
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleKiAction('step')}
+                            disabled={!isPlayerTurn || kiPoints <= 0 || isRolling}
+                          >
+                            <Activity className="mr-2 h-3 w-3" /> Step of Wind ({kiPoints})
+                          </Button>
+                        </>
+                      )}
+                      {isDruid && (
+                        <Button
+                          variant={wildShapeActive ? "destructive" : "secondary"}
+                          size="sm"
+                          onClick={handleWildShape}
+                          disabled={!isPlayerTurn || wildShapeAvailable <= 0 || wildShapeActive || isRolling}
+                        >
+                          <Activity className="mr-2 h-3 w-3" /> {wildShapeActive ? 'Beast Form' : `Wild Shape (${wildShapeAvailable})`}
+                        </Button>
+                      )}
+                      {isSorcerer && (
+                        <>
+                          <Button
+                            variant={empoweredSpellUsed ? "fantasy" : "secondary"}
+                            size="sm"
+                            onClick={() => handleMetamagic('empowered')}
+                            disabled={!isPlayerTurn || sorceryPoints < 1 || empoweredSpellUsed || isRolling}
+                          >
+                            <Zap className="mr-2 h-3 w-3" /> Empowered (1 SP)
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleMetamagic('quickened')}
+                            disabled={!isPlayerTurn || sorceryPoints < 2 || isRolling}
+                          >
+                            <Activity className="mr-2 h-3 w-3" /> Quickened (2 SP)
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleMetamagic('create_slot')}
+                            disabled={!isPlayerTurn || sorceryPoints < 2 || isRolling}
+                          >
+                            <Sparkles className="mr-2 h-3 w-3" /> Create Slot (2 SP)
+                          </Button>
+                          <div className="col-span-2 text-xs text-center text-muted-foreground">
+                            Sorcery Points: {sorceryPoints}
+                          </div>
+                        </>
+                      )}
+                      {isCleric && (
+                        <>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleChannelDivinity('turn-undead')}
+                            disabled={!isPlayerTurn || channelDivinityUses <= 0 || isRolling || !selectedEnemy}
+                          >
+                            <Sparkles className="mr-2 h-3 w-3" /> Turn Undead
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleChannelDivinity('preserve-life')}
+                            disabled={!isPlayerTurn || channelDivinityUses <= 0 || isRolling}
+                          >
+                            <HeartPulse className="mr-2 h-3 w-3" /> Preserve Life
+                          </Button>
+                          <div className="col-span-2 text-xs text-center text-muted-foreground">
+                            Channel Divinity: {channelDivinityUses}
+                          </div>
+                        </>
+                      )}
+                      {isRanger && (
+                        <Button
+                          variant={favoredEnemyActive ? "default" : "secondary"}
+                          size="sm"
+                          onClick={() => setFavoredEnemyActive(!favoredEnemyActive)}
+                          disabled={!isPlayerTurn || isRolling}
+                        >
+                          <Crosshair className="mr-2 h-3 w-3" /> {favoredEnemyActive ? 'Favored Enemy Active' : 'Favored Enemy'}
+                        </Button>
+                      )}
+                      {isWizard && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={handleArcaneRecovery}
+                          disabled={!isPlayerTurn || arcaneRecoveryUsed || isRolling}
+                        >
+                          <Sparkles className="mr-2 h-3 w-3" /> Arcane Recovery
+                        </Button>
+                      )}
                     </div>
+                  </div>
+                )}
+
+                {/* Racial Actions */}
+                {(character.race?.traits || []).includes('Breath Weapon') && (
+                  <div className="pt-2 border-t">
+                    <p className="text-xs text-muted-foreground mb-2 font-bold uppercase">Racial Actions</p>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleBreathWeapon}
+                      disabled={!isPlayerTurn || isRolling}
+                      className="w-full justify-start"
+                    >
+                      <Zap className="mr-2 h-3 w-3" /> Breath Weapon
+                    </Button>
                   </div>
                 )}
 

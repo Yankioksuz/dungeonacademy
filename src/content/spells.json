@@ -55,35 +55,119 @@
     }
   },
   {
-    "id": "fireball",
-    "name": "Fireball",
-    "level": 3,
+    "id": "vicious-mockery",
+    "name": "Vicious Mockery",
+    "level": 0,
+    "school": "Enchantment",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V",
+    "duration": "Instantaneous",
+    "description": "You unleash a string of insults laced with subtle enchantments at a creature you can see within range. If the target hears you (though it need not understand you), it must succeed on a Wisdom saving throw or take 1d4 psychic damage and have disadvantage on the next attack roll it makes before the end of its next turn.",
+    "classes": [
+      "Bard"
+    ],
+    "damage": "1d4",
+    "damageType": "psychic",
+    "saveType": "wisdom",
+    "cantripScaling": {
+      "level5": "2d4",
+      "level11": "3d4",
+      "level17": "4d4"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    }
+  },
+  {
+    "id": "eldritch-blast",
+    "name": "Eldritch Blast",
+    "level": 0,
     "school": "Evocation",
     "castingTime": "1 action",
-    "range": "150 feet",
-    "components": "V, S, M (a tiny ball of bat guano and sulfur)",
+    "range": "120 feet",
+    "components": "V, S",
     "duration": "Instantaneous",
-    "description": "A bright streak flashes from your pointing finger to a point you choose within range and then blossoms with a low roar into an explosion of flame.",
+    "description": "A beam of crackling energy streaks toward a creature within range. Make a ranged spell attack against the target. On a hit, the target takes 1d10 force damage.",
     "classes": [
-      "Sorcerer",
-      "Wizard"
+      "Warlock"
     ],
-    "damage": "8d6",
-    "damageType": "fire",
-    "saveType": "dexterity",
-    "concentration": false,
-    "ritual": false,
-    "upcastDescription": "Add 1d6 damage for each slot level above 3rd.",
-    "areaOfEffect": {
-      "type": "sphere",
-      "size": 20
+    "damage": "1d10",
+    "damageType": "force",
+    "cantripScaling": {
+      "level5": "2 beams",
+      "level11": "3 beams",
+      "level17": "4 beams"
     },
-    "targets": "All creatures in area",
     "componentTags": {
       "verbal": true,
       "somatic": true,
-      "material": true,
-      "materialDescription": "a tiny ball of bat guano and sulfur"
+      "material": false
+    }
+  },
+  {
+    "id": "shillelagh",
+    "name": "Shillelagh",
+    "level": 0,
+    "school": "Transmutation",
+    "castingTime": "1 bonus action",
+    "range": "Touch",
+    "components": "V, S, M (mistletoe, a shamrock leaf, or a club or quarterstaff)",
+    "duration": "1 minute",
+    "description": "The wood of a club or quarterstaff you are holding is imbued with nature's power. For the duration, you can use your spellcasting ability instead of Strength for the attack and damage rolls of melee attacks using that weapon, and the weapon's damage die becomes a d8.",
+    "classes": [
+      "Druid"
+    ],
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "mage-hand",
+    "name": "Mage Hand",
+    "level": 0,
+    "school": "Conjuration",
+    "castingTime": "1 action",
+    "range": "30 feet",
+    "components": "V, S",
+    "duration": "1 minute",
+    "description": "A spectral, floating hand appears at a point you choose within range. The hand lasts for the duration or until you dismiss it as an action. The hand can manipulate an object, open an unlocked door or container, stow or retrieve an item from an open container, or pour the contents out of a vial.",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "minor-illusion",
+    "name": "Minor Illusion",
+    "level": 0,
+    "school": "Illusion",
+    "castingTime": "1 action",
+    "range": "30 feet",
+    "components": "S, M (a bit of fleece)",
+    "duration": "1 minute",
+    "description": "You create a sound or an image of an object within range that lasts for the duration. The illusion also ends if you dismiss it as an action or cast this spell again.",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "componentTags": {
+      "verbal": false,
+      "somatic": true,
+      "material": true
     }
   },
   {
@@ -210,6 +294,289 @@
       "verbal": true,
       "somatic": true,
       "material": false
+    }
+  },
+  {
+    "id": "guiding-bolt",
+    "name": "Guiding Bolt",
+    "level": 1,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "120 feet",
+    "components": "V, S",
+    "duration": "1 round",
+    "description": "A flash of light streaks toward a creature of your choice within range. Make a ranged spell attack against the target. On a hit, the target takes 4d6 radiant damage, and the next attack roll made against this target before the end of your next turn has advantage, thanks to the mystical dim light glittering on the target until then.",
+    "classes": [
+      "Cleric"
+    ],
+    "damage": "4d6",
+    "damageType": "radiant",
+    "upcastDescription": "Damage increases by 1d6 for each slot level above 1st.",
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "grease",
+    "name": "Grease",
+    "level": 1,
+    "school": "Conjuration",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, S, M (a bit of pork rind or butter)",
+    "duration": "1 minute",
+    "description": "Slick grease covers the ground in a 10-foot square centered on a point within range and turns it into difficult terrain for the duration. When the grease appears, each creature standing in its area must succeed on a Dexterity saving throw or fall prone. A creature that enters the area or ends its turn there must also succeed on a Dexterity saving throw or fall prone.",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "saveType": "dexterity",
+    "areaOfEffect": {
+      "type": "square",
+      "size": 10
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "thunderwave",
+    "name": "Thunderwave",
+    "level": 1,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "Self (15-foot cube)",
+    "components": "V, S",
+    "duration": "Instantaneous",
+    "description": "A wave of thunderous force sweeps out from you. Each creature in a 15-foot cube originating from you must make a Constitution saving throw. On a failed save, a creature takes 2d8 thunder damage and is pushed 10 feet away from you. On a successful save, the creature takes half as much damage and isn't pushed.",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "damage": "2d8",
+    "damageType": "thunder",
+    "saveType": "constitution",
+    "areaOfEffect": {
+      "type": "cube",
+      "size": 15
+    },
+    "upcastDescription": "Damage increases by 1d8 for each slot level above 1st.",
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "mage-armor",
+    "name": "Mage Armor",
+    "level": 1,
+    "school": "Abjuration",
+    "castingTime": "1 action",
+    "range": "Touch",
+    "components": "V, S, M (a piece of cured leather)",
+    "duration": "8 hours",
+    "description": "You touch a willing creature who isn't wearing armor, and a protective magical force surrounds it until the spell ends. The target's base AC becomes 13 + its Dexterity modifier. The spell ends if the target dons armor or if you dismiss the spell as an action.",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "sleep",
+    "name": "Sleep",
+    "level": 1,
+    "school": "Enchantment",
+    "castingTime": "1 action",
+    "range": "90 feet",
+    "components": "V, S, M (a pinch of fine sand, rose petals, or a cricket)",
+    "duration": "1 minute",
+    "description": "This spell sends creatures into a magical slumber. Roll 5d8; the total is how many hit points of creatures this spell can affect. Creatures within 20 feet of a point you choose within range are affected in ascending order of their current hit points (ignoring unconscious creatures).",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "damage": "5d8",
+    "damageType": "healing",
+    "areaOfEffect": {
+      "type": "sphere",
+      "size": 20
+    },
+    "upcastDescription": "Roll an additional 2d8 for each slot level above 1st.",
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "misty-step",
+    "name": "Misty Step",
+    "level": 2,
+    "school": "Conjuration",
+    "castingTime": "1 bonus action",
+    "range": "Self",
+    "components": "V",
+    "duration": "Instantaneous",
+    "description": "Briefly surrounded by silvery mist, you teleport up to 30 feet to an unoccupied space that you can see.",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "componentTags": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    }
+  },
+  {
+    "id": "invisibility",
+    "name": "Invisibility",
+    "level": 2,
+    "school": "Illusion",
+    "castingTime": "1 action",
+    "range": "Touch",
+    "components": "V, S, M (an eyelash encased in gum arabic)",
+    "duration": "Concentration, up to 1 hour",
+    "description": "A creature you touch becomes invisible until the spell ends. Anything the target is wearing or carrying is invisible as long as it is on the target's person. The spell ends for a target that attacks or casts a spell.",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "upcastDescription": "You can target one additional creature for each slot level above 2nd.",
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "scorching-ray",
+    "name": "Scorching Ray",
+    "level": 2,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "120 feet",
+    "components": "V, S",
+    "duration": "Instantaneous",
+    "description": "You create three rays of fire and hurl them at targets within range. You can hurl them at one target or several. Make a ranged spell attack for each ray. On a hit, the target takes 2d6 fire damage.",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "damage": "2d6",
+    "damageType": "fire",
+    "upcastDescription": "You create one additional ray for each slot level above 2nd.",
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "hold-person",
+    "name": "Hold Person",
+    "level": 2,
+    "school": "Enchantment",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, S, M (a small, straight piece of iron)",
+    "duration": "Concentration, up to 1 minute",
+    "description": "Choose a humanoid that you can see within range. The target must succeed on a Wisdom saving throw or be paralyzed for the duration. At the end of each of its turns, the target can make another Wisdom saving throw. On a success, the spell ends on the target.",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "saveType": "wisdom",
+    "concentration": true,
+    "upcastDescription": "You can target one additional humanoid for each slot level above 2nd.",
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "shatter",
+    "name": "Shatter",
+    "level": 2,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, S, M (a chip of mica)",
+    "duration": "Instantaneous",
+    "description": "A sudden loud ringing noise, painfully intense, erupts from a point of your choice within range. Each creature in a 10-foot-radius sphere centered on that point must make a Constitution saving throw. A creature takes 3d8 thunder damage on a failed save, or half as much damage on a successful one. A creature made of inorganic material such as stone, crystal, or metal has disadvantage on this saving throw.",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "damage": "3d8",
+    "damageType": "thunder",
+    "saveType": "constitution",
+    "areaOfEffect": {
+      "type": "sphere",
+      "size": 10
+    },
+    "upcastDescription": "Damage increases by 1d8 for each slot level above 2nd.",
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "fireball",
+    "name": "Fireball",
+    "level": 3,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "150 feet",
+    "components": "V, S, M (a tiny ball of bat guano and sulfur)",
+    "duration": "Instantaneous",
+    "description": "A bright streak flashes from your pointing finger to a point you choose within range and then blossoms with a low roar into an explosion of flame.",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "damage": "8d6",
+    "damageType": "fire",
+    "saveType": "dexterity",
+    "concentration": false,
+    "ritual": false,
+    "upcastDescription": "Add 1d6 damage for each slot level above 3rd.",
+    "areaOfEffect": {
+      "type": "sphere",
+      "size": 20
+    },
+    "targets": "All creatures in area",
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true,
+      "materialDescription": "a tiny ball of bat guano and sulfur"
     }
   }
 ]

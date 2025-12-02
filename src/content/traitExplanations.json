@@ -16,7 +16,13 @@
     "Halfling Nimbleness": "You can move through the space of any creature that is of a size larger than yours.",
     "Draconic Ancestry": "You have draconic ancestry. Choose one type of dragon. Your breath weapon and damage resistance are determined by the dragon type.",
     "Breath Weapon": "You can use your action to exhale destructive energy. Your draconic ancestry determines the size, shape, and damage type of the exhalation.",
-    "Damage Resistance": "You have resistance to the damage type associated with your draconic ancestry."
+    "Damage Resistance": "You have resistance to the damage type associated with your draconic ancestry.",
+    "Hellish Resistance": "You have resistance to fire damage.",
+    "Infernal Legacy": "You know the thaumaturgy cantrip. Once you reach 3rd level, you can cast the hellish rebuke spell once per day as a 2nd-level spell. Once you reach 5th level, you can also cast the darkness spell once per day.",
+    "Gnome Cunning": "You have advantage on all Intelligence, Wisdom, and Charisma saving throws against magic.",
+    "Menacing": "You gain proficiency in the Intimidation skill.",
+    "Relentless Endurance": "When you are reduced to 0 hit points but not killed outright, you can drop to 1 hit point instead. You can't use this feature again until you finish a long rest.",
+    "Savage Attacks": "When you score a critical hit with a melee weapon attack, you can roll one of the weapon's damage dice one additional time and add it to the extra damage of the critical hit."
   },
   "classes": {
     "Fighting Style": "You adopt a particular style of fighting as your specialty. Choose one fighting style option.",
@@ -39,4 +45,3 @@
     "Ranger Archetype": "At 3rd level, you choose an archetype that you strive to emulate."
   }
 }
-
