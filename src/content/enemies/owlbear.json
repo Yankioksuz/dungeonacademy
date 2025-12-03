@@ -1,0 +1,26 @@
+{
+  "id": "owlbear",
+  "name": "Owlbear",
+  "armorClass": 13,
+  "hitPoints": 59,
+  "attackBonus": 7,
+  "damage": "1d10+5 piercing (beak) or 2d8+5 slashing (claws)",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 700,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 20, "dexterity": 12, "constitution": 17, "intelligence": 3, "wisdom": 12, "charisma": 7 },
+  "skills": { "perception": 3 },
+  "senses": ["darkvision 60 ft.", "passive Perception 13"],
+  "challenge": "3",
+  "traits": ["keen-sight-and-smell"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks: one with beak and one with claws." },
+    { "name": "Beak", "type": "melee", "toHit": 7, "reach": 5, "targets": "one creature", "damage": "1d10+5 piercing", "damageType": "piercing" },
+    { "name": "Claws", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d8+5 slashing", "damageType": "slashing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/o-monster-stat-block.md",
+  "statBlockHeading": "Owlbear"
+}

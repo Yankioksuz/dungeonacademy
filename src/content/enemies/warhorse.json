@@ -1,0 +1,23 @@
+{
+  "id": "warhorse",
+  "name": "Warhorse",
+  "armorClass": 11,
+  "hitPoints": 19,
+  "attackBonus": 6,
+  "damage": "2d6+4 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "beast",
+  "xpReward": 100,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 60 },
+  "abilityScores": { "strength": 18, "dexterity": 12, "constitution": 13, "intelligence": 2, "wisdom": 12, "charisma": 7 },
+  "senses": ["passive Perception 11"],
+  "challenge": "1/2",
+  "traits": ["trampling-charge"],
+  "actions": [
+    { "name": "Hooves", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d6+4 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/w-monster-stat-block.md",
+  "statBlockHeading": "Warhorse"
+}

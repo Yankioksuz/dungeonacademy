@@ -1,0 +1,30 @@
+{
+  "id": "storm-giant",
+  "name": "Storm Giant",
+  "armorClass": 16,
+  "hitPoints": 230,
+  "attackBonus": 14,
+  "damage": "6d6+9 slashing",
+  "damageType": "slashing",
+  "creatureType": "giant",
+  "xpReward": 7500,
+  "size": "Huge",
+  "alignment": "chaotic good",
+  "speed": { "walk": 50, "swim": 50 },
+  "abilityScores": { "strength": 29, "dexterity": 14, "constitution": 20, "intelligence": 16, "wisdom": 18, "charisma": 18 },
+  "savingThrows": { "str": 14, "con": 10, "wis": 9, "cha": 9 },
+  "damageResistances": ["cold"],
+  "damageImmunities": ["lightning", "thunder"],
+  "senses": ["passive Perception 19"],
+  "languages": ["Common", "Giant"],
+  "challenge": "13",
+  "traits": ["amphibious", "spellcasting"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two greatsword attacks." },
+    { "name": "Greatsword", "type": "melee", "toHit": 14, "reach": 10, "targets": "one target", "damage": "6d6+9 slashing", "damageType": "slashing" },
+    { "name": "Rock", "type": "ranged", "toHit": 14, "range": "60/240", "targets": "one target", "damage": "4d12+9 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Lightning Strike (Recharge after a Short or Long Rest)", "type": "special", "description": "Hurls magical lightning at a point within 500 ft.; creatures within 10 ft. make DC 17 DEX save, taking 54 (12d8) lightning damage on fail or half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Storm Giant"
+}

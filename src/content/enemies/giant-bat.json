@@ -1,0 +1,23 @@
+{
+  "id": "giant-bat",
+  "name": "Giant Bat",
+  "armorClass": 13,
+  "hitPoints": 22,
+  "attackBonus": 4,
+  "damage": "1d6+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 50,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 10, "fly": 60 },
+  "abilityScores": { "strength": 15, "dexterity": 16, "constitution": 11, "intelligence": 2, "wisdom": 12, "charisma": 6 },
+  "senses": ["blindsight 60 ft.", "passive Perception 11"],
+  "challenge": "1/4",
+  "traits": ["echolocation", "keen-hearing"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one creature", "damage": "1d6+2 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Bat"
+}

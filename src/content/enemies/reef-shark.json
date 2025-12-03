@@ -1,0 +1,24 @@
+{
+  "id": "reef-shark",
+  "name": "Reef Shark",
+  "armorClass": 12,
+  "hitPoints": 22,
+  "attackBonus": 4,
+  "damage": "1d8+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 100,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "swim": 40 },
+  "abilityScores": { "strength": 14, "dexterity": 13, "constitution": 13, "intelligence": 1, "wisdom": 10, "charisma": 4 },
+  "skills": { "perception": 2 },
+  "senses": ["blindsight 30 ft.", "passive Perception 12"],
+  "challenge": "1/2",
+  "traits": ["pack-tactics", "water-breathing"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d8+2 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/r-monster-stat-block.md",
+  "statBlockHeading": "Reef Shark"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "giant-lizard",
+  "name": "Giant Lizard",
+  "armorClass": 12,
+  "hitPoints": 19,
+  "attackBonus": 4,
+  "damage": "1d8+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 50,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 30, "climb": 30 },
+  "abilityScores": { "strength": 15, "dexterity": 12, "constitution": 13, "intelligence": 2, "wisdom": 10, "charisma": 5 },
+  "senses": ["darkvision 30 ft.", "passive Perception 10"],
+  "challenge": "1/4",
+  "traits": [],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d8+2 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Lizard"
+}

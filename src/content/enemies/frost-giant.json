@@ -1,0 +1,29 @@
+{
+  "id": "frost-giant",
+  "name": "Frost Giant",
+  "armorClass": 15,
+  "hitPoints": 138,
+  "attackBonus": 9,
+  "damage": "3d12+6 slashing",
+  "damageType": "slashing",
+  "creatureType": "giant",
+  "xpReward": 3900,
+  "size": "Huge",
+  "alignment": "neutral evil",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 23, "dexterity": 9, "constitution": 21, "intelligence": 9, "wisdom": 10, "charisma": 12 },
+  "savingThrows": { "con": 8, "wis": 3, "cha": 4 },
+  "skills": { "athletics": 9, "perception": 3 },
+  "damageImmunities": ["cold"],
+  "senses": ["passive Perception 13"],
+  "languages": ["Giant"],
+  "challenge": "8",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The frost giant makes two greataxe attacks." },
+    { "name": "Greataxe", "type": "melee", "toHit": 9, "reach": 10, "targets": "one target", "damage": "3d12+6 slashing", "damageType": "slashing" },
+    { "name": "Rock", "type": "ranged", "toHit": 9, "range": "60/240", "targets": "one target", "damage": "4d10+6 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/f-monster-stat-block.md",
+  "statBlockHeading": "Frost Giant"
+}

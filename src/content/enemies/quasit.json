@@ -1,0 +1,30 @@
+{
+  "id": "quasit",
+  "name": "Quasit",
+  "armorClass": 13,
+  "hitPoints": 7,
+  "attackBonus": 4,
+  "damage": "1d4+3 piercing",
+  "damageType": "piercing",
+  "creatureType": "fiend",
+  "xpReward": 200,
+  "size": "Tiny",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 5, "dexterity": 17, "constitution": 10, "intelligence": 7, "wisdom": 10, "charisma": 10 },
+  "skills": { "stealth": 5 },
+  "damageResistances": ["cold", "fire", "lightning", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["darkvision 120 ft.", "passive Perception 10"],
+  "languages": ["Abyssal", "Common"],
+  "challenge": "1",
+  "traits": ["shapechanger", "magic-resistance"],
+  "actions": [
+    { "name": "Claws (Bite in Beast Form)", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d4+3 piercing", "damageType": "piercing", "description": "DC 10 CON save or take 5 (2d4) poison and be poisoned for 1 minute; repeat save end of turns to end." },
+    { "name": "Scare (1/Day)", "type": "special", "description": "Creature within 20 ft. makes DC 10 WIS save or frightened for 1 minute (repeat saves end of turns, with disadvantage if quasit is in sight)." },
+    { "name": "Invisibility", "type": "special", "description": "Turns invisible until it attacks or uses Scare, or loses concentration; equipment becomes invisible too." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/q-monster-stat-block.md",
+  "statBlockHeading": "Quasit"
+}

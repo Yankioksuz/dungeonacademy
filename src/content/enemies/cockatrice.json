@@ -1,0 +1,34 @@
+{
+  "id": "cockatrice",
+  "name": "Cockatrice",
+  "armorClass": 11,
+  "hitPoints": 27,
+  "attackBonus": 3,
+  "damage": "1d4+1 piercing",
+  "damageType": "piercing",
+  "effectType": "petrified",
+  "saveDC": 11,
+  "creatureType": "monstrosity",
+  "xpReward": 100,
+  "size": "Small",
+  "alignment": "unaligned",
+  "speed": { "walk": 20, "fly": 40 },
+  "abilityScores": { "strength": 6, "dexterity": 12, "constitution": 12, "intelligence": 2, "wisdom": 13, "charisma": 5 },
+  "senses": ["darkvision 60 ft.", "passive Perception 11"],
+  "challenge": "1/2",
+  "traits": [],
+  "actions": [
+    {
+      "name": "Bite",
+      "type": "melee",
+      "toHit": 3,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "1d4+1 piercing",
+      "damageType": "piercing",
+      "description": "DC 11 CON save or begin petrification; repeat save at end of next turn to end; on failure petrified for 24 hours."
+    }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/c-monster-stat-block.md",
+  "statBlockHeading": "Cockatrice"
+}

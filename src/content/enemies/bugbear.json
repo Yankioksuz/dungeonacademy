@@ -1,0 +1,29 @@
+{
+  "id": "bugbear",
+  "name": "Bugbear",
+  "armorClass": 16,
+  "hitPoints": 27,
+  "attackBonus": 4,
+  "damage": "2d8+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "humanoid",
+  "xpReward": 200,
+  "size": "Medium",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 15, "dexterity": 14, "constitution": 13, "intelligence": 8, "wisdom": 11, "charisma": 9 },
+  "skills": { "stealth": 6, "survival": 2 },
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["Common", "Goblin"],
+  "challenge": "1",
+  "traits": [
+    "brute",
+    "surprise-attack"
+  ],
+  "actions": [
+    { "name": "Morningstar", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "2d8+2 piercing", "damageType": "piercing" },
+    { "name": "Javelin", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "2d6+2 piercing", "damageType": "piercing", "description": "Thrown (range 30/120)" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Bugbear"
+}

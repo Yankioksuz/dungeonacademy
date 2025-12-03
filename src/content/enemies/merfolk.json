@@ -1,0 +1,25 @@
+{
+  "id": "merfolk",
+  "name": "Merfolk",
+  "armorClass": 11,
+  "hitPoints": 11,
+  "attackBonus": 2,
+  "damage": "1d6 piercing",
+  "damageType": "piercing",
+  "creatureType": "humanoid",
+  "xpReward": 25,
+  "size": "Medium",
+  "alignment": "neutral",
+  "speed": { "walk": 10, "swim": 40 },
+  "abilityScores": { "strength": 10, "dexterity": 13, "constitution": 12, "intelligence": 11, "wisdom": 11, "charisma": 12 },
+  "skills": { "perception": 2 },
+  "senses": ["passive Perception 12"],
+  "languages": ["Aquan", "Common"],
+  "challenge": "1/8",
+  "traits": ["amphibious"],
+  "actions": [
+    { "name": "Spear", "type": "melee", "toHit": 2, "reach": 5, "targets": "one target", "damage": "1d6 piercing", "damageType": "piercing", "description": "Range 20/60; 1d8 piercing if used two-handed in melee." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/m-monster-stat-block.md",
+  "statBlockHeading": "Merfolk"
+}

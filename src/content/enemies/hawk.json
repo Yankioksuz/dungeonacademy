@@ -1,0 +1,24 @@
+{
+  "id": "hawk",
+  "name": "Hawk",
+  "armorClass": 13,
+  "hitPoints": 1,
+  "attackBonus": 5,
+  "damage": "1 slashing",
+  "damageType": "slashing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 10, "fly": 60 },
+  "abilityScores": { "strength": 5, "dexterity": 16, "constitution": 8, "intelligence": 2, "wisdom": 14, "charisma": 6 },
+  "skills": { "perception": 4 },
+  "senses": ["passive Perception 14"],
+  "challenge": "0",
+  "traits": ["keen-sight"],
+  "actions": [
+    { "name": "Talons", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1 slashing", "damageType": "slashing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/h-monster-stat-block.md",
+  "statBlockHeading": "Hawk"
+}

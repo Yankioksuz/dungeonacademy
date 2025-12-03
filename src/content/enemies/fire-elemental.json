@@ -1,0 +1,28 @@
+{
+  "id": "fire-elemental",
+  "name": "Fire Elemental",
+  "armorClass": 13,
+  "hitPoints": 102,
+  "attackBonus": 6,
+  "damage": "2d6+3 fire",
+  "damageType": "fire",
+  "creatureType": "elemental",
+  "xpReward": 1800,
+  "size": "Large",
+  "alignment": "neutral",
+  "speed": { "walk": 50 },
+  "abilityScores": { "strength": 10, "dexterity": 17, "constitution": 16, "intelligence": 6, "wisdom": 10, "charisma": 7 },
+  "damageResistances": ["nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["fire", "poison"],
+  "conditionImmunities": ["exhaustion", "grappled", "paralyzed", "petrified", "poisoned", "prone", "restrained", "unconscious"],
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["Ignan"],
+  "challenge": "5",
+  "traits": ["fire-form", "illumination", "water-susceptibility"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The elemental makes two touch attacks." },
+    { "name": "Touch", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d6+3 fire", "damageType": "fire", "description": "On hit, target ignites; until doused, it takes 5 (1d10) fire damage at the start of each of its turns." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/f-monster-stat-block.md",
+  "statBlockHeading": "Fire Elemental"
+}

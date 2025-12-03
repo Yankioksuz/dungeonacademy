@@ -90,7 +90,7 @@ export function Adventure() {
     addItem,
     equipItem,
     unequipItem,
-    useItem,
+    useItem: consumeItem,
     updateCharacter,
     quests,
     addQuest,
@@ -593,7 +593,7 @@ export function Adventure() {
           ? existingTalents
           : [...existingTalents, selectedTalent.id];
 
-        let updatedSkills = { ...prev.skills };
+        const updatedSkills = { ...prev.skills };
         if (selectedTalent.bonus.type === 'skill' && selectedTalent.bonus.value) {
           const skillName = selectedTalent.bonus.value as SkillName;
           if (!updatedSkills[skillName]?.proficient) {
@@ -653,7 +653,7 @@ export function Adventure() {
 
     if (item.type === 'potion' && typeof item.healing === 'number') {
       const before = character.hitPoints;
-      useItem(item);
+      consumeItem(item);
       const actualHeal = Math.max(0, Math.min(character.maxHitPoints - before, item.healing));
       addToNarrativeLog(`${character.name} drinks ${item.name} and recovers ${actualHeal} HP.`);
       addJournalEntry(`${character.name} used ${item.name}.`, 'Item Used');
@@ -665,7 +665,7 @@ export function Adventure() {
       const scrollSpell = spellsData.find((s) => s.id === item.spellId) as unknown as SpellContent;
       if (!scrollSpell) {
         addToNarrativeLog('The scroll is illegible.');
-        useItem(item);
+        consumeItem(item);
         setShowInventory(false);
         return;
       }
@@ -693,14 +693,14 @@ export function Adventure() {
           source: 'scroll'
         });
         if (castResult !== false) {
-          useItem(item);
+          consumeItem(item);
         }
       }
       setShowInventory(false);
       return;
     }
 
-    useItem(item);
+    consumeItem(item);
     setShowInventory(false);
   };
 

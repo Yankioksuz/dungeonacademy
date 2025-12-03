@@ -1,0 +1,32 @@
+{
+  "id": "boar",
+  "name": "Boar",
+  "armorClass": 11,
+  "hitPoints": 11,
+  "attackBonus": 3,
+  "damage": "1d6+1 slashing",
+  "damageType": "slashing",
+  "creatureType": "beast",
+  "xpReward": 50,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 13, "dexterity": 11, "constitution": 12, "intelligence": 2, "wisdom": 9, "charisma": 5 },
+  "senses": ["passive Perception 9"],
+  "challenge": "1/4",
+  "traits": ["charge", "relentless"],
+  "actions": [
+    {
+      "name": "Tusk",
+      "type": "melee",
+      "toHit": 3,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "1d6+1 slashing",
+      "damageType": "slashing",
+      "description": "On a 20 ft. straight move before this attack, add 2d6 damage; target DC 11 STR save or prone."
+    }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Boar"
+}

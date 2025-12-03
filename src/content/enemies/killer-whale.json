@@ -1,0 +1,24 @@
+{
+  "id": "killer-whale",
+  "name": "Killer Whale",
+  "armorClass": 12,
+  "hitPoints": 90,
+  "attackBonus": 6,
+  "damage": "5d6+4 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 700,
+  "size": "Huge",
+  "alignment": "unaligned",
+  "speed": { "walk": 0, "swim": 60 },
+  "abilityScores": { "strength": 19, "dexterity": 10, "constitution": 13, "intelligence": 3, "wisdom": 12, "charisma": 7 },
+  "skills": { "perception": 3 },
+  "senses": ["blindsight 120 ft.", "passive Perception 13"],
+  "challenge": "3",
+  "traits": ["echolocation", "hold-breath", "keen-hearing"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "5d6+4 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/k-monster-stat-block.md",
+  "statBlockHeading": "Killer Whale"
+}

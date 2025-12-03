@@ -1,0 +1,28 @@
+{
+  "id": "ghast",
+  "name": "Ghast",
+  "armorClass": 13,
+  "hitPoints": 36,
+  "attackBonus": 5,
+  "damage": "2d6+3 slashing",
+  "damageType": "slashing",
+  "creatureType": "undead",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 16, "dexterity": 17, "constitution": 10, "intelligence": 11, "wisdom": 10, "charisma": 8 },
+  "damageResistances": ["necrotic"],
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["charmed", "exhaustion", "poisoned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["Common"],
+  "challenge": "2",
+  "traits": ["stench", "turning-defiance"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 3, "reach": 5, "targets": "one creature", "damage": "2d8+3 piercing", "damageType": "piercing" },
+    { "name": "Claws", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "2d6+3 slashing", "damageType": "slashing", "description": "Non-undead must make DC 10 CON save or be paralyzed for 1 minute (repeat save end of turns)." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Ghast"
+}

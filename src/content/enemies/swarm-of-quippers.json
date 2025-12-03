@@ -1,0 +1,25 @@
+{
+  "id": "swarm-of-quippers",
+  "name": "Swarm of Quippers",
+  "armorClass": 13,
+  "hitPoints": 28,
+  "attackBonus": 5,
+  "damage": "4d6 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 200,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 0, "swim": 40 },
+  "abilityScores": { "strength": 13, "dexterity": 16, "constitution": 9, "intelligence": 1, "wisdom": 7, "charisma": 2 },
+  "damageResistances": ["bludgeoning", "piercing", "slashing"],
+  "conditionImmunities": ["charmed", "frightened", "grappled", "paralyzed", "petrified", "prone", "restrained", "stunned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 8"],
+  "challenge": "1",
+  "traits": ["blood-frenzy", "swarm", "water-breathing"],
+  "actions": [
+    { "name": "Bites", "type": "melee", "toHit": 5, "reach": 0, "targets": "one creature in the swarm's space", "damage": "4d6 piercing", "damageType": "piercing", "description": "Deals 2d6 piercing if the swarm has half HP or fewer." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Swarm of Quippers"
+}

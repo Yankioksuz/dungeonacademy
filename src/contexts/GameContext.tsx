@@ -21,6 +21,7 @@ import spireAdventure from '@/content/adventure-shadows.json';
 import spellsContent from '@/content/spells.json';
 import { getMaxPreparedSpells } from '@/lib/spells';
 import { getProficiencyBonus, createDefaultSkills, getPassiveScore } from '@/utils/skillUtils';
+import { getDefaultFeatureUses } from '@/utils/featureUtils';
 
 type CharacterUpdater =
   | Partial<PlayerCharacter>
@@ -138,8 +139,8 @@ const mergeAdventureWithLatestData = (savedAdventure: Adventure | null): Adventu
 };
 
 // Helper to migrate old character data to new format
-const migrateCharacter = (char: any): PlayerCharacter => {
-  if (!char) return char;
+const migrateCharacter = (char: Partial<PlayerCharacter> | null): PlayerCharacter | null => {
+  if (!char) return null;
 
   // Calculate proficiency bonus if missing
   const level = char.level || 1;
@@ -173,8 +174,8 @@ const migrateCharacter = (char: any): PlayerCharacter => {
     const classDef = characterCreationContent.classes.find(c => c.name === char.class.name);
     if (classDef && classDef.savingThrowProficiencies) {
       savingThrowProficiencies = {};
-      classDef.savingThrowProficiencies.forEach((ability: string) => {
-        (savingThrowProficiencies as any)[ability] = true;
+      classDef.savingThrowProficiencies.forEach((ability: AbilityName) => {
+        (savingThrowProficiencies as Record<AbilityName, boolean>)[ability] = true;
       });
     } else {
       // Fallback defaults based on class name
@@ -202,6 +203,7 @@ const migrateCharacter = (char: any): PlayerCharacter => {
     passivePerception,
     passiveInvestigation,
     passiveInsight,
+    featureUses: char.featureUses || getDefaultFeatureUses(char as PlayerCharacter),
   };
 };
 
@@ -376,9 +378,27 @@ export function GameProvider({ children }: { children: ReactNode }) {
         talents: [],
       };
 
+      const abilityScores = (() => {
+        const sourceScores = finalData?.abilityScores || baseCharacter.abilityScores;
+        const scores = { ...sourceScores };
+
+        // Apply racial ability score increases only when finalizing creation
+        if (finalData?.race?.abilityScoreIncrease) {
+          Object.entries(finalData.race.abilityScoreIncrease).forEach(([ability, increase]) => {
+            const key = ability.toLowerCase() as keyof typeof scores;
+            if (typeof increase === 'number' && scores[key] !== undefined) {
+              scores[key] = scores[key] + increase;
+            }
+          });
+        }
+
+        return scores;
+      })();
+
       const updatedCharacter = {
         ...baseCharacter,
         ...finalData,
+        abilityScores,
         class: finalData?.class ? {
           ...finalData.class,
           savingThrowProficiencies: finalData.class.savingThrowProficiencies as AbilityName[]
@@ -390,6 +410,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const hitDieString = updatedCharacter.class.hitDie || 'd8';
       const baseHP = parseInt(hitDieString.replace('d', '')) || 8;
       const calculatedMaxHP = baseHP + conModifier;
+      const originBonusHp = updatedCharacter.class.id === 'sorcerer' && updatedCharacter.sorcerousOrigin === 'Draconic Bloodline'
+        ? updatedCharacter.level
+        : 0;
 
       console.log('Character HP calculation:', {
         class: updatedCharacter.class.name,
@@ -397,13 +420,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
         baseHP,
         constitution: updatedCharacter.abilityScores.constitution,
         conModifier,
-        calculatedMaxHP
+        calculatedMaxHP: calculatedMaxHP + originBonusHp
       });
 
       return {
         ...updatedCharacter,
-        maxHitPoints: calculatedMaxHP,
-        hitPoints: calculatedMaxHP,
+        maxHitPoints: calculatedMaxHP + originBonusHp,
+        hitPoints: calculatedMaxHP + originBonusHp,
         hitDice: {
           current: updatedCharacter.level,
           max: updatedCharacter.level,
@@ -479,16 +502,33 @@ export function GameProvider({ children }: { children: ReactNode }) {
           // Apply background skills
           const backgroundSkills = Array.isArray(updatedCharacter.background.skillProficiencies) ? updatedCharacter.background.skillProficiencies : [];
 
-          [...raceSkills, ...backgroundSkills].filter(Boolean).forEach(skillName => {
+          const bonusSkills = updatedCharacter.bonusSkills || [];
+
+          [...raceSkills, ...backgroundSkills, ...bonusSkills].filter(Boolean).forEach(skillName => {
             const normalized = skillName.toLowerCase().replace(/ /g, '-') as SkillName;
             if (skills[normalized]) {
               skills[normalized].proficient = true;
             }
           });
+
+          (updatedCharacter.expertiseSkills || []).forEach(skillName => {
+            const normalized = skillName.toLowerCase().replace(/ /g, '-') as SkillName;
+            if (skills[normalized]) {
+              skills[normalized].proficient = true;
+              skills[normalized].expertise = true;
+            }
+          });
+
+          if (traits.includes('Extra Skill Proficiency')) {
+            const extraSkill = (Object.keys(skills) as SkillName[]).find((skill) => !skills[skill].proficient);
+            if (extraSkill) {
+              skills[extraSkill].proficient = true;
+            }
+          }
           return skills;
         })(),
         savingThrowProficiencies: (() => {
-          const profs: any = {
+          const profs: SavingThrowProficiencies = {
             strength: false, dexterity: false, constitution: false,
             intelligence: false, wisdom: false, charisma: false
           };
@@ -496,12 +536,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
           const classDef = characterCreationContent.classes.find(c => c.name === updatedCharacter.class.name);
           if (classDef && classDef.savingThrowProficiencies) {
             classDef.savingThrowProficiencies.forEach((ability: string) => {
-              if (profs[ability as AbilityName] !== undefined) {
-                profs[ability as AbilityName] = true;
+              const key = ability as AbilityName;
+              if (profs[key] !== undefined) {
+                profs[key] = true;
               }
             });
           }
-          return profs as SavingThrowProficiencies;
+          return profs;
         })(),
         talents: updatedCharacter.talents || [],
         spellSlots: {
@@ -544,6 +585,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
           const preparedNonCantrips = nonCantripKnown.slice(0, maxPrepared);
           return [...preparedNonCantrips];
         })(),
+        featureUses: getDefaultFeatureUses(updatedCharacter as PlayerCharacter),
       };
     });
     // Don't reset characterCreationStep here - let the Game component handle the flow
@@ -862,15 +904,24 @@ export function GameProvider({ children }: { children: ReactNode }) {
         // Level Up!
         const newLevel = prev.level + 1;
         addJournalEntry(`Congratulations! You reached Level ${newLevel} !`, 'Level Up');
-        return {
+
+        // Draconic Bloodline Sorcerer: +1 HP per level
+        const draconicBonus = prev.class.id === 'sorcerer' && prev.sorcerousOrigin === 'Draconic Bloodline' ? 1 : 0;
+
+        const leveledCharacter = {
           ...prev,
           // Carry over surplus XP beyond the threshold and raise the next requirement
           xp: newXp - xpForNextLevel,
           maxXp: prev.maxXp + 1000, // Increase requirement
           level: newLevel,
-          maxHitPoints: prev.maxHitPoints + 10, // Simple HP boost
-          hitPoints: prev.maxHitPoints + 10, // Heal on level up
+          maxHitPoints: prev.maxHitPoints + 10 + draconicBonus, // Simple HP boost + Draconic bonus
+          hitPoints: prev.maxHitPoints + 10 + draconicBonus, // Heal on level up
           // Add spell slots if caster?
+        };
+
+        return {
+          ...leveledCharacter,
+          featureUses: getDefaultFeatureUses(leveledCharacter)
         };
       }
 

@@ -1,0 +1,25 @@
+{
+  "id": "giant-frog",
+  "name": "Giant Frog",
+  "armorClass": 11,
+  "hitPoints": 18,
+  "attackBonus": 3,
+  "damage": "1d6+1 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 50,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 30, "swim": 30 },
+  "abilityScores": { "strength": 12, "dexterity": 13, "constitution": 11, "intelligence": 2, "wisdom": 10, "charisma": 3 },
+  "skills": { "perception": 2, "stealth": 3 },
+  "senses": ["darkvision 30 ft.", "passive Perception 12"],
+  "challenge": "1/4",
+  "traits": ["amphibious", "standing-leap"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "1d6+1 piercing", "damageType": "piercing", "description": "Target grappled (escape DC 11) and restrained; frog can't bite another target." },
+    { "name": "Swallow", "type": "special", "description": "Swallows a Small or smaller target it is grappling on a hit; target blinded and restrained with total cover and takes 2d4 acid at start of frog's turns; only one swallowed at a time; freed if frog dies." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Frog"
+}

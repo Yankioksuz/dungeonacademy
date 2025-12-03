@@ -1,0 +1,25 @@
+{
+  "id": "swarm-of-rats",
+  "name": "Swarm of Rats",
+  "armorClass": 10,
+  "hitPoints": 24,
+  "attackBonus": 2,
+  "damage": "2d6 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 50,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 9, "dexterity": 11, "constitution": 9, "intelligence": 2, "wisdom": 10, "charisma": 3 },
+  "damageResistances": ["bludgeoning", "piercing", "slashing"],
+  "conditionImmunities": ["charmed", "frightened", "grappled", "paralyzed", "petrified", "prone", "restrained", "stunned"],
+  "senses": ["darkvision 30 ft.", "passive Perception 10"],
+  "challenge": "1/4",
+  "traits": ["keen-smell", "swarm"],
+  "actions": [
+    { "name": "Bites", "type": "melee", "toHit": 2, "reach": 0, "targets": "one target in the swarm's space", "damage": "2d6 piercing", "damageType": "piercing", "description": "Deals 1d6 piercing if the swarm has half HP or fewer." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Swarm of Rats"
+}

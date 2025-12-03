@@ -1,0 +1,24 @@
+{
+  "id": "vulture",
+  "name": "Vulture",
+  "armorClass": 10,
+  "hitPoints": 5,
+  "attackBonus": 2,
+  "damage": "1d4 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 10, "fly": 50 },
+  "abilityScores": { "strength": 7, "dexterity": 10, "constitution": 13, "intelligence": 2, "wisdom": 12, "charisma": 4 },
+  "skills": { "perception": 3 },
+  "senses": ["passive Perception 13"],
+  "challenge": "0",
+  "traits": ["keen-sight-and-smell", "pack-tactics"],
+  "actions": [
+    { "name": "Beak", "type": "melee", "toHit": 2, "reach": 5, "targets": "one target", "damage": "1d4 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/v-monster-stat-block.md",
+  "statBlockHeading": "Vulture"
+}

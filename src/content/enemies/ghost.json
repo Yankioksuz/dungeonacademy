@@ -1,0 +1,30 @@
+{
+  "id": "ghost",
+  "name": "Ghost",
+  "armorClass": 11,
+  "hitPoints": 45,
+  "attackBonus": 5,
+  "damage": "4d6+3 necrotic",
+  "damageType": "necrotic",
+  "creatureType": "undead",
+  "xpReward": 1100,
+  "size": "Medium",
+  "alignment": "any alignment",
+  "speed": { "walk": 0, "fly": 40 },
+  "abilityScores": { "strength": 7, "dexterity": 13, "constitution": 10, "intelligence": 10, "wisdom": 12, "charisma": 17 },
+  "damageResistances": ["acid", "fire", "lightning", "thunder", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["cold", "necrotic", "poison"],
+  "conditionImmunities": ["charmed", "exhaustion", "frightened", "grappled", "paralyzed", "petrified", "poisoned", "prone", "restrained"],
+  "senses": ["darkvision 60 ft.", "passive Perception 11"],
+  "languages": ["languages known in life"],
+  "challenge": "4",
+  "traits": ["ethereal-sight", "incorporeal-movement"],
+  "actions": [
+    { "name": "Withering Touch", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "4d6+3 necrotic", "damageType": "necrotic" },
+    { "name": "Etherealness", "type": "special", "description": "Shifts between Material and Ethereal Plane; visible on the other plane but can't affect or be affected from there." },
+    { "name": "Horrifying Visage", "type": "special", "description": "Creatures within 60 ft. that see the ghost make DC 13 WIS save or be frightened 1 minute; fail by 5+ also ages 1d4x10 years. Repeat save end of turns; immunity for 24 hours on success." },
+    { "name": "Possession (Recharge 6)", "type": "special", "description": "Humanoid within 5 ft. makes DC 13 CHA save or is possessed; ghost disappears, controls target, retains alignment/mental stats/immunities. Ends on body at 0 HP, ghost ends, or turned/forced out; target immune 24 hours after." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Ghost"
+}

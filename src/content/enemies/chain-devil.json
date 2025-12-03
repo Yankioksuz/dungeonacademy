@@ -1,0 +1,31 @@
+{
+  "id": "chain-devil",
+  "name": "Chain Devil",
+  "armorClass": 16,
+  "hitPoints": 85,
+  "attackBonus": 8,
+  "damage": "2d6+4 slashing (chain)",
+  "damageType": "slashing",
+  "creatureType": "fiend",
+  "xpReward": 1800,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 18, "dexterity": 15, "constitution": 18, "intelligence": 11, "wisdom": 12, "charisma": 14 },
+  "savingThrows": { "con": 7, "wis": 4, "cha": 5 },
+  "damageResistances": ["cold", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["fire", "poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["darkvision 120 ft.", "passive Perception 11"],
+  "languages": ["Infernal", "telepathy 120 ft."],
+  "challenge": "8",
+  "traits": ["devil-sight", "magic-resistance"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two chain attacks." },
+    { "name": "Chain", "type": "melee", "toHit": 8, "reach": 10, "targets": "one target", "damage": "2d6+4 slashing", "damageType": "slashing", "description": "Target grappled (escape DC 14) if Large or smaller; restrained while grappled." },
+    { "name": "Animate Chains (Recharges after Short or Long Rest)", "type": "special", "description": "Up to four chains within 60 ft become animated; each an object with AC 20, 20 HP, +8 to hit, 2d6+4 slashing on hit and can grapple." },
+    { "name": "Unnerving Mask", "type": "special", "description": "As bonus action, targets within 30 ft. that can see the devil must succeed on DC 15 WIS save or be frightened until end of devil’s next turn." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/c-monster-stat-block.md",
+  "statBlockHeading": "Chain Devil"
+}

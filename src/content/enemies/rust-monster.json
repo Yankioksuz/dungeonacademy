@@ -1,0 +1,24 @@
+{
+  "id": "rust-monster",
+  "name": "Rust Monster",
+  "armorClass": 14,
+  "hitPoints": 27,
+  "attackBonus": 3,
+  "damage": "1d8+1 piercing",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 100,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 13, "dexterity": 12, "constitution": 13, "intelligence": 2, "wisdom": 13, "charisma": 6 },
+  "senses": ["darkvision 60 ft.", "passive Perception 11"],
+  "challenge": "1/2",
+  "traits": ["iron-scent", "rust-metal"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "1d8+1 piercing", "damageType": "piercing" },
+    { "name": "Antennae", "type": "special", "description": "Rots nonmagical ferrous metal within 5 ft.; unattended metal destroyed (1-foot cube). Worn/carried item: target can make DC 11 DEX save to avoid; metal armor/shields take -1 AC (destroyed at AC 10/+0); held metal weapons rust per Rust Metal trait." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/r-monster-stat-block.md",
+  "statBlockHeading": "Rust Monster"
+}

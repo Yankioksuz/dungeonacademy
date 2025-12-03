@@ -1,0 +1,28 @@
+{
+  "id": "xorn",
+  "name": "Xorn",
+  "armorClass": 19,
+  "hitPoints": 73,
+  "attackBonus": 6,
+  "damage": "1d6+3 slashing (claw) or 3d6+3 piercing (bite)",
+  "damageType": "slashing",
+  "creatureType": "elemental",
+  "xpReward": 1800,
+  "size": "Medium",
+  "alignment": "neutral",
+  "speed": { "walk": 20, "burrow": 20 },
+  "abilityScores": { "strength": 17, "dexterity": 10, "constitution": 22, "intelligence": 11, "wisdom": 10, "charisma": 11 },
+  "skills": { "perception": 6, "stealth": 3 },
+  "damageResistances": ["non-adamantine piercing", "non-adamantine slashing"],
+  "senses": ["darkvision 60 ft.", "tremorsense 60 ft.", "passive Perception 16"],
+  "languages": ["Terran"],
+  "challenge": "5",
+  "traits": ["earth-glide", "stone-camouflage", "treasure-sense"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes three claw attacks and one bite." },
+    { "name": "Claw", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "1d6+3 slashing", "damageType": "slashing" },
+    { "name": "Bite", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "3d6+3 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/x-monster-stat-block.md",
+  "statBlockHeading": "Xorn"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "shadowblade-cultists",
+  "name": "Shadowblade Cultists",
+  "armorClass": 15,
+  "hitPoints": 20,
+  "attackBonus": 5,
+  "damage": "1d8+3",
+  "damageType": "slashing",
+  "effectType": "fear",
+  "creatureType": "humanoid",
+  "xpReward": 90,
+  "traits": [
+    "pack-tactics",
+    "pack-tactics"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "id": "half-red-dragon-veteran",
+  "name": "Half-Red Dragon Veteran",
+  "armorClass": 18,
+  "hitPoints": 65,
+  "attackBonus": 5,
+  "damage": "1d8+3 slashing",
+  "damageType": "slashing",
+  "creatureType": "humanoid",
+  "xpReward": 1800,
+  "size": "Medium",
+  "alignment": "any alignment",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 16, "dexterity": 13, "constitution": 14, "intelligence": 10, "wisdom": 11, "charisma": 10 },
+  "skills": { "athletics": 5, "perception": 2 },
+  "damageResistances": ["fire"],
+  "senses": ["blindsight 10 ft.", "darkvision 60 ft.", "passive Perception 12"],
+  "languages": ["Common", "Draconic"],
+  "challenge": "5",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two longsword attacks. If a shortsword is drawn, can also make one shortsword attack." },
+    { "name": "Longsword", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d8+3 slashing", "damageType": "slashing", "description": "1d10+3 slashing if used with two hands." },
+    { "name": "Shortsword", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d6+3 piercing", "damageType": "piercing" },
+    { "name": "Heavy Crossbow", "type": "ranged", "toHit": 3, "range": "100/400", "targets": "one target", "damage": "1d10+1 piercing", "damageType": "piercing" },
+    { "name": "Fire Breath (Recharge 5-6)", "type": "special", "description": "Exhales fire in a 15-foot cone; each creature makes DC 15 DEX save, taking 24 (7d6) fire damage on a failure or half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/h-monster-stat-block.md",
+  "statBlockHeading": "Half-Red Dragon Veteran"
+}

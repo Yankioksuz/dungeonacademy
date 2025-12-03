@@ -739,13 +739,7 @@
         "content": "Combat in D&D is turn-based. When you attack, you'll roll for initiative to determine turn order. Each turn, you can Attack or Defend. Watch the HP bars and combat log to track what happens! If you win, you'll find items as rewards. Remember - combat isn't always the only solution!",
         "concept": "Combat"
       },
-      "enemy": {
-        "name": "Goblin Lookouts",
-        "armorClass": 15,
-        "hitPoints": 7,
-        "attackBonus": 4,
-        "damage": "1d6+2"
-      },
+      "enemyId": "goblin-lookouts",
       "options": [
         {
           "id": "attack",
@@ -1004,7 +998,8 @@
         "hitPoints": 15,
         "attackBonus": 4,
         "damage": "1d6+2",
-        "xpReward": 100
+        "xpReward": 100,
+        "damageType": "slashing"
       },
       "options": [
         {
@@ -1029,7 +1024,8 @@
         "hitPoints": 15,
         "attackBonus": 4,
         "damage": "1d6+2",
-        "xpReward": 100
+        "xpReward": 100,
+        "damageType": "slashing"
       },
       "options": [
         {

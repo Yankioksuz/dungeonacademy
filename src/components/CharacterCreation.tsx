@@ -8,11 +8,12 @@ import { useTranslation } from 'react-i18next';
 import { Sparkles, ArrowRight, ArrowLeft, User, CheckCircle2, Shuffle } from 'lucide-react';
 import characterCreationContent from '@/content/characterCreation.json';
 import traitExplanations from '@/content/traitExplanations.json';
-import type { Race, Class, Background } from '@/types';
+import type { Race, Class, Background, SkillName } from '@/types';
 import { cn } from '@/lib/utils';
 import { generateRandomName } from '@/utils/nameGenerator';
 import { PortraitSelector } from './PortraitSelector';
 import { portraits } from '@/data/portraits';
+import { SKILL_ABILITY_MAP } from '@/utils/skillUtils';
 
 const CHARACTER_CREATION_STEPS = [
   { id: 'identity', label: 'Identity' },
@@ -48,6 +49,31 @@ export function CharacterCreation() {
     wisdom: 10,
     charisma: 10,
   });
+  const handleSelectRace = (race: Race) => {
+    setSelectedRace(race);
+    if (race.id !== 'human' && humanBonusSkill !== null) {
+      setHumanBonusSkill(null);
+    }
+    if (race.id !== 'dragonborn' && draconicAncestry !== null) {
+      setDraconicAncestry(null);
+    }
+  };
+
+  const handleSelectClass = (cls: Class) => {
+    setSelectedClass(cls);
+    if (cls.id !== 'rogue' && rogueExpertise.length > 0) {
+      setRogueExpertise([]);
+    }
+    if (cls.id !== 'fighter' && fightingStyle !== null) {
+      setFightingStyle(null);
+    }
+    if (cls.id !== 'warlock' && pactBoon !== null) {
+      setPactBoon(null);
+    }
+    if (cls.id !== 'sorcerer' && sorcerousOrigin !== null) {
+      setSorcerousOrigin(null);
+    }
+  };
 
   const DRACONIC_ANCESTRIES = [
     { type: 'Black', damageType: 'Acid', breathCone: false },
@@ -70,6 +96,11 @@ export function CharacterCreation() {
   // NEW: Racial Options State
   const [draconicAncestry, setDraconicAncestry] = useState<{ type: string; damageType: string; breathCone: boolean } | null>(null);
   const [extraLanguage, setExtraLanguage] = useState<string>('');
+  const [humanBonusSkill, setHumanBonusSkill] = useState<SkillName | null>(null);
+  const [rogueExpertise, setRogueExpertise] = useState<SkillName[]>([]);
+  const [fightingStyle, setFightingStyle] = useState<string | null>(null);
+  const [pactBoon, setPactBoon] = useState<string | null>(null);
+  const [sorcerousOrigin, setSorcerousOrigin] = useState<string | null>(null);
 
   // Update local state when character changes (e.g., when going back or starting fresh)
   useEffect(() => {
@@ -99,6 +130,18 @@ export function CharacterCreation() {
         if (character.background) setSelectedBackground(character.background);
         if (character.abilityScores) setAbilityScores(character.abilityScores);
         if (character.portraitId) setSelectedPortraitId(character.portraitId);
+        if (character.draconicAncestry) {
+          setDraconicAncestry(character.draconicAncestry);
+        }
+        if (character.bonusSkills?.length) {
+          setHumanBonusSkill(character.bonusSkills[0] as SkillName);
+        }
+        if (character.expertiseSkills?.length) {
+          setRogueExpertise(character.expertiseSkills as SkillName[]);
+        }
+        if (character.fightingStyle) setFightingStyle(character.fightingStyle);
+        if (character.pactBoon) setPactBoon(character.pactBoon);
+        if (character.sorcerousOrigin) setSorcerousOrigin(character.sorcerousOrigin);
       } else {
         // Reset to defaults when starting fresh character creation
         setCharacterName('');
@@ -115,6 +158,11 @@ export function CharacterCreation() {
           wisdom: 10,
           charisma: 10,
         });
+        setHumanBonusSkill(null);
+        setRogueExpertise([]);
+        setFightingStyle(null);
+        setPactBoon(null);
+        setSorcerousOrigin(null);
       }
     }, 0);
 
@@ -137,6 +185,9 @@ export function CharacterCreation() {
     if (isLastStep) {
       // Complete character creation - pass all data directly
       if (selectedRace && selectedClass && selectedBackground && characterName && selectedPortraitId) {
+        if (selectedRace.id === 'human' && !humanBonusSkill) {
+          return;
+        }
         // Create complete character data
         const characterData = {
           id: 'player-1',
@@ -155,6 +206,11 @@ export function CharacterCreation() {
           draconicAncestry: draconicAncestry || undefined,
           // Pass extra language if selected (will be merged with others in GameContext)
           languages: extraLanguage ? [extraLanguage] : [],
+          bonusSkills: humanBonusSkill ? [humanBonusSkill] : [],
+          expertiseSkills: rogueExpertise,
+          fightingStyle: fightingStyle || undefined,
+          pactBoon: pactBoon || undefined,
+          sorcerousOrigin: sorcerousOrigin || undefined,
         };
 
         // Complete with all final data
@@ -191,16 +247,22 @@ export function CharacterCreation() {
         // Identity step - need both name and race
         return characterName.trim().length > 0 && selectedRace !== null;
       case 1:
-        return selectedClass !== null;
+        if (!selectedClass) return false;
+        if (selectedClass.id === 'fighter' && !fightingStyle) return false;
+        if (selectedClass.id === 'warlock' && !pactBoon) return false;
+        if (selectedClass.id === 'sorcerer' && !sorcerousOrigin) return false;
+        return true;
       case 2:
         return selectedBackground !== null;
       case 3:
         return true; // Ability scores always valid
       case 4:
         return selectedPortraitId !== null;
-      case 5:
+      case 5: {
         // Review step - ensure all required fields are present
-        return selectedRace !== null && selectedClass !== null && selectedBackground !== null && characterName.trim().length > 0;
+        const hasHumanSkill = selectedRace?.id === 'human' ? Boolean(humanBonusSkill) : true;
+        return selectedRace !== null && selectedClass !== null && selectedBackground !== null && characterName.trim().length > 0 && hasHumanSkill;
+      }
       default:
         return false;
     }
@@ -236,7 +298,7 @@ export function CharacterCreation() {
                         ],
                         !isSelected && 'hover:ring-1 hover:ring-fantasy-purple/50'
                       )}
-                      onClick={() => setSelectedRace(race)}
+                      onClick={() => handleSelectRace(race)}
                     >
                       {isSelected && (
                         <div className="absolute top-2 right-2">
@@ -328,6 +390,31 @@ export function CharacterCreation() {
               </div>
             )}
 
+            {selectedRace?.id === 'human' && (
+              <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30">
+                <p className="text-sm font-semibold mb-3">Extra Skill Proficiency</p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Choose one skill to gain proficiency in.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {(Object.keys(SKILL_ABILITY_MAP) as SkillName[]).map((skill) => (
+                    <Button
+                      key={skill}
+                      type="button"
+                      variant={humanBonusSkill === skill ? 'default' : 'outline'}
+                      className={cn(
+                        "text-xs capitalize",
+                        humanBonusSkill === skill && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                      )}
+                      onClick={() => setHumanBonusSkill(skill)}
+                    >
+                      {skill.replace(/-/g, ' ')}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Gender Selection */}
             <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30">
               <p className="text-sm font-semibold mb-3">{t('characterCreation.genderLabel')}</p>
@@ -413,7 +500,7 @@ export function CharacterCreation() {
                       ],
                       !isSelected && 'hover:ring-1 hover:ring-fantasy-purple/50'
                     )}
-                    onClick={() => setSelectedClass(classOption as unknown as Class)}
+                    onClick={() => handleSelectClass(classOption as unknown as Class)}
                   >
                     {isSelected && (
                       <div className="absolute top-2 right-2">
@@ -455,6 +542,111 @@ export function CharacterCreation() {
                 );
               })}
             </div>
+
+            {selectedClass?.id === 'rogue' && (
+              <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30">
+                <p className="text-sm font-semibold mb-2">Rogue Expertise</p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Choose up to two skills to gain expertise (double proficiency). You must be proficient, so this is most useful when paired with your background or racial skills.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {(Object.keys(SKILL_ABILITY_MAP) as SkillName[]).map((skill) => {
+                    const isPicked = rogueExpertise.includes(skill);
+                    const limitReached = rogueExpertise.length >= 2 && !isPicked;
+                    return (
+                      <Button
+                        key={skill}
+                        type="button"
+                        variant={isPicked ? 'default' : 'outline'}
+                        disabled={limitReached}
+                        className={cn(
+                          "text-xs capitalize",
+                          isPicked && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                        )}
+                        onClick={() => {
+                          setRogueExpertise((prev) => {
+                            if (isPicked) return prev.filter((s) => s !== skill);
+                            if (prev.length >= 2) return prev;
+                            return [...prev, skill];
+                          });
+                        }}
+                      >
+                        {skill.replace(/-/g, ' ')}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {selectedClass?.id === 'fighter' && (
+              <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30">
+                <p className="text-sm font-semibold mb-2">Fighting Style</p>
+                <p className="text-xs text-muted-foreground mb-3">Choose one fighting style.</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {['Archery', 'Defense', 'Dueling', 'Great Weapon Fighting', 'Two-Weapon Fighting'].map((style) => (
+                    <Button
+                      key={style}
+                      type="button"
+                      variant={fightingStyle === style ? 'default' : 'outline'}
+                      className={cn(
+                        "text-xs",
+                        fightingStyle === style && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                      )}
+                      onClick={() => setFightingStyle(style)}
+                    >
+                      {style}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedClass?.id === 'warlock' && (
+              <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30">
+                <p className="text-sm font-semibold mb-2">Pact Boon</p>
+                <p className="text-xs text-muted-foreground mb-3">Choose your pact boon.</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {['Pact of the Blade', 'Pact of the Chain', 'Pact of the Tome'].map((pact) => (
+                    <Button
+                      key={pact}
+                      type="button"
+                      variant={pactBoon === pact ? 'default' : 'outline'}
+                      className={cn(
+                        "text-xs",
+                        pactBoon === pact && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                      )}
+                      onClick={() => setPactBoon(pact)}
+                    >
+                      {pact}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedClass?.id === 'sorcerer' && (
+              <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30">
+                <p className="text-sm font-semibold mb-2">Sorcerous Origin</p>
+                <p className="text-xs text-muted-foreground mb-3">Choose your origin.</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {['Draconic Bloodline', 'Wild Magic', 'Divine Soul'].map((origin) => (
+                    <Button
+                      key={origin}
+                      type="button"
+                      variant={sorcerousOrigin === origin ? 'default' : 'outline'}
+                      className={cn(
+                        "text-xs",
+                        sorcerousOrigin === origin && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                      )}
+                      onClick={() => setSorcerousOrigin(origin)}
+                    >
+                      {origin}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         );
 

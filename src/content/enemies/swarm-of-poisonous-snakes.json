@@ -1,0 +1,25 @@
+{
+  "id": "swarm-of-poisonous-snakes",
+  "name": "Swarm of Poisonous Snakes",
+  "armorClass": 14,
+  "hitPoints": 36,
+  "attackBonus": 6,
+  "damage": "2d6 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 30, "swim": 30 },
+  "abilityScores": { "strength": 8, "dexterity": 18, "constitution": 11, "intelligence": 1, "wisdom": 10, "charisma": 3 },
+  "damageResistances": ["bludgeoning", "piercing", "slashing"],
+  "conditionImmunities": ["charmed", "frightened", "grappled", "paralyzed", "petrified", "prone", "restrained", "stunned"],
+  "senses": ["blindsight 10 ft.", "passive Perception 10"],
+  "challenge": "2",
+  "traits": ["swarm"],
+  "actions": [
+    { "name": "Bites", "type": "melee", "toHit": 6, "reach": 0, "targets": "one creature in the swarm's space", "damage": "2d6 piercing", "damageType": "piercing", "description": "Deals 1d6 piercing if half HP or fewer; DC 10 CON save or take 14 (4d6) poison damage, half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Swarm of Poisonous Snakes"
+}

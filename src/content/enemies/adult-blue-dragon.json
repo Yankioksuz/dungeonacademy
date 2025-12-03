@@ -1,0 +1,48 @@
+{
+  "id": "adult-blue-dragon",
+  "name": "Adult Blue Dragon",
+  "armorClass": 19,
+  "hitPoints": 225,
+  "attackBonus": 12,
+  "damage": "2d10+7 piercing + 1d10 lightning (bite)",
+  "damageType": "piercing",
+  "effectType": "fear",
+  "saveDC": 17,
+  "creatureType": "dragon",
+  "xpReward": 15000,
+  "size": "Huge",
+  "alignment": "lawful evil",
+  "speed": { "walk": 40, "burrow": 30, "fly": 80 },
+  "abilityScores": { "strength": 25, "dexterity": 10, "constitution": 23, "intelligence": 16, "wisdom": 15, "charisma": 19 },
+  "savingThrows": { "dex": 5, "con": 11, "wis": 7, "cha": 9 },
+  "skills": { "perception": 12, "stealth": 5 },
+  "senses": ["blindsight 60 ft.", "darkvision 120 ft.", "passive Perception 22"],
+  "languages": ["Common", "Draconic"],
+  "damageImmunities": ["lightning"],
+  "challenge": "16",
+  "traits": [
+    "legendary",
+    "multiattack",
+    "frightful-presence",
+    "lightning-breath",
+    "legendary-resistance"
+  ],
+  "breathDC": 19,
+  "breathDamage": "12d10 lightning",
+  "breathType": "lightning",
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Use Frightful Presence, then make three attacks: one bite and two claws." },
+    { "name": "Bite", "type": "melee", "toHit": 12, "reach": 10, "targets": "one target", "damage": "2d10+7 piercing plus 1d10 lightning", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 12, "reach": 5, "targets": "one target", "damage": "2d6+7 slashing", "damageType": "slashing" },
+    { "name": "Tail", "type": "melee", "toHit": 12, "reach": 15, "targets": "one target", "damage": "2d8+7 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Frightful Presence", "type": "special", "save": { "ability": "wisdom", "dc": 17, "onFail": "Frightened for 1 minute; repeat save at end of turns", "onSave": "Immune for 24 hours" } },
+    { "name": "Lightning Breath (Recharge 5-6)", "type": "special", "save": { "ability": "dexterity", "dc": 19, "onFail": "66 (12d10) lightning damage", "onSave": "Half damage" } }
+  ],
+  "legendaryActions": [
+    { "name": "Detect", "description": "The dragon makes a Wisdom (Perception) check." },
+    { "name": "Tail Attack", "description": "The dragon makes a tail attack." },
+    { "name": "Wing Attack", "cost": 2, "description": "Each creature within 10 ft. must succeed on a DC 20 Dexterity save or take 14 (2d6+7) bludgeoning damage and be knocked prone. The dragon can then fly up to half its flying speed." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/a-monster-stat-block.md",
+  "statBlockHeading": "Adult Blue Dragon"
+}

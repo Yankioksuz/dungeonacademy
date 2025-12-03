@@ -1,0 +1,23 @@
+{
+  "id": "giant-sea-horse",
+  "name": "Giant Sea Horse",
+  "armorClass": 13,
+  "hitPoints": 16,
+  "attackBonus": 3,
+  "damage": "1d6+1 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "beast",
+  "xpReward": 100,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 0, "swim": 40 },
+  "abilityScores": { "strength": 12, "dexterity": 15, "constitution": 11, "intelligence": 2, "wisdom": 12, "charisma": 5 },
+  "senses": ["passive Perception 11"],
+  "challenge": "1/2",
+  "traits": ["charge", "water-breathing"],
+  "actions": [
+    { "name": "Ram", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "1d6+1 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Sea Horse"
+}

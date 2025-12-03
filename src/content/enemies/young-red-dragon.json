@@ -1,0 +1,30 @@
+{
+  "id": "young-red-dragon",
+  "name": "Young Red Dragon",
+  "armorClass": 18,
+  "hitPoints": 178,
+  "attackBonus": 10,
+  "damage": "2d10+6 piercing plus 1d6 fire",
+  "damageType": "piercing",
+  "creatureType": "dragon",
+  "xpReward": 5900,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 40, "climb": 40, "fly": 80 },
+  "abilityScores": { "strength": 23, "dexterity": 10, "constitution": 21, "intelligence": 14, "wisdom": 11, "charisma": 19 },
+  "savingThrows": { "dex": 4, "con": 9, "wis": 4, "cha": 8 },
+  "skills": { "perception": 8, "stealth": 4 },
+  "damageImmunities": ["fire"],
+  "senses": ["blindsight 30 ft.", "darkvision 120 ft.", "passive Perception 18"],
+  "languages": ["Common", "Draconic"],
+  "challenge": "10",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes three attacks: one bite and two claws." },
+    { "name": "Bite", "type": "melee", "toHit": 10, "reach": 10, "targets": "one target", "damage": "2d10+6 piercing plus 1d6 fire", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 10, "reach": 5, "targets": "one target", "damage": "2d6+6 slashing", "damageType": "slashing" },
+    { "name": "Fire Breath (Recharge 5-6)", "type": "special", "description": "30-foot cone; DC 17 DEX save, 56 (16d6) fire on fail, half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/y-monster-stat-block.md",
+  "statBlockHeading": "Young Red Dragon"
+}

@@ -1,0 +1,31 @@
+{
+  "id": "cloud-giant",
+  "name": "Cloud Giant",
+  "armorClass": 14,
+  "hitPoints": 200,
+  "attackBonus": 12,
+  "damage": "3d8+8 bludgeoning (greatclub)",
+  "damageType": "bludgeoning",
+  "creatureType": "giant",
+  "xpReward": 5000,
+  "size": "Huge",
+  "alignment": "neutral good (50%) or neutral evil (50%)",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 27, "dexterity": 10, "constitution": 22, "intelligence": 12, "wisdom": 16, "charisma": 16 },
+  "savingThrows": { "con": 10, "wis": 7, "cha": 7 },
+  "skills": { "insight": 7, "perception": 7 },
+  "senses": ["passive Perception 17"],
+  "languages": ["Common", "Giant"],
+  "challenge": "9",
+  "traits": [
+    "keen-smell",
+    "innate-spellcasting"
+  ],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two morningstar or two rock attacks." },
+    { "name": "Morningstar", "type": "melee", "toHit": 12, "reach": 10, "targets": "one target", "damage": "3d8+8 piercing", "damageType": "piercing" },
+    { "name": "Rock", "type": "ranged", "toHit": 12, "range": "60/240", "targets": "one target", "damage": "4d10+8 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/c-monster-stat-block.md",
+  "statBlockHeading": "Cloud Giant"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "triceratops",
+  "name": "Triceratops",
+  "armorClass": 13,
+  "hitPoints": 95,
+  "attackBonus": 9,
+  "damage": "4d8+6 piercing (gore) or 3d10+6 bludgeoning (stomp)",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 1800,
+  "size": "Huge",
+  "alignment": "unaligned",
+  "speed": { "walk": 50 },
+  "abilityScores": { "strength": 22, "dexterity": 9, "constitution": 17, "intelligence": 2, "wisdom": 11, "charisma": 5 },
+  "senses": ["passive Perception 10"],
+  "challenge": "5",
+  "traits": ["trampling-charge"],
+  "actions": [
+    { "name": "Gore", "type": "melee", "toHit": 9, "reach": 5, "targets": "one target", "damage": "4d8+6 piercing", "damageType": "piercing" },
+    { "name": "Stomp", "type": "melee", "toHit": 9, "reach": 5, "targets": "one prone creature", "damage": "3d10+6 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/t-monster-stat-block.md",
+  "statBlockHeading": "Triceratops"
+}

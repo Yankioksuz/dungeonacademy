@@ -1,0 +1,23 @@
+{
+  "id": "rat",
+  "name": "Rat",
+  "armorClass": 10,
+  "hitPoints": 1,
+  "attackBonus": 0,
+  "damage": "1 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 20 },
+  "abilityScores": { "strength": 2, "dexterity": 11, "constitution": 9, "intelligence": 2, "wisdom": 10, "charisma": 4 },
+  "senses": ["darkvision 30 ft.", "passive Perception 10"],
+  "challenge": "0",
+  "traits": ["keen-smell"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 0, "reach": 5, "targets": "one target", "damage": "1 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/r-monster-stat-block.md",
+  "statBlockHeading": "Rat"
+}

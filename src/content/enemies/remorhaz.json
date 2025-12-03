@@ -1,0 +1,25 @@
+{
+  "id": "remorhaz",
+  "name": "Remorhaz",
+  "armorClass": 17,
+  "hitPoints": 195,
+  "attackBonus": 11,
+  "damage": "6d10+7 piercing plus 3d6 fire",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 7200,
+  "size": "Huge",
+  "alignment": "unaligned",
+  "speed": { "walk": 30, "burrow": 20 },
+  "abilityScores": { "strength": 24, "dexterity": 13, "constitution": 21, "intelligence": 4, "wisdom": 10, "charisma": 5 },
+  "damageImmunities": ["cold", "fire"],
+  "senses": ["darkvision 60 ft.", "tremorsense 60 ft.", "passive Perception 10"],
+  "challenge": "11",
+  "traits": ["heated-body"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 11, "reach": 10, "targets": "one target", "damage": "6d10+7 piercing plus 3d6 fire", "damageType": "piercing", "description": "On hit, target grappled (escape DC 17) and restrained; remorhaz can't bite another target while grappling." },
+    { "name": "Swallow", "type": "special", "description": "Bites a grappled Medium or smaller target; on hit, target also takes bite damage and is swallowed. Swallowed target blinded/restrained with total cover, takes 21 (6d6) acid at start of remorhaz's turns. If it takes 30+ damage in a turn from inside, must make DC 15 CON save or regurgitate at end of turn; on death, swallowed creatures can exit using 15 ft. movement, prone." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/r-monster-stat-block.md",
+  "statBlockHeading": "Remorhaz"
+}

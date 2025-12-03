@@ -1,0 +1,24 @@
+{
+  "id": "giant-toad",
+  "name": "Giant Toad",
+  "armorClass": 11,
+  "hitPoints": 39,
+  "attackBonus": 4,
+  "damage": "1d10+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 200,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 20, "swim": 40 },
+  "abilityScores": { "strength": 15, "dexterity": 13, "constitution": 13, "intelligence": 2, "wisdom": 10, "charisma": 3 },
+  "senses": ["darkvision 30 ft.", "passive Perception 10"],
+  "challenge": "1",
+  "traits": ["amphibious", "standing-leap"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d10+2 piercing", "damageType": "piercing", "description": "Plus 1d10 poison damage; target grappled (escape DC 13) and restrained; toad can't bite another target." },
+    { "name": "Swallow", "type": "special", "description": "Swallows a Medium or smaller target it is grappling on a hit; target blinded/restrained with total cover, takes 3d6 acid at start of toad's turns; only one swallowed at once; freed if toad dies." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Toad"
+}

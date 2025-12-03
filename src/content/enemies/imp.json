@@ -1,0 +1,29 @@
+{
+  "id": "imp",
+  "name": "Imp",
+  "armorClass": 13,
+  "hitPoints": 10,
+  "attackBonus": 5,
+  "damage": "1d4+3 piercing",
+  "damageType": "piercing",
+  "creatureType": "fiend",
+  "xpReward": 200,
+  "size": "Tiny",
+  "alignment": "lawful evil",
+  "speed": { "walk": 20, "fly": 40 },
+  "abilityScores": { "strength": 6, "dexterity": 17, "constitution": 13, "intelligence": 11, "wisdom": 12, "charisma": 14 },
+  "skills": { "deception": 4, "insight": 3, "persuasion": 4, "stealth": 5 },
+  "damageResistances": ["cold", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["fire", "poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["darkvision 120 ft.", "passive Perception 11"],
+  "languages": ["Infernal", "Common"],
+  "challenge": "1",
+  "traits": ["shapechanger", "devils-sight", "magic-resistance"],
+  "actions": [
+    { "name": "Sting (Bite in Beast Form)", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d4+3 piercing", "damageType": "piercing", "description": "Target DC 11 CON save or take 10 (3d6) poison damage, half on success." },
+    { "name": "Invisibility", "type": "special", "description": "Turns invisible until it attacks or loses concentration; equipment is invisible too." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/i-monster-stat-block.md",
+  "statBlockHeading": "Imp"
+}

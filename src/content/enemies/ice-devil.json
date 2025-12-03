@@ -1,0 +1,32 @@
+{
+  "id": "ice-devil",
+  "name": "Ice Devil",
+  "armorClass": 18,
+  "hitPoints": 180,
+  "attackBonus": 10,
+  "damage": "2d6+5 piercing plus 3d6 cold (bite)",
+  "damageType": "piercing",
+  "creatureType": "fiend",
+  "xpReward": 11500,
+  "size": "Large",
+  "alignment": "lawful evil",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 21, "dexterity": 14, "constitution": 18, "intelligence": 18, "wisdom": 15, "charisma": 18 },
+  "savingThrows": { "dex": 7, "con": 9, "wis": 7, "cha": 9 },
+  "damageResistances": ["nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["cold", "fire", "poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["blindsight 60 ft.", "darkvision 120 ft.", "passive Perception 12"],
+  "languages": ["Infernal", "telepathy 120 ft."],
+  "challenge": "14",
+  "traits": ["devils-sight", "magic-resistance"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes three attacks: one bite, one claws, and one tail." },
+    { "name": "Bite", "type": "melee", "toHit": 10, "reach": 5, "targets": "one target", "damage": "2d6+5 piercing plus 3d6 cold", "damageType": "piercing" },
+    { "name": "Claws", "type": "melee", "toHit": 10, "reach": 5, "targets": "one target", "damage": "2d4+5 slashing plus 3d6 cold", "damageType": "slashing" },
+    { "name": "Tail", "type": "melee", "toHit": 10, "reach": 10, "targets": "one target", "damage": "2d6+5 bludgeoning plus 3d6 cold", "damageType": "bludgeoning" },
+    { "name": "Wall of Ice (Recharge 6)", "type": "special", "description": "Creates a wall (30x10 ft., 1 ft. thick) or hemispherical dome (20 ft. diameter) within 60 ft. Creatures in its space are pushed out then make DC 17 DEX save, taking 35 (10d6) cold on failure or half on success. Sections AC 5, 30 HP, vulnerable to fire; immunity to acid, cold, necrotic, poison, psychic. Breached sections leave frigid air dealing DC 17 CON save for 17 (5d6) cold when moving through until wall ends (1 minute or devil incapacitated/dead)." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/i-monster-stat-block.md",
+  "statBlockHeading": "Ice Devil"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "weasel",
+  "name": "Weasel",
+  "armorClass": 13,
+  "hitPoints": 1,
+  "attackBonus": 5,
+  "damage": "1 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 3, "dexterity": 16, "constitution": 8, "intelligence": 2, "wisdom": 12, "charisma": 3 },
+  "skills": { "perception": 3, "stealth": 5 },
+  "senses": ["passive Perception 13"],
+  "challenge": "0",
+  "traits": ["keen-hearing-and-smell"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/w-monster-stat-block.md",
+  "statBlockHeading": "Weasel"
+}

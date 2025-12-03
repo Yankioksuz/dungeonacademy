@@ -1,0 +1,48 @@
+{
+  "id": "adult-green-dragon",
+  "name": "Adult Green Dragon",
+  "armorClass": 19,
+  "hitPoints": 207,
+  "attackBonus": 12,
+  "damage": "2d10+7 piercing + 2d6 poison (bite)",
+  "damageType": "piercing",
+  "effectType": "fear",
+  "saveDC": 16,
+  "creatureType": "dragon",
+  "xpReward": 15000,
+  "size": "Huge",
+  "alignment": "lawful evil",
+  "speed": { "walk": 40, "fly": 80, "swim": 40 },
+  "abilityScores": { "strength": 23, "dexterity": 12, "constitution": 21, "intelligence": 18, "wisdom": 15, "charisma": 17 },
+  "savingThrows": { "dex": 6, "con": 10, "wis": 7, "cha": 8 },
+  "skills": { "deception": 8, "insight": 7, "perception": 12, "stealth": 6 },
+  "senses": ["blindsight 60 ft.", "darkvision 120 ft.", "passive Perception 22"],
+  "languages": ["Common", "Draconic"],
+  "damageImmunities": ["poison"],
+  "challenge": "15",
+  "traits": [
+    "legendary",
+    "multiattack",
+    "frightful-presence",
+    "poison-breath",
+    "legendary-resistance"
+  ],
+  "breathDC": 18,
+  "breathDamage": "12d6 poison",
+  "breathType": "poison",
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Use Frightful Presence, then make three attacks: one bite and two claws." },
+    { "name": "Bite", "type": "melee", "toHit": 12, "reach": 10, "targets": "one target", "damage": "2d10+7 piercing plus 2d6 poison", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 12, "reach": 5, "targets": "one target", "damage": "2d6+7 slashing", "damageType": "slashing" },
+    { "name": "Tail", "type": "melee", "toHit": 12, "reach": 15, "targets": "one target", "damage": "2d8+7 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Frightful Presence", "type": "special", "save": { "ability": "wisdom", "dc": 16, "onFail": "Frightened for 1 minute; repeat save at end of turns", "onSave": "Immune for 24 hours" } },
+    { "name": "Poison Breath (Recharge 5-6)", "type": "special", "save": { "ability": "constitution", "dc": 18, "onFail": "42 (12d6) poison damage", "onSave": "Half damage" } }
+  ],
+  "legendaryActions": [
+    { "name": "Detect", "description": "The dragon makes a Wisdom (Perception) check." },
+    { "name": "Tail Attack", "description": "The dragon makes a tail attack." },
+    { "name": "Wing Attack", "cost": 2, "description": "Each creature within 10 ft. must succeed on a DC 20 Dexterity save or take 14 (2d6+7) bludgeoning damage and be knocked prone. The dragon can then fly up to half its flying speed." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/a-monster-stat-block.md",
+  "statBlockHeading": "Adult Green Dragon"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "elephant",
+  "name": "Elephant",
+  "armorClass": 12,
+  "hitPoints": 76,
+  "attackBonus": 8,
+  "damage": "3d8+6 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 1100,
+  "size": "Huge",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 22, "dexterity": 9, "constitution": 17, "intelligence": 3, "wisdom": 11, "charisma": 6 },
+  "senses": ["passive Perception 10"],
+  "challenge": "4",
+  "traits": ["trampling-charge"],
+  "actions": [
+    { "name": "Gore", "type": "melee", "toHit": 8, "reach": 5, "targets": "one target", "damage": "3d8+6 piercing", "damageType": "piercing" },
+    { "name": "Stomp", "type": "melee", "toHit": 8, "reach": 5, "targets": "one prone creature", "damage": "3d10+6 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/e-monster-stat-block.md",
+  "statBlockHeading": "Elephant"
+}

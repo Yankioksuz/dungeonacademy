@@ -1,0 +1,27 @@
+{
+  "id": "roper",
+  "name": "Roper",
+  "armorClass": 20,
+  "hitPoints": 93,
+  "attackBonus": 7,
+  "damage": "4d8+4 piercing",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 1800,
+  "size": "Large",
+  "alignment": "neutral evil",
+  "speed": { "walk": 10, "climb": 10 },
+  "abilityScores": { "strength": 18, "dexterity": 8, "constitution": 17, "intelligence": 7, "wisdom": 16, "charisma": 6 },
+  "skills": { "perception": 6, "stealth": 5 },
+  "senses": ["darkvision 60 ft.", "passive Perception 16"],
+  "challenge": "5",
+  "traits": ["false-appearance", "grasping-tendrils", "spider-climb"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes four tendril attacks, uses Reel, and makes one bite attack." },
+    { "name": "Bite", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "4d8+4 piercing", "damageType": "piercing" },
+    { "name": "Tendril", "type": "melee", "toHit": 7, "reach": 50, "targets": "one creature", "damage": "", "damageType": "", "description": "On hit, target is grappled (escape DC 15), restrained, and has disadvantage on STR checks/saves; roper can't use the same tendril on another target." },
+    { "name": "Reel", "type": "special", "description": "Pulls each creature grappled by it up to 25 ft. toward the roper." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/r-monster-stat-block.md",
+  "statBlockHeading": "Roper"
+}

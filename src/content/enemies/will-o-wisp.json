@@ -1,0 +1,28 @@
+{
+  "id": "will-o-wisp",
+  "name": "Will-o'-Wisp",
+  "armorClass": 19,
+  "hitPoints": 22,
+  "attackBonus": 4,
+  "damage": "2d8 lightning",
+  "damageType": "lightning",
+  "creatureType": "undead",
+  "xpReward": 450,
+  "size": "Tiny",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 0, "fly": 50 },
+  "abilityScores": { "strength": 1, "dexterity": 28, "constitution": 10, "intelligence": 13, "wisdom": 14, "charisma": 11 },
+  "damageResistances": ["acid", "cold", "fire", "necrotic", "thunder", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["lightning", "poison"],
+  "conditionImmunities": ["exhaustion", "grappled", "paralyzed", "poisoned", "prone", "restrained", "unconscious"],
+  "senses": ["darkvision 120 ft.", "passive Perception 12"],
+  "languages": ["languages known in life"],
+  "challenge": "2",
+  "traits": ["consume-life", "ephemeral", "incorporeal-movement", "variable-illumination"],
+  "actions": [
+    { "name": "Shock", "type": "melee", "toHit": 4, "reach": 5, "targets": "one creature", "damage": "2d8 lightning", "damageType": "lightning" },
+    { "name": "Invisibility", "type": "special", "description": "Becomes invisible until it attacks or uses Consume Life or loses concentration; its light vanishes too." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/w-monster-stat-block.md",
+  "statBlockHeading": "Will-o'-Wisp"
+}

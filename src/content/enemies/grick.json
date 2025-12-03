@@ -1,0 +1,26 @@
+{
+  "id": "grick",
+  "name": "Grick",
+  "armorClass": 14,
+  "hitPoints": 27,
+  "attackBonus": 4,
+  "damage": "2d6+2 slashing",
+  "damageType": "slashing",
+  "creatureType": "monstrosity",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "neutral",
+  "speed": { "walk": 30, "climb": 30 },
+  "abilityScores": { "strength": 14, "dexterity": 14, "constitution": 11, "intelligence": 3, "wisdom": 14, "charisma": 5 },
+  "damageResistances": ["nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "senses": ["darkvision 60 ft.", "passive Perception 12"],
+  "challenge": "2",
+  "traits": ["stone-camouflage"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes one tentacles attack; on hit can make one beak attack." },
+    { "name": "Tentacles", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "2d6+2 slashing", "damageType": "slashing" },
+    { "name": "Beak", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d6+2 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Grick"
+}

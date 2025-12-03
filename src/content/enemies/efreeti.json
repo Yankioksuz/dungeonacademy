@@ -1,0 +1,28 @@
+{
+  "id": "efreeti",
+  "name": "Efreeti",
+  "armorClass": 17,
+  "hitPoints": 200,
+  "attackBonus": 10,
+  "damage": "2d6+6 slashing plus 2d6 fire",
+  "damageType": "slashing",
+  "creatureType": "elemental",
+  "xpReward": 7200,
+  "size": "Large",
+  "alignment": "lawful evil",
+  "speed": { "walk": 40, "fly": 60 },
+  "abilityScores": { "strength": 22, "dexterity": 12, "constitution": 24, "intelligence": 16, "wisdom": 15, "charisma": 16 },
+  "savingThrows": { "int": 7, "wis": 6, "cha": 7 },
+  "damageImmunities": ["fire"],
+  "senses": ["darkvision 120 ft.", "passive Perception 12"],
+  "languages": ["Ignan"],
+  "challenge": "11",
+  "traits": ["elemental-demise", "innate-spellcasting"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two scimitar attacks or uses Hurl Flame twice." },
+    { "name": "Scimitar", "type": "melee", "toHit": 10, "reach": 5, "targets": "one target", "damage": "2d6+6 slashing plus 2d6 fire", "damageType": "slashing" },
+    { "name": "Hurl Flame", "type": "ranged", "toHit": 7, "range": 120, "targets": "one target", "damage": "5d6 fire", "damageType": "fire" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/e-monster-stat-block.md",
+  "statBlockHeading": "Efreeti"
+}

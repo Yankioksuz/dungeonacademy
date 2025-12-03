@@ -1,0 +1,24 @@
+{
+  "id": "mammoth",
+  "name": "Mammoth",
+  "armorClass": 13,
+  "hitPoints": 126,
+  "attackBonus": 10,
+  "damage": "4d8+7 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 2300,
+  "size": "Huge",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 24, "dexterity": 9, "constitution": 21, "intelligence": 3, "wisdom": 11, "charisma": 6 },
+  "senses": ["passive Perception 10"],
+  "challenge": "6",
+  "traits": ["trampling-charge"],
+  "actions": [
+    { "name": "Gore", "type": "melee", "toHit": 10, "reach": 10, "targets": "one target", "damage": "4d8+7 piercing", "damageType": "piercing" },
+    { "name": "Stomp", "type": "melee", "toHit": 10, "reach": 5, "targets": "one prone creature", "damage": "4d10+7 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/m-monster-stat-block.md",
+  "statBlockHeading": "Mammoth"
+}

@@ -1,0 +1,31 @@
+{
+  "id": "mummy",
+  "name": "Mummy",
+  "armorClass": 11,
+  "hitPoints": 58,
+  "attackBonus": 5,
+  "damage": "2d6+3 bludgeoning plus 3d6 necrotic",
+  "damageType": "bludgeoning",
+  "creatureType": "undead",
+  "xpReward": 700,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 20 },
+  "abilityScores": { "strength": 16, "dexterity": 8, "constitution": 15, "intelligence": 6, "wisdom": 10, "charisma": 12 },
+  "savingThrows": { "wis": 2 },
+  "damageVulnerabilities": ["fire"],
+  "damageResistances": ["nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["necrotic", "poison"],
+  "conditionImmunities": ["charmed", "exhaustion", "frightened", "paralyzed", "poisoned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["languages known in life"],
+  "challenge": "3",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Uses Dreadful Glare and makes one rotting fist attack." },
+    { "name": "Rotting Fist", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "2d6+3 bludgeoning plus 3d6 necrotic", "damageType": "bludgeoning", "description": "On hit DC 12 CON save or cursed with mummy rot: no healing, max HP -10 (3d6) each 24 hours; dies and turns to dust if reduced to 0 max HP; remove curse or similar ends." },
+    { "name": "Dreadful Glare", "type": "special", "description": "Creature within 60 ft. that can see the mummy makes DC 11 WIS save or frightened until end of mummy's next turn; fail by 5+ also paralyzed. Success grants 24-hour immunity to mummies' glare (not mummy lords)." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/m-monster-stat-block.md",
+  "statBlockHeading": "Mummy"
+}

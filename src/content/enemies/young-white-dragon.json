@@ -1,0 +1,30 @@
+{
+  "id": "young-white-dragon",
+  "name": "Young White Dragon",
+  "armorClass": 17,
+  "hitPoints": 133,
+  "attackBonus": 7,
+  "damage": "2d10+4 piercing plus 1d8 cold",
+  "damageType": "piercing",
+  "creatureType": "dragon",
+  "xpReward": 2300,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 40, "burrow": 20, "fly": 80, "swim": 40 },
+  "abilityScores": { "strength": 18, "dexterity": 10, "constitution": 18, "intelligence": 6, "wisdom": 11, "charisma": 12 },
+  "savingThrows": { "dex": 3, "con": 7, "wis": 3, "cha": 4 },
+  "skills": { "perception": 6, "stealth": 3 },
+  "damageImmunities": ["cold"],
+  "senses": ["blindsight 30 ft.", "darkvision 120 ft.", "passive Perception 16"],
+  "languages": ["Common", "Draconic"],
+  "challenge": "6",
+  "traits": ["ice-walk"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes three attacks: one bite and two claws." },
+    { "name": "Bite", "type": "melee", "toHit": 7, "reach": 10, "targets": "one target", "damage": "2d10+4 piercing plus 1d8 cold", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d6+4 slashing", "damageType": "slashing" },
+    { "name": "Cold Breath (Recharge 5-6)", "type": "special", "description": "30-foot cone; DC 15 CON save, 45 (10d8) cold on fail, half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/y-monster-stat-block.md",
+  "statBlockHeading": "Young White Dragon"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "wererat",
+  "name": "Wererat",
+  "armorClass": 12,
+  "hitPoints": 33,
+  "attackBonus": 4,
+  "damage": "1d4+2 piercing (bite) or 1d6+2 piercing (shortsword)",
+  "damageType": "piercing",
+  "creatureType": "humanoid",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 10, "dexterity": 15, "constitution": 12, "intelligence": 11, "wisdom": 10, "charisma": 8 },
+  "skills": { "perception": 2, "stealth": 4 },
+  "damageImmunities": ["non-silvered bludgeoning", "non-silvered piercing", "non-silvered slashing"],
+  "senses": ["darkvision 60 ft. (rat form only)", "passive Perception 12"],
+  "languages": ["Common"],
+  "challenge": "2",
+  "traits": ["shapechanger", "keen-smell"],
+  "actions": [
+    { "name": "Multiattack (Humanoid or Hybrid)", "type": "special", "description": "Makes two attacks, only one can be a bite." },
+    { "name": "Bite (Rat or Hybrid)", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d4+2 piercing", "damageType": "piercing", "description": "Humanoid target DC 11 CON save or cursed with wererat lycanthropy." },
+    { "name": "Shortsword (Humanoid or Hybrid)", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d6+2 piercing", "damageType": "piercing" },
+    { "name": "Hand Crossbow (Humanoid or Hybrid)", "type": "ranged", "toHit": 4, "range": "30/120", "targets": "one target", "damage": "1d6+2 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/w-monster-stat-block.md",
+  "statBlockHeading": "Wererat"
+}

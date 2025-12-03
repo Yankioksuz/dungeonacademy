@@ -1,0 +1,33 @@
+{
+  "id": "bronze-dragon-wyrmling",
+  "name": "Bronze Dragon Wyrmling",
+  "armorClass": 17,
+  "hitPoints": 32,
+  "attackBonus": 5,
+  "damage": "1d10+3 piercing",
+  "damageType": "piercing",
+  "creatureType": "dragon",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "lawful good",
+  "speed": { "walk": 30, "fly": 60, "swim": 30 },
+  "abilityScores": { "strength": 17, "dexterity": 10, "constitution": 15, "intelligence": 12, "wisdom": 11, "charisma": 15 },
+  "savingThrows": { "dex": 2, "con": 4, "wis": 2, "cha": 4 },
+  "skills": { "perception": 4, "stealth": 2 },
+  "senses": ["blindsight 10 ft.", "darkvision 60 ft.", "passive Perception 14"],
+  "languages": ["Draconic"],
+  "damageImmunities": ["lightning"],
+  "challenge": "2",
+  "traits": ["lightning-breath", "repulsion-breath"],
+  "breathDC": 12,
+  "breathDamage": "4d10 lightning",
+  "breathType": "lightning",
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d10+3 piercing", "damageType": "piercing" },
+    { "name": "Breath Weapons (Recharge 5-6)", "type": "special", "description": "Use lightning or repulsion breath." },
+    { "name": "Lightning Breath", "type": "special", "save": { "ability": "dexterity", "dc": 12, "onFail": "22 (4d10) lightning damage", "onSave": "Half damage" } },
+    { "name": "Repulsion Breath", "type": "special", "save": { "ability": "strength", "dc": 12, "onFail": "Pushed 30 ft. away from dragon", "onSave": "No effect" } }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Bronze Dragon Wyrmling"
+}

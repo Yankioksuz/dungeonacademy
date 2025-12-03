@@ -1,0 +1,27 @@
+{
+  "id": "steam-mephit",
+  "name": "Steam Mephit",
+  "armorClass": 10,
+  "hitPoints": 21,
+  "attackBonus": 2,
+  "damage": "1d4 slashing plus 1d4 fire",
+  "damageType": "slashing",
+  "creatureType": "elemental",
+  "xpReward": 50,
+  "size": "Small",
+  "alignment": "neutral evil",
+  "speed": { "walk": 30, "fly": 30 },
+  "abilityScores": { "strength": 5, "dexterity": 11, "constitution": 10, "intelligence": 11, "wisdom": 10, "charisma": 12 },
+  "damageImmunities": ["fire", "poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["Aquan", "Ignan"],
+  "challenge": "1/4",
+  "traits": ["death-burst", "innate-spellcasting"],
+  "actions": [
+    { "name": "Claws", "type": "melee", "toHit": 2, "reach": 5, "targets": "one creature", "damage": "1d4 slashing plus 1d4 fire", "damageType": "slashing" },
+    { "name": "Steam Breath (Recharge 6)", "type": "special", "description": "15-foot cone; DC 10 DEX save or take 4 (1d8) fire damage, half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Steam Mephit"
+}

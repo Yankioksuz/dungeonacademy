@@ -1,0 +1,11 @@
+{
+  "id": "veteran",
+  "name": "Veteran",
+  "armorClass": 17,
+  "hitPoints": 58,
+  "attackBonus": 6,
+  "damage": "1d8+4",
+  "damageType": "slashing",
+  "creatureType": "humanoid",
+  "xpReward": 700
+}

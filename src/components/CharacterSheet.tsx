@@ -280,10 +280,50 @@ export function CharacterSheet({ character }: CharacterSheetProps) {
                                             <h3 className="text-xs font-semibold uppercase tracking-[0.3em] text-fantasy-gold">
                                                 Class Features — {character.class.name}
                                             </h3>
+                                            {character.featureUses && (
+                                                <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-fantasy-gold/80">
+                                                    {'actionSurge' in character.featureUses && (
+                                                        <Badge variant="outline">Action Surge: {character.featureUses.actionSurge ? 'Ready' : 'Used'}</Badge>
+                                                    )}
+                                                    {'secondWind' in character.featureUses && (
+                                                        <Badge variant="outline">Second Wind: {character.featureUses.secondWind ? 'Ready' : 'Used'}</Badge>
+                                                    )}
+                                                    {'bardicInspiration' in character.featureUses && (
+                                                        <Badge variant="outline">Bardic Insp: {character.featureUses.bardicInspiration}</Badge>
+                                                    )}
+                                                    {'rage' in character.featureUses && (
+                                                        <Badge variant="outline">Rage: {character.featureUses.rage}</Badge>
+                                                    )}
+                                                    {'kiPoints' in character.featureUses && (
+                                                        <Badge variant="outline">Ki: {character.featureUses.kiPoints}</Badge>
+                                                    )}
+                                                    {'wildShape' in character.featureUses && (
+                                                        <Badge variant="outline">Wild Shape: {character.featureUses.wildShape}</Badge>
+                                                    )}
+                                                    {'channelDivinity' in character.featureUses && (
+                                                        <Badge variant="outline">Channel Divinity: {character.featureUses.channelDivinity}</Badge>
+                                                    )}
+                                                    {'layOnHands' in character.featureUses && (
+                                                        <Badge variant="outline">Lay on Hands: {character.featureUses.layOnHands}</Badge>
+                                                    )}
+                                                    {'sorceryPoints' in character.featureUses && (
+                                                        <Badge variant="outline">Sorcery Points: {character.featureUses.sorceryPoints}</Badge>
+                                                    )}
+                                                </div>
+                                            )}
                                             <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
                                                 {character.class.features.map((feature, idx) => (
                                                     <li key={idx}>{feature}</li>
                                                 ))}
+                                                {character.fightingStyle && (
+                                                    <li>Fighting Style: {character.fightingStyle}</li>
+                                                )}
+                                                {character.pactBoon && (
+                                                    <li>Pact Boon: {character.pactBoon}</li>
+                                                )}
+                                                {character.sorcerousOrigin && (
+                                                    <li>Sorcerous Origin: {character.sorcerousOrigin}</li>
+                                                )}
                                             </ul>
                                         </div>
 

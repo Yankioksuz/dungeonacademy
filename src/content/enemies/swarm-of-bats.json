@@ -1,0 +1,25 @@
+{
+  "id": "swarm-of-bats",
+  "name": "Swarm of Bats",
+  "armorClass": 12,
+  "hitPoints": 22,
+  "attackBonus": 4,
+  "damage": "2d4 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 50,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 0, "fly": 30 },
+  "abilityScores": { "strength": 5, "dexterity": 15, "constitution": 10, "intelligence": 2, "wisdom": 12, "charisma": 4 },
+  "damageResistances": ["bludgeoning", "piercing", "slashing"],
+  "conditionImmunities": ["charmed", "frightened", "grappled", "paralyzed", "petrified", "prone", "restrained", "stunned"],
+  "senses": ["blindsight 60 ft.", "passive Perception 11"],
+  "challenge": "1/4",
+  "traits": ["echolocation", "keen-hearing", "swarm"],
+  "actions": [
+    { "name": "Bites", "type": "melee", "toHit": 4, "reach": 0, "targets": "one creature in the swarm's space", "damage": "2d4 piercing", "damageType": "piercing", "description": "Deals 1d4 piercing if the swarm has half HP or fewer." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Swarm of Bats"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "sprite",
+  "name": "Sprite",
+  "armorClass": 15,
+  "hitPoints": 2,
+  "attackBonus": 6,
+  "damage": "1 piercing",
+  "damageType": "piercing",
+  "creatureType": "fey",
+  "xpReward": 50,
+  "size": "Tiny",
+  "alignment": "neutral good",
+  "speed": { "walk": 10, "fly": 40 },
+  "abilityScores": { "strength": 3, "dexterity": 18, "constitution": 10, "intelligence": 14, "wisdom": 13, "charisma": 11 },
+  "skills": { "perception": 3, "stealth": 8 },
+  "senses": ["passive Perception 13"],
+  "languages": ["Common", "Elvish", "Sylvan"],
+  "challenge": "1/4",
+  "traits": [],
+  "actions": [
+    { "name": "Longsword", "type": "melee", "toHit": 2, "reach": 5, "targets": "one target", "damage": "1 slashing", "damageType": "slashing" },
+    { "name": "Shortbow", "type": "ranged", "toHit": 6, "range": "40/160", "targets": "one target", "damage": "1 piercing", "damageType": "piercing", "description": "DC 10 CON save or poisoned 1 minute; if save result 5 or lower, target is unconscious for same duration or until damaged or shaken awake." },
+    { "name": "Heart Sight", "type": "special", "description": "Touches a creature to learn emotional state; on failed DC 10 CHA save also learns alignment (celestials/fiends/undead automatically fail)." },
+    { "name": "Invisibility", "type": "special", "description": "Turns invisible until it attacks or casts a spell or loses concentration; equipment is invisible too." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Sprite"
+}

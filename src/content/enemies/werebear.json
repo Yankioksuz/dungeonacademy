@@ -1,0 +1,29 @@
+{
+  "id": "werebear",
+  "name": "Werebear",
+  "armorClass": 10,
+  "hitPoints": 135,
+  "attackBonus": 7,
+  "damage": "2d8+4 slashing (claw) or 2d10+4 piercing (bite)",
+  "damageType": "slashing",
+  "creatureType": "humanoid",
+  "xpReward": 1800,
+  "size": "Medium",
+  "alignment": "neutral good",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 19, "dexterity": 10, "constitution": 17, "intelligence": 11, "wisdom": 12, "charisma": 12 },
+  "skills": { "perception": 7 },
+  "damageImmunities": ["non-silvered bludgeoning", "non-silvered piercing", "non-silvered slashing"],
+  "senses": ["passive Perception 17"],
+  "languages": ["Common"],
+  "challenge": "5",
+  "traits": ["shapechanger", "keen-smell"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Bear form: two claws. Humanoid form: two greataxe. Hybrid: bear or humanoid attacks." },
+    { "name": "Bite (Bear or Hybrid)", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d10+4 piercing", "damageType": "piercing", "description": "Humanoid target DC 14 CON save or cursed with werebear lycanthropy." },
+    { "name": "Claw (Bear or Hybrid)", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d8+4 slashing", "damageType": "slashing" },
+    { "name": "Greataxe (Humanoid or Hybrid)", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "1d12+4 slashing", "damageType": "slashing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/w-monster-stat-block.md",
+  "statBlockHeading": "Werebear"
+}

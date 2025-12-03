@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGame } from '@/contexts/GameContext';
 import { calculateShortRestHealing, calculateLongRestRecovery } from '@/utils/restMechanics';
+import { restoreShortRestUses, restoreLongRestUses } from '@/utils/featureUtils';
 import { calculateAbilityModifier } from '@/utils/characterStats';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -44,7 +45,8 @@ export function RestModal({ isOpen, onClose }: RestModalProps) {
                 current: Math.max(0, (prev.hitDice?.current ?? defaultHitDice.current) - 1),
                 max: prev.hitDice?.max ?? defaultHitDice.max,
                 die: prev.hitDice?.die ?? defaultHitDice.die
-            }
+            },
+            featureUses: restoreShortRestUses(prev, prev.featureUses)
         }));
 
         addJournalEntry(`Took a short rest. Spent 1 Hit Die and recovered ${healing} HP.`);
@@ -52,7 +54,10 @@ export function RestModal({ isOpen, onClose }: RestModalProps) {
 
     const handleLongRest = () => {
         const recovered = calculateLongRestRecovery(character);
-        updateCharacter(recovered);
+        updateCharacter({
+            ...recovered,
+            featureUses: restoreLongRestUses(character)
+        });
         addJournalEntry('Took a long rest. HP, Hit Dice, and Spell Slots restored.');
         onClose();
     };

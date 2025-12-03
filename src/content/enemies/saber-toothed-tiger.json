@@ -1,0 +1,25 @@
+{
+  "id": "saber-toothed-tiger",
+  "name": "Saber-Toothed Tiger",
+  "armorClass": 12,
+  "hitPoints": 52,
+  "attackBonus": 6,
+  "damage": "1d10+5 piercing (bite) or 2d6+5 slashing (claw)",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 450,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 18, "dexterity": 14, "constitution": 15, "intelligence": 3, "wisdom": 12, "charisma": 8 },
+  "skills": { "perception": 3, "stealth": 6 },
+  "senses": ["passive Perception 13"],
+  "challenge": "2",
+  "traits": ["keen-smell", "pounce"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "1d10+5 piercing", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d6+5 slashing", "damageType": "slashing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Saber-Toothed Tiger"
+}

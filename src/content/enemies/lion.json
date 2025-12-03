@@ -1,0 +1,25 @@
+{
+  "id": "lion",
+  "name": "Lion",
+  "armorClass": 12,
+  "hitPoints": 26,
+  "attackBonus": 5,
+  "damage": "1d8+3 piercing (bite) or 1d6+3 slashing (claw)",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 200,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 50 },
+  "abilityScores": { "strength": 17, "dexterity": 15, "constitution": 13, "intelligence": 3, "wisdom": 12, "charisma": 8 },
+  "skills": { "perception": 3, "stealth": 6 },
+  "senses": ["passive Perception 13"],
+  "challenge": "1",
+  "traits": ["keen-smell", "pack-tactics", "pounce", "running-leap"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d8+3 piercing", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d6+3 slashing", "damageType": "slashing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/l-monster-stat-block.md",
+  "statBlockHeading": "Lion"
+}

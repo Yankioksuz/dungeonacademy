@@ -1,0 +1,24 @@
+{
+  "id": "owl",
+  "name": "Owl",
+  "armorClass": 11,
+  "hitPoints": 1,
+  "attackBonus": 3,
+  "damage": "1 slashing",
+  "damageType": "slashing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 5, "fly": 60 },
+  "abilityScores": { "strength": 3, "dexterity": 13, "constitution": 8, "intelligence": 2, "wisdom": 12, "charisma": 7 },
+  "skills": { "perception": 3, "stealth": 3 },
+  "senses": ["darkvision 120 ft.", "passive Perception 13"],
+  "challenge": "0",
+  "traits": ["flyby", "keen-hearing-and-sight"],
+  "actions": [
+    { "name": "Talons", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "1 slashing", "damageType": "slashing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/o-monster-stat-block.md",
+  "statBlockHeading": "Owl"
+}

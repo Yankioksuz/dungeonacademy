@@ -1,0 +1,27 @@
+{
+  "id": "green-hag",
+  "name": "Green Hag",
+  "armorClass": 17,
+  "hitPoints": 82,
+  "attackBonus": 6,
+  "damage": "2d8+4 slashing",
+  "damageType": "slashing",
+  "creatureType": "fey",
+  "xpReward": 700,
+  "size": "Medium",
+  "alignment": "neutral evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 18, "dexterity": 12, "constitution": 16, "intelligence": 13, "wisdom": 14, "charisma": 14 },
+  "skills": { "arcana": 3, "deception": 4, "perception": 4, "stealth": 3 },
+  "senses": ["darkvision 60 ft.", "passive Perception 14"],
+  "languages": ["Common", "Draconic", "Sylvan"],
+  "challenge": "3",
+  "traits": ["amphibious", "innate-spellcasting", "mimicry"],
+  "actions": [
+    { "name": "Claws", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d8+4 slashing", "damageType": "slashing" },
+    { "name": "Illusory Appearance", "type": "special", "description": "Covers herself/equipment with illusion of another Medium humanoid-like form; DC 20 INT (Investigation) to discern on action; ends on bonus action or death." },
+    { "name": "Invisible Passage", "type": "special", "description": "Turns invisible until she attacks or casts a spell (concentration up to 1 hour); leaves no physical evidence of passage; equipment invisible too." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Green Hag"
+}

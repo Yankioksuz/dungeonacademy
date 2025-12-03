@@ -1,0 +1,27 @@
+{
+  "id": "satyr",
+  "name": "Satyr",
+  "armorClass": 14,
+  "hitPoints": 31,
+  "attackBonus": 5,
+  "damage": "2d4+1 bludgeoning (ram) or 1d6+3 piercing (shortsword) or 1d6+3 piercing (shortbow)",
+  "damageType": "bludgeoning",
+  "creatureType": "fey",
+  "xpReward": 100,
+  "size": "Medium",
+  "alignment": "chaotic neutral",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 12, "dexterity": 16, "constitution": 11, "intelligence": 12, "wisdom": 10, "charisma": 14 },
+  "skills": { "perception": 2, "performance": 6, "stealth": 5 },
+  "senses": ["passive Perception 12"],
+  "languages": ["Common", "Elvish", "Sylvan"],
+  "challenge": "1/2",
+  "traits": ["magic-resistance"],
+  "actions": [
+    { "name": "Ram", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "2d4+1 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Shortsword", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d6+3 piercing", "damageType": "piercing" },
+    { "name": "Shortbow", "type": "ranged", "toHit": 5, "range": "80/320", "targets": "one target", "damage": "1d6+3 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Satyr"
+}

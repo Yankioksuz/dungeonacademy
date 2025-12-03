@@ -1,0 +1,23 @@
+{
+  "id": "giant-boar",
+  "name": "Giant Boar",
+  "armorClass": 12,
+  "hitPoints": 42,
+  "attackBonus": 5,
+  "damage": "2d6+3 slashing",
+  "damageType": "slashing",
+  "creatureType": "beast",
+  "xpReward": 450,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 17, "dexterity": 10, "constitution": 16, "intelligence": 2, "wisdom": 7, "charisma": 5 },
+  "senses": ["passive Perception 8"],
+  "challenge": "2",
+  "traits": ["charge", "relentless"],
+  "actions": [
+    { "name": "Tusk", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "2d6+3 slashing", "damageType": "slashing", "description": "If it moved 20+ ft. straight toward the target this turn, deals +7 (2d6) slashing and target DC 13 STR save or knocked prone." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Boar"
+}

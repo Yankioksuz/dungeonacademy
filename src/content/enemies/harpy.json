@@ -1,0 +1,27 @@
+{
+  "id": "harpy",
+  "name": "Harpy",
+  "armorClass": 11,
+  "hitPoints": 38,
+  "attackBonus": 3,
+  "damage": "2d4+1 slashing",
+  "damageType": "slashing",
+  "creatureType": "monstrosity",
+  "xpReward": 200,
+  "size": "Medium",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 20, "fly": 40 },
+  "abilityScores": { "strength": 12, "dexterity": 13, "constitution": 12, "intelligence": 7, "wisdom": 10, "charisma": 13 },
+  "senses": ["passive Perception 10"],
+  "languages": ["Common"],
+  "challenge": "1",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks: one with claws and one with club." },
+    { "name": "Claws", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "2d4+1 slashing", "damageType": "slashing" },
+    { "name": "Club", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "1d4+1 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Luring Song", "type": "special", "description": "Humanoids and giants within 300 ft. that can hear make DC 11 WIS save or be charmed while song continues (bonus action to maintain). Charmed target incapacitated, moves toward harpy; repeats save when damaged by others, before entering harmful terrain, and at end of turns. Success grants 24-hour immunity." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/h-monster-stat-block.md",
+  "statBlockHeading": "Harpy"
+}

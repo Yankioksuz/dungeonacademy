@@ -1,0 +1,28 @@
+{
+  "id": "otyugh",
+  "name": "Otyugh",
+  "armorClass": 14,
+  "hitPoints": 114,
+  "attackBonus": 6,
+  "damage": "2d8+3 piercing (bite) or 1d8+3 bludgeoning plus 1d8 piercing (tentacle)",
+  "damageType": "piercing",
+  "creatureType": "aberration",
+  "xpReward": 1800,
+  "size": "Large",
+  "alignment": "neutral",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 16, "dexterity": 11, "constitution": 19, "intelligence": 6, "wisdom": 13, "charisma": 6 },
+  "savingThrows": { "con": 7 },
+  "senses": ["darkvision 120 ft.", "passive Perception 11"],
+  "languages": ["Otyugh"],
+  "challenge": "5",
+  "traits": ["limited-telepathy"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes three attacks: one bite and two tentacles." },
+    { "name": "Bite", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d8+3 piercing", "damageType": "piercing", "description": "On hit, DC 15 CON save vs disease or poisoned until cured; every 24 hours repeat DC 15 CON or max HP -5 (1d10) until cured; death at 0 max HP." },
+    { "name": "Tentacle", "type": "melee", "toHit": 6, "reach": 10, "targets": "one target", "damage": "1d8+3 bludgeoning plus 1d8 piercing", "damageType": "bludgeoning", "description": "Medium or smaller target grappled (escape DC 13) and restrained; two tentacles can grapple one each." },
+    { "name": "Tentacle Slam", "type": "special", "description": "Slams grappled creatures together or into a surface; each must make DC 14 CON save or take 10 (2d6+3) bludgeoning and be stunned until end of otyugh's next turn (half damage, not stunned on success)." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/o-monster-stat-block.md",
+  "statBlockHeading": "Otyugh"
+}

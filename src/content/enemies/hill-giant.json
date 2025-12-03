@@ -1,0 +1,27 @@
+{
+  "id": "hill-giant",
+  "name": "Hill Giant",
+  "armorClass": 13,
+  "hitPoints": 105,
+  "attackBonus": 8,
+  "damage": "3d8+5 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "giant",
+  "xpReward": 1800,
+  "size": "Huge",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 21, "dexterity": 8, "constitution": 19, "intelligence": 5, "wisdom": 9, "charisma": 6 },
+  "skills": { "perception": 2 },
+  "senses": ["passive Perception 12"],
+  "languages": ["Giant"],
+  "challenge": "5",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two greatclub attacks." },
+    { "name": "Greatclub", "type": "melee", "toHit": 8, "reach": 10, "targets": "one target", "damage": "3d8+5 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Rock", "type": "ranged", "toHit": 8, "range": "60/240", "targets": "one target", "damage": "3d10+5 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/h-monster-stat-block.md",
+  "statBlockHeading": "Hill Giant"
+}

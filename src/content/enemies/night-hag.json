@@ -1,0 +1,30 @@
+{
+  "id": "night-hag",
+  "name": "Night Hag",
+  "armorClass": 17,
+  "hitPoints": 112,
+  "attackBonus": 7,
+  "damage": "2d8+4 slashing",
+  "damageType": "slashing",
+  "creatureType": "fiend",
+  "xpReward": 1800,
+  "size": "Medium",
+  "alignment": "neutral evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 18, "dexterity": 15, "constitution": 16, "intelligence": 16, "wisdom": 14, "charisma": 16 },
+  "skills": { "deception": 7, "insight": 6, "perception": 6, "stealth": 6 },
+  "damageResistances": ["cold", "fire", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "conditionImmunities": ["charmed"],
+  "senses": ["darkvision 120 ft.", "passive Perception 16"],
+  "languages": ["Abyssal", "Common", "Infernal", "Primordial"],
+  "challenge": "5",
+  "traits": ["innate-spellcasting", "magic-resistance"],
+  "actions": [
+    { "name": "Claws (Hag Form Only)", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d8+4 slashing", "damageType": "slashing" },
+    { "name": "Change Shape", "type": "special", "description": "Polymorphs into a Small or Medium female humanoid or back; stats unchanged; equipment unchanged; reverts on death." },
+    { "name": "Etherealness", "type": "special", "description": "With a heartstone, enters Ethereal Plane from Material Plane or vice versa." },
+    { "name": "Nightmare Haunting (1/Day)", "type": "special", "description": "While on Ethereal Plane, touches a sleeping humanoid on Material Plane; if contact persists 1 hour the target gains no rest benefits and max HP is reduced by 5 (1d10). Reduction lasts until greater restoration or similar; if reduced to 0 the target dies and evil souls are trapped in the hag's soul bag. Protection from evil and good or magic circle prevent contact." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/n-monster-stat-block.md",
+  "statBlockHeading": "Night Hag"
+}

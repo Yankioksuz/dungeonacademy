@@ -1,0 +1,23 @@
+{
+  "id": "rhinoceros",
+  "name": "Rhinoceros",
+  "armorClass": 11,
+  "hitPoints": 45,
+  "attackBonus": 7,
+  "damage": "2d8+5 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "beast",
+  "xpReward": 450,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 21, "dexterity": 8, "constitution": 15, "intelligence": 2, "wisdom": 12, "charisma": 6 },
+  "senses": ["passive Perception 11"],
+  "challenge": "2",
+  "traits": ["charge"],
+  "actions": [
+    { "name": "Gore", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d8+5 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/r-monster-stat-block.md",
+  "statBlockHeading": "Rhinoceros"
+}

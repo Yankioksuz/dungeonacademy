@@ -1,0 +1,27 @@
+{
+  "id": "winter-wolf",
+  "name": "Winter Wolf",
+  "armorClass": 13,
+  "hitPoints": 75,
+  "attackBonus": 6,
+  "damage": "2d6+4 piercing",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 700,
+  "size": "Large",
+  "alignment": "neutral evil",
+  "speed": { "walk": 50 },
+  "abilityScores": { "strength": 18, "dexterity": 13, "constitution": 14, "intelligence": 7, "wisdom": 12, "charisma": 8 },
+  "skills": { "perception": 5, "stealth": 3 },
+  "damageImmunities": ["cold"],
+  "senses": ["passive Perception 15"],
+  "languages": ["Common", "Giant", "Winter Wolf"],
+  "challenge": "3",
+  "traits": ["keen-hearing-and-smell", "pack-tactics", "snow-camouflage"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d6+4 piercing", "damageType": "piercing", "description": "Target DC 14 STR save or knocked prone." },
+    { "name": "Cold Breath (Recharge 5-6)", "type": "special", "description": "15-foot cone; DC 12 DEX save, 18 (4d8) cold on fail or half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/w-monster-stat-block.md",
+  "statBlockHeading": "Winter Wolf"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "quipper",
+  "name": "Quipper",
+  "armorClass": 13,
+  "hitPoints": 1,
+  "attackBonus": 5,
+  "damage": "1 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 0, "swim": 40 },
+  "abilityScores": { "strength": 2, "dexterity": 16, "constitution": 9, "intelligence": 1, "wisdom": 7, "charisma": 2 },
+  "senses": ["darkvision 60 ft.", "passive Perception 8"],
+  "challenge": "0",
+  "traits": ["blood-frenzy", "water-breathing"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/q-monster-stat-block.md",
+  "statBlockHeading": "Quipper"
+}

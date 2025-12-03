@@ -1,0 +1,29 @@
+{
+  "id": "ochre-jelly",
+  "name": "Ochre Jelly",
+  "armorClass": 8,
+  "hitPoints": 45,
+  "attackBonus": 4,
+  "damage": "2d6+2 bludgeoning plus 1d6 acid",
+  "damageType": "bludgeoning",
+  "creatureType": "ooze",
+  "xpReward": 450,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 10, "climb": 10 },
+  "abilityScores": { "strength": 15, "dexterity": 6, "constitution": 14, "intelligence": 2, "wisdom": 6, "charisma": 1 },
+  "damageResistances": ["acid"],
+  "damageImmunities": ["lightning", "slashing"],
+  "conditionImmunities": ["blinded", "charmed", "deafened", "exhaustion", "frightened", "prone"],
+  "senses": ["blindsight 60 ft. (blind beyond this radius)", "passive Perception 8"],
+  "challenge": "2",
+  "traits": ["amorphous", "spider-climb"],
+  "actions": [
+    { "name": "Pseudopod", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "2d6+2 bludgeoning plus 1d6 acid", "damageType": "bludgeoning" }
+  ],
+  "reactions": [
+    { "name": "Split", "description": "If Medium or larger and takes lightning or slashing, splits into two jellies (half HP each, one size smaller) if at least 10 HP remain." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/o-monster-stat-block.md",
+  "statBlockHeading": "Ochre Jelly"
+}

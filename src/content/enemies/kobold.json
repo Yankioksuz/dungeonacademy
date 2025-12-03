@@ -1,0 +1,25 @@
+{
+  "id": "kobold",
+  "name": "Kobold",
+  "armorClass": 12,
+  "hitPoints": 5,
+  "attackBonus": 4,
+  "damage": "1d4+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "humanoid",
+  "xpReward": 25,
+  "size": "Small",
+  "alignment": "lawful evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 7, "dexterity": 15, "constitution": 9, "intelligence": 8, "wisdom": 7, "charisma": 8 },
+  "senses": ["darkvision 60 ft.", "passive Perception 8"],
+  "languages": ["Common", "Draconic"],
+  "challenge": "1/8",
+  "traits": ["sunlight-sensitivity", "pack-tactics"],
+  "actions": [
+    { "name": "Dagger", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d4+2 piercing", "damageType": "piercing" },
+    { "name": "Sling", "type": "ranged", "toHit": 4, "range": "30/120", "targets": "one target", "damage": "1d4+2 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/k-monster-stat-block.md",
+  "statBlockHeading": "Kobold"
+}

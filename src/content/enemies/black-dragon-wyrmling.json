@@ -1,0 +1,33 @@
+{
+  "id": "black-dragon-wyrmling",
+  "name": "Black Dragon Wyrmling",
+  "armorClass": 17,
+  "hitPoints": 33,
+  "attackBonus": 6,
+  "damage": "1d10+2 piercing plus 1d4 acid",
+  "damageType": "piercing",
+  "effectType": "fear",
+  "saveDC": 11,
+  "creatureType": "dragon",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 30, "fly": 60, "swim": 30 },
+  "abilityScores": { "strength": 15, "dexterity": 14, "constitution": 13, "intelligence": 10, "wisdom": 11, "charisma": 13 },
+  "savingThrows": { "dex": 4, "con": 3, "wis": 2, "cha": 3 },
+  "skills": { "perception": 4, "stealth": 4 },
+  "senses": ["blindsight 10 ft.", "darkvision 60 ft.", "passive Perception 14"],
+  "languages": ["Draconic"],
+  "damageImmunities": ["acid"],
+  "challenge": "2",
+  "traits": ["acid-breath"],
+  "breathDC": 11,
+  "breathDamage": "5d8 acid",
+  "breathType": "acid",
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "1d10+2 piercing plus 1d4 acid", "damageType": "piercing" },
+    { "name": "Acid Breath (Recharge 5-6)", "type": "special", "save": { "ability": "dexterity", "dc": 11, "onFail": "22 (5d8) acid damage", "onSave": "Half damage" } }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Black Dragon Wyrmling"
+}

@@ -1,0 +1,36 @@
+{
+  "id": "barbed-devil",
+  "name": "Barbed Devil",
+  "armorClass": 15,
+  "hitPoints": 110,
+  "attackBonus": 6,
+  "damage": "1d6+3 piercing",
+  "damageType": "piercing",
+  "creatureType": "fiend",
+  "xpReward": 1800,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 16, "dexterity": 17, "constitution": 18, "intelligence": 12, "wisdom": 14, "charisma": 14 },
+  "savingThrows": { "str": 6, "con": 7, "wis": 5, "cha": 5 },
+  "skills": { "deception": 5, "insight": 5, "perception": 9 },
+  "damageResistances": ["cold", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["fire", "poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["darkvision 120 ft.", "passive Perception 19"],
+  "languages": ["Infernal", "telepathy 120 ft."],
+  "challenge": "5",
+  "traits": [
+    "barbed-hide",
+    "devil-sight",
+    "magic-resistance"
+  ],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The devil makes three melee attacks." },
+    { "name": "Claw", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "1d6+3 piercing", "damageType": "piercing" },
+    { "name": "Tail", "type": "melee", "toHit": 6, "reach": 10, "targets": "one target", "damage": "2d6+3 piercing", "damageType": "piercing" },
+    { "name": "Hurl Flame", "type": "ranged", "toHit": 5, "range": "150/500", "targets": "one target", "damage": "3d6 fire", "damageType": "fire", "description": "The fire ignites flammable objects not worn or carried." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Barbed Devil"
+}

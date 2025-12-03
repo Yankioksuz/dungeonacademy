@@ -1,0 +1,23 @@
+{
+  "id": "deer",
+  "name": "Deer",
+  "armorClass": 13,
+  "hitPoints": 4,
+  "attackBonus": 2,
+  "damage": "1d4 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 50 },
+  "abilityScores": { "strength": 11, "dexterity": 16, "constitution": 11, "intelligence": 2, "wisdom": 14, "charisma": 5 },
+  "senses": ["passive Perception 12"],
+  "challenge": "0",
+  "traits": [],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 2, "reach": 5, "targets": "one target", "damage": "1d4 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/d-monster-stat-block.md",
+  "statBlockHeading": "Deer"
+}

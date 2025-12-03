@@ -1,0 +1,24 @@
+{
+  "id": "phase-spider",
+  "name": "Phase Spider",
+  "armorClass": 13,
+  "hitPoints": 32,
+  "attackBonus": 4,
+  "damage": "1d10+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 700,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 30, "climb": 30 },
+  "abilityScores": { "strength": 15, "dexterity": 15, "constitution": 12, "intelligence": 6, "wisdom": 10, "charisma": 6 },
+  "skills": { "stealth": 6 },
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "challenge": "3",
+  "traits": ["ethereal-jaunt", "spider-climb", "web-walker"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one creature", "damage": "1d10+2 piercing", "damageType": "piercing", "description": "Target DC 11 CON save or take 18 (4d8) poison (half on success). If poison reduces target to 0 HP, it is stable but poisoned for 1 hour and paralyzed while poisoned." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/p-monster-stat-block.md",
+  "statBlockHeading": "Phase Spider"
+}

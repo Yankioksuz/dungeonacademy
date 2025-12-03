@@ -1,0 +1,16 @@
+{
+  "id": "cultist-warlock",
+  "name": "Cultist Warlock",
+  "armorClass": 14,
+  "hitPoints": 22,
+  "attackBonus": 5,
+  "damage": "1d10+3",
+  "damageType": "necrotic",
+  "effectType": "charm",
+  "creatureType": "humanoid",
+  "xpReward": 110,
+  "traits": [
+    "magic-attacker",
+    "magic-attacker"
+  ]
+}

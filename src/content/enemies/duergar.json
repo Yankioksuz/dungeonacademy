@@ -1,0 +1,28 @@
+{
+  "id": "duergar",
+  "name": "Duergar",
+  "armorClass": 16,
+  "hitPoints": 26,
+  "attackBonus": 4,
+  "damage": "1d8+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "humanoid (dwarf)",
+  "xpReward": 200,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 25 },
+  "abilityScores": { "strength": 14, "dexterity": 11, "constitution": 14, "intelligence": 11, "wisdom": 10, "charisma": 9 },
+  "damageResistances": ["poison"],
+  "senses": ["darkvision 120 ft.", "passive Perception 10"],
+  "languages": ["Dwarvish", "Undercommon"],
+  "challenge": "1",
+  "traits": ["duergar-resilience", "sunlight-sensitivity"],
+  "actions": [
+    { "name": "Enlarge (Recharges after a Short or Long Rest)", "type": "special", "description": "For 1 minute, becomes Large with space-allowance; damage dice on STR-based weapon attacks double and STR checks/saves made with advantage." },
+    { "name": "War Pick", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d8+2 piercing", "damageType": "piercing", "description": "While enlarged: 2d8+2 piercing." },
+    { "name": "Javelin", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d6+2 piercing", "damageType": "piercing", "description": "Range 30/120. While enlarged: 2d6+2 piercing." },
+    { "name": "Invisibility (Recharges after a Short or Long Rest)", "type": "special", "description": "Turns invisible until it attacks, casts a spell, or uses Enlarge, or for up to 1 hour while concentrating; equipment turns invisible with it." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/d-monster-stat-block.md",
+  "statBlockHeading": "Duergar"
+}

@@ -1,0 +1,32 @@
+{
+  "id": "cloaker",
+  "name": "Cloaker",
+  "armorClass": 14,
+  "hitPoints": 78,
+  "attackBonus": 6,
+  "damage": "2d6+4 piercing (bite)",
+  "damageType": "piercing",
+  "creatureType": "aberration",
+  "xpReward": 2900,
+  "size": "Large",
+  "alignment": "chaotic neutral",
+  "speed": { "walk": 10, "fly": 40 },
+  "abilityScores": { "strength": 17, "dexterity": 15, "constitution": 12, "intelligence": 13, "wisdom": 12, "charisma": 14 },
+  "skills": { "stealth": 8 },
+  "senses": ["darkvision 60 ft.", "passive Perception 11"],
+  "languages": ["Deep Speech", "Undercommon"],
+  "challenge": "8",
+  "traits": [
+    "damage-transfer",
+    "false-appearance"
+  ],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks: one with bite and one with tail." },
+    { "name": "Bite", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d6+4 piercing", "damageType": "piercing", "description": "If cloaker has Advantage, it attaches; while attached, target is blinded and grappled (escape DC 14), attacks against cloaker have disadvantage." },
+    { "name": "Tail", "type": "melee", "toHit": 6, "reach": 10, "targets": "one target", "damage": "1d8+4 slashing", "damageType": "slashing" },
+    { "name": "Moan", "type": "special", "description": "Each creature within 60 ft. that can hear must succeed on DC 13 WIS save or become frightened for 1 minute. Repeat save at end of turns." },
+    { "name": "Phantasms (Recharges after Short or Long Rest)", "type": "special", "description": "Creates 4 illusory duplicates for 1 minute; duplicates move with it and impose a miss chance similar to mirror image." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/c-monster-stat-block.md",
+  "statBlockHeading": "Cloaker"
+}

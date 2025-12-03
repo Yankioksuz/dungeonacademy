@@ -1,0 +1,27 @@
+{
+  "id": "ettin",
+  "name": "Ettin",
+  "armorClass": 12,
+  "hitPoints": 85,
+  "attackBonus": 7,
+  "damage": "2d8+5 slashing",
+  "damageType": "slashing",
+  "creatureType": "giant",
+  "xpReward": 1100,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 21, "dexterity": 8, "constitution": 17, "intelligence": 6, "wisdom": 10, "charisma": 8 },
+  "skills": { "perception": 4 },
+  "senses": ["darkvision 60 ft.", "passive Perception 14"],
+  "languages": ["Giant", "Orc"],
+  "challenge": "4",
+  "traits": ["two-heads", "wakeful"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks: one with its battleaxe and one with its morningstar." },
+    { "name": "Battleaxe", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d8+5 slashing", "damageType": "slashing" },
+    { "name": "Morningstar", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d8+5 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/e-monster-stat-block.md",
+  "statBlockHeading": "Ettin"
+}

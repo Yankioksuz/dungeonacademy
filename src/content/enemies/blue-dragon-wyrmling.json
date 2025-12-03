@@ -1,0 +1,33 @@
+{
+  "id": "blue-dragon-wyrmling",
+  "name": "Blue Dragon Wyrmling",
+  "armorClass": 17,
+  "hitPoints": 52,
+  "attackBonus": 5,
+  "damage": "1d10+3 piercing plus 1d6 lightning",
+  "damageType": "piercing",
+  "effectType": "fear",
+  "saveDC": 12,
+  "creatureType": "dragon",
+  "xpReward": 700,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 30, "burrow": 15, "fly": 60 },
+  "abilityScores": { "strength": 17, "dexterity": 10, "constitution": 15, "intelligence": 12, "wisdom": 11, "charisma": 15 },
+  "savingThrows": { "dex": 2, "con": 4, "wis": 2, "cha": 4 },
+  "skills": { "perception": 4, "stealth": 2 },
+  "senses": ["blindsight 10 ft.", "darkvision 60 ft.", "passive Perception 14"],
+  "languages": ["Draconic"],
+  "damageImmunities": ["lightning"],
+  "challenge": "3",
+  "traits": ["lightning-breath"],
+  "breathDC": 12,
+  "breathDamage": "6d10 lightning",
+  "breathType": "lightning",
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d10+3 piercing plus 1d6 lightning", "damageType": "piercing" },
+    { "name": "Lightning Breath (Recharge 5-6)", "type": "special", "save": { "ability": "dexterity", "dc": 12, "onFail": "33 (6d10) lightning damage", "onSave": "Half damage" } }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Blue Dragon Wyrmling"
+}

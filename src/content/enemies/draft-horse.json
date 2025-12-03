@@ -1,0 +1,23 @@
+{
+  "id": "draft-horse",
+  "name": "Draft Horse",
+  "armorClass": 10,
+  "hitPoints": 19,
+  "attackBonus": 6,
+  "damage": "2d4+4 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "beast",
+  "xpReward": 50,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 18, "dexterity": 10, "constitution": 12, "intelligence": 2, "wisdom": 11, "charisma": 7 },
+  "senses": ["passive Perception 10"],
+  "challenge": "1/4",
+  "traits": [],
+  "actions": [
+    { "name": "Hooves", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d4+4 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/d-monster-stat-block.md",
+  "statBlockHeading": "Draft Horse"
+}

@@ -1,0 +1,25 @@
+{
+  "id": "hobgoblin",
+  "name": "Hobgoblin",
+  "armorClass": 18,
+  "hitPoints": 11,
+  "attackBonus": 3,
+  "damage": "1d8+1 slashing",
+  "damageType": "slashing",
+  "creatureType": "humanoid",
+  "xpReward": 100,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 13, "dexterity": 12, "constitution": 12, "intelligence": 10, "wisdom": 10, "charisma": 9 },
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["Common", "Goblin"],
+  "challenge": "1/2",
+  "traits": ["martial-advantage"],
+  "actions": [
+    { "name": "Longsword", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "1d8+1 slashing", "damageType": "slashing", "description": "1d10+1 slashing if used with two hands." },
+    { "name": "Longbow", "type": "ranged", "toHit": 3, "range": "150/600", "targets": "one target", "damage": "1d8+1 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/h-monster-stat-block.md",
+  "statBlockHeading": "Hobgoblin"
+}

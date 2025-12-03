@@ -1,0 +1,26 @@
+{
+  "id": "goblin",
+  "name": "Goblin",
+  "armorClass": 15,
+  "hitPoints": 7,
+  "attackBonus": 4,
+  "damage": "1d6+2 slashing",
+  "damageType": "slashing",
+  "creatureType": "humanoid",
+  "xpReward": 50,
+  "size": "Small",
+  "alignment": "neutral evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 8, "dexterity": 14, "constitution": 10, "intelligence": 10, "wisdom": 8, "charisma": 8 },
+  "skills": { "stealth": 6 },
+  "senses": ["darkvision 60 ft.", "passive Perception 9"],
+  "languages": ["Common", "Goblin"],
+  "challenge": "1/4",
+  "traits": ["nimble-escape"],
+  "actions": [
+    { "name": "Scimitar", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d6+2 slashing", "damageType": "slashing" },
+    { "name": "Shortbow", "type": "ranged", "toHit": 4, "range": "80/320", "targets": "one target", "damage": "1d6+2 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Goblin"
+}

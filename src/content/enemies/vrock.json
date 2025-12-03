@@ -1,0 +1,32 @@
+{
+  "id": "vrock",
+  "name": "Vrock",
+  "armorClass": 15,
+  "hitPoints": 104,
+  "attackBonus": 6,
+  "damage": "2d6+3 piercing (beak) or 2d10+3 slashing (talons)",
+  "damageType": "piercing",
+  "creatureType": "fiend",
+  "xpReward": 2300,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 40, "fly": 60 },
+  "abilityScores": { "strength": 17, "dexterity": 15, "constitution": 18, "intelligence": 8, "wisdom": 13, "charisma": 8 },
+  "savingThrows": { "dex": 5, "wis": 4, "cha": 2 },
+  "damageResistances": ["cold", "fire", "lightning", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["darkvision 120 ft.", "passive Perception 11"],
+  "languages": ["Abyssal", "telepathy 120 ft."],
+  "challenge": "6",
+  "traits": ["magic-resistance"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks: one beak and one talons." },
+    { "name": "Beak", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d6+3 piercing", "damageType": "piercing" },
+    { "name": "Talons", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d10+3 slashing", "damageType": "slashing" },
+    { "name": "Spores (Recharge 6)", "type": "special", "description": "15-foot-radius toxic spores; DC 14 CON save or poisoned and take 5 (1d10) poison at start of turns. Repeat save end of turns; holy water ends." },
+    { "name": "Stunning Screech (1/Day)", "type": "special", "description": "Creatures within 20 ft. that can hear (not demons) make DC 14 CON save or are stunned until end of vrock's next turn." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/v-monster-stat-block.md",
+  "statBlockHeading": "Vrock"
+}

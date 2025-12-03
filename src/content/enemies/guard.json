@@ -1,0 +1,11 @@
+{
+  "id": "guard",
+  "name": "Guard",
+  "armorClass": 16,
+  "hitPoints": 11,
+  "attackBonus": 3,
+  "damage": "1d6+1",
+  "damageType": "piercing",
+  "creatureType": "humanoid",
+  "xpReward": 25
+}

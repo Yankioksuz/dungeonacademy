@@ -1,0 +1,23 @@
+{
+  "id": "lizard",
+  "name": "Lizard",
+  "armorClass": 10,
+  "hitPoints": 2,
+  "attackBonus": 0,
+  "damage": "1 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 20, "climb": 20 },
+  "abilityScores": { "strength": 2, "dexterity": 11, "constitution": 10, "intelligence": 1, "wisdom": 8, "charisma": 3 },
+  "senses": ["darkvision 30 ft.", "passive Perception 9"],
+  "challenge": "0",
+  "traits": [],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 0, "reach": 5, "targets": "one target", "damage": "1 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/l-monster-stat-block.md",
+  "statBlockHeading": "Lizard"
+}

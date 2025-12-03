@@ -1,0 +1,26 @@
+{
+  "id": "minotaur",
+  "name": "Minotaur",
+  "armorClass": 14,
+  "hitPoints": 76,
+  "attackBonus": 6,
+  "damage": "2d12+4 slashing",
+  "damageType": "slashing",
+  "creatureType": "monstrosity",
+  "xpReward": 700,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 18, "dexterity": 11, "constitution": 16, "intelligence": 6, "wisdom": 16, "charisma": 9 },
+  "skills": { "perception": 7 },
+  "senses": ["darkvision 60 ft.", "passive Perception 17"],
+  "languages": ["Abyssal"],
+  "challenge": "3",
+  "traits": ["charge", "labyrinthine-recall", "reckless"],
+  "actions": [
+    { "name": "Greataxe", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d12+4 slashing", "damageType": "slashing" },
+    { "name": "Gore", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d8+4 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/m-monster-stat-block.md",
+  "statBlockHeading": "Minotaur"
+}

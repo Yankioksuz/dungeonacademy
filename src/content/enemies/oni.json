@@ -1,0 +1,29 @@
+{
+  "id": "oni",
+  "name": "Oni",
+  "armorClass": 16,
+  "hitPoints": 110,
+  "attackBonus": 7,
+  "damage": "2d10+4 slashing (glaive) or 1d8+4 slashing (claw)",
+  "damageType": "slashing",
+  "creatureType": "giant",
+  "xpReward": 2900,
+  "size": "Large",
+  "alignment": "lawful evil",
+  "speed": { "walk": 30, "fly": 30 },
+  "abilityScores": { "strength": 19, "dexterity": 11, "constitution": 16, "intelligence": 14, "wisdom": 12, "charisma": 15 },
+  "savingThrows": { "dex": 3, "con": 6, "wis": 4, "cha": 5 },
+  "skills": { "arcana": 5, "deception": 8, "perception": 4 },
+  "senses": ["darkvision 60 ft.", "passive Perception 14"],
+  "languages": ["Common", "Giant"],
+  "challenge": "7",
+  "traits": ["innate-spellcasting", "magic-weapons", "regeneration"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks with claws or glaive." },
+    { "name": "Claw (Oni Form Only)", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "1d8+4 slashing", "damageType": "slashing" },
+    { "name": "Glaive", "type": "melee", "toHit": 7, "reach": 10, "targets": "one target", "damage": "2d10+4 slashing", "damageType": "slashing", "description": "1d10+4 slashing when in Small/Medium form." },
+    { "name": "Change Shape", "type": "special", "description": "Polymorphs into Small/Medium humanoid, Large giant, or true form; stats unchanged except size; glaive resizes with form." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/o-monster-stat-block.md",
+  "statBlockHeading": "Oni"
+}

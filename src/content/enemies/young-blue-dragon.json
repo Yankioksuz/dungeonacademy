@@ -1,0 +1,30 @@
+{
+  "id": "young-blue-dragon",
+  "name": "Young Blue Dragon",
+  "armorClass": 18,
+  "hitPoints": 152,
+  "attackBonus": 9,
+  "damage": "2d10+5 piercing plus 1d10 lightning",
+  "damageType": "piercing",
+  "creatureType": "dragon",
+  "xpReward": 5000,
+  "size": "Large",
+  "alignment": "lawful evil",
+  "speed": { "walk": 40, "burrow": 20, "fly": 80 },
+  "abilityScores": { "strength": 21, "dexterity": 10, "constitution": 19, "intelligence": 14, "wisdom": 13, "charisma": 17 },
+  "savingThrows": { "dex": 4, "con": 8, "wis": 5, "cha": 7 },
+  "skills": { "perception": 9, "stealth": 4 },
+  "damageImmunities": ["lightning"],
+  "senses": ["blindsight 30 ft.", "darkvision 120 ft.", "passive Perception 19"],
+  "languages": ["Common", "Draconic"],
+  "challenge": "9",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes three attacks: one bite and two claws." },
+    { "name": "Bite", "type": "melee", "toHit": 9, "reach": 10, "targets": "one target", "damage": "2d10+5 piercing plus 1d10 lightning", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 9, "reach": 5, "targets": "one target", "damage": "2d6+5 slashing", "damageType": "slashing" },
+    { "name": "Lightning Breath (Recharge 5-6)", "type": "special", "description": "60-foot line (5 ft. wide); DC 16 DEX save, 55 (10d10) lightning on fail, half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/y-monster-stat-block.md",
+  "statBlockHeading": "Young Blue Dragon"
+}

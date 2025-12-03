@@ -1,0 +1,29 @@
+{
+  "id": "succubus-incubus",
+  "name": "Succubus/Incubus",
+  "armorClass": 15,
+  "hitPoints": 66,
+  "attackBonus": 5,
+  "damage": "1d6+3 slashing",
+  "damageType": "slashing",
+  "creatureType": "fiend",
+  "xpReward": 1100,
+  "size": "Medium",
+  "alignment": "neutral evil",
+  "speed": { "walk": 30, "fly": 60 },
+  "abilityScores": { "strength": 8, "dexterity": 17, "constitution": 13, "intelligence": 15, "wisdom": 12, "charisma": 20 },
+  "skills": { "deception": 9, "insight": 5, "perception": 5, "persuasion": 9, "stealth": 7 },
+  "damageResistances": ["cold", "fire", "lightning", "poison", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "senses": ["darkvision 60 ft.", "passive Perception 15"],
+  "languages": ["Abyssal", "Common", "Infernal", "telepathy 60 ft."],
+  "challenge": "4",
+  "traits": ["telepathic-bond", "shapechanger"],
+  "actions": [
+    { "name": "Claw (Fiend Form Only)", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d6+3 slashing", "damageType": "slashing" },
+    { "name": "Charm", "type": "special", "description": "Humanoid within 30 ft. makes DC 15 WIS save or charmed for 1 day, obeying commands; repeats save if harmed or given suicidal command. Immune to this charm for 24 hours after save success or effect ends; only one target charmed at a time." },
+    { "name": "Draining Kiss", "type": "special", "description": "Kisses a charmed or willing creature; DC 15 CON save or take 32 (5d10+5) psychic (half on success) and HP max reduced by amount until long rest; target dies if max HP reaches 0." },
+    { "name": "Etherealness", "type": "special", "description": "Magically enters the Ethereal Plane from the Material Plane or vice versa." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Succubus/Incubus"
+}

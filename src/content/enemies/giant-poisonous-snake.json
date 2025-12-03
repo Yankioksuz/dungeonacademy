@@ -1,0 +1,24 @@
+{
+  "id": "giant-poisonous-snake",
+  "name": "Giant Poisonous Snake",
+  "armorClass": 14,
+  "hitPoints": 11,
+  "attackBonus": 6,
+  "damage": "1d4+4 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 50,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 30, "swim": 30 },
+  "abilityScores": { "strength": 10, "dexterity": 18, "constitution": 13, "intelligence": 2, "wisdom": 10, "charisma": 3 },
+  "skills": { "perception": 2 },
+  "senses": ["blindsight 10 ft.", "passive Perception 12"],
+  "challenge": "1/4",
+  "traits": [],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 6, "reach": 10, "targets": "one target", "damage": "1d4+4 piercing", "damageType": "piercing", "description": "DC 11 CON save or take 10 (3d6) poison damage, half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Poisonous Snake"
+}

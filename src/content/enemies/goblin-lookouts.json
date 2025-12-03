@@ -1,0 +1,15 @@
+{
+  "id": "goblin-lookouts",
+  "name": "Goblin Lookouts",
+  "armorClass": 15,
+  "hitPoints": 7,
+  "attackBonus": 4,
+  "damage": "1d6+2",
+  "damageType": "piercing",
+  "creatureType": "humanoid",
+  "xpReward": 25,
+  "traits": [
+    "nimble-escape",
+    "nimble-escape"
+  ]
+}

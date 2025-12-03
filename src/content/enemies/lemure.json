@@ -1,0 +1,27 @@
+{
+  "id": "lemure",
+  "name": "Lemure",
+  "armorClass": 7,
+  "hitPoints": 13,
+  "attackBonus": 3,
+  "damage": "1d4 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "fiend",
+  "xpReward": 10,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 15 },
+  "abilityScores": { "strength": 10, "dexterity": 5, "constitution": 11, "intelligence": 1, "wisdom": 11, "charisma": 3 },
+  "damageResistances": ["cold"],
+  "damageImmunities": ["fire", "poison"],
+  "conditionImmunities": ["charmed", "frightened", "poisoned"],
+  "senses": ["darkvision 120 ft.", "passive Perception 10"],
+  "languages": ["understands Infernal"],
+  "challenge": "0",
+  "traits": ["devils-sight", "hellish-rejuvenation"],
+  "actions": [
+    { "name": "Fist", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "1d4 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/l-monster-stat-block.md",
+  "statBlockHeading": "Lemure"
+}

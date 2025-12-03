@@ -1,0 +1,37 @@
+{
+  "id": "bone-devil",
+  "name": "Bone Devil",
+  "armorClass": 19,
+  "hitPoints": 142,
+  "attackBonus": 8,
+  "damage": "2d6+5 slashing (claw) or 2d8+5 piercing (sting)",
+  "damageType": "slashing",
+  "effectType": "poison",
+  "saveDC": 14,
+  "creatureType": "fiend",
+  "xpReward": 5000,
+  "size": "Large",
+  "alignment": "lawful evil",
+  "speed": { "walk": 40, "fly": 40 },
+  "abilityScores": { "strength": 18, "dexterity": 16, "constitution": 18, "intelligence": 13, "wisdom": 14, "charisma": 16 },
+  "savingThrows": { "str": 8, "dex": 7, "con": 8, "wis": 6, "cha": 7 },
+  "skills": { "deception": 7, "insight": 6 },
+  "damageResistances": ["cold", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["fire", "poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["darkvision 120 ft.", "passive Perception 12"],
+  "languages": ["Infernal", "telepathy 120 ft."],
+  "challenge": "9",
+  "traits": [
+    "devil-sight",
+    "magic-resistance",
+    "magic-weapons"
+  ],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The devil makes three attacks: two with its claws and one with its sting." },
+    { "name": "Claw", "type": "melee", "toHit": 8, "reach": 10, "targets": "one target", "damage": "2d6+5 slashing", "damageType": "slashing" },
+    { "name": "Sting", "type": "melee", "toHit": 8, "reach": 10, "targets": "one target", "damage": "2d8+5 piercing", "damageType": "piercing", "description": "DC 14 CON save or poisoned for 1 minute; while poisoned, target is paralyzed. Repeat save at end of turns." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Bone Devil"
+}

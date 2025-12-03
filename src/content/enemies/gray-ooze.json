@@ -1,0 +1,26 @@
+{
+  "id": "gray-ooze",
+  "name": "Gray Ooze",
+  "armorClass": 8,
+  "hitPoints": 22,
+  "attackBonus": 3,
+  "damage": "1d6+1 bludgeoning plus 2d6 acid",
+  "damageType": "bludgeoning",
+  "creatureType": "ooze",
+  "xpReward": 100,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 10, "climb": 10 },
+  "abilityScores": { "strength": 12, "dexterity": 6, "constitution": 16, "intelligence": 1, "wisdom": 6, "charisma": 2 },
+  "skills": { "stealth": 2 },
+  "damageResistances": ["acid", "cold", "fire"],
+  "conditionImmunities": ["blinded", "charmed", "deafened", "exhaustion", "frightened", "prone"],
+  "senses": ["blindsight 60 ft. (blind beyond this radius)", "passive Perception 8"],
+  "challenge": "1/2",
+  "traits": ["amorphous", "corrode-metal", "false-appearance"],
+  "actions": [
+    { "name": "Pseudopod", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "1d6+1 bludgeoning plus 2d6 acid", "damageType": "bludgeoning", "description": "Nonmagical metal weapons hitting the ooze corrode (−1 damage each hit, destroyed at −5). Nonmagical metal armor hit takes −1 AC, destroyed at AC 10." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Gray Ooze"
+}

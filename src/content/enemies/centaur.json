@@ -1,0 +1,28 @@
+{
+  "id": "centaur",
+  "name": "Centaur",
+  "armorClass": 12,
+  "hitPoints": 45,
+  "attackBonus": 6,
+  "damage": "1d10+4 piercing (pike)",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 450,
+  "size": "Large",
+  "alignment": "neutral good",
+  "speed": { "walk": 50 },
+  "abilityScores": { "strength": 18, "dexterity": 14, "constitution": 14, "intelligence": 9, "wisdom": 13, "charisma": 11 },
+  "skills": { "athletics": 6, "perception": 3, "survival": 3 },
+  "languages": ["Elvish", "Sylvan"],
+  "senses": ["passive Perception 13"],
+  "challenge": "2",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks: one with pike and one with hooves or two bow attacks." },
+    { "name": "Pike", "type": "melee", "toHit": 6, "reach": 10, "targets": "one target", "damage": "1d10+4 piercing", "damageType": "piercing", "description": "Charge: if moved 30 ft straight and hits, extra 3d6 piercing." },
+    { "name": "Hooves", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d6+4 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Longbow", "type": "ranged", "toHit": 4, "range": "150/600", "targets": "one target", "damage": "1d8+2 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/c-monster-stat-block.md",
+  "statBlockHeading": "Centaur"
+}

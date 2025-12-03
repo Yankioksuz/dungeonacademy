@@ -167,6 +167,19 @@ export function getArmorClass(character: PlayerCharacter): number {
         // If wearing armor, use armor's AC instead of 10 + DEX
         // Note: Some armor limits DEX bonus, but we'll simplify for now
         ac = character.equippedArmor.armorClass + dexMod;
+        if (character.fightingStyle === 'Defense') ac += 1;
+        if (character.pactBoon === 'Pact of the Chain') ac += 1;
+    } else {
+        const className = character.class.name.toLowerCase();
+        if (className === 'barbarian') {
+            ac = 10 + dexMod + getAbilityModifier(character.abilityScores.constitution);
+        } else if (className === 'monk') {
+            ac = 10 + dexMod + getAbilityModifier(character.abilityScores.wisdom);
+        } else if (className === 'sorcerer' && character.sorcerousOrigin === 'Draconic Bloodline') {
+            ac = 10 + dexMod + 1;
+        }
+        if (character.fightingStyle === 'Defense') ac += 1;
+        if (character.pactBoon === 'Pact of the Chain') ac += 1;
     }
 
     return ac;

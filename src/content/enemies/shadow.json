@@ -1,0 +1,28 @@
+{
+  "id": "shadow",
+  "name": "Shadow",
+  "armorClass": 12,
+  "hitPoints": 16,
+  "attackBonus": 4,
+  "damage": "2d6+2 necrotic",
+  "damageType": "necrotic",
+  "creatureType": "undead",
+  "xpReward": 100,
+  "size": "Medium",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 6, "dexterity": 14, "constitution": 13, "intelligence": 6, "wisdom": 10, "charisma": 8 },
+  "skills": { "stealth": 4 },
+  "damageVulnerabilities": ["radiant"],
+  "damageResistances": ["acid", "cold", "fire", "lightning", "thunder", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["necrotic", "poison"],
+  "conditionImmunities": ["exhaustion", "frightened", "grappled", "paralyzed", "petrified", "poisoned", "prone", "restrained"],
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "challenge": "1/2",
+  "traits": ["amorphous", "shadow-stealth", "sunlight-weakness"],
+  "actions": [
+    { "name": "Strength Drain", "type": "melee", "toHit": 4, "reach": 5, "targets": "one creature", "damage": "2d6+2 necrotic", "damageType": "necrotic", "description": "Target's STR reduced by 1d4 (dies if STR 0); reduction lasts until short/long rest. Non-evil humanoid killed rises as a shadow in 1d4 hours." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Shadow"
+}

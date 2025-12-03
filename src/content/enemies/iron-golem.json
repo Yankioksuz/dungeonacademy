@@ -1,0 +1,29 @@
+{
+  "id": "iron-golem",
+  "name": "Iron Golem",
+  "armorClass": 20,
+  "hitPoints": 210,
+  "attackBonus": 13,
+  "damage": "3d8+7 bludgeoning (slam) or 3d10+7 slashing (sword)",
+  "damageType": "bludgeoning",
+  "creatureType": "construct",
+  "xpReward": 15000,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 24, "dexterity": 9, "constitution": 20, "intelligence": 3, "wisdom": 11, "charisma": 1 },
+  "damageImmunities": ["fire", "poison", "psychic", "non-adamantine bludgeoning", "non-adamantine piercing", "non-adamantine slashing"],
+  "conditionImmunities": ["charmed", "exhaustion", "frightened", "paralyzed", "petrified", "poisoned"],
+  "senses": ["darkvision 120 ft.", "passive Perception 10"],
+  "languages": ["understands creator's languages"],
+  "challenge": "16",
+  "traits": ["fire-absorption", "immutable-form", "magic-resistance", "magic-weapons"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two melee attacks." },
+    { "name": "Slam", "type": "melee", "toHit": 13, "reach": 5, "targets": "one target", "damage": "3d8+7 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Sword", "type": "melee", "toHit": 13, "reach": 10, "targets": "one target", "damage": "3d10+7 slashing", "damageType": "slashing" },
+    { "name": "Poison Breath (Recharge 6)", "type": "special", "description": "15-foot cone; DC 19 CON save, taking 45 (10d8) poison damage on failure or half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/i-monster-stat-block.md",
+  "statBlockHeading": "Iron Golem"
+}

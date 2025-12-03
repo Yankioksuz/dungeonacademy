@@ -1,0 +1,23 @@
+{
+  "id": "mule",
+  "name": "Mule",
+  "armorClass": 10,
+  "hitPoints": 11,
+  "attackBonus": 2,
+  "damage": "1d4+2 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "beast",
+  "xpReward": 25,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 14, "dexterity": 10, "constitution": 13, "intelligence": 2, "wisdom": 10, "charisma": 5 },
+  "senses": ["passive Perception 10"],
+  "challenge": "1/8",
+  "traits": ["beast-of-burden", "sure-footed"],
+  "actions": [
+    { "name": "Hooves", "type": "melee", "toHit": 2, "reach": 5, "targets": "one target", "damage": "1d4+2 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/m-monster-stat-block.md",
+  "statBlockHeading": "Mule"
+}

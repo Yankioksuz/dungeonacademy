@@ -1,0 +1,25 @@
+{
+  "id": "gelatinous-cube",
+  "name": "Gelatinous Cube",
+  "armorClass": 6,
+  "hitPoints": 84,
+  "attackBonus": 4,
+  "damage": "3d6 acid",
+  "damageType": "acid",
+  "creatureType": "ooze",
+  "xpReward": 450,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 15 },
+  "abilityScores": { "strength": 14, "dexterity": 3, "constitution": 20, "intelligence": 1, "wisdom": 6, "charisma": 1 },
+  "conditionImmunities": ["blinded", "charmed", "deafened", "exhaustion", "frightened", "prone"],
+  "senses": ["blindsight 60 ft. (blind beyond this radius)", "passive Perception 8"],
+  "challenge": "2",
+  "traits": ["ooze-cube", "transparent"],
+  "actions": [
+    { "name": "Pseudopod", "type": "melee", "toHit": 4, "reach": 5, "targets": "one creature", "damage": "3d6 acid", "damageType": "acid" },
+    { "name": "Engulf", "type": "special", "description": "Moves up to speed and enters creatures' spaces; DC 12 DEX save or take 3d6 acid, be engulfed (restrained, can't breathe), and take 6d6 acid at start of cube's turns. Escapes on DC 12 STR check; can hold one Large or up to four Medium or smaller." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Gelatinous Cube"
+}

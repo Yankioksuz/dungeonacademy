@@ -1,0 +1,27 @@
+{
+  "id": "roc",
+  "name": "Roc",
+  "armorClass": 15,
+  "hitPoints": 248,
+  "attackBonus": 13,
+  "damage": "4d8+9 piercing (beak) or 4d6+9 slashing (talons)",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 7200,
+  "size": "Gargantuan",
+  "alignment": "unaligned",
+  "speed": { "walk": 20, "fly": 120 },
+  "abilityScores": { "strength": 28, "dexterity": 10, "constitution": 20, "intelligence": 3, "wisdom": 10, "charisma": 9 },
+  "savingThrows": { "dex": 4, "con": 9, "wis": 4, "cha": 3 },
+  "skills": { "perception": 4 },
+  "senses": ["passive Perception 14"],
+  "challenge": "11",
+  "traits": ["keen-sight"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks: one beak and one talons." },
+    { "name": "Beak", "type": "melee", "toHit": 13, "reach": 10, "targets": "one target", "damage": "4d8+9 piercing", "damageType": "piercing" },
+    { "name": "Talons", "type": "melee", "toHit": 13, "reach": 5, "targets": "one target", "damage": "4d6+9 slashing", "damageType": "slashing", "description": "Target grappled (escape DC 19) and restrained; can't use talons on another target while grappling." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/r-monster-stat-block.md",
+  "statBlockHeading": "Roc"
+}

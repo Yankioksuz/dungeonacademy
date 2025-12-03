@@ -1,0 +1,25 @@
+{
+  "id": "worg",
+  "name": "Worg",
+  "armorClass": 13,
+  "hitPoints": 26,
+  "attackBonus": 5,
+  "damage": "2d6+3 piercing",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 100,
+  "size": "Large",
+  "alignment": "neutral evil",
+  "speed": { "walk": 50 },
+  "abilityScores": { "strength": 16, "dexterity": 13, "constitution": 13, "intelligence": 7, "wisdom": 11, "charisma": 8 },
+  "skills": { "perception": 4 },
+  "senses": ["darkvision 60 ft.", "passive Perception 14"],
+  "languages": ["Goblin", "Worg"],
+  "challenge": "1/2",
+  "traits": ["keen-hearing-and-smell"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "2d6+3 piercing", "damageType": "piercing", "description": "Target DC 13 STR save or knocked prone." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/w-monster-stat-block.md",
+  "statBlockHeading": "Worg"
+}

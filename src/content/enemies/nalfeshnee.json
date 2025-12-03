@@ -1,0 +1,32 @@
+{
+  "id": "nalfeshnee",
+  "name": "Nalfeshnee",
+  "armorClass": 18,
+  "hitPoints": 184,
+  "attackBonus": 10,
+  "damage": "5d10+5 piercing (bite) or 3d6+5 slashing (claw)",
+  "damageType": "piercing",
+  "creatureType": "fiend",
+  "xpReward": 10000,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 20, "fly": 30 },
+  "abilityScores": { "strength": 21, "dexterity": 10, "constitution": 22, "intelligence": 19, "wisdom": 12, "charisma": 15 },
+  "savingThrows": { "con": 11, "int": 9, "wis": 6, "cha": 7 },
+  "damageResistances": ["cold", "fire", "lightning", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["truesight 120 ft.", "passive Perception 11"],
+  "languages": ["Abyssal", "telepathy 120 ft."],
+  "challenge": "13",
+  "traits": ["magic-resistance"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Uses Horror Nimbus if available, then makes three attacks: one bite, two claws." },
+    { "name": "Bite", "type": "melee", "toHit": 10, "reach": 5, "targets": "one target", "damage": "5d10+5 piercing", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 10, "reach": 10, "targets": "one target", "damage": "3d6+5 slashing", "damageType": "slashing" },
+    { "name": "Horror Nimbus (Recharge 5-6)", "type": "special", "description": "Emits multicolored light; creatures within 15 ft. that can see make DC 15 WIS save or are frightened for 1 minute (repeat saves end of turns; 24-hour immunity on success)." },
+    { "name": "Teleport", "type": "special", "description": "Magically teleports with equipment up to 120 ft. to an unoccupied space it can see." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/n-monster-stat-block.md",
+  "statBlockHeading": "Nalfeshnee"
+}

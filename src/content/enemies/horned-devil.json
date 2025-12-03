@@ -1,0 +1,31 @@
+{
+  "id": "horned-devil",
+  "name": "Horned Devil",
+  "armorClass": 18,
+  "hitPoints": 178,
+  "attackBonus": 10,
+  "damage": "2d8+6 piercing (fork) or 1d8+6 piercing (tail)",
+  "damageType": "piercing",
+  "creatureType": "fiend",
+  "xpReward": 7200,
+  "size": "Large",
+  "alignment": "lawful evil",
+  "speed": { "walk": 20, "fly": 60 },
+  "abilityScores": { "strength": 22, "dexterity": 17, "constitution": 21, "intelligence": 12, "wisdom": 16, "charisma": 17 },
+  "savingThrows": { "str": 10, "dex": 7, "wis": 7, "cha": 7 },
+  "damageResistances": ["cold", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["fire", "poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["darkvision 120 ft.", "passive Perception 13"],
+  "languages": ["Infernal", "telepathy 120 ft."],
+  "challenge": "11",
+  "traits": ["devils-sight", "magic-resistance"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes three melee attacks (two fork, one tail). Can replace any melee attack with Hurl Flame." },
+    { "name": "Fork", "type": "melee", "toHit": 10, "reach": 10, "targets": "one target", "damage": "2d8+6 piercing", "damageType": "piercing" },
+    { "name": "Tail", "type": "melee", "toHit": 10, "reach": 10, "targets": "one target", "damage": "1d8+6 piercing", "damageType": "piercing", "description": "Non-undead/non-construct must make DC 17 CON save or suffer an infernal wound losing 10 (3d6) HP at start of each turn; wound damage stacks per hit. DC 12 WIS (Medicine) action or magical healing ends the wound." },
+    { "name": "Hurl Flame", "type": "ranged", "toHit": 7, "range": 150, "targets": "one target", "damage": "4d6 fire", "damageType": "fire", "description": "Ignites unattended flammable objects." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/h-monster-stat-block.md",
+  "statBlockHeading": "Horned Devil"
+}

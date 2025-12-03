@@ -1,0 +1,29 @@
+{
+  "id": "shield-guardian",
+  "name": "Shield Guardian",
+  "armorClass": 17,
+  "hitPoints": 142,
+  "attackBonus": 7,
+  "damage": "2d6+4 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "construct",
+  "xpReward": 2900,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 18, "dexterity": 8, "constitution": 18, "intelligence": 7, "wisdom": 10, "charisma": 3 },
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["charmed", "exhaustion", "frightened", "paralyzed", "poisoned"],
+  "senses": ["blindsight 10 ft.", "darkvision 60 ft.", "passive Perception 10"],
+  "challenge": "7",
+  "traits": ["bound", "regeneration", "spell-storing"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two fist attacks." },
+    { "name": "Fist", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d6+4 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "reactions": [
+    { "name": "Shield", "description": "When a creature attacks the amulet wearer and the guardian is within 5 ft., wearer gains +2 AC against that attack." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Shield Guardian"
+}

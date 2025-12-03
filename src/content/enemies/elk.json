@@ -1,0 +1,23 @@
+{
+  "id": "elk",
+  "name": "Elk",
+  "armorClass": 10,
+  "hitPoints": 13,
+  "attackBonus": 5,
+  "damage": "1d6+3 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "beast",
+  "xpReward": 50,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 50 },
+  "abilityScores": { "strength": 16, "dexterity": 10, "constitution": 12, "intelligence": 2, "wisdom": 10, "charisma": 6 },
+  "senses": ["passive Perception 10"],
+  "challenge": "1/4",
+  "traits": ["charge"],
+  "actions": [
+    { "name": "Ram", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d6+3 bludgeoning", "damageType": "bludgeoning", "description": "If it moved 20+ ft. straight toward the target this turn, deals extra 7 (2d6) damage and DC 13 STR save or target is knocked prone." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/e-monster-stat-block.md",
+  "statBlockHeading": "Elk"
+}

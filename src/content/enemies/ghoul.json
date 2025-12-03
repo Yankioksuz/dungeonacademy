@@ -1,0 +1,27 @@
+{
+  "id": "ghoul",
+  "name": "Ghoul",
+  "armorClass": 12,
+  "hitPoints": 22,
+  "attackBonus": 4,
+  "damage": "2d4+2 slashing",
+  "damageType": "slashing",
+  "creatureType": "undead",
+  "xpReward": 200,
+  "size": "Medium",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 13, "dexterity": 15, "constitution": 10, "intelligence": 7, "wisdom": 10, "charisma": 6 },
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["charmed", "exhaustion", "poisoned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["Common"],
+  "challenge": "1",
+  "traits": [],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 2, "reach": 5, "targets": "one creature", "damage": "2d6+2 piercing", "damageType": "piercing" },
+    { "name": "Claws", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "2d4+2 slashing", "damageType": "slashing", "description": "Non-elf, non-undead must make DC 10 CON save or be paralyzed for 1 minute (repeat save end of turns)." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Ghoul"
+}

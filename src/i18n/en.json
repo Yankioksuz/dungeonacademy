@@ -133,7 +133,20 @@
     "takesDefensiveStance": "takes a defensive stance!",
     "actions": "Combat Actions",
     "castSpell": "Cast Spell",
-    "item": "Use Item"
+    "item": "Use Item",
+    "statBlock": "Stat Block",
+    "speed": "Speed",
+    "senses": "Senses",
+    "languages": "Languages",
+    "defenses": "Defenses",
+    "immunities": "Immunities",
+    "vulnerabilities": "Vulnerabilities",
+    "conditionImmunities": "Condition Immunities",
+    "actionsList": "Actions",
+    "legendaryActions": "Legendary Actions",
+    "source": "Source",
+    "xpShort": "XP",
+    "none": "None"
   },
   "saveLoad": {
     "title": "Save & Load",

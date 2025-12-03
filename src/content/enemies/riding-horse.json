@@ -1,0 +1,23 @@
+{
+  "id": "riding-horse",
+  "name": "Riding Horse",
+  "armorClass": 10,
+  "hitPoints": 13,
+  "attackBonus": 5,
+  "damage": "2d4+3 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "beast",
+  "xpReward": 50,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 60 },
+  "abilityScores": { "strength": 16, "dexterity": 10, "constitution": 12, "intelligence": 2, "wisdom": 11, "charisma": 7 },
+  "senses": ["passive Perception 10"],
+  "challenge": "1/4",
+  "traits": [],
+  "actions": [
+    { "name": "Hooves", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "2d4+3 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/r-monster-stat-block.md",
+  "statBlockHeading": "Riding Horse"
+}

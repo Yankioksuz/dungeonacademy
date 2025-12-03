@@ -1,0 +1,48 @@
+{
+  "id": "adult-copper-dragon",
+  "name": "Adult Copper Dragon",
+  "armorClass": 18,
+  "hitPoints": 184,
+  "attackBonus": 11,
+  "damage": "2d10+6 piercing + 1d8 acid (bite)",
+  "damageType": "piercing",
+  "effectType": "fear",
+  "saveDC": 15,
+  "creatureType": "dragon",
+  "xpReward": 11500,
+  "size": "Huge",
+  "alignment": "chaotic good",
+  "speed": { "walk": 40, "climb": 40, "fly": 80 },
+  "abilityScores": { "strength": 23, "dexterity": 12, "constitution": 21, "intelligence": 18, "wisdom": 15, "charisma": 17 },
+  "savingThrows": { "dex": 6, "con": 10, "wis": 7, "cha": 8 },
+  "skills": { "deception": 8, "perception": 12, "stealth": 6 },
+  "senses": ["blindsight 60 ft.", "darkvision 120 ft.", "passive Perception 22"],
+  "languages": ["Common", "Draconic"],
+  "damageImmunities": ["acid"],
+  "challenge": "14",
+  "traits": [
+    "legendary",
+    "multiattack",
+    "frightful-presence",
+    "acid-breath",
+    "legendary-resistance"
+  ],
+  "breathDC": 18,
+  "breathDamage": "12d8 acid",
+  "breathType": "acid",
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Use Frightful Presence, then make three attacks: one bite and two claws." },
+    { "name": "Bite", "type": "melee", "toHit": 11, "reach": 10, "targets": "one target", "damage": "2d10+6 piercing plus 1d8 acid", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 11, "reach": 5, "targets": "one target", "damage": "2d6+6 slashing", "damageType": "slashing" },
+    { "name": "Tail", "type": "melee", "toHit": 11, "reach": 15, "targets": "one target", "damage": "2d8+6 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Frightful Presence", "type": "special", "save": { "ability": "wisdom", "dc": 15, "onFail": "Frightened for 1 minute; repeat save at end of turns", "onSave": "Immune for 24 hours" } },
+    { "name": "Acid Breath (Recharge 5-6)", "type": "special", "save": { "ability": "dexterity", "dc": 18, "onFail": "54 (12d8) acid damage", "onSave": "Half damage" } }
+  ],
+  "legendaryActions": [
+    { "name": "Detect", "description": "The dragon makes a Wisdom (Perception) check." },
+    { "name": "Tail Attack", "description": "The dragon makes a tail attack." },
+    { "name": "Wing Attack", "cost": 2, "description": "Each creature within 10 ft. must succeed on a DC 19 Dexterity save or take 13 (2d6+6) bludgeoning damage and be knocked prone. The dragon can then fly up to half its flying speed." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/a-monster-stat-block.md",
+  "statBlockHeading": "Adult Copper Dragon"
+}

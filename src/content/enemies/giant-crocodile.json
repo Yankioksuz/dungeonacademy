@@ -1,0 +1,26 @@
+{
+  "id": "giant-crocodile",
+  "name": "Giant Crocodile",
+  "armorClass": 14,
+  "hitPoints": 85,
+  "attackBonus": 8,
+  "damage": "3d10+5 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 1800,
+  "size": "Huge",
+  "alignment": "unaligned",
+  "speed": { "walk": 30, "swim": 50 },
+  "abilityScores": { "strength": 21, "dexterity": 9, "constitution": 17, "intelligence": 2, "wisdom": 10, "charisma": 7 },
+  "skills": { "stealth": 5 },
+  "senses": ["passive Perception 10"],
+  "challenge": "5",
+  "traits": ["hold-breath"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes one bite and one tail attack." },
+    { "name": "Bite", "type": "melee", "toHit": 8, "reach": 5, "targets": "one target", "damage": "3d10+5 piercing", "damageType": "piercing", "description": "Target grappled (escape DC 16) and restrained; crocodile can't bite another target while grappling." },
+    { "name": "Tail", "type": "melee", "toHit": 8, "reach": 10, "targets": "one target not grappled", "damage": "2d8+5 bludgeoning", "damageType": "bludgeoning", "description": "Target DC 16 STR save or knocked prone." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Crocodile"
+}

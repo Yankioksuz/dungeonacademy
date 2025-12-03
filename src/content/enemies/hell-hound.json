@@ -1,0 +1,27 @@
+{
+  "id": "hell-hound",
+  "name": "Hell Hound",
+  "armorClass": 15,
+  "hitPoints": 45,
+  "attackBonus": 5,
+  "damage": "1d8+3 piercing plus 2d6 fire",
+  "damageType": "piercing",
+  "creatureType": "fiend",
+  "xpReward": 700,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 50 },
+  "abilityScores": { "strength": 17, "dexterity": 12, "constitution": 14, "intelligence": 6, "wisdom": 13, "charisma": 6 },
+  "skills": { "perception": 5 },
+  "damageImmunities": ["fire"],
+  "senses": ["darkvision 60 ft.", "passive Perception 15"],
+  "languages": ["understands Infernal"],
+  "challenge": "3",
+  "traits": ["keen-hearing-and-smell", "pack-tactics"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d8+3 piercing plus 2d6 fire", "damageType": "piercing" },
+    { "name": "Fire Breath (Recharge 5-6)", "type": "special", "description": "Exhales fire in a 15-foot cone; creatures make DC 12 DEX save, taking 21 (6d6) fire damage on failure or half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/h-monster-stat-block.md",
+  "statBlockHeading": "Hell Hound"
+}

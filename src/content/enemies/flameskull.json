@@ -1,0 +1,29 @@
+{
+  "id": "flameskull",
+  "name": "Flameskull",
+  "armorClass": 13,
+  "hitPoints": 40,
+  "attackBonus": 5,
+  "damage": "3d6 fire",
+  "damageType": "fire",
+  "creatureType": "undead",
+  "xpReward": 1100,
+  "size": "Tiny",
+  "alignment": "neutral evil",
+  "speed": { "walk": 0, "fly": 40 },
+  "abilityScores": { "strength": 1, "dexterity": 17, "constitution": 14, "intelligence": 16, "wisdom": 10, "charisma": 11 },
+  "skills": { "arcana": 5, "perception": 2 },
+  "damageResistances": ["lightning", "necrotic", "piercing"],
+  "damageImmunities": ["cold", "fire", "poison"],
+  "conditionImmunities": ["charmed", "frightened", "paralyzed", "poisoned", "prone"],
+  "senses": ["darkvision 60 ft.", "passive Perception 12"],
+  "languages": ["Common"],
+  "challenge": "4",
+  "traits": ["illumination", "magic-resistance", "rejuvenation", "spellcasting"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The flameskull uses Fire Ray twice." },
+    { "name": "Fire Ray", "type": "ranged", "toHit": 5, "range": 30, "targets": "one target", "damage": "3d6 fire", "damageType": "fire" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/f-monster-stat-block.md",
+  "statBlockHeading": "Flameskull"
+}

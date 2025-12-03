@@ -1,0 +1,26 @@
+{
+  "id": "gibbering-mouther",
+  "name": "Gibbering Mouther",
+  "armorClass": 9,
+  "hitPoints": 67,
+  "attackBonus": 2,
+  "damage": "5d6 piercing",
+  "damageType": "piercing",
+  "creatureType": "aberration",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "neutral",
+  "speed": { "walk": 10, "swim": 10 },
+  "abilityScores": { "strength": 10, "dexterity": 8, "constitution": 16, "intelligence": 3, "wisdom": 10, "charisma": 6 },
+  "conditionImmunities": ["prone"],
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "challenge": "2",
+  "traits": ["aberrant-ground", "gibbering"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes one bite attack and, if available, uses Blinding Spittle." },
+    { "name": "Bites", "type": "melee", "toHit": 2, "reach": 5, "targets": "one creature", "damage": "5d6 piercing", "damageType": "piercing", "description": "Medium or smaller target DC 10 STR save or knocked prone; killed targets are absorbed." },
+    { "name": "Blinding Spittle (Recharge 5-6)", "type": "special", "description": "Spits at a point within 15 ft.; creatures within 5 ft. make DC 13 DEX save or are blinded until end of mouther's next turn." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Gibbering Mouther"
+}

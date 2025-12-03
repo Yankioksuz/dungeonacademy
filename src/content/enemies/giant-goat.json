@@ -1,0 +1,23 @@
+{
+  "id": "giant-goat",
+  "name": "Giant Goat",
+  "armorClass": 11,
+  "hitPoints": 19,
+  "attackBonus": 5,
+  "damage": "2d4+3 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "beast",
+  "xpReward": 100,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 17, "dexterity": 11, "constitution": 12, "intelligence": 3, "wisdom": 12, "charisma": 6 },
+  "senses": ["passive Perception 11"],
+  "challenge": "1/2",
+  "traits": ["charge", "sure-footed"],
+  "actions": [
+    { "name": "Ram", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "2d4+3 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Goat"
+}

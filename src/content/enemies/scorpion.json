@@ -1,0 +1,23 @@
+{
+  "id": "scorpion",
+  "name": "Scorpion",
+  "armorClass": 11,
+  "hitPoints": 1,
+  "attackBonus": 2,
+  "damage": "1 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 10 },
+  "abilityScores": { "strength": 2, "dexterity": 11, "constitution": 8, "intelligence": 1, "wisdom": 8, "charisma": 2 },
+  "senses": ["blindsight 10 ft.", "passive Perception 9"],
+  "challenge": "0",
+  "traits": [],
+  "actions": [
+    { "name": "Sting", "type": "melee", "toHit": 2, "reach": 5, "targets": "one creature", "damage": "1 piercing", "damageType": "piercing", "description": "DC 9 CON save or take 4 (1d8) poison damage, half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Scorpion"
+}

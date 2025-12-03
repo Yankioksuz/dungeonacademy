@@ -1,0 +1,32 @@
+{
+  "id": "cat",
+  "name": "Cat",
+  "armorClass": 12,
+  "hitPoints": 2,
+  "attackBonus": 0,
+  "damage": "1 slashing",
+  "damageType": "slashing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 40, "climb": 30 },
+  "abilityScores": { "strength": 3, "dexterity": 15, "constitution": 10, "intelligence": 3, "wisdom": 12, "charisma": 7 },
+  "skills": { "perception": 3, "stealth": 4 },
+  "senses": ["passive Perception 13"],
+  "challenge": "0",
+  "traits": ["keen-smell"],
+  "actions": [
+    {
+      "name": "Claws",
+      "type": "melee",
+      "toHit": 0,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "1 slashing",
+      "damageType": "slashing"
+    }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/c-monster-stat-block.md",
+  "statBlockHeading": "Cat"
+}

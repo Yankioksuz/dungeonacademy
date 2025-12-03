@@ -1,0 +1,29 @@
+{
+  "id": "magma-mephit",
+  "name": "Magma Mephit",
+  "armorClass": 11,
+  "hitPoints": 22,
+  "attackBonus": 3,
+  "damage": "1d4+1 slashing plus 1d4 fire",
+  "damageType": "slashing",
+  "creatureType": "elemental",
+  "xpReward": 100,
+  "size": "Small",
+  "alignment": "neutral evil",
+  "speed": { "walk": 30, "fly": 30 },
+  "abilityScores": { "strength": 8, "dexterity": 12, "constitution": 12, "intelligence": 7, "wisdom": 10, "charisma": 10 },
+  "skills": { "stealth": 3 },
+  "damageVulnerabilities": ["cold"],
+  "damageImmunities": ["fire", "poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["Ignan", "Terran"],
+  "challenge": "1/2",
+  "traits": ["death-burst", "false-appearance", "innate-spellcasting"],
+  "actions": [
+    { "name": "Claws", "type": "melee", "toHit": 3, "reach": 5, "targets": "one creature", "damage": "1d4+1 slashing plus 1d4 fire", "damageType": "slashing" },
+    { "name": "Fire Breath (Recharge 6)", "type": "special", "description": "15-foot cone; DC 11 DEX save or take 7 (2d6) fire damage, half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/m-monster-stat-block.md",
+  "statBlockHeading": "Magma Mephit"
+}

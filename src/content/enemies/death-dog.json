@@ -1,0 +1,34 @@
+{
+  "id": "death-dog",
+  "name": "Death Dog",
+  "armorClass": 12,
+  "hitPoints": 39,
+  "attackBonus": 4,
+  "damage": "1d6+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 200,
+  "size": "Medium",
+  "alignment": "neutral evil",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 15, "dexterity": 14, "constitution": 14, "intelligence": 3, "wisdom": 13, "charisma": 6 },
+  "skills": { "perception": 5, "stealth": 4 },
+  "senses": ["darkvision 120 ft.", "passive Perception 15"],
+  "challenge": "1",
+  "traits": ["two-headed"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The death dog makes two bite attacks." },
+    {
+      "name": "Bite",
+      "type": "melee",
+      "toHit": 4,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "1d6+2 piercing",
+      "damageType": "piercing",
+      "description": "On hit, DC 12 CON save vs. disease or poisoned until cured. Every 24 hours make DC 12 CON save, losing 5 (1d10) max HP on a failure until cured; dies if reduced to 0 max HP."
+    }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/d-monster-stat-block.md",
+  "statBlockHeading": "Death Dog"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "hobgoblin-captain",
+  "name": "Hobgoblin Captain",
+  "armorClass": 17,
+  "hitPoints": 27,
+  "attackBonus": 4,
+  "damage": "1d8+2",
+  "damageType": "slashing",
+  "creatureType": "humanoid",
+  "xpReward": 80
+}

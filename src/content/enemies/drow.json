@@ -1,0 +1,26 @@
+{
+  "id": "drow",
+  "name": "Drow",
+  "armorClass": 15,
+  "hitPoints": 13,
+  "attackBonus": 4,
+  "damage": "1d6+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "humanoid (elf)",
+  "xpReward": 50,
+  "size": "Medium",
+  "alignment": "neutral evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 10, "dexterity": 14, "constitution": 10, "intelligence": 11, "wisdom": 11, "charisma": 12 },
+  "skills": { "perception": 2, "stealth": 4 },
+  "senses": ["darkvision 120 ft.", "passive Perception 12"],
+  "languages": ["Elvish", "Undercommon"],
+  "challenge": "1/4",
+  "traits": ["fey-ancestry", "innate-spellcasting", "sunlight-sensitivity"],
+  "actions": [
+    { "name": "Shortsword", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d6+2 piercing", "damageType": "piercing" },
+    { "name": "Hand Crossbow", "type": "ranged", "toHit": 4, "range": "30/120", "targets": "one target", "damage": "1d6+2 piercing", "damageType": "piercing", "description": "DC 13 CON save or poisoned for 1 hour; failure by 5 or more also renders target unconscious until it takes damage or is woken." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/d-monster-stat-block.md",
+  "statBlockHeading": "Drow"
+}

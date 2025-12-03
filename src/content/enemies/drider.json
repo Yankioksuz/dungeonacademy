@@ -1,0 +1,28 @@
+{
+  "id": "drider",
+  "name": "Drider",
+  "armorClass": 19,
+  "hitPoints": 123,
+  "attackBonus": 6,
+  "damage": "1d8+3 slashing",
+  "damageType": "slashing",
+  "creatureType": "monstrosity",
+  "xpReward": 2300,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 30, "climb": 30 },
+  "abilityScores": { "strength": 16, "dexterity": 16, "constitution": 18, "intelligence": 13, "wisdom": 14, "charisma": 12 },
+  "skills": { "perception": 5, "stealth": 9 },
+  "senses": ["darkvision 120 ft.", "passive Perception 15"],
+  "languages": ["Elvish", "Undercommon"],
+  "challenge": "6",
+  "traits": ["fey-ancestry", "innate-spellcasting", "spider-climb", "sunlight-sensitivity", "web-walker"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes three attacks with its longsword or longbow; can replace one attack with a bite." },
+    { "name": "Bite", "type": "melee", "toHit": 6, "reach": 5, "targets": "one creature", "damage": "1d4 piercing", "damageType": "piercing", "description": "On hit, deals an extra 9 (2d8) poison damage." },
+    { "name": "Longsword", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "1d8+3 slashing", "damageType": "slashing", "description": "1d10+3 slashing if used with two hands." },
+    { "name": "Longbow", "type": "ranged", "toHit": 6, "range": "150/600", "targets": "one target", "damage": "1d8+3 piercing", "damageType": "piercing", "description": "On hit, deals an extra 1d8 poison damage." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/d-monster-stat-block.md",
+  "statBlockHeading": "Drider"
+}

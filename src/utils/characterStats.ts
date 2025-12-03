@@ -60,12 +60,30 @@ export function calculateArmorClass(character: PlayerCharacter): number {
         // If AC is > 13 it's likely heavy/medium. 
         // Let's stick to a simple rule: Base AC + Dex Mod.
         // Ideally, we should update Item type to include armor category.
-        return armorBase + dexMod;
+        let ac = armorBase + dexMod;
+        if (character.fightingStyle === 'Defense') {
+            ac += 1;
+        }
+        if (character.pactBoon === 'Pact of the Chain') {
+            ac += 1;
+        }
+        return ac;
     }
 
-    // Unarmored defense (10 + Dex)
-    // Barbarian/Monk unarmored defense could be added here if classes existed
-    return 10 + dexMod;
+    // Unarmored Defense for Barbarian/Monk
+    const className = character.class.name.toLowerCase();
+    if (className === 'barbarian') {
+        return 10 + dexMod + calculateAbilityModifier(character.abilityScores.constitution);
+    }
+    if (className === 'monk') {
+        return 10 + dexMod + calculateAbilityModifier(character.abilityScores.wisdom);
+    }
+
+    let ac = 10 + dexMod;
+    if (character.fightingStyle === 'Defense') ac += 1;
+    if (character.pactBoon === 'Pact of the Chain') ac += 1;
+    if (className === 'sorcerer' && character.sorcerousOrigin === 'Draconic Bloodline') ac += 1;
+    return ac;
 }
 
 export function calculateInitiative(character: PlayerCharacter): number {

@@ -1,0 +1,27 @@
+{
+  "id": "specter",
+  "name": "Specter",
+  "armorClass": 12,
+  "hitPoints": 22,
+  "attackBonus": 4,
+  "damage": "3d6 necrotic",
+  "damageType": "necrotic",
+  "creatureType": "undead",
+  "xpReward": 200,
+  "size": "Medium",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 0, "fly": 50 },
+  "abilityScores": { "strength": 1, "dexterity": 14, "constitution": 11, "intelligence": 10, "wisdom": 10, "charisma": 11 },
+  "damageResistances": ["acid", "cold", "fire", "lightning", "thunder", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["necrotic", "poison"],
+  "conditionImmunities": ["charmed", "exhaustion", "grappled", "paralyzed", "petrified", "poisoned", "prone", "restrained", "unconscious"],
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["understands languages known in life"],
+  "challenge": "1",
+  "traits": ["incorporeal-movement", "sunlight-sensitivity"],
+  "actions": [
+    { "name": "Life Drain", "type": "melee", "toHit": 4, "reach": 5, "targets": "one creature", "damage": "3d6 necrotic", "damageType": "necrotic", "description": "DC 10 CON save or HP max reduced by damage taken until long rest; dies if max HP reaches 0." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Specter"
+}

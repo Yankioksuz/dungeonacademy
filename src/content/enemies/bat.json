@@ -1,0 +1,31 @@
+{
+  "id": "bat",
+  "name": "Bat",
+  "armorClass": 12,
+  "hitPoints": 1,
+  "attackBonus": 0,
+  "damage": "1 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 5, "fly": 30 },
+  "abilityScores": { "strength": 2, "dexterity": 15, "constitution": 8, "intelligence": 2, "wisdom": 12, "charisma": 4 },
+  "senses": ["blindsight 60 ft. (blind beyond this radius)", "passive Perception 11"],
+  "challenge": "0",
+  "traits": ["echolocation", "keen-hearing"],
+  "actions": [
+    {
+      "name": "Bite",
+      "type": "melee",
+      "toHit": 0,
+      "reach": 5,
+      "targets": "one creature",
+      "damage": "1 piercing",
+      "damageType": "piercing"
+    }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Bat"
+}

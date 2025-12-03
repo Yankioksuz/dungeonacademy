@@ -1,0 +1,34 @@
+{
+  "id": "banshee",
+  "name": "Banshee",
+  "armorClass": 12,
+  "hitPoints": 58,
+  "attackBonus": 4,
+  "damage": "3d6 necrotic (Corrupting Touch)",
+  "damageType": "necrotic",
+  "effectType": "fear",
+  "saveDC": 13,
+  "creatureType": "undead",
+  "xpReward": 1100,
+  "size": "Medium",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 0, "fly": 40 },
+  "abilityScores": { "strength": 1, "dexterity": 14, "constitution": 10, "intelligence": 12, "wisdom": 11, "charisma": 17 },
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["Common", "Elvish"],
+  "damageResistances": ["acid", "fire", "lightning", "thunder", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["cold", "necrotic", "poison"],
+  "conditionImmunities": ["charmed", "exhaustion", "frightened", "grappled", "paralyzed", "petrified", "poisoned", "prone", "restrained"],
+  "challenge": "4",
+  "traits": [
+    "incorporeal-movement",
+    "detect-life",
+    "horrifying-visage"
+  ],
+  "actions": [
+    { "name": "Corrupting Touch", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "3d6 necrotic", "damageType": "necrotic" },
+    { "name": "Wail (1/Day)", "type": "special", "description": "All living creatures within 30 ft. must make DC 13 CON save or drop to 0 HP. Success: take no effect. Creatures under total cover are unaffected." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Banshee"
+}

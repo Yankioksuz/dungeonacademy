@@ -1,0 +1,24 @@
+{
+  "id": "wolf",
+  "name": "Wolf",
+  "armorClass": 13,
+  "hitPoints": 11,
+  "attackBonus": 4,
+  "damage": "2d4+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 50,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 12, "dexterity": 15, "constitution": 12, "intelligence": 3, "wisdom": 12, "charisma": 6 },
+  "skills": { "perception": 3, "stealth": 4 },
+  "senses": ["passive Perception 13"],
+  "challenge": "1/4",
+  "traits": ["keen-hearing-and-smell", "pack-tactics"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "2d4+2 piercing", "damageType": "piercing", "description": "Target DC 11 STR save or knocked prone." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/w-monster-stat-block.md",
+  "statBlockHeading": "Wolf"
+}

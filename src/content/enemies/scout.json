@@ -1,0 +1,11 @@
+{
+  "id": "scout",
+  "name": "Scout",
+  "armorClass": 13,
+  "hitPoints": 16,
+  "attackBonus": 4,
+  "damage": "1d6+2",
+  "damageType": "piercing",
+  "creatureType": "humanoid",
+  "xpReward": 100
+}

@@ -133,7 +133,20 @@
     "takesDefensiveStance": "savunma duruşu aldı!",
     "actions": "Savaş Eylemleri",
     "castSpell": "Büyü Yap",
-    "item": "Eşya Kullan"
+    "item": "Eşya Kullan",
+    "statBlock": "Stat Bloğu",
+    "speed": "Hız",
+    "senses": "Duyular",
+    "languages": "Diller",
+    "defenses": "Savunmalar",
+    "immunities": "Bağışıklıklar",
+    "vulnerabilities": "Zayıflıklar",
+    "conditionImmunities": "Durum Bağışıklıkları",
+    "actionsList": "Eylemler",
+    "legendaryActions": "Efsanevi Eylemler",
+    "source": "Kaynak",
+    "xpShort": "TP",
+    "none": "Yok"
   },
   "saveLoad": {
     "title": "Kaydet ve Yükle",

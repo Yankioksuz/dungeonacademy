@@ -1,0 +1,24 @@
+{
+  "id": "hyena",
+  "name": "Hyena",
+  "armorClass": 11,
+  "hitPoints": 5,
+  "attackBonus": 2,
+  "damage": "1d6 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 50 },
+  "abilityScores": { "strength": 11, "dexterity": 13, "constitution": 12, "intelligence": 2, "wisdom": 12, "charisma": 5 },
+  "skills": { "perception": 3 },
+  "senses": ["passive Perception 13"],
+  "challenge": "0",
+  "traits": ["pack-tactics"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 2, "reach": 5, "targets": "one target", "damage": "1d6 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/h-monster-stat-block.md",
+  "statBlockHeading": "Hyena"
+}

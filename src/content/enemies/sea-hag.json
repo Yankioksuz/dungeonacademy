@@ -1,0 +1,26 @@
+{
+  "id": "sea-hag",
+  "name": "Sea Hag",
+  "armorClass": 14,
+  "hitPoints": 52,
+  "attackBonus": 5,
+  "damage": "2d6+3 slashing",
+  "damageType": "slashing",
+  "creatureType": "fey",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 30, "swim": 40 },
+  "abilityScores": { "strength": 16, "dexterity": 13, "constitution": 16, "intelligence": 12, "wisdom": 12, "charisma": 13 },
+  "senses": ["darkvision 60 ft.", "passive Perception 11"],
+  "languages": ["Aquan", "Common", "Giant"],
+  "challenge": "2",
+  "traits": ["amphibious", "horrific-appearance"],
+  "actions": [
+    { "name": "Claws", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "2d6+3 slashing", "damageType": "slashing" },
+    { "name": "Death Glare", "type": "special", "description": "Targets one frightened creature within 30 ft. that can see her; DC 11 WIS save or drop to 0 HP." },
+    { "name": "Illusory Appearance", "type": "special", "description": "Covers herself and gear with illusion of ugly Medium humanoid form; DC 16 INT (Investigation) on action to discern; ends on bonus action or death." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Sea Hag"
+}

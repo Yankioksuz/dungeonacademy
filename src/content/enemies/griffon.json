@@ -1,0 +1,26 @@
+{
+  "id": "griffon",
+  "name": "Griffon",
+  "armorClass": 12,
+  "hitPoints": 59,
+  "attackBonus": 6,
+  "damage": "1d8+4 piercing (beak) or 2d6+4 slashing (claws)",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 450,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 30, "fly": 80 },
+  "abilityScores": { "strength": 18, "dexterity": 15, "constitution": 16, "intelligence": 2, "wisdom": 13, "charisma": 8 },
+  "skills": { "perception": 5 },
+  "senses": ["darkvision 60 ft.", "passive Perception 15"],
+  "challenge": "2",
+  "traits": ["keen-sight"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes one beak and one claws attack." },
+    { "name": "Beak", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "1d8+4 piercing", "damageType": "piercing" },
+    { "name": "Claws", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d6+4 slashing", "damageType": "slashing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Griffon"
+}

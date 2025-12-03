@@ -1,0 +1,26 @@
+{
+  "id": "brown-bear",
+  "name": "Brown Bear",
+  "armorClass": 11,
+  "hitPoints": 34,
+  "attackBonus": 5,
+  "damage": "1d8+4 piercing (bite)",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 200,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 40, "climb": 30 },
+  "abilityScores": { "strength": 19, "dexterity": 10, "constitution": 16, "intelligence": 2, "wisdom": 13, "charisma": 7 },
+  "skills": { "perception": 3 },
+  "senses": ["passive Perception 13"],
+  "challenge": "1",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The bear makes two attacks: one with its bite and one with its claws." },
+    { "name": "Bite", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d8+4 piercing", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "2d6+4 slashing", "damageType": "slashing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Brown Bear"
+}

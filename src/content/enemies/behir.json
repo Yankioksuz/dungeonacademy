@@ -1,0 +1,32 @@
+{
+  "id": "behir",
+  "name": "Behir",
+  "armorClass": 17,
+  "hitPoints": 168,
+  "attackBonus": 10,
+  "damage": "3d10+6 piercing (bite)",
+  "damageType": "piercing",
+  "effectType": "lightning",
+  "saveDC": 16,
+  "creatureType": "monstrosity",
+  "xpReward": 7200,
+  "size": "Huge",
+  "alignment": "neutral evil",
+  "speed": { "walk": 50, "climb": 40 },
+  "abilityScores": { "strength": 23, "dexterity": 16, "constitution": 18, "intelligence": 7, "wisdom": 14, "charisma": 12 },
+  "skills": { "perception": 8, "stealth": 9 },
+  "damageImmunities": ["lightning"],
+  "senses": ["darkvision 90 ft.", "passive Perception 18"],
+  "languages": ["Draconic"],
+  "challenge": "11",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The behir makes two attacks: one with its bite and one to constrict." },
+    { "name": "Bite", "type": "melee", "toHit": 10, "reach": 10, "targets": "one target", "damage": "3d10+6 piercing", "damageType": "piercing" },
+    { "name": "Constrict", "type": "melee", "toHit": 10, "reach": 5, "targets": "one target", "damage": "2d10+6 bludgeoning", "damageType": "bludgeoning", "description": "Target grappled (escape DC 16) and restrained; only one target can be constricted." },
+    { "name": "Lightning Breath (Recharge 5-6)", "type": "special", "save": { "ability": "dexterity", "dc": 16, "onFail": "66 (12d10) lightning damage", "onSave": "Half damage" } },
+    { "name": "Swallow", "type": "special", "description": "If behir hits a Medium or smaller target it is grappling with bite, target must make DC 16 DEX save or be swallowed; blinded and restrained, takes 6 (2d6) acid damage at start of behir’s turn. Behir can have only one swallowed at a time; regurgitates if reduced to 0 HP." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Behir"
+}

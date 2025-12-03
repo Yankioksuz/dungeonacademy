@@ -1,0 +1,21 @@
+{
+  "id": "sea-horse",
+  "name": "Sea Horse",
+  "armorClass": 11,
+  "hitPoints": 1,
+  "attackBonus": 0,
+  "damage": "none",
+  "damageType": "",
+  "creatureType": "beast",
+  "xpReward": 0,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 0, "swim": 20 },
+  "abilityScores": { "strength": 1, "dexterity": 12, "constitution": 8, "intelligence": 1, "wisdom": 10, "charisma": 2 },
+  "senses": ["passive Perception 10"],
+  "challenge": "0",
+  "traits": ["water-breathing"],
+  "actions": [],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Sea Horse"
+}

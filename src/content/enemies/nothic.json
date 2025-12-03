@@ -1,0 +1,28 @@
+{
+  "id": "nothic",
+  "name": "Nothic",
+  "armorClass": 15,
+  "hitPoints": 45,
+  "attackBonus": 4,
+  "damage": "1d6+3 slashing",
+  "damageType": "slashing",
+  "creatureType": "aberration",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "neutral evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 14, "dexterity": 16, "constitution": 16, "intelligence": 13, "wisdom": 10, "charisma": 8 },
+  "skills": { "arcana": 3, "insight": 4, "perception": 2, "stealth": 5 },
+  "senses": ["truesight 120 ft.", "passive Perception 12"],
+  "languages": ["Undercommon"],
+  "challenge": "2",
+  "traits": ["keen-sight"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two claw attacks." },
+    { "name": "Claw", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d6+3 slashing", "damageType": "slashing" },
+    { "name": "Rotting Gaze", "type": "special", "description": "Creature within 30 ft. makes DC 12 CON save or takes 10 (3d6) necrotic damage." },
+    { "name": "Weird Insight", "type": "special", "description": "Contests WIS (Insight) vs target's CHA (Deception); on success learns one fact/secret. Target auto-wins if immune to charmed." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/n-monster-stat-block.md",
+  "statBlockHeading": "Nothic"
+}

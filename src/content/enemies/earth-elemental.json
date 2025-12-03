@@ -1,0 +1,29 @@
+{
+  "id": "earth-elemental",
+  "name": "Earth Elemental",
+  "armorClass": 17,
+  "hitPoints": 126,
+  "attackBonus": 8,
+  "damage": "2d8+5 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "elemental",
+  "xpReward": 1800,
+  "size": "Large",
+  "alignment": "neutral",
+  "speed": { "walk": 30, "burrow": 30 },
+  "abilityScores": { "strength": 20, "dexterity": 8, "constitution": 20, "intelligence": 5, "wisdom": 10, "charisma": 5 },
+  "damageVulnerabilities": ["thunder"],
+  "damageResistances": ["nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["exhaustion", "paralyzed", "petrified", "poisoned", "unconscious"],
+  "senses": ["darkvision 60 ft.", "tremorsense 60 ft.", "passive Perception 10"],
+  "languages": ["Terran"],
+  "challenge": "5",
+  "traits": ["earth-glide", "siege-monster"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The elemental makes two slam attacks." },
+    { "name": "Slam", "type": "melee", "toHit": 8, "reach": 10, "targets": "one target", "damage": "2d8+5 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/e-monster-stat-block.md",
+  "statBlockHeading": "Earth Elemental"
+}

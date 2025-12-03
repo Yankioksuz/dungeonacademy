@@ -36,6 +36,50 @@
       "completed": false
     },
     {
+      "id": "intel-briefing",
+      "title": "Kaela’s Briefing",
+      "description": "Kaela pins a sketch of the Azure Spire to a table and traces three colored routes. She wants you to decide how to proceed while her scouts stall the banners from tearing each other apart.",
+      "type": "social",
+      "options": [
+        {
+          "id": "press-for-maps",
+          "text": "Press for detailed maps and ward glyphs.",
+          "type": "skill",
+          "skill": "Investigation",
+          "ability": "Intelligence",
+          "difficultyClass": 12,
+          "successOutcome": "Kaela slides you a ward-key cipher that will soften one barrier on whichever route you choose.",
+          "failureOutcome": "You only get half-finished glyphs, but you memorize the patrol cadence.",
+          "grantsItemIds": [
+            "ward-key-cipher"
+          ],
+          "successNextEncounterId": "war-camp-tensions",
+          "failureNextEncounterId": "war-camp-tensions",
+          "xpReward": 35
+        },
+        {
+          "id": "secure-refugees",
+          "text": "Ask Kaela to prioritize sheltering the refugee banners.",
+          "type": "continue",
+          "outcome": "She agrees and sends her two scouts to escort the refugees, reducing the risk of an open riot while you infiltrate.",
+          "nextEncounterId": "war-camp-tensions",
+          "xpReward": 25
+        },
+        {
+          "id": "request-counterfeits",
+          "text": "Request counterfeit envoy seals to pose as inspectors.",
+          "type": "continue",
+          "outcome": "Kaela gives you forged seals that will make soldiers hesitate before attacking—if you can flash them in time.",
+          "grantsItemIds": [
+            "forged-seal"
+          ],
+          "nextEncounterId": "war-camp-tensions",
+          "xpReward": 25
+        }
+      ],
+      "completed": false
+    },
+    {
       "id": "camp-approach",
       "title": "Nightfall at the War Camp",
       "description": "You arrive at a wind-torn war camp outside the Azure Spire. Lanterns flicker across tents bearing four rival banners. Before you can announce yourself, a half-elf with ink-stained gloves approaches, flanked by two silent scouts.",
@@ -55,6 +99,8 @@
         },
         {
           "id": "verify-letter",
+          "text": "Confirm she authored the summons.",
+          "type": "continue",
           "outcome": "Kaela rubs sleep-starved eyes and explains that Vael was once the loudest voice for unity. Years of stalemate let Ryell whisper in their ear, promising the mirrors could force peace by faking hostile acts. The plan spiraled, and now the mirrors rewrite testimony faster than envoys can react.",
           "nextEncounterId": "intel-briefing",
           "stayInEncounter": true
@@ -154,6 +200,19 @@
           "successNextEncounterId": "council-prep",
           "failureNextEncounterId": "council-prep",
           "xpReward": 45
+        },
+        {
+          "id": "cool-tempers",
+          "text": "Cool tempers between two rival banners before the meeting.",
+          "type": "skill",
+          "skill": "Insight",
+          "ability": "Wisdom",
+          "difficultyClass": 12,
+          "successOutcome": "You broker a shaky truce that buys you time to push whichever plan you choose.",
+          "failureOutcome": "Your mediation stalls, but you learn which envoy is closest to walking out.",
+          "successNextEncounterId": "council-prep",
+          "failureNextEncounterId": "council-prep",
+          "xpReward": 35
         }
       ],
       "completed": false
@@ -273,7 +332,8 @@
         "hitPoints": 18,
         "attackBonus": 4,
         "damage": "1d8+1",
-        "xpReward": 80
+        "xpReward": 80,
+        "damageType": "slashing"
       },
       "options": [
         {
@@ -346,7 +406,8 @@
         "hitPoints": 25,
         "attackBonus": 5,
         "damage": "1d8+2",
-        "xpReward": 90
+        "xpReward": 90,
+        "damageType": "slashing"
       },
       "options": [
         {
@@ -440,7 +501,8 @@
         "hitPoints": 20,
         "attackBonus": 4,
         "damage": "1d6+2",
-        "xpReward": 80
+        "xpReward": 80,
+        "damageType": "slashing"
       },
       "options": [
         {
@@ -516,7 +578,8 @@
         "hitPoints": 30,
         "attackBonus": 5,
         "damage": "1d8+3",
-        "xpReward": 100
+        "xpReward": 100,
+        "damageType": "slashing"
       },
       "options": [
         {
@@ -637,7 +700,8 @@
         "hitPoints": 22,
         "attackBonus": 5,
         "damage": "1d8+2",
-        "xpReward": 80
+        "xpReward": 80,
+        "damageType": "slashing"
       },
       "options": [
         {
@@ -704,7 +768,8 @@
         "hitPoints": 28,
         "attackBonus": 5,
         "damage": "1d8+2",
-        "xpReward": 100
+        "xpReward": 100,
+        "damageType": "slashing"
       },
       "options": [
         {
@@ -818,14 +883,6 @@
       "title": "The Mirror Guardian",
       "description": "A towering construct of glass and steel steps from the mirror, its reflection showing your own death.",
       "type": "combat",
-      "enemy": {
-        "name": "Mirror Construct",
-        "armorClass": 16,
-        "hitPoints": 35,
-        "attackBonus": 6,
-        "damage": "1d10+3",
-        "xpReward": 150
-      },
       "options": [
         {
           "id": "shatter-construct",
@@ -835,7 +892,8 @@
           "nextEncounterId": "council-reaction"
         }
       ],
-      "completed": false
+      "completed": false,
+      "enemyId": "mirror-construct"
     },
     {
       "id": "council-reaction",
@@ -863,6 +921,72 @@
           "xpReward": 50,
           "successNextEncounterId": "aftermath",
           "failureNextEncounterId": "aftermath"
+        },
+        {
+          "id": "hand-vael-to-banners",
+          "text": "Hand Vael to the banners for judgment.",
+          "type": "continue",
+          "outcome": "You yield Vael to the banners, who argue fiercely over punishment. The decision will shape the new peace.",
+          "xpReward": 50,
+          "nextEncounterId": "banner-trial"
+        },
+        {
+          "id": "secret-pact-ryell",
+          "text": "Offer Ryell a covert pact to monitor the mirrors.",
+          "type": "continue",
+          "outcome": "Whispers ripple as you imply Ryell can stay—if they feed Kaela secrets forever.",
+          "xpReward": 50,
+          "nextEncounterId": "shadow-accord"
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "banner-trial",
+      "title": "Banner Tribunal",
+      "description": "Envoys crowd around the bound Vael, arguing whether to exile or execute. Each choice will anger someone—and earn another’s loyalty.",
+      "type": "social",
+      "options": [
+        {
+          "id": "exile-vael",
+          "text": "Exile Vael beyond the empire’s borders.",
+          "type": "continue",
+          "outcome": "The banners agree to banish Vael, binding them with a geas to never return. Some grumble that exile is too kind, others breathe easier at avoiding martyrdom.",
+          "endsAdventure": true,
+          "xpReward": 60
+        },
+        {
+          "id": "execute-vael",
+          "text": "Call for execution to appease the angriest banners.",
+          "type": "continue",
+          "outcome": "Vael’s sentence is swift. The banners sign off, but Kaela warns that killing them may inspire sympathizers to go underground.",
+          "endsAdventure": true,
+          "xpReward": 65
+        }
+      ],
+      "completed": false
+    },
+    {
+      "id": "shadow-accord",
+      "title": "Shadow Accord",
+      "description": "Ryell lingers in the reflections, waiting to hear whether they become ally, prisoner, or fugitive.",
+      "type": "social",
+      "options": [
+        {
+          "id": "bind-ryell",
+          "text": "Bind Ryell with the Silverwind oath to watch for future plots.",
+          "type": "continue",
+          "outcome": "Ryell swears to Kaela’s terms, agreeing to turn the mirror nexus into a warning system. The banners reluctantly sign an addendum to the accord.",
+          "endsAdventure": true,
+          "xpReward": 70
+        },
+        {
+          "id": "let-ryell-slip",
+          "text": "Let Ryell slip away to the mirror realm in exchange for secrets.",
+          "type": "continue",
+          "outcome": "Ryell vanishes with a promise of future intelligence, leaving you with a clandestine advantage and a lingering risk.",
+          "endsAdventure": true,
+          "xpReward": 60
         }
       ],
       "completed": false

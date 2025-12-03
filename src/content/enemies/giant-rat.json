@@ -1,0 +1,23 @@
+{
+  "id": "giant-rat",
+  "name": "Giant Rat",
+  "armorClass": 12,
+  "hitPoints": 7,
+  "attackBonus": 4,
+  "damage": "1d4+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 25,
+  "size": "Small",
+  "alignment": "unaligned",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 7, "dexterity": 15, "constitution": 11, "intelligence": 2, "wisdom": 10, "charisma": 4 },
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "challenge": "1/8",
+  "traits": ["keen-smell", "pack-tactics"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d4+2 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Rat"
+}

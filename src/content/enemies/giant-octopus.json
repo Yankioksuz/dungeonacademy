@@ -1,0 +1,25 @@
+{
+  "id": "giant-octopus",
+  "name": "Giant Octopus",
+  "armorClass": 11,
+  "hitPoints": 52,
+  "attackBonus": 5,
+  "damage": "2d6+3 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "beast",
+  "xpReward": 200,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 10, "swim": 60 },
+  "abilityScores": { "strength": 17, "dexterity": 13, "constitution": 13, "intelligence": 4, "wisdom": 10, "charisma": 4 },
+  "skills": { "perception": 4, "stealth": 5 },
+  "senses": ["darkvision 60 ft.", "passive Perception 14"],
+  "challenge": "1",
+  "traits": ["hold-breath", "underwater-camouflage", "water-breathing"],
+  "actions": [
+    { "name": "Tentacles", "type": "melee", "toHit": 5, "reach": 15, "targets": "one target", "damage": "2d6+3 bludgeoning", "damageType": "bludgeoning", "description": "Target grappled (escape DC 16) and restrained; octopus can't use tentacles on another target while grappling." },
+    { "name": "Ink Cloud (Recharges after a Short or Long Rest)", "type": "special", "description": "While underwater, creates a 20-foot-radius heavily obscured ink cloud for 1 minute (dispersed by strong current); after releasing, can Dash as a bonus action." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Octopus"
+}

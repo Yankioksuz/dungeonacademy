@@ -1,0 +1,38 @@
+{
+  "id": "mummy-lord",
+  "name": "Mummy Lord",
+  "armorClass": 17,
+  "hitPoints": 97,
+  "attackBonus": 9,
+  "damage": "3d6+4 bludgeoning plus 6d6 necrotic",
+  "damageType": "bludgeoning",
+  "creatureType": "undead",
+  "xpReward": 13000,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 20 },
+  "abilityScores": { "strength": 18, "dexterity": 10, "constitution": 17, "intelligence": 11, "wisdom": 18, "charisma": 16 },
+  "savingThrows": { "con": 8, "int": 5, "wis": 9, "cha": 8 },
+  "skills": { "history": 5, "religion": 5 },
+  "damageVulnerabilities": ["fire"],
+  "damageImmunities": ["necrotic", "poison", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "conditionImmunities": ["charmed", "exhaustion", "frightened", "paralyzed", "poisoned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 14"],
+  "languages": ["languages known in life"],
+  "challenge": "15",
+  "traits": ["magic-resistance", "rejuvenation", "spellcasting"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Uses Dreadful Glare and makes one rotting fist attack." },
+    { "name": "Rotting Fist", "type": "melee", "toHit": 9, "reach": 5, "targets": "one target", "damage": "3d6+4 bludgeoning plus 6d6 necrotic", "damageType": "bludgeoning", "description": "DC 16 CON save or cursed with mummy rot (no healing; max HP -10 (3d6) per day; dies and turns to dust at 0 max HP; remove curse ends)." },
+    { "name": "Dreadful Glare", "type": "special", "description": "Creature within 60 ft. makes DC 16 WIS save or frightened until end of mummy's next turn; fail by 5+ also paralyzed. Success grants 24-hour immunity to mummy and mummy lord glare." }
+  ],
+  "legendaryActions": [
+    { "name": "Attack", "description": "Makes a rotting fist attack or uses Dreadful Glare." },
+    { "name": "Blinding Dust", "description": "Each creature within 5 ft. makes DC 16 CON save or is blinded until end of its next turn." },
+    { "name": "Blasphemous Word (Costs 2 Actions)", "description": "Non-undead within 10 ft. that can hear make DC 16 CON save or are stunned until end of mummy lord's next turn." },
+    { "name": "Channel Negative Energy (Costs 2 Actions)", "description": "Creatures within 60 ft. can't regain HP until end of mummy lord's next turn." },
+    { "name": "Whirlwind of Sand (Costs 2 Actions)", "description": "Transforms into a whirlwind, moves up to 60 ft., then reverts; immune to all damage and can't be grappled/petrified/prone/restrained/stunned while in whirlwind." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/m-monster-stat-block.md",
+  "statBlockHeading": "Mummy Lord"
+}

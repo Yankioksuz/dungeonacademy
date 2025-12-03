@@ -1,0 +1,26 @@
+{
+  "id": "warhorse-skeleton",
+  "name": "Warhorse Skeleton",
+  "armorClass": 13,
+  "hitPoints": 22,
+  "attackBonus": 6,
+  "damage": "2d6+4 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "undead",
+  "xpReward": 100,
+  "size": "Large",
+  "alignment": "lawful evil",
+  "speed": { "walk": 60 },
+  "abilityScores": { "strength": 18, "dexterity": 12, "constitution": 15, "intelligence": 2, "wisdom": 8, "charisma": 5 },
+  "damageVulnerabilities": ["bludgeoning"],
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["exhaustion", "poisoned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 9"],
+  "challenge": "1/2",
+  "traits": [],
+  "actions": [
+    { "name": "Hooves", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d6+4 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/w-monster-stat-block.md",
+  "statBlockHeading": "Warhorse Skeleton"
+}

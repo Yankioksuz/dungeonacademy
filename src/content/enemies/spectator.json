@@ -1,0 +1,31 @@
+{
+  "id": "spectator",
+  "name": "Spectator",
+  "armorClass": 14,
+  "hitPoints": 39,
+  "attackBonus": 1,
+  "damage": "1d6-1 piercing",
+  "damageType": "piercing",
+  "creatureType": "aberration",
+  "xpReward": 700,
+  "size": "Medium",
+  "alignment": "lawful neutral",
+  "speed": { "walk": 0, "fly": 30 },
+  "abilityScores": { "strength": 8, "dexterity": 14, "constitution": 14, "intelligence": 13, "wisdom": 14, "charisma": 11 },
+  "skills": { "perception": 6 },
+  "conditionImmunities": ["prone"],
+  "senses": ["darkvision 120 ft.", "passive Perception 16"],
+  "languages": ["Deep Speech", "Undercommon", "telepathy 120 ft."],
+  "challenge": "3",
+  "traits": [],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 1, "reach": 5, "targets": "one target", "damage": "1d6-1 piercing", "damageType": "piercing" },
+    { "name": "Eye Rays", "type": "special", "description": "Shoots up to two different eye rays at creatures within 90 ft., each usable once per turn: Confusion Ray (DC 13 WIS, can't react; on turn can't move and must attack random creature), Paralyzing Ray (DC 13 CON or paralyzed 1 minute, repeat saves end), Fear Ray (DC 13 WIS or frightened 1 minute, repeat saves with disadvantage if visible), Wounding Ray (DC 13 CON, 16 (3d10) necrotic, half on save)." },
+    { "name": "Create Food and Water", "type": "special", "description": "Creates food and water to sustain itself for 24 hours." }
+  ],
+  "reactions": [
+    { "name": "Spell Reflection", "description": "When it succeeds on a spell save or a spell attack misses, chooses a creature within 30 ft.; spell targets that creature instead (new save/attack as appropriate)." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Spectator"
+}

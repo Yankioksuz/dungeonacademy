@@ -1,0 +1,30 @@
+{
+  "id": "young-brass-dragon",
+  "name": "Young Brass Dragon",
+  "armorClass": 17,
+  "hitPoints": 110,
+  "attackBonus": 7,
+  "damage": "2d10+4 piercing",
+  "damageType": "piercing",
+  "creatureType": "dragon",
+  "xpReward": 2300,
+  "size": "Large",
+  "alignment": "chaotic good",
+  "speed": { "walk": 40, "burrow": 20, "fly": 80 },
+  "abilityScores": { "strength": 19, "dexterity": 10, "constitution": 17, "intelligence": 12, "wisdom": 11, "charisma": 15 },
+  "savingThrows": { "dex": 3, "con": 6, "wis": 3, "cha": 5 },
+  "skills": { "perception": 6, "persuasion": 5, "stealth": 3 },
+  "damageImmunities": ["fire"],
+  "senses": ["blindsight 30 ft.", "darkvision 120 ft.", "passive Perception 16"],
+  "languages": ["Common", "Draconic"],
+  "challenge": "6",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes three attacks: one bite and two claws." },
+    { "name": "Bite", "type": "melee", "toHit": 7, "reach": 10, "targets": "one target", "damage": "2d10+4 piercing", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d6+4 slashing", "damageType": "slashing" },
+    { "name": "Breath Weapons (Recharge 5-6)", "type": "special", "description": "Uses Fire Breath (40-ft. line 5 ft. wide, DC 14 DEX, 42 (12d6) fire) or Sleep Breath (30-ft. cone, DC 14 CON or fall unconscious 5 minutes; ends on damage or action to wake)." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/y-monster-stat-block.md",
+  "statBlockHeading": "Young Brass Dragon"
+}

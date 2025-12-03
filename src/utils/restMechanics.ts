@@ -14,10 +14,12 @@ export function calculateLongRestRecovery(character: PlayerCharacter): PlayerCha
     const newHp = character.maxHitPoints;
 
     // 2. Restore Hit Dice (recover half of max, minimum 1)
-    const hitDiceRecovered = Math.max(1, Math.floor(character.hitDice.max / 2));
+    const hitDiceMax = character.hitDice?.max ?? 0;
+    const hitDiceCurrent = character.hitDice?.current ?? 0;
+    const hitDiceRecovered = hitDiceMax > 0 ? Math.max(1, Math.floor(hitDiceMax / 2)) : 0;
     const newHitDiceCurrent = Math.min(
-        character.hitDice.max,
-        character.hitDice.current + hitDiceRecovered
+        hitDiceMax,
+        hitDiceCurrent + hitDiceRecovered
     );
 
     // 3. Restore Spell Slots

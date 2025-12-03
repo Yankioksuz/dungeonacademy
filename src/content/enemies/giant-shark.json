@@ -1,0 +1,24 @@
+{
+  "id": "giant-shark",
+  "name": "Giant Shark",
+  "armorClass": 13,
+  "hitPoints": 126,
+  "attackBonus": 9,
+  "damage": "3d10+6 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 1800,
+  "size": "Huge",
+  "alignment": "unaligned",
+  "speed": { "swim": 50 },
+  "abilityScores": { "strength": 23, "dexterity": 11, "constitution": 21, "intelligence": 1, "wisdom": 10, "charisma": 5 },
+  "skills": { "perception": 3 },
+  "senses": ["blindsight 60 ft.", "passive Perception 13"],
+  "challenge": "5",
+  "traits": ["blood-frenzy", "water-breathing"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 9, "reach": 5, "targets": "one target", "damage": "3d10+6 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Shark"
+}

@@ -1,0 +1,25 @@
+{
+  "id": "hydra",
+  "name": "Hydra",
+  "armorClass": 15,
+  "hitPoints": 172,
+  "attackBonus": 8,
+  "damage": "1d10+5 piercing",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 3900,
+  "size": "Huge",
+  "alignment": "unaligned",
+  "speed": { "walk": 30, "swim": 30 },
+  "abilityScores": { "strength": 20, "dexterity": 12, "constitution": 20, "intelligence": 2, "wisdom": 10, "charisma": 7 },
+  "skills": { "perception": 6 },
+  "senses": ["darkvision 60 ft.", "passive Perception 16"],
+  "challenge": "8",
+  "traits": ["hold-breath", "multiple-heads", "reactive-heads", "wakeful"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes as many bite attacks as it has heads." },
+    { "name": "Bite", "type": "melee", "toHit": 8, "reach": 10, "targets": "one target", "damage": "1d10+5 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/h-monster-stat-block.md",
+  "statBlockHeading": "Hydra"
+}

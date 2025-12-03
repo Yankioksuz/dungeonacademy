@@ -1,0 +1,25 @@
+{
+  "id": "giant-scorpion",
+  "name": "Giant Scorpion",
+  "armorClass": 15,
+  "hitPoints": 52,
+  "attackBonus": 4,
+  "damage": "1d8+2 bludgeoning (claw) or 1d10+2 piercing (sting)",
+  "damageType": "bludgeoning",
+  "creatureType": "beast",
+  "xpReward": 700,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 15, "dexterity": 13, "constitution": 15, "intelligence": 1, "wisdom": 9, "charisma": 3 },
+  "senses": ["blindsight 60 ft.", "passive Perception 9"],
+  "challenge": "3",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two claw attacks and one sting." },
+    { "name": "Claw", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d8+2 bludgeoning", "damageType": "bludgeoning", "description": "Target grappled (escape DC 12); each claw can grapple one target." },
+    { "name": "Sting", "type": "melee", "toHit": 4, "reach": 5, "targets": "one creature", "damage": "1d10+2 piercing", "damageType": "piercing", "description": "DC 12 CON save or take 22 (4d10) poison damage, half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Scorpion"
+}

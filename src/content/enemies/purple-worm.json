@@ -1,0 +1,26 @@
+{
+  "id": "purple-worm",
+  "name": "Purple Worm",
+  "armorClass": 18,
+  "hitPoints": 247,
+  "attackBonus": 14,
+  "damage": "3d8+9 piercing (bite) or 3d6+9 piercing (stinger)",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 13000,
+  "size": "Gargantuan",
+  "alignment": "unaligned",
+  "speed": { "walk": 50, "burrow": 30 },
+  "abilityScores": { "strength": 28, "dexterity": 7, "constitution": 22, "intelligence": 1, "wisdom": 8, "charisma": 4 },
+  "savingThrows": { "con": 11, "wis": 4 },
+  "senses": ["blindsight 30 ft.", "tremorsense 60 ft.", "passive Perception 9"],
+  "challenge": "15",
+  "traits": ["tunneler"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks: one bite and one stinger." },
+    { "name": "Bite", "type": "melee", "toHit": 14, "reach": 10, "targets": "one target", "damage": "3d8+9 piercing", "damageType": "piercing", "description": "Large or smaller target must make DC 19 DEX save or be swallowed (blinded/restrained, total cover, takes 21 (6d6) acid at start of worm's turns). If it takes 30+ damage in a turn from inside, DC 21 CON save to regurgitate at end of turn; on death, swallowed creatures can exit using 20 ft. movement, prone." },
+    { "name": "Tail Stinger", "type": "melee", "toHit": 14, "reach": 10, "targets": "one creature", "damage": "3d6+9 piercing", "damageType": "piercing", "description": "Target DC 19 CON save or take 42 (12d6) poison, half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/p-monster-stat-block.md",
+  "statBlockHeading": "Purple Worm"
+}

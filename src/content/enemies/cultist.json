@@ -1,0 +1,12 @@
+{
+  "id": "cultist",
+  "name": "Cultist",
+  "armorClass": 12,
+  "hitPoints": 9,
+  "attackBonus": 3,
+  "damage": "1d6+1",
+  "damageType": "slashing",
+  "creatureType": "humanoid",
+  "xpReward": 25,
+  "traits": []
+}

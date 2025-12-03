@@ -1,0 +1,28 @@
+{
+  "id": "silver-dragon-wyrmling",
+  "name": "Silver Dragon Wyrmling",
+  "armorClass": 17,
+  "hitPoints": 45,
+  "attackBonus": 6,
+  "damage": "1d10+4 piercing",
+  "damageType": "piercing",
+  "creatureType": "dragon",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "lawful good",
+  "speed": { "walk": 30, "fly": 60 },
+  "abilityScores": { "strength": 19, "dexterity": 10, "constitution": 17, "intelligence": 12, "wisdom": 11, "charisma": 15 },
+  "savingThrows": { "dex": 2, "con": 5, "wis": 2, "cha": 4 },
+  "skills": { "perception": 4, "stealth": 2 },
+  "damageImmunities": ["cold"],
+  "senses": ["blindsight 10 ft.", "darkvision 60 ft.", "passive Perception 14"],
+  "languages": ["Draconic"],
+  "challenge": "2",
+  "traits": [],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "1d10+4 piercing", "damageType": "piercing" },
+    { "name": "Breath Weapons (Recharge 5-6)", "type": "special", "description": "Uses Cold Breath (15-ft. cone, DC 13 CON, 18 (4d8) cold) or Paralyzing Breath (15-ft. cone, DC 13 CON or paralyzed up to 1 minute; repeat saves end)." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Silver Dragon Wyrmling"
+}

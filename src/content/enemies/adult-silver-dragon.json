@@ -1,0 +1,48 @@
+{
+  "id": "adult-silver-dragon",
+  "name": "Adult Silver Dragon",
+  "armorClass": 19,
+  "hitPoints": 243,
+  "attackBonus": 12,
+  "damage": "2d10+7 piercing + 1d8 cold (bite)",
+  "damageType": "piercing",
+  "effectType": "fear",
+  "saveDC": 16,
+  "creatureType": "dragon",
+  "xpReward": 15000,
+  "size": "Huge",
+  "alignment": "lawful good",
+  "speed": { "walk": 40, "fly": 80 },
+  "abilityScores": { "strength": 27, "dexterity": 10, "constitution": 25, "intelligence": 16, "wisdom": 13, "charisma": 21 },
+  "savingThrows": { "dex": 6, "con": 13, "wis": 6, "cha": 11 },
+  "skills": { "arcana": 11, "history": 11, "perception": 13, "stealth": 6 },
+  "senses": ["blindsight 60 ft.", "darkvision 120 ft.", "passive Perception 23"],
+  "languages": ["Common", "Draconic"],
+  "damageImmunities": ["cold"],
+  "challenge": "16",
+  "traits": [
+    "legendary",
+    "multiattack",
+    "frightful-presence",
+    "cold-breath",
+    "legendary-resistance"
+  ],
+  "breathDC": 19,
+  "breathDamage": "12d8 cold",
+  "breathType": "cold",
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Use Frightful Presence, then make three attacks: one bite and two claws." },
+    { "name": "Bite", "type": "melee", "toHit": 12, "reach": 10, "targets": "one target", "damage": "2d10+7 piercing plus 1d8 cold", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 12, "reach": 5, "targets": "one target", "damage": "2d6+7 slashing", "damageType": "slashing" },
+    { "name": "Tail", "type": "melee", "toHit": 12, "reach": 15, "targets": "one target", "damage": "2d8+7 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Frightful Presence", "type": "special", "save": { "ability": "wisdom", "dc": 16, "onFail": "Frightened for 1 minute; repeat save at end of turns", "onSave": "Immune for 24 hours" } },
+    { "name": "Cold Breath (Recharge 5-6)", "type": "special", "save": { "ability": "constitution", "dc": 19, "onFail": "54 (12d8) cold damage", "onSave": "Half damage" } }
+  ],
+  "legendaryActions": [
+    { "name": "Detect", "description": "The dragon makes a Wisdom (Perception) check." },
+    { "name": "Tail Attack", "description": "The dragon makes a tail attack." },
+    { "name": "Wing Attack", "cost": 2, "description": "Each creature within 10 ft. must succeed on a DC 20 Dexterity save or take 14 (2d6+7) bludgeoning damage and be knocked prone. The dragon can then fly up to half its flying speed." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/a-monster-stat-block.md",
+  "statBlockHeading": "Adult Silver Dragon"
+}

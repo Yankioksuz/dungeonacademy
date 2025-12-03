@@ -1,0 +1,23 @@
+{
+  "id": "crab",
+  "name": "Crab",
+  "armorClass": 11,
+  "hitPoints": 2,
+  "attackBonus": 0,
+  "damage": "1 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 20, "swim": 20 },
+  "abilityScores": { "strength": 2, "dexterity": 10, "constitution": 10, "intelligence": 1, "wisdom": 8, "charisma": 2 },
+  "skills": { "stealth": 2 },
+  "senses": ["blindsight 30 ft.", "passive Perception 9"],
+  "challenge": "0",
+  "actions": [
+    { "name": "Claw", "type": "melee", "toHit": 0, "reach": 5, "targets": "one target", "damage": "1 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/c-monster-stat-block.md",
+  "statBlockHeading": "Crab"
+}

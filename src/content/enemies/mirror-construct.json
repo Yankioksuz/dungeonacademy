@@ -1,0 +1,11 @@
+{
+  "id": "mirror-construct",
+  "name": "Mirror Construct",
+  "armorClass": 16,
+  "hitPoints": 35,
+  "attackBonus": 6,
+  "damage": "1d10+3",
+  "damageType": "force",
+  "creatureType": "construct",
+  "xpReward": 150
+}

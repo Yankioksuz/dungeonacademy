@@ -1,0 +1,16 @@
+{
+  "id": "acolyte",
+  "name": "Acolyte",
+  "armorClass": 10,
+  "hitPoints": 9,
+  "attackBonus": 2,
+  "damage": "1d6+1",
+  "damageType": "bludgeoning",
+  "creatureType": "humanoid",
+  "effectType": "magic",
+  "xpReward": 50,
+  "traits": [
+    "magic-attacker",
+    "magic-attacker"
+  ]
+}

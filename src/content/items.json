@@ -21,7 +21,7 @@
       "damage": "1d8",
       "value": 15,
       "properties": [
-        "versatile",
+        "versatile-1d10",
         "melee"
       ]
     },
@@ -33,7 +33,7 @@
       "damage": "1d6",
       "value": 2,
       "properties": [
-        "versatile",
+        "versatile-1d8",
         "melee"
       ]
     },

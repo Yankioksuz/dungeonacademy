@@ -1,0 +1,26 @@
+{
+  "id": "tyrannosaurus-rex",
+  "name": "Tyrannosaurus Rex",
+  "armorClass": 13,
+  "hitPoints": 136,
+  "attackBonus": 10,
+  "damage": "4d12+7 piercing (bite) or 3d8+7 bludgeoning (tail)",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 3900,
+  "size": "Huge",
+  "alignment": "unaligned",
+  "speed": { "walk": 50 },
+  "abilityScores": { "strength": 25, "dexterity": 10, "constitution": 19, "intelligence": 2, "wisdom": 12, "charisma": 9 },
+  "skills": { "perception": 4 },
+  "senses": ["passive Perception 14"],
+  "challenge": "8",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks: one bite and one tail (not against same target)." },
+    { "name": "Bite", "type": "melee", "toHit": 10, "reach": 10, "targets": "one target", "damage": "4d12+7 piercing", "damageType": "piercing", "description": "Medium or smaller target grappled (escape DC 17) and restrained; tyrannosaurus can't bite another target." },
+    { "name": "Tail", "type": "melee", "toHit": 10, "reach": 10, "targets": "one target", "damage": "3d8+7 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/t-monster-stat-block.md",
+  "statBlockHeading": "Tyrannosaurus Rex"
+}

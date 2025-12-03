@@ -1,0 +1,25 @@
+{
+  "id": "ogre",
+  "name": "Ogre",
+  "armorClass": 11,
+  "hitPoints": 59,
+  "attackBonus": 6,
+  "damage": "2d8+4 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "giant",
+  "xpReward": 450,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 19, "dexterity": 8, "constitution": 16, "intelligence": 5, "wisdom": 7, "charisma": 7 },
+  "senses": ["darkvision 60 ft.", "passive Perception 8"],
+  "languages": ["Common", "Giant"],
+  "challenge": "2",
+  "traits": [],
+  "actions": [
+    { "name": "Greatclub", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d8+4 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Javelin", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d6+4 piercing", "damageType": "piercing", "description": "Range 30/120." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/o-monster-stat-block.md",
+  "statBlockHeading": "Ogre"
+}

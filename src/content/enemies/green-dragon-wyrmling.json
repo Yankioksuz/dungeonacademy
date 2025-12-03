@@ -1,0 +1,29 @@
+{
+  "id": "green-dragon-wyrmling",
+  "name": "Green Dragon Wyrmling",
+  "armorClass": 17,
+  "hitPoints": 38,
+  "attackBonus": 4,
+  "damage": "1d10+2 piercing plus 1d6 poison",
+  "damageType": "piercing",
+  "creatureType": "dragon",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 30, "fly": 60, "swim": 30 },
+  "abilityScores": { "strength": 15, "dexterity": 12, "constitution": 13, "intelligence": 14, "wisdom": 11, "charisma": 13 },
+  "savingThrows": { "dex": 3, "con": 3, "wis": 2, "cha": 3 },
+  "skills": { "perception": 4, "stealth": 3 },
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["blindsight 10 ft.", "darkvision 60 ft.", "passive Perception 14"],
+  "languages": ["Draconic"],
+  "challenge": "2",
+  "traits": ["amphibious"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d10+2 piercing plus 1d6 poison", "damageType": "piercing" },
+    { "name": "Poison Breath (Recharge 5-6)", "type": "special", "description": "15-foot cone; DC 11 CON save, taking 21 (6d6) poison damage on a failed save or half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Green Dragon Wyrmling"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "frog",
+  "name": "Frog",
+  "armorClass": 11,
+  "hitPoints": 1,
+  "attackBonus": 0,
+  "damage": "none",
+  "damageType": "",
+  "creatureType": "beast",
+  "xpReward": 0,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 20, "swim": 20 },
+  "abilityScores": { "strength": 1, "dexterity": 13, "constitution": 8, "intelligence": 1, "wisdom": 8, "charisma": 3 },
+  "skills": { "perception": 1, "stealth": 3 },
+  "senses": ["darkvision 30 ft.", "passive Perception 11"],
+  "challenge": "0",
+  "traits": ["amphibious", "standing-leap"],
+  "actions": [],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/f-monster-stat-block.md",
+  "statBlockHeading": "Frog"
+}

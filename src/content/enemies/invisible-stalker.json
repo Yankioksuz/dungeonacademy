@@ -1,0 +1,29 @@
+{
+  "id": "invisible-stalker",
+  "name": "Invisible Stalker",
+  "armorClass": 14,
+  "hitPoints": 104,
+  "attackBonus": 6,
+  "damage": "2d6+3 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "elemental",
+  "xpReward": 2300,
+  "size": "Medium",
+  "alignment": "neutral",
+  "speed": { "walk": 50, "fly": 50 },
+  "abilityScores": { "strength": 16, "dexterity": 19, "constitution": 14, "intelligence": 10, "wisdom": 15, "charisma": 11 },
+  "skills": { "perception": 8, "stealth": 10 },
+  "damageResistances": ["nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["exhaustion", "grappled", "paralyzed", "petrified", "poisoned", "prone", "restrained", "unconscious"],
+  "senses": ["darkvision 60 ft.", "passive Perception 18"],
+  "languages": ["Auran", "understands Common"],
+  "challenge": "6",
+  "traits": ["invisibility", "faultless-tracker"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two slam attacks." },
+    { "name": "Slam", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d6+3 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/i-monster-stat-block.md",
+  "statBlockHeading": "Invisible Stalker"
+}

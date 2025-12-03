@@ -1,0 +1,28 @@
+{
+  "id": "wereboar",
+  "name": "Wereboar",
+  "armorClass": 10,
+  "hitPoints": 78,
+  "attackBonus": 5,
+  "damage": "2d6+3 bludgeoning (maul) or 2d6+3 slashing (tusks)",
+  "damageType": "bludgeoning",
+  "creatureType": "humanoid",
+  "xpReward": 1100,
+  "size": "Medium",
+  "alignment": "neutral evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 17, "dexterity": 10, "constitution": 15, "intelligence": 10, "wisdom": 11, "charisma": 8 },
+  "skills": { "perception": 2 },
+  "damageImmunities": ["non-silvered bludgeoning", "non-silvered piercing", "non-silvered slashing"],
+  "senses": ["passive Perception 12"],
+  "languages": ["Common"],
+  "challenge": "4",
+  "traits": ["shapechanger", "charge", "relentless"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Humanoid or hybrid: two attacks, only one with tusks." },
+    { "name": "Maul (Humanoid or Hybrid)", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "2d6+3 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Tusks (Boar or Hybrid)", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "2d6+3 slashing", "damageType": "slashing", "description": "Humanoid target DC 12 CON save or cursed with wereboar lycanthropy." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/w-monster-stat-block.md",
+  "statBlockHeading": "Wereboar"
+}

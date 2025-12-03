@@ -1,0 +1,35 @@
+{
+  "id": "clay-golem",
+  "name": "Clay Golem",
+  "armorClass": 14,
+  "hitPoints": 133,
+  "attackBonus": 8,
+  "damage": "2d10+5 bludgeoning",
+  "damageType": "bludgeoning",
+  "effectType": "poison",
+  "saveDC": 15,
+  "creatureType": "construct",
+  "xpReward": 5000,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 20 },
+  "abilityScores": { "strength": 20, "dexterity": 9, "constitution": 20, "intelligence": 3, "wisdom": 8, "charisma": 1 },
+  "damageImmunities": ["acid", "poison", "psychic", "bludgeoning", "piercing", "slashing from nonmagical weapons not adamantine"],
+  "conditionImmunities": ["charmed", "exhaustion", "frightened", "paralyzed", "petrified", "poisoned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 9"],
+  "languages": ["understands the languages of its creator but can’t speak"],
+  "challenge": "9",
+  "traits": [
+    "berserk",
+    "immutable-form",
+    "magic-resistance",
+    "magic-weapons"
+  ],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The golem makes two slam attacks." },
+    { "name": "Slam", "type": "melee", "toHit": 8, "reach": 5, "targets": "one target", "damage": "2d10+5 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Haste (Recharge 5-6)", "type": "special", "description": "For 1 minute, golem gains +2 AC, advantage on DEX saves, additional action each turn (attack/slam/DEX save dash). If Haste ends, becomes lethargic (no actions/move) for 1 minute." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/c-monster-stat-block.md",
+  "statBlockHeading": "Clay Golem"
+}

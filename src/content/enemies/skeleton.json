@@ -1,0 +1,28 @@
+{
+  "id": "skeleton",
+  "name": "Skeleton",
+  "armorClass": 13,
+  "hitPoints": 13,
+  "attackBonus": 4,
+  "damage": "1d6+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "undead",
+  "xpReward": 50,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 10, "dexterity": 14, "constitution": 15, "intelligence": 6, "wisdom": 8, "charisma": 5 },
+  "damageVulnerabilities": ["bludgeoning"],
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["exhaustion", "poisoned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 9"],
+  "languages": ["understands languages known in life"],
+  "challenge": "1/4",
+  "traits": [],
+  "actions": [
+    { "name": "Shortsword", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d6+2 piercing", "damageType": "piercing" },
+    { "name": "Shortbow", "type": "ranged", "toHit": 4, "range": "80/320", "targets": "one target", "damage": "1d6+2 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Skeleton"
+}

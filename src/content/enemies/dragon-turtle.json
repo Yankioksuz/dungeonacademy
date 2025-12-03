@@ -1,0 +1,30 @@
+{
+  "id": "dragon-turtle",
+  "name": "Dragon Turtle",
+  "armorClass": 20,
+  "hitPoints": 341,
+  "attackBonus": 13,
+  "damage": "3d12+7 piercing",
+  "damageType": "piercing",
+  "creatureType": "dragon",
+  "xpReward": 18000,
+  "size": "Gargantuan",
+  "alignment": "neutral",
+  "speed": { "walk": 20, "swim": 40 },
+  "abilityScores": { "strength": 25, "dexterity": 10, "constitution": 20, "intelligence": 10, "wisdom": 12, "charisma": 12 },
+  "savingThrows": { "dex": 6, "con": 11, "wis": 7 },
+  "damageResistances": ["fire"],
+  "senses": ["darkvision 120 ft.", "passive Perception 11"],
+  "languages": ["Aquan", "Draconic"],
+  "challenge": "17",
+  "traits": ["amphibious"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes three attacks: one bite and two claws. Can replace claws with one tail attack." },
+    { "name": "Bite", "type": "melee", "toHit": 13, "reach": 15, "targets": "one target", "damage": "3d12+7 piercing", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 13, "reach": 10, "targets": "one target", "damage": "2d8+7 slashing", "damageType": "slashing" },
+    { "name": "Tail", "type": "melee", "toHit": 13, "reach": 15, "targets": "one target", "damage": "3d12+7 bludgeoning", "damageType": "bludgeoning", "description": "Target must succeed on DC 20 STR save or be pushed up to 10 ft. and knocked prone." },
+    { "name": "Steam Breath (Recharge 5-6)", "type": "special", "description": "Exhales scalding steam in a 60-foot cone; creatures make DC 18 CON save, taking 52 (15d6) fire damage on a failure or half on success. Being underwater offers no resistance." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/d-monster-stat-block.md",
+  "statBlockHeading": "Dragon Turtle"
+}

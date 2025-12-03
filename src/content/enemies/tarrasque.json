@@ -1,0 +1,37 @@
+{
+  "id": "tarrasque",
+  "name": "Tarrasque",
+  "armorClass": 25,
+  "hitPoints": 676,
+  "attackBonus": 19,
+  "damage": "4d12+10 piercing (bite) or 4d8+10 slashing (claw) or 4d10+10 piercing (horns) or 4d6+10 bludgeoning (tail)",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 155000,
+  "size": "Gargantuan",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 30, "dexterity": 11, "constitution": 30, "intelligence": 3, "wisdom": 11, "charisma": 11 },
+  "savingThrows": { "int": 5, "wis": 9, "cha": 9 },
+  "damageImmunities": ["fire", "poison", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "conditionImmunities": ["charmed", "frightened", "paralyzed", "poisoned"],
+  "senses": ["blindsight 120 ft.", "passive Perception 10"],
+  "challenge": "30",
+  "traits": ["legendary-resistance", "magic-resistance", "reflective-carapace", "siege-monster"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Uses Frightful Presence, then makes five attacks: bite, two claws, horns, and tail. Can use Swallow instead of bite." },
+    { "name": "Bite", "type": "melee", "toHit": 19, "reach": 10, "targets": "one target", "damage": "4d12+10 piercing", "damageType": "piercing", "description": "On hit, target grappled (escape DC 20), restrained while grappled; tarrasque can't bite another target." },
+    { "name": "Claw", "type": "melee", "toHit": 19, "reach": 15, "targets": "one target", "damage": "4d8+10 slashing", "damageType": "slashing" },
+    { "name": "Horns", "type": "melee", "toHit": 19, "reach": 10, "targets": "one target", "damage": "4d10+10 piercing", "damageType": "piercing" },
+    { "name": "Tail", "type": "melee", "toHit": 19, "reach": 20, "targets": "one target", "damage": "4d6+10 bludgeoning", "damageType": "bludgeoning", "description": "Target DC 20 STR save or knocked prone." },
+    { "name": "Frightful Presence", "type": "special", "description": "Creatures of choice within 120 ft. aware of it make DC 17 WIS save or frightened for 1 minute (repeat saves end, with disadvantage if in line of sight; 24-hour immunity after success/end)." },
+    { "name": "Swallow", "type": "special", "description": "Bites a grappled Large or smaller target; on hit, target is swallowed (blinded/restrained, total cover) and takes 56 (16d6) acid at start of turns. If it takes 60+ damage in a turn from inside, DC 20 CON save or regurgitate at end of turn; on death, swallowed can exit using 30 ft. movement, prone." }
+  ],
+  "legendaryActions": [
+    { "name": "Attack", "description": "Makes one claw or tail attack." },
+    { "name": "Move", "description": "Moves up to half its speed." },
+    { "name": "Chomp (Costs 2 Actions)", "description": "Makes one bite attack or uses Swallow." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/t-monster-stat-block.md",
+  "statBlockHeading": "Tarrasque"
+}

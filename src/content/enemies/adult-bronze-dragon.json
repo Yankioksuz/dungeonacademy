@@ -1,0 +1,48 @@
+{
+  "id": "adult-bronze-dragon",
+  "name": "Adult Bronze Dragon",
+  "armorClass": 19,
+  "hitPoints": 212,
+  "attackBonus": 11,
+  "damage": "2d10+6 piercing + 1d10 lightning (bite)",
+  "damageType": "piercing",
+  "effectType": "fear",
+  "saveDC": 16,
+  "creatureType": "dragon",
+  "xpReward": 13000,
+  "size": "Huge",
+  "alignment": "lawful good",
+  "speed": { "walk": 40, "swim": 40, "fly": 80 },
+  "abilityScores": { "strength": 25, "dexterity": 10, "constitution": 21, "intelligence": 18, "wisdom": 17, "charisma": 19 },
+  "savingThrows": { "dex": 6, "con": 10, "wis": 9, "cha": 10 },
+  "skills": { "insight": 9, "perception": 14, "stealth": 6 },
+  "senses": ["blindsight 60 ft.", "darkvision 120 ft.", "passive Perception 24"],
+  "languages": ["Common", "Draconic"],
+  "damageImmunities": ["lightning"],
+  "challenge": "15",
+  "traits": [
+    "legendary",
+    "multiattack",
+    "frightful-presence",
+    "lightning-breath",
+    "legendary-resistance"
+  ],
+  "breathDC": 18,
+  "breathDamage": "12d10 lightning",
+  "breathType": "lightning",
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Use Frightful Presence, then make three attacks: one bite and two claws." },
+    { "name": "Bite", "type": "melee", "toHit": 11, "reach": 10, "targets": "one target", "damage": "2d10+6 piercing plus 1d10 lightning", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 11, "reach": 5, "targets": "one target", "damage": "2d6+6 slashing", "damageType": "slashing" },
+    { "name": "Tail", "type": "melee", "toHit": 11, "reach": 15, "targets": "one target", "damage": "2d8+6 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Frightful Presence", "type": "special", "save": { "ability": "wisdom", "dc": 16, "onFail": "Frightened for 1 minute; repeat save at end of turns", "onSave": "Immune for 24 hours" } },
+    { "name": "Lightning Breath (Recharge 5-6)", "type": "special", "save": { "ability": "dexterity", "dc": 18, "onFail": "66 (12d10) lightning damage", "onSave": "Half damage" } }
+  ],
+  "legendaryActions": [
+    { "name": "Detect", "description": "The dragon makes a Wisdom (Perception) check." },
+    { "name": "Tail Attack", "description": "The dragon makes a tail attack." },
+    { "name": "Wing Attack", "cost": 2, "description": "Each creature within 10 ft. must succeed on a DC 19 Dexterity save or take 13 (2d6+6) bludgeoning damage and be knocked prone. The dragon can then fly up to half its flying speed." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/a-monster-stat-block.md",
+  "statBlockHeading": "Adult Bronze Dragon"
+}

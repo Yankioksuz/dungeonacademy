@@ -1,0 +1,30 @@
+{
+  "id": "hezrou",
+  "name": "Hezrou",
+  "armorClass": 16,
+  "hitPoints": 136,
+  "attackBonus": 7,
+  "damage": "2d10+4 piercing (bite) or 2d6+4 slashing (claw)",
+  "damageType": "piercing",
+  "creatureType": "fiend",
+  "xpReward": 3900,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 19, "dexterity": 17, "constitution": 20, "intelligence": 5, "wisdom": 12, "charisma": 13 },
+  "savingThrows": { "str": 7, "con": 8, "wis": 4 },
+  "damageResistances": ["cold", "fire", "lightning", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["darkvision 120 ft.", "passive Perception 11"],
+  "languages": ["Abyssal", "telepathy 120 ft."],
+  "challenge": "8",
+  "traits": ["magic-resistance", "stench"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes three attacks: one bite and two claws." },
+    { "name": "Bite", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d10+4 piercing", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d6+4 slashing", "damageType": "slashing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/h-monster-stat-block.md",
+  "statBlockHeading": "Hezrou"
+}

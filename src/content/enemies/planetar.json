@@ -1,0 +1,30 @@
+{
+  "id": "planetar",
+  "name": "Planetar",
+  "armorClass": 19,
+  "hitPoints": 200,
+  "attackBonus": 12,
+  "damage": "4d6+7 slashing plus 5d8 radiant",
+  "damageType": "slashing",
+  "creatureType": "celestial",
+  "xpReward": 15000,
+  "size": "Large",
+  "alignment": "lawful good",
+  "speed": { "walk": 40, "fly": 120 },
+  "abilityScores": { "strength": 24, "dexterity": 20, "constitution": 24, "intelligence": 19, "wisdom": 22, "charisma": 25 },
+  "savingThrows": { "con": 12, "wis": 11, "cha": 12 },
+  "skills": { "perception": 11 },
+  "damageResistances": ["radiant", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "conditionImmunities": ["charmed", "exhaustion", "frightened"],
+  "senses": ["truesight 120 ft.", "passive Perception 21"],
+  "languages": ["all, telepathy 120 ft."],
+  "challenge": "16",
+  "traits": ["angelic-weapons", "divine-awareness", "innate-spellcasting", "magic-resistance"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two melee attacks." },
+    { "name": "Greatsword", "type": "melee", "toHit": 12, "reach": 5, "targets": "one target", "damage": "4d6+7 slashing plus 5d8 radiant", "damageType": "slashing" },
+    { "name": "Healing Touch (4/Day)", "type": "special", "description": "Touches a creature to restore 30 (6d8+3) HP and end any curse, disease, poison, blindness, or deafness." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/p-monster-stat-block.md",
+  "statBlockHeading": "Planetar"
+}

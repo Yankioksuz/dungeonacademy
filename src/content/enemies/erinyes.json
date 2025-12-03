@@ -1,0 +1,33 @@
+{
+  "id": "erinyes",
+  "name": "Erinyes",
+  "armorClass": 18,
+  "hitPoints": 153,
+  "attackBonus": 8,
+  "damage": "1d8+4 slashing plus 3d8 poison",
+  "damageType": "slashing",
+  "creatureType": "fiend",
+  "xpReward": 8400,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 30, "fly": 60 },
+  "abilityScores": { "strength": 18, "dexterity": 16, "constitution": 18, "intelligence": 14, "wisdom": 14, "charisma": 18 },
+  "savingThrows": { "dex": 7, "con": 8, "wis": 6, "cha": 8 },
+  "damageResistances": ["cold", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["fire", "poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["truesight 120 ft.", "passive Perception 12"],
+  "languages": ["Infernal", "telepathy 120 ft."],
+  "challenge": "12",
+  "traits": ["hellish-weapons", "magic-resistance"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The erinyes makes three attacks." },
+    { "name": "Longsword", "type": "melee", "toHit": 8, "reach": 5, "targets": "one target", "damage": "1d8+4 slashing plus 3d8 poison", "damageType": "slashing", "description": "1d10+4 slashing when used with two hands." },
+    { "name": "Longbow", "type": "ranged", "toHit": 7, "range": "150/600", "targets": "one target", "damage": "1d8+3 piercing plus 3d8 poison", "damageType": "piercing", "description": "DC 14 CON save or poisoned until cured by lesser restoration or similar magic." }
+  ],
+  "reactions": [
+    { "name": "Parry", "description": "Adds 4 to AC against one melee attack that would hit it, provided it can see the attacker and is wielding a melee weapon." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/e-monster-stat-block.md",
+  "statBlockHeading": "Erinyes"
+}

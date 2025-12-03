@@ -1,0 +1,33 @@
+{
+  "id": "bearded-devil",
+  "name": "Bearded Devil",
+  "armorClass": 13,
+  "hitPoints": 52,
+  "attackBonus": 5,
+  "damage": "1d8+2 piercing (glaive) or 1d8+2 piercing (beard)",
+  "damageType": "piercing",
+  "creatureType": "fiend",
+  "xpReward": 700,
+  "size": "Medium",
+  "alignment": "lawful evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 16, "dexterity": 15, "constitution": 15, "intelligence": 9, "wisdom": 11, "charisma": 11 },
+  "savingThrows": { "con": 4, "wis": 2 },
+  "damageResistances": ["cold", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["fire", "poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["darkvision 120 ft.", "passive Perception 10"],
+  "languages": ["Infernal", "telepathy 120 ft."],
+  "challenge": "3",
+  "traits": [
+    "devil-sight",
+    "magic-resistance"
+  ],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The devil makes two attacks: one with its beard and one with its glaive." },
+    { "name": "Glaive", "type": "melee", "toHit": 5, "reach": 10, "targets": "one target", "damage": "1d10+2 slashing", "damageType": "slashing", "description": "If the target is a creature, it must succeed on a DC 12 CON save or be affected by infernal wound (1d10 ongoing). On a DC 12 Medicine check, magical healing, or a short rest, the effect ends." },
+    { "name": "Beard", "type": "melee", "toHit": 5, "reach": 5, "targets": "one creature", "damage": "1d8+2 piercing", "damageType": "piercing", "description": "DC 12 CON save or poisoned for 1 minute; while poisoned this way, target can't regain hit points. Repeat save at end of turns." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Bearded Devil"
+}

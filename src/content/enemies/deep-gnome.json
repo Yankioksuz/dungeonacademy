@@ -1,0 +1,35 @@
+{
+  "id": "deep-gnome",
+  "name": "Deep Gnome (Svirfneblin)",
+  "armorClass": 15,
+  "hitPoints": 16,
+  "attackBonus": 4,
+  "damage": "1d8+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "humanoid (gnome)",
+  "xpReward": 100,
+  "size": "Small",
+  "alignment": "neutral good",
+  "speed": { "walk": 20 },
+  "abilityScores": { "strength": 15, "dexterity": 14, "constitution": 14, "intelligence": 12, "wisdom": 10, "charisma": 9 },
+  "skills": { "investigation": 3, "perception": 2, "stealth": 4 },
+  "senses": ["darkvision 120 ft.", "passive Perception 12"],
+  "languages": ["Gnomish", "Terran", "Undercommon"],
+  "challenge": "1/2",
+  "traits": ["stone-camouflage", "gnome-cunning", "innate-spellcasting"],
+  "actions": [
+    { "name": "War Pick", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d8+2 piercing", "damageType": "piercing" },
+    {
+      "name": "Poisoned Dart",
+      "type": "ranged",
+      "toHit": 4,
+      "range": "30/120",
+      "targets": "one creature",
+      "damage": "1d4+2 piercing",
+      "damageType": "piercing",
+      "description": "DC 12 CON save or poisoned for 1 minute; repeat save at end of turns to end the effect."
+    }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/d-monster-stat-block.md",
+  "statBlockHeading": "Deep Gnome (Svirfneblin)"
+}

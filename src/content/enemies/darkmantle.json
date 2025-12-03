@@ -1,0 +1,38 @@
+{
+  "id": "darkmantle",
+  "name": "Darkmantle",
+  "armorClass": 11,
+  "hitPoints": 22,
+  "attackBonus": 5,
+  "damage": "1d6+3 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "monstrosity",
+  "xpReward": 100,
+  "size": "Small",
+  "alignment": "unaligned",
+  "speed": { "walk": 10, "fly": 30 },
+  "abilityScores": { "strength": 16, "dexterity": 12, "constitution": 13, "intelligence": 2, "wisdom": 10, "charisma": 5 },
+  "skills": { "stealth": 3 },
+  "senses": ["blindsight 60 ft.", "passive Perception 10"],
+  "challenge": "1/2",
+  "traits": ["echolocation", "false-appearance"],
+  "actions": [
+    {
+      "name": "Crush",
+      "type": "melee",
+      "toHit": 5,
+      "reach": 5,
+      "targets": "one creature",
+      "damage": "1d6+3 bludgeoning",
+      "damageType": "bludgeoning",
+      "description": "On hit attaches; if target Medium or smaller and the attack had advantage, engulfs the target's head to blind and suffocate. While attached its speed is 0 and it attacks only that target; target can detach with DC 13 STR check; darkmantle can detach using 5 ft. of movement."
+    },
+    {
+      "name": "Darkness Aura (1/Day)",
+      "type": "special",
+      "description": "Creates a 15-foot-radius magical darkness centered on it while it concentrates (up to 10 minutes); darkness moves with it, spreads around corners, and dispels 2nd-level-or-lower light it overlaps."
+    }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/d-monster-stat-block.md",
+  "statBlockHeading": "Darkmantle"
+}

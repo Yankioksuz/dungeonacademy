@@ -1,0 +1,26 @@
+{
+  "id": "pseudodragon",
+  "name": "Pseudodragon",
+  "armorClass": 13,
+  "hitPoints": 7,
+  "attackBonus": 4,
+  "damage": "1d4+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "dragon",
+  "xpReward": 50,
+  "size": "Tiny",
+  "alignment": "neutral good",
+  "speed": { "walk": 15, "fly": 60 },
+  "abilityScores": { "strength": 6, "dexterity": 15, "constitution": 13, "intelligence": 10, "wisdom": 12, "charisma": 10 },
+  "skills": { "perception": 3, "stealth": 4 },
+  "senses": ["blindsight 10 ft.", "darkvision 60 ft.", "passive Perception 13"],
+  "languages": ["understands Common", "understands Draconic"],
+  "challenge": "1/4",
+  "traits": ["keen-senses", "magic-resistance", "limited-telepathy"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d4+2 piercing", "damageType": "piercing" },
+    { "name": "Sting", "type": "melee", "toHit": 4, "reach": 5, "targets": "one creature", "damage": "1d4+2 piercing", "damageType": "piercing", "description": "DC 11 CON save or poisoned 1 hour; fail by 5+ also unconscious for same duration until damaged or shaken awake." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/p-monster-stat-block.md",
+  "statBlockHeading": "Pseudodragon"
+}

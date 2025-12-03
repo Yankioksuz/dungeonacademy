@@ -1,0 +1,27 @@
+{
+  "id": "mimic",
+  "name": "Mimic",
+  "armorClass": 12,
+  "hitPoints": 58,
+  "attackBonus": 5,
+  "damage": "1d8+3 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "monstrosity",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "neutral",
+  "speed": { "walk": 15 },
+  "abilityScores": { "strength": 17, "dexterity": 12, "constitution": 15, "intelligence": 5, "wisdom": 13, "charisma": 8 },
+  "skills": { "stealth": 5 },
+  "damageImmunities": ["acid"],
+  "conditionImmunities": ["prone"],
+  "senses": ["darkvision 60 ft.", "passive Perception 11"],
+  "challenge": "2",
+  "traits": ["shapechanger", "adhesive", "false-appearance", "grappler"],
+  "actions": [
+    { "name": "Pseudopod", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d8+3 bludgeoning", "damageType": "bludgeoning", "description": "If in object form, target is subjected to Adhesive trait." },
+    { "name": "Bite", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d8+3 piercing", "damageType": "piercing", "description": "Plus 4 (1d8) acid damage." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/m-monster-stat-block.md",
+  "statBlockHeading": "Mimic"
+}

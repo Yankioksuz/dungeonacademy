@@ -1,0 +1,34 @@
+{
+  "id": "marilith",
+  "name": "Marilith",
+  "armorClass": 18,
+  "hitPoints": 189,
+  "attackBonus": 9,
+  "damage": "2d8+4 slashing",
+  "damageType": "slashing",
+  "creatureType": "fiend",
+  "xpReward": 15000,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 18, "dexterity": 20, "constitution": 20, "intelligence": 18, "wisdom": 16, "charisma": 20 },
+  "savingThrows": { "str": 9, "con": 10, "wis": 8, "cha": 10 },
+  "damageResistances": ["cold", "fire", "lightning", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["poisoned"],
+  "senses": ["truesight 120 ft.", "passive Perception 13"],
+  "languages": ["Abyssal", "telepathy 120 ft."],
+  "challenge": "16",
+  "traits": ["magic-resistance", "magic-weapons", "reactive"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes seven attacks: six longswords and one tail." },
+    { "name": "Longsword", "type": "melee", "toHit": 9, "reach": 5, "targets": "one target", "damage": "2d8+4 slashing", "damageType": "slashing" },
+    { "name": "Tail", "type": "melee", "toHit": 9, "reach": 10, "targets": "one creature", "damage": "2d10+4 bludgeoning", "damageType": "bludgeoning", "description": "Medium or smaller target grappled (escape DC 19) and restrained; auto-hits while grappled; can't tail attack others while grappling." },
+    { "name": "Teleport", "type": "special", "description": "Teleports with equipment up to 120 ft. to an unoccupied space it can see." }
+  ],
+  "reactions": [
+    { "name": "Parry", "description": "Adds 5 to AC against one melee attack it can see while wielding a melee weapon." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/m-monster-stat-block.md",
+  "statBlockHeading": "Marilith"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "treant",
+  "name": "Treant",
+  "armorClass": 16,
+  "hitPoints": 138,
+  "attackBonus": 10,
+  "damage": "3d6+6 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "plant",
+  "xpReward": 5000,
+  "size": "Huge",
+  "alignment": "chaotic good",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 23, "dexterity": 8, "constitution": 21, "intelligence": 12, "wisdom": 16, "charisma": 12 },
+  "damageResistances": ["bludgeoning", "piercing"],
+  "damageVulnerabilities": ["fire"],
+  "senses": ["passive Perception 13"],
+  "languages": ["Common", "Druidic", "Elvish", "Sylvan"],
+  "challenge": "9",
+  "traits": ["false-appearance", "siege-monster"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two slam attacks." },
+    { "name": "Slam", "type": "melee", "toHit": 10, "reach": 5, "targets": "one target", "damage": "3d6+6 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Rock", "type": "ranged", "toHit": 10, "range": "60/180", "targets": "one target", "damage": "4d10+6 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Animate Trees (1/Day)", "type": "special", "description": "Animates one or two trees within 60 ft.; stats as treant but INT/CHA 1, no speech, Slam only. Acts as ally for 1 day, until it dies, treant dies or is 120+ ft. away, or treant uses bonus action to end (tree takes root if possible)." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/t-monster-stat-block.md",
+  "statBlockHeading": "Treant"
+}

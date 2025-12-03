@@ -1,0 +1,26 @@
+{
+  "id": "magmin",
+  "name": "Magmin",
+  "armorClass": 14,
+  "hitPoints": 9,
+  "attackBonus": 4,
+  "damage": "2d6 fire",
+  "damageType": "fire",
+  "creatureType": "elemental",
+  "xpReward": 100,
+  "size": "Small",
+  "alignment": "chaotic neutral",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 7, "dexterity": 15, "constitution": 12, "intelligence": 8, "wisdom": 11, "charisma": 10 },
+  "damageResistances": ["nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["fire"],
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["Ignan"],
+  "challenge": "1/2",
+  "traits": ["death-burst", "ignited-illumination"],
+  "actions": [
+    { "name": "Touch", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "2d6 fire", "damageType": "fire", "description": "Target ignites; until doused takes 3 (1d6) fire at end of each of its turns." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/m-monster-stat-block.md",
+  "statBlockHeading": "Magmin"
+}

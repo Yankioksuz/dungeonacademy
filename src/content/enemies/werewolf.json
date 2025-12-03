@@ -1,0 +1,29 @@
+{
+  "id": "werewolf",
+  "name": "Werewolf",
+  "armorClass": 12,
+  "hitPoints": 58,
+  "attackBonus": 4,
+  "damage": "1d8+2 piercing (bite) or 2d4+2 slashing (claws)",
+  "damageType": "piercing",
+  "creatureType": "humanoid",
+  "xpReward": 700,
+  "size": "Medium",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 15, "dexterity": 13, "constitution": 14, "intelligence": 10, "wisdom": 11, "charisma": 10 },
+  "skills": { "perception": 4, "stealth": 3 },
+  "damageImmunities": ["non-silvered bludgeoning", "non-silvered piercing", "non-silvered slashing"],
+  "senses": ["passive Perception 14"],
+  "languages": ["Common"],
+  "challenge": "3",
+  "traits": ["shapechanger", "keen-hearing-and-smell"],
+  "actions": [
+    { "name": "Multiattack (Humanoid or Hybrid)", "type": "special", "description": "Humanoid: two spear attacks. Hybrid: one bite and one claws." },
+    { "name": "Bite (Wolf or Hybrid)", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d8+2 piercing", "damageType": "piercing", "description": "Humanoid target DC 12 CON save or cursed with werewolf lycanthropy." },
+    { "name": "Claws (Hybrid)", "type": "melee", "toHit": 4, "reach": 5, "targets": "one creature", "damage": "2d4+2 slashing", "damageType": "slashing" },
+    { "name": "Spear (Humanoid)", "type": "melee", "toHit": 4, "reach": 5, "targets": "one creature", "damage": "1d6+2 piercing", "damageType": "piercing", "description": "Range 20/60; 1d8+2 piercing if used two-handed in melee." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/w-monster-stat-block.md",
+  "statBlockHeading": "Werewolf"
+}

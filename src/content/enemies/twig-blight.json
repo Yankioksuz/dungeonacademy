@@ -1,0 +1,27 @@
+{
+  "id": "twig-blight",
+  "name": "Twig Blight",
+  "armorClass": 13,
+  "hitPoints": 4,
+  "attackBonus": 3,
+  "damage": "1d4+1 piercing",
+  "damageType": "piercing",
+  "creatureType": "plant",
+  "xpReward": 25,
+  "size": "Small",
+  "alignment": "neutral evil",
+  "speed": { "walk": 20 },
+  "abilityScores": { "strength": 6, "dexterity": 13, "constitution": 12, "intelligence": 4, "wisdom": 8, "charisma": 3 },
+  "skills": { "stealth": 3 },
+  "damageVulnerabilities": ["fire"],
+  "conditionImmunities": ["blinded", "deafened"],
+  "senses": ["blindsight 60 ft. (blind beyond this radius)", "passive Perception 9"],
+  "languages": ["understands Common"],
+  "challenge": "1/8",
+  "traits": ["false-appearance"],
+  "actions": [
+    { "name": "Claws", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "1d4+1 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/t-monster-stat-block.md",
+  "statBlockHeading": "Twig Blight"
+}

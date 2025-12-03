@@ -1,0 +1,29 @@
+{
+  "id": "vampire-spawn",
+  "name": "Vampire Spawn",
+  "armorClass": 15,
+  "hitPoints": 82,
+  "attackBonus": 6,
+  "damage": "2d4+3 slashing (claws) or 1d6+3 piercing plus 2d6 necrotic (bite)",
+  "damageType": "slashing",
+  "creatureType": "undead",
+  "xpReward": 1800,
+  "size": "Medium",
+  "alignment": "neutral evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 16, "dexterity": 16, "constitution": 16, "intelligence": 11, "wisdom": 10, "charisma": 12 },
+  "savingThrows": { "dex": 6, "wis": 3 },
+  "skills": { "perception": 3, "stealth": 6 },
+  "damageResistances": ["necrotic", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "senses": ["darkvision 60 ft.", "passive Perception 13"],
+  "languages": ["languages known in life"],
+  "challenge": "5",
+  "traits": ["regeneration", "spider-climb", "vampire-weaknesses"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks, only one of which can be a bite." },
+    { "name": "Claws", "type": "melee", "toHit": 6, "reach": 5, "targets": "one creature", "damage": "2d4+3 slashing", "damageType": "slashing", "description": "Instead of damage can grapple (escape DC 13)." },
+    { "name": "Bite", "type": "melee", "toHit": 6, "reach": 5, "targets": "one willing or grappled/incapacitated/restrained creature", "damage": "1d6+3 piercing plus 2d6 necrotic", "damageType": "piercing", "description": "Target's max HP reduced by necrotic taken; vampire heals same amount. Reduction lasts until long rest; target dies if max HP reduced to 0." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/v-monster-stat-block.md",
+  "statBlockHeading": "Vampire Spawn"
+}

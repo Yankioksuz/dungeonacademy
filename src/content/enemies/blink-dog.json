@@ -1,0 +1,40 @@
+{
+  "id": "blink-dog",
+  "name": "Blink Dog",
+  "armorClass": 13,
+  "hitPoints": 22,
+  "attackBonus": 3,
+  "damage": "1d6+1 piercing",
+  "damageType": "piercing",
+  "creatureType": "fey",
+  "xpReward": 200,
+  "size": "Medium",
+  "alignment": "lawful good",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 12, "dexterity": 17, "constitution": 12, "intelligence": 10, "wisdom": 13, "charisma": 11 },
+  "skills": { "perception": 5, "stealth": 5 },
+  "senses": ["passive Perception 15"],
+  "languages": ["Sylvan", "understands but can’t speak Common"],
+  "challenge": "1/4",
+  "traits": [
+    "keen-hearing-and-smell"
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "type": "melee",
+      "toHit": 3,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "1d6+1 piercing",
+      "damageType": "piercing"
+    },
+    {
+      "name": "Teleport (Recharge 4-6)",
+      "type": "special",
+      "description": "The blink dog magically teleports, along with any equipment it is wearing or carrying, up to 40 ft. to an unoccupied space it can see, then makes one bite attack."
+    }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Blink Dog"
+}

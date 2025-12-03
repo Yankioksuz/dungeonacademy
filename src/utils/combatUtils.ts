@@ -67,9 +67,9 @@ export function getCombatAdvantage(
     // OR we just check if the entity has a property.
 
     // However, the cleanest way is to check if the defender has the trait.
-    // Let's assume 'traits' is optional on Combatant for now to avoid breaking changes, or we cast.
-    const def = defender as any;
-    if (def.traits) {
+    // Allow optional traits on defender if present.
+    const defTraits = (defender as Combatant & { traits?: string[] }).traits;
+    if (defTraits) {
         // Brave (Halfling): Advantage on saves vs Frightened. 
         // This function calculates attack advantage, not save advantage. 
         // BUT, if we were calculating a save, we'd need a different function.
@@ -100,8 +100,7 @@ export function getSavingThrowAdvantage(
     effectType?: 'poison' | 'charm' | 'fear' | 'magic'
 ): RollType {
     let advantage = 0;
-    const actorAny = actor as any;
-    const traits = actorAny.traits || [];
+    const traits = (actor as Combatant & { traits?: string[] }).traits || [];
 
     // Brave
     if (effectType === 'fear' && traits.includes('Brave')) advantage++;

@@ -1,0 +1,30 @@
+{
+  "id": "young-bronze-dragon",
+  "name": "Young Bronze Dragon",
+  "armorClass": 18,
+  "hitPoints": 142,
+  "attackBonus": 8,
+  "damage": "2d10+5 piercing",
+  "damageType": "piercing",
+  "creatureType": "dragon",
+  "xpReward": 3900,
+  "size": "Large",
+  "alignment": "lawful good",
+  "speed": { "walk": 40, "fly": 80, "swim": 40 },
+  "abilityScores": { "strength": 21, "dexterity": 10, "constitution": 19, "intelligence": 14, "wisdom": 13, "charisma": 17 },
+  "savingThrows": { "dex": 3, "con": 7, "wis": 4, "cha": 6 },
+  "skills": { "insight": 4, "perception": 7, "stealth": 3 },
+  "damageImmunities": ["lightning"],
+  "senses": ["blindsight 30 ft.", "darkvision 120 ft.", "passive Perception 17"],
+  "languages": ["Common", "Draconic"],
+  "challenge": "8",
+  "traits": ["amphibious"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes three attacks: one bite and two claws." },
+    { "name": "Bite", "type": "melee", "toHit": 8, "reach": 10, "targets": "one target", "damage": "2d10+5 piercing", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 8, "reach": 5, "targets": "one target", "damage": "2d6+5 slashing", "damageType": "slashing" },
+    { "name": "Breath Weapons (Recharge 5-6)", "type": "special", "description": "Uses Lightning Breath (60-ft. line 5 ft. wide, DC 15 DEX, 55 (10d10) lightning) or Repulsion Breath (30-ft. cone, DC 15 STR or pushed 40 ft.)." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/y-monster-stat-block.md",
+  "statBlockHeading": "Young Bronze Dragon"
+}

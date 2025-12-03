@@ -1,0 +1,26 @@
+{
+  "id": "bulette",
+  "name": "Bulette",
+  "armorClass": 17,
+  "hitPoints": 94,
+  "attackBonus": 7,
+  "damage": "4d12+4 piercing",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 1800,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 40, "burrow": 40 },
+  "abilityScores": { "strength": 19, "dexterity": 11, "constitution": 21, "intelligence": 2, "wisdom": 10, "charisma": 5 },
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "challenge": "5",
+  "traits": [
+    "standing-leap"
+  ],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "4d12+4 piercing", "damageType": "piercing" },
+    { "name": "Deadly Leap", "type": "special", "description": "If the bulette jumps at least 15 ft. as part of its movement, it can make this attack against creatures in a 15x15 ft. space: DC 16 STR or DEX save; on fail, 3d6+4 bludgeoning + 3d6+4 slashing damage and knocked prone. Success halves damage and no prone." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Bulette"
+}

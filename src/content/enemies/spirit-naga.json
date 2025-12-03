@@ -1,0 +1,27 @@
+{
+  "id": "spirit-naga",
+  "name": "Spirit Naga",
+  "armorClass": 15,
+  "hitPoints": 75,
+  "attackBonus": 7,
+  "damage": "1d6+4 piercing",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 3900,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 18, "dexterity": 17, "constitution": 14, "intelligence": 16, "wisdom": 15, "charisma": 16 },
+  "savingThrows": { "dex": 6, "con": 5, "wis": 5, "cha": 6 },
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["charmed", "poisoned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 12"],
+  "languages": ["Abyssal", "Common"],
+  "challenge": "8",
+  "traits": ["rejuvenation", "spellcasting"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 7, "reach": 10, "targets": "one creature", "damage": "1d6+4 piercing", "damageType": "piercing", "description": "DC 13 CON save or take 31 (7d8) poison damage, half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
+  "statBlockHeading": "Spirit Naga"
+}

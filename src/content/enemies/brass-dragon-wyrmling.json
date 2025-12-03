@@ -1,0 +1,33 @@
+{
+  "id": "brass-dragon-wyrmling",
+  "name": "Brass Dragon Wyrmling",
+  "armorClass": 16,
+  "hitPoints": 16,
+  "attackBonus": 4,
+  "damage": "1d10+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "dragon",
+  "xpReward": 200,
+  "size": "Medium",
+  "alignment": "chaotic good",
+  "speed": { "walk": 30, "burrow": 15, "fly": 60 },
+  "abilityScores": { "strength": 15, "dexterity": 10, "constitution": 13, "intelligence": 10, "wisdom": 11, "charisma": 13 },
+  "savingThrows": { "dex": 2, "con": 3, "wis": 2, "cha": 3 },
+  "skills": { "perception": 4, "stealth": 2 },
+  "senses": ["blindsight 10 ft.", "darkvision 60 ft.", "passive Perception 14"],
+  "languages": ["Draconic"],
+  "damageImmunities": ["fire"],
+  "challenge": "1",
+  "traits": ["fire-breath", "sleep-breath"],
+  "breathDC": 12,
+  "breathDamage": "4d6 fire",
+  "breathType": "fire",
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d10+2 piercing", "damageType": "piercing" },
+    { "name": "Breath Weapons (Recharge 5-6)", "type": "special", "description": "Use fire or sleep breath." },
+    { "name": "Fire Breath", "type": "special", "save": { "ability": "dexterity", "dc": 12, "onFail": "14 (4d6) fire damage", "onSave": "Half damage" } },
+    { "name": "Sleep Breath", "type": "special", "save": { "ability": "constitution", "dc": 12, "onFail": "Asleep for 1 minute or until damaged or awakened", "onSave": "No effect" } }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Brass Dragon Wyrmling"
+}

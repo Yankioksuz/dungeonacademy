@@ -1,0 +1,28 @@
+{
+  "id": "lamia",
+  "name": "Lamia",
+  "armorClass": 13,
+  "hitPoints": 97,
+  "attackBonus": 5,
+  "damage": "2d10+3 slashing",
+  "damageType": "slashing",
+  "creatureType": "monstrosity",
+  "xpReward": 1100,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 16, "dexterity": 13, "constitution": 15, "intelligence": 14, "wisdom": 15, "charisma": 16 },
+  "skills": { "deception": 7, "insight": 4, "stealth": 3 },
+  "senses": ["darkvision 60 ft.", "passive Perception 12"],
+  "languages": ["Abyssal", "Common"],
+  "challenge": "4",
+  "traits": ["innate-spellcasting"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks: one with claws and one with dagger or Intoxicating Touch." },
+    { "name": "Claws", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "2d10+3 slashing", "damageType": "slashing" },
+    { "name": "Dagger", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d4+3 piercing", "damageType": "piercing" },
+    { "name": "Intoxicating Touch", "type": "melee", "toHit": 5, "reach": 5, "targets": "one creature", "damage": "", "damageType": "", "description": "Target is cursed for 1 hour; has disadvantage on WIS saves and all ability checks." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/l-monster-stat-block.md",
+  "statBlockHeading": "Lamia"
+}

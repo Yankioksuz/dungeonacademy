@@ -1,0 +1,31 @@
+{
+  "id": "badger",
+  "name": "Badger",
+  "armorClass": 10,
+  "hitPoints": 3,
+  "attackBonus": 2,
+  "damage": "1 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 20, "burrow": 5 },
+  "abilityScores": { "strength": 4, "dexterity": 11, "constitution": 12, "intelligence": 2, "wisdom": 12, "charisma": 5 },
+  "senses": ["passive Perception 11"],
+  "challenge": "0",
+  "traits": ["keen-smell"],
+  "actions": [
+    {
+      "name": "Bite",
+      "type": "melee",
+      "toHit": 2,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "1 piercing",
+      "damageType": "piercing"
+    }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Badger"
+}

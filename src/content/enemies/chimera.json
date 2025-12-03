@@ -1,0 +1,29 @@
+{
+  "id": "chimera",
+  "name": "Chimera",
+  "armorClass": 14,
+  "hitPoints": 114,
+  "attackBonus": 7,
+  "damage": "2d6+4 slashing (claw) or 2d6+4 piercing (horns) or 2d6+4 piercing (bite)",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 2300,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 30, "fly": 60 },
+  "abilityScores": { "strength": 19, "dexterity": 11, "constitution": 19, "intelligence": 3, "wisdom": 14, "charisma": 10 },
+  "skills": { "perception": 8 },
+  "senses": ["darkvision 60 ft.", "passive Perception 18"],
+  "languages": ["understands Draconic but can’t speak"],
+  "challenge": "6",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes three attacks: one with bite, one with horns, one with claws. When available, can use Fire Breath instead of bite." },
+    { "name": "Bite (Dragon Head)", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d6+4 piercing", "damageType": "piercing" },
+    { "name": "Horns (Goat Head)", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d6+4 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Claws (Lion Body)", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d6+4 slashing", "damageType": "slashing" },
+    { "name": "Fire Breath (Recharge 5-6)", "type": "special", "save": { "ability": "dexterity", "dc": 15, "onFail": "31 (9d6) fire damage", "onSave": "Half damage" } }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/c-monster-stat-block.md",
+  "statBlockHeading": "Chimera"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "doppelganger",
+  "name": "Doppelganger",
+  "armorClass": 14,
+  "hitPoints": 52,
+  "attackBonus": 6,
+  "damage": "1d6+4 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "monstrosity (shapechanger)",
+  "xpReward": 700,
+  "size": "Medium",
+  "alignment": "neutral",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 11, "dexterity": 18, "constitution": 14, "intelligence": 11, "wisdom": 12, "charisma": 14 },
+  "skills": { "deception": 6, "insight": 3 },
+  "conditionImmunities": ["charmed"],
+  "senses": ["darkvision 60 ft.", "passive Perception 11"],
+  "languages": ["Common"],
+  "challenge": "3",
+  "traits": ["shapechanger", "ambusher", "surprise-attack"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The doppelganger makes two melee attacks." },
+    { "name": "Slam", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "1d6+4 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Read Thoughts", "type": "special", "description": "While concentrating, magically reads surface thoughts of a creature within 60 ft. (blocked by lead, thick materials). Has advantage on Insight and social checks against that target while reading its mind." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/d-monster-stat-block.md",
+  "statBlockHeading": "Doppelganger"
+}

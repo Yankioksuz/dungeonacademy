@@ -1,0 +1,12 @@
+{
+  "id": "orc-warband",
+  "name": "Orc Warband",
+  "armorClass": 13,
+  "hitPoints": 15,
+  "attackBonus": 5,
+  "damage": "1d12+3",
+  "damageType": "slashing",
+  "effectType": "fear",
+  "creatureType": "humanoid",
+  "xpReward": 100
+}

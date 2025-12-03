@@ -1,0 +1,24 @@
+{
+  "id": "giant-crab",
+  "name": "Giant Crab",
+  "armorClass": 15,
+  "hitPoints": 13,
+  "attackBonus": 3,
+  "damage": "1d6+1 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "beast",
+  "xpReward": 25,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 30, "swim": 30 },
+  "abilityScores": { "strength": 13, "dexterity": 15, "constitution": 11, "intelligence": 1, "wisdom": 9, "charisma": 3 },
+  "skills": { "stealth": 4 },
+  "senses": ["blindsight 30 ft.", "passive Perception 9"],
+  "challenge": "1/8",
+  "traits": ["amphibious"],
+  "actions": [
+    { "name": "Claw", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "1d6+1 bludgeoning", "damageType": "bludgeoning", "description": "Target grappled (escape DC 11); each claw can grapple only one target." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Giant Crab"
+}

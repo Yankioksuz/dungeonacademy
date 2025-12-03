@@ -1,0 +1,32 @@
+{
+  "id": "blood-hawk",
+  "name": "Blood Hawk",
+  "armorClass": 12,
+  "hitPoints": 7,
+  "attackBonus": 4,
+  "damage": "1d4+2 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 25,
+  "size": "Small",
+  "alignment": "unaligned",
+  "speed": { "walk": 10, "fly": 60 },
+  "abilityScores": { "strength": 6, "dexterity": 14, "constitution": 10, "intelligence": 3, "wisdom": 14, "charisma": 5 },
+  "skills": { "perception": 4 },
+  "senses": ["passive Perception 14"],
+  "challenge": "1/8",
+  "traits": ["keen-sight", "pack-tactics"],
+  "actions": [
+    {
+      "name": "Beak",
+      "type": "melee",
+      "toHit": 4,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "1d4+2 piercing",
+      "damageType": "piercing"
+    }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Blood Hawk"
+}

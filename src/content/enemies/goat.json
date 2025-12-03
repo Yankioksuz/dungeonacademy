@@ -1,0 +1,23 @@
+{
+  "id": "goat",
+  "name": "Goat",
+  "armorClass": 10,
+  "hitPoints": 4,
+  "attackBonus": 3,
+  "damage": "1d4+1 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 40 },
+  "abilityScores": { "strength": 12, "dexterity": 10, "constitution": 11, "intelligence": 2, "wisdom": 10, "charisma": 5 },
+  "senses": ["passive Perception 10"],
+  "challenge": "0",
+  "traits": ["charge", "sure-footed"],
+  "actions": [
+    { "name": "Ram", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "1d4+1 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Goat"
+}

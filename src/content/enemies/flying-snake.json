@@ -1,0 +1,23 @@
+{
+  "id": "flying-snake",
+  "name": "Flying Snake",
+  "armorClass": 14,
+  "hitPoints": 5,
+  "attackBonus": 6,
+  "damage": "1 piercing plus 3d4 poison",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 25,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 30, "fly": 60, "swim": 30 },
+  "abilityScores": { "strength": 4, "dexterity": 18, "constitution": 11, "intelligence": 2, "wisdom": 12, "charisma": 5 },
+  "senses": ["blindsight 10 ft.", "passive Perception 11"],
+  "challenge": "1/8",
+  "traits": ["flyby"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "1 piercing plus 3d4 poison", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/f-monster-stat-block.md",
+  "statBlockHeading": "Flying Snake"
+}

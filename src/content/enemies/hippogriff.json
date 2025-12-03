@@ -1,0 +1,26 @@
+{
+  "id": "hippogriff",
+  "name": "Hippogriff",
+  "armorClass": 11,
+  "hitPoints": 19,
+  "attackBonus": 5,
+  "damage": "1d10+3 piercing (beak) or 2d6+3 slashing (claws)",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 200,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 40, "fly": 60 },
+  "abilityScores": { "strength": 17, "dexterity": 13, "constitution": 13, "intelligence": 2, "wisdom": 12, "charisma": 8 },
+  "skills": { "perception": 5 },
+  "senses": ["passive Perception 15"],
+  "challenge": "1",
+  "traits": ["keen-sight"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes one beak and one claws attack." },
+    { "name": "Beak", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d10+3 piercing", "damageType": "piercing" },
+    { "name": "Claws", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "2d6+3 slashing", "damageType": "slashing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/h-monster-stat-block.md",
+  "statBlockHeading": "Hippogriff"
+}

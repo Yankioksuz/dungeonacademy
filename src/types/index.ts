@@ -224,6 +224,9 @@ export interface PlayerCharacter {
     damageType: string; // e.g. "Fire", "Lightning"
     breathCone: boolean; // true for cone, false for line
   };
+  fightingStyle?: string; // Fighter choice
+  pactBoon?: string; // Warlock Pact
+  sorcerousOrigin?: string; // Sorcerer origin
 
   // Passive Scores (calculated)
   passivePerception: number;
@@ -236,6 +239,8 @@ export interface PlayerCharacter {
   equippedWeapon?: Item;
   equippedArmor?: Item;
   talents?: string[];
+  bonusSkills?: string[]; // e.g. human extra skill
+  expertiseSkills?: string[]; // e.g. rogue expertise picks
   spellSlots?: {
     [level: number]: {
       current: number;
@@ -249,6 +254,7 @@ export interface PlayerCharacter {
     spellName: string;
     startedAt: number;
   };
+  featureUses?: FeatureUses;
   adventureHistory?: AdventureHistoryEntry[];
 }
 
@@ -304,11 +310,76 @@ export interface CombatEnemy {
   armorClass: number;
   attackBonus: number;
   damage: string;
+  damageType?: string;
+  creatureType?: string;
+  effectType?: 'fear' | 'charm' | 'poison' | 'magic';
+  saveDC?: number;
+  breathDC?: number;
+  breathDamage?: string;
+  breathType?: string;
+  traits?: string[]; // e.g., pack-tactics, nimble-escape, sunlight-sensitivity, brute, undead-fortitude
+  size?: string;
+  alignment?: string;
+  speed?: {
+    walk?: number;
+    fly?: number;
+    swim?: number;
+    burrow?: number;
+    climb?: number;
+  };
+  abilityScores?: {
+    strength: number;
+    dexterity: number;
+    constitution: number;
+    intelligence: number;
+    wisdom: number;
+    charisma: number;
+  };
+  savingThrows?: Record<string, number>;
+  skills?: Record<string, number>;
+  senses?: string[];
+  languages?: string[];
+  damageResistances?: string[];
+  damageImmunities?: string[];
+  damageVulnerabilities?: string[];
+  conditionImmunities?: string[];
+  challenge?: string;
   initiative: number;
   isDefeated: boolean;
   xpReward?: number;
   savingThrowBonus?: number;
   conditions: Condition[]; // NEW: Active conditions on enemy
+  actions?: Array<{
+    name: string;
+    type?: 'melee' | 'ranged' | 'save' | 'special';
+    toHit?: number;
+    reach?: number;
+    range?: string;
+    targets?: string;
+    damage?: string;
+    damageType?: string;
+    save?: { ability: string; dc: number; onSave: string; onFail: string };
+    description?: string;
+  }>;
+  legendaryActions?: Array<{
+    name: string;
+    cost?: number;
+    description: string;
+  }>;
+  statBlockSource?: string;
+  statBlockHeading?: string;
+}
+
+export interface FeatureUses {
+  actionSurge: boolean;
+  secondWind: boolean;
+  bardicInspiration: number;
+  rage: number;
+  channelDivinity: number;
+  layOnHands: number;
+  kiPoints: number;
+  wildShape: number;
+  sorceryPoints: number;
 }
 
 export interface CombatState {

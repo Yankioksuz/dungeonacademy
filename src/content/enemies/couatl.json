@@ -1,0 +1,37 @@
+{
+  "id": "couatl",
+  "name": "Couatl",
+  "armorClass": 19,
+  "hitPoints": 97,
+  "attackBonus": 6,
+  "damage": "1d6+3 piercing",
+  "damageType": "piercing",
+  "effectType": "poison",
+  "saveDC": 13,
+  "creatureType": "celestial",
+  "xpReward": 1100,
+  "size": "Medium",
+  "alignment": "lawful good",
+  "speed": { "walk": 30, "fly": 90 },
+  "abilityScores": { "strength": 16, "dexterity": 20, "constitution": 17, "intelligence": 18, "wisdom": 20, "charisma": 18 },
+  "savingThrows": { "con": 5, "wis": 7, "cha": 6 },
+  "skills": { "perception": 7, "stealth": 9 },
+  "damageResistances": ["radiant", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["psychic"],
+  "conditionImmunities": ["charmed", "frightened"],
+  "senses": ["truesight 120 ft.", "passive Perception 17"],
+  "languages": ["all, telepathy 120 ft."],
+  "challenge": "4",
+  "traits": [
+    "innate-spellcasting",
+    "magic-resistance"
+  ],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "1d6+3 piercing", "damageType": "piercing", "description": "DC 13 CON save or poisoned for 24 hours; while poisoned, target is unconscious. Wakes if takes damage." },
+    { "name": "Constrict", "type": "melee", "toHit": 6, "reach": 10, "targets": "one Medium or smaller creature", "damage": "2d6+3 bludgeoning", "damageType": "bludgeoning", "description": "Target grappled (escape DC 15) and restrained; couatl can’t constrict another target." },
+    { "name": "Change Shape", "type": "special", "description": "Polymorphs into humanoid or beast of CR equal/less; equipment absorbed; retains game stats except AC/size/speed." }
+  ],
+  "legendaryActions": [],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/c-monster-stat-block.md",
+  "statBlockHeading": "Couatl"
+}

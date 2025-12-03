@@ -1,0 +1,36 @@
+{
+  "id": "basilisk",
+  "name": "Basilisk",
+  "armorClass": 15,
+  "hitPoints": 52,
+  "attackBonus": 5,
+  "damage": "2d6+3 piercing",
+  "damageType": "piercing",
+  "effectType": "petrified",
+  "saveDC": 12,
+  "creatureType": "monstrosity",
+  "xpReward": 700,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 20 },
+  "abilityScores": { "strength": 16, "dexterity": 8, "constitution": 15, "intelligence": 2, "wisdom": 8, "charisma": 7 },
+  "senses": ["darkvision 60 ft.", "passive Perception 9"],
+  "challenge": "3",
+  "traits": [
+    "petrifying-gaze"
+  ],
+  "actions": [
+    {
+      "name": "Bite",
+      "type": "melee",
+      "toHit": 5,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "2d6+3 piercing",
+      "damageType": "piercing",
+      "description": "On hit, target must make DC 12 CON save; fail twice to become petrified (see SRD)."
+    }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Basilisk"
+}

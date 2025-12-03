@@ -1,0 +1,26 @@
+{
+  "id": "nightmare",
+  "name": "Nightmare",
+  "armorClass": 13,
+  "hitPoints": 68,
+  "attackBonus": 6,
+  "damage": "2d8+4 bludgeoning plus 2d6 fire",
+  "damageType": "bludgeoning",
+  "creatureType": "fiend",
+  "xpReward": 700,
+  "size": "Large",
+  "alignment": "neutral evil",
+  "speed": { "walk": 60, "fly": 90 },
+  "abilityScores": { "strength": 18, "dexterity": 15, "constitution": 16, "intelligence": 10, "wisdom": 13, "charisma": 15 },
+  "damageImmunities": ["fire"],
+  "senses": ["passive Perception 11"],
+  "languages": ["understands Abyssal", "understands Common", "understands Infernal"],
+  "challenge": "3",
+  "traits": ["confer-fire-resistance", "illumination"],
+  "actions": [
+    { "name": "Hooves", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d8+4 bludgeoning plus 2d6 fire", "damageType": "bludgeoning" },
+    { "name": "Ethereal Stride", "type": "special", "description": "Nightmare and up to three willing creatures within 5 ft. enter the Ethereal Plane from the Material Plane or vice versa." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/n-monster-stat-block.md",
+  "statBlockHeading": "Nightmare"
+}

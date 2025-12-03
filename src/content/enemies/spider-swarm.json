@@ -1,0 +1,12 @@
+{
+  "id": "spider-swarm",
+  "name": "Spider Swarm",
+  "armorClass": 12,
+  "hitPoints": 22,
+  "attackBonus": 3,
+  "damage": "2d6+1",
+  "damageType": "poison",
+  "effectType": "poison",
+  "creatureType": "beast",
+  "xpReward": 50
+}

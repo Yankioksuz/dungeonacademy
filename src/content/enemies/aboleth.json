@@ -1,0 +1,96 @@
+{
+  "id": "aboleth",
+  "name": "Aboleth",
+  "armorClass": 17,
+  "hitPoints": 135,
+  "attackBonus": 9,
+  "damage": "2d6+5 bludgeoning",
+  "damageType": "bludgeoning",
+  "effectType": "charm",
+  "saveDC": 14,
+  "creatureType": "aberration",
+  "xpReward": 5900,
+  "size": "Large",
+  "alignment": "lawful evil",
+  "speed": {
+    "walk": 10,
+    "swim": 40
+  },
+  "abilityScores": {
+    "strength": 21,
+    "dexterity": 9,
+    "constitution": 15,
+    "intelligence": 18,
+    "wisdom": 15,
+    "charisma": 18
+  },
+  "savingThrows": {
+    "con": 6,
+    "int": 8,
+    "wis": 6
+  },
+  "skills": {
+    "history": 12,
+    "perception": 10
+  },
+  "senses": [
+    "darkvision 120 ft.",
+    "passive Perception 20"
+  ],
+  "languages": [
+    "Deep Speech",
+    "telepathy 120 ft."
+  ],
+  "challenge": "14",
+  "traits": [
+    "legendary",
+    "multiattack",
+    "enslave",
+    "disease",
+    "amphibious",
+    "mucous-cloud"
+  ],
+  "actions": [
+    {
+      "name": "Multiattack",
+      "description": "The aboleth makes three tentacle attacks.",
+      "type": "special"
+    },
+    {
+      "name": "Tentacle",
+      "type": "melee",
+      "toHit": 9,
+      "reach": 10,
+      "targets": "one target",
+      "damage": "2d6+5 bludgeoning",
+      "damageType": "bludgeoning",
+      "save": {
+        "ability": "constitution",
+        "dc": 14,
+        "onFail": "Diseased as per Aboleth tentacle; can breathe only underwater after 1 minute",
+        "onSave": "No disease"
+      }
+    },
+    {
+      "name": "Tail",
+      "type": "melee",
+      "toHit": 9,
+      "reach": 10,
+      "targets": "one target",
+      "damage": "3d6+5 bludgeoning",
+      "damageType": "bludgeoning"
+    },
+    {
+      "name": "Enslave (3/Day)",
+      "type": "special",
+      "description": "One creature within 30 ft. must succeed on a DC 14 Wisdom save or be magically charmed (as per aboleth); repeat save when damaged or 1 mile away."
+    }
+  ],
+  "legendaryActions": [
+    { "name": "Detect", "description": "The aboleth makes a Wisdom (Perception) check." },
+    { "name": "Tail Swipe", "description": "The aboleth makes one tail attack." },
+    { "name": "Psychic Drain", "cost": 2, "description": "One charmed creature takes 10 (3d6) psychic damage; the aboleth regains hit points equal to the damage dealt." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/a-monster-stat-block.md",
+  "statBlockHeading": "Aboleth"
+}

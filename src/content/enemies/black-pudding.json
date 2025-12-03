@@ -1,0 +1,41 @@
+{
+  "id": "black-pudding",
+  "name": "Black Pudding",
+  "armorClass": 7,
+  "hitPoints": 85,
+  "attackBonus": 5,
+  "damage": "1d6+3 bludgeoning plus 4d8 acid",
+  "damageType": "bludgeoning",
+  "effectType": "acid",
+  "creatureType": "ooze",
+  "xpReward": 1100,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 20, "climb": 20 },
+  "abilityScores": { "strength": 16, "dexterity": 5, "constitution": 16, "intelligence": 1, "wisdom": 6, "charisma": 1 },
+  "senses": ["blindsight 60 ft. (blind beyond this radius)", "passive Perception 8"],
+  "damageResistances": ["acid", "cold", "fire"],
+  "damageImmunities": ["lightning", "slashing"],
+  "conditionImmunities": ["blinded", "charmed", "deafened", "exhaustion", "frightened", "prone"],
+  "challenge": "4",
+  "traits": [
+    "amorphous",
+    "corrosive-form",
+    "spider-climb",
+    "split"
+  ],
+  "actions": [
+    {
+      "name": "Pseudopod",
+      "type": "melee",
+      "toHit": 5,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "1d6+3 bludgeoning plus 4d8 acid",
+      "damageType": "bludgeoning",
+      "description": "Target's nonmagical armor corrodes (AC reduction) and nonmagical weapons take a -1 penalty; see SRD."
+    }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Black Pudding"
+}

@@ -1,0 +1,25 @@
+{
+  "id": "rug-of-smothering",
+  "name": "Rug of Smothering",
+  "armorClass": 12,
+  "hitPoints": 33,
+  "attackBonus": 5,
+  "damage": "2d6+3 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "construct",
+  "xpReward": 450,
+  "size": "Large",
+  "alignment": "unaligned",
+  "speed": { "walk": 10 },
+  "abilityScores": { "strength": 17, "dexterity": 14, "constitution": 10, "intelligence": 1, "wisdom": 3, "charisma": 1 },
+  "damageImmunities": ["poison", "psychic"],
+  "conditionImmunities": ["blinded", "charmed", "deafened", "frightened", "paralyzed", "petrified", "poisoned"],
+  "senses": ["blindsight 60 ft. (blind beyond this radius)", "passive Perception 6"],
+  "challenge": "2",
+  "traits": ["antimagic-susceptibility", "damage-transfer", "false-appearance"],
+  "actions": [
+    { "name": "Smother", "type": "melee", "toHit": 5, "reach": 5, "targets": "one Medium or smaller creature", "damage": "2d6+3 bludgeoning", "damageType": "bludgeoning", "description": "Target is grappled (escape DC 13), restrained, blinded, and suffocating risk; rug can't smother another target. While grappling, rug takes half damage dealt to it, target takes the other half." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/r-monster-stat-block.md",
+  "statBlockHeading": "Rug of Smothering"
+}

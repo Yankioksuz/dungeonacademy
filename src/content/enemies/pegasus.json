@@ -1,0 +1,26 @@
+{
+  "id": "pegasus",
+  "name": "Pegasus",
+  "armorClass": 12,
+  "hitPoints": 59,
+  "attackBonus": 6,
+  "damage": "2d6+4 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "celestial",
+  "xpReward": 450,
+  "size": "Large",
+  "alignment": "chaotic good",
+  "speed": { "walk": 60, "fly": 90 },
+  "abilityScores": { "strength": 18, "dexterity": 15, "constitution": 16, "intelligence": 10, "wisdom": 15, "charisma": 13 },
+  "savingThrows": { "dex": 4, "wis": 4, "cha": 3 },
+  "skills": { "perception": 6 },
+  "senses": ["passive Perception 16"],
+  "languages": ["understands Celestial", "understands Common", "understands Elvish", "understands Sylvan"],
+  "challenge": "2",
+  "traits": [],
+  "actions": [
+    { "name": "Hooves", "type": "melee", "toHit": 6, "reach": 5, "targets": "one target", "damage": "2d6+4 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/p-monster-stat-block.md",
+  "statBlockHeading": "Pegasus"
+}

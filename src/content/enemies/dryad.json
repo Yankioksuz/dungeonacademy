@@ -1,0 +1,26 @@
+{
+  "id": "dryad",
+  "name": "Dryad",
+  "armorClass": 11,
+  "hitPoints": 22,
+  "attackBonus": 6,
+  "damage": "1d8+4 bludgeoning (shillelagh)",
+  "damageType": "bludgeoning",
+  "creatureType": "fey",
+  "xpReward": 200,
+  "size": "Medium",
+  "alignment": "neutral",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 10, "dexterity": 12, "constitution": 11, "intelligence": 14, "wisdom": 15, "charisma": 18 },
+  "skills": { "perception": 4, "stealth": 5 },
+  "senses": ["darkvision 60 ft.", "passive Perception 14"],
+  "languages": ["Elvish", "Sylvan"],
+  "challenge": "1",
+  "traits": ["innate-spellcasting", "magic-resistance", "speak-with-beasts-and-plants", "tree-stride"],
+  "actions": [
+    { "name": "Club", "type": "melee", "toHit": 2, "reach": 5, "targets": "one target", "damage": "1d4 bludgeoning", "damageType": "bludgeoning", "description": "With shillelagh: +6 to hit, 1d8+4 bludgeoning." },
+    { "name": "Fey Charm", "type": "special", "description": "Humanoid or beast within 30 ft. makes DC 14 WIS save or is charmed. Target regards dryad as trusted friend; repeats save when harmed by dryad or allies. Effect lasts 24 hours, until dryad ends it (bonus action), dies, or is on another plane. A successful save grants 24-hour immunity. Dryad can charm one humanoid and up to three beasts at a time." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/d-monster-stat-block.md",
+  "statBlockHeading": "Dryad"
+}

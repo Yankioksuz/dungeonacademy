@@ -1,0 +1,23 @@
+{
+  "id": "poisonous-snake",
+  "name": "Poisonous Snake",
+  "armorClass": 13,
+  "hitPoints": 2,
+  "attackBonus": 5,
+  "damage": "1 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 25,
+  "size": "Tiny",
+  "alignment": "unaligned",
+  "speed": { "walk": 30, "swim": 30 },
+  "abilityScores": { "strength": 2, "dexterity": 16, "constitution": 11, "intelligence": 1, "wisdom": 10, "charisma": 3 },
+  "senses": ["blindsight 10 ft.", "passive Perception 10"],
+  "challenge": "1/8",
+  "traits": [],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1 piercing", "damageType": "piercing", "description": "DC 10 CON save or take 5 (2d4) poison damage, half on success." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/p-monster-stat-block.md",
+  "statBlockHeading": "Poisonous Snake"
+}

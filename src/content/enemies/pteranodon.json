@@ -1,0 +1,24 @@
+{
+  "id": "pteranodon",
+  "name": "Pteranodon",
+  "armorClass": 13,
+  "hitPoints": 13,
+  "attackBonus": 3,
+  "damage": "2d4+1 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 50,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 10, "fly": 60 },
+  "abilityScores": { "strength": 12, "dexterity": 15, "constitution": 10, "intelligence": 2, "wisdom": 9, "charisma": 5 },
+  "skills": { "perception": 1 },
+  "senses": ["passive Perception 11"],
+  "challenge": "1/4",
+  "traits": ["flyby"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "2d4+1 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/p-monster-stat-block.md",
+  "statBlockHeading": "Pteranodon"
+}

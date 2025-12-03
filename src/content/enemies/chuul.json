@@ -1,0 +1,32 @@
+{
+  "id": "chuul",
+  "name": "Chuul",
+  "armorClass": 16,
+  "hitPoints": 93,
+  "attackBonus": 6,
+  "damage": "2d6+4 bludgeoning",
+  "damageType": "bludgeoning",
+  "effectType": "poison",
+  "saveDC": 13,
+  "creatureType": "aberration",
+  "xpReward": 1100,
+  "size": "Large",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 30, "swim": 30 },
+  "abilityScores": { "strength": 19, "dexterity": 10, "constitution": 16, "intelligence": 5, "wisdom": 11, "charisma": 5 },
+  "senses": ["darkvision 60 ft.", "tremorsense 60 ft.", "passive Perception 10"],
+  "languages": ["understands Deep Speech but can’t speak"],
+  "conditionImmunities": ["poisoned"],
+  "challenge": "4",
+  "traits": [
+    "amphibious",
+    "sense-magic"
+  ],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two pincer attacks." },
+    { "name": "Pincer", "type": "melee", "toHit": 6, "reach": 10, "targets": "one target", "damage": "2d6+4 bludgeoning", "damageType": "bludgeoning", "description": "If target is Large or smaller, it is grappled (escape DC 14); two pincers can grapple only one target." },
+    { "name": "Tentacles", "type": "special", "description": "One grappled creature must succeed on DC 13 CON save or be poisoned for 1 minute, paralyzed while poisoned. Repeat save at end of turns." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/c-monster-stat-block.md",
+  "statBlockHeading": "Chuul"
+}

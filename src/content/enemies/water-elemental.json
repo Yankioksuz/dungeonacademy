@@ -1,0 +1,29 @@
+{
+  "id": "water-elemental",
+  "name": "Water Elemental",
+  "armorClass": 14,
+  "hitPoints": 114,
+  "attackBonus": 7,
+  "damage": "2d8+4 bludgeoning",
+  "damageType": "bludgeoning",
+  "creatureType": "elemental",
+  "xpReward": 1800,
+  "size": "Large",
+  "alignment": "neutral",
+  "speed": { "walk": 30, "swim": 90 },
+  "abilityScores": { "strength": 18, "dexterity": 14, "constitution": 18, "intelligence": 5, "wisdom": 10, "charisma": 8 },
+  "damageResistances": ["acid", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["exhaustion", "grappled", "paralyzed", "petrified", "poisoned", "prone", "restrained", "unconscious"],
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["Aquan"],
+  "challenge": "5",
+  "traits": ["water-form", "freeze"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two slam attacks." },
+    { "name": "Slam", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d8+4 bludgeoning", "damageType": "bludgeoning" },
+    { "name": "Whelm (Recharge 4-6)", "type": "special", "description": "Creatures in its space make DC 15 STR save or take 13 (2d8+4) bludgeoning and be grappled (escape DC 14), restrained, and unable to breathe unless able to breathe water; pushed out on success. Can grapple one Large or two Medium or smaller. Grappled targets take 13 (2d8+4) bludgeoning at start of elemental's turns; adjacent creature can pull target out with DC 14 STR check." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/w-monster-stat-block.md",
+  "statBlockHeading": "Water Elemental"
+}

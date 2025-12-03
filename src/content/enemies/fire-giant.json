@@ -1,0 +1,29 @@
+{
+  "id": "fire-giant",
+  "name": "Fire Giant",
+  "armorClass": 18,
+  "hitPoints": 162,
+  "attackBonus": 11,
+  "damage": "6d6+7 slashing",
+  "damageType": "slashing",
+  "creatureType": "giant",
+  "xpReward": 5000,
+  "size": "Huge",
+  "alignment": "lawful evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 25, "dexterity": 9, "constitution": 23, "intelligence": 10, "wisdom": 14, "charisma": 13 },
+  "savingThrows": { "dex": 3, "con": 10, "cha": 5 },
+  "skills": { "athletics": 11, "perception": 6 },
+  "damageImmunities": ["fire"],
+  "senses": ["passive Perception 16"],
+  "languages": ["Giant"],
+  "challenge": "9",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The fire giant makes two greatsword attacks." },
+    { "name": "Greatsword", "type": "melee", "toHit": 11, "reach": 10, "targets": "one target", "damage": "6d6+7 slashing", "damageType": "slashing" },
+    { "name": "Rock", "type": "ranged", "toHit": 11, "range": "60/240", "targets": "one target", "damage": "4d10+7 bludgeoning", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/f-monster-stat-block.md",
+  "statBlockHeading": "Fire Giant"
+}

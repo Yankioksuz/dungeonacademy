@@ -1,0 +1,26 @@
+{
+  "id": "black-bear",
+  "name": "Black Bear",
+  "armorClass": 11,
+  "hitPoints": 19,
+  "attackBonus": 3,
+  "damage": "1d6+2 piercing (bite)",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 100,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 40, "climb": 30 },
+  "abilityScores": { "strength": 15, "dexterity": 10, "constitution": 14, "intelligence": 2, "wisdom": 12, "charisma": 7 },
+  "skills": { "perception": 3 },
+  "senses": ["passive Perception 13"],
+  "challenge": "1/2",
+  "traits": [],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "The bear makes two attacks: one with its bite and one with its claws." },
+    { "name": "Bite", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "1d6+2 piercing", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 3, "reach": 5, "targets": "one target", "damage": "2d4+2 slashing", "damageType": "slashing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Black Bear"
+}

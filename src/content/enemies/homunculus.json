@@ -1,0 +1,26 @@
+{
+  "id": "homunculus",
+  "name": "Homunculus",
+  "armorClass": 13,
+  "hitPoints": 5,
+  "attackBonus": 4,
+  "damage": "1 piercing",
+  "damageType": "piercing",
+  "creatureType": "construct",
+  "xpReward": 10,
+  "size": "Tiny",
+  "alignment": "neutral",
+  "speed": { "walk": 20, "fly": 40 },
+  "abilityScores": { "strength": 4, "dexterity": 15, "constitution": 11, "intelligence": 10, "wisdom": 10, "charisma": 7 },
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["charmed", "poisoned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["understands creator's languages"],
+  "challenge": "0",
+  "traits": ["telepathic-bond"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one creature", "damage": "1 piercing", "damageType": "piercing", "description": "DC 10 CON save or poisoned 1 minute; failure by 5+ poisons for 1d10 minutes and the target is unconscious while poisoned." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/h-monster-stat-block.md",
+  "statBlockHeading": "Homunculus"
+}

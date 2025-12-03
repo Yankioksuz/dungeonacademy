@@ -1,0 +1,27 @@
+{
+  "id": "ettercap",
+  "name": "Ettercap",
+  "armorClass": 13,
+  "hitPoints": 44,
+  "attackBonus": 4,
+  "damage": "1d8+2 piercing plus 1d8 poison",
+  "damageType": "piercing",
+  "creatureType": "monstrosity",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "neutral evil",
+  "speed": { "walk": 30, "climb": 30 },
+  "abilityScores": { "strength": 14, "dexterity": 15, "constitution": 13, "intelligence": 7, "wisdom": 12, "charisma": 8 },
+  "skills": { "perception": 3, "stealth": 4, "survival": 3 },
+  "senses": ["darkvision 60 ft.", "passive Perception 13"],
+  "challenge": "2",
+  "traits": ["spider-climb", "web-sense", "web-walker"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks: one with bite and one with claws." },
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one creature", "damage": "1d8+2 piercing plus 1d8 poison", "damageType": "piercing", "description": "DC 11 CON save or poisoned for 1 minute; repeat save at end of turns to end." },
+    { "name": "Claws", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "2d4+2 slashing", "damageType": "slashing" },
+    { "name": "Web (Recharge 5-6)", "type": "ranged", "toHit": 4, "range": "30/60", "targets": "one Large or smaller creature", "description": "On hit, target is restrained by webbing. As an action, restrained creature can make DC 11 STR check to escape. Webbing AC 10, 5 HP, vulnerability to fire, immune to bludgeoning, poison, psychic." }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/e-monster-stat-block.md",
+  "statBlockHeading": "Ettercap"
+}

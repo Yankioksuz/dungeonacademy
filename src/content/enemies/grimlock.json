@@ -1,0 +1,26 @@
+{
+  "id": "grimlock",
+  "name": "Grimlock",
+  "armorClass": 11,
+  "hitPoints": 11,
+  "attackBonus": 5,
+  "damage": "1d4+3 bludgeoning plus 1d4 piercing",
+  "damageType": "bludgeoning",
+  "creatureType": "humanoid",
+  "xpReward": 50,
+  "size": "Medium",
+  "alignment": "neutral evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 16, "dexterity": 12, "constitution": 12, "intelligence": 9, "wisdom": 8, "charisma": 6 },
+  "skills": { "athletics": 5, "perception": 3, "stealth": 3 },
+  "conditionImmunities": ["blinded"],
+  "senses": ["blindsight 30 ft. (10 ft. while deafened)", "passive Perception 13"],
+  "languages": ["Undercommon"],
+  "challenge": "1/4",
+  "traits": ["blind-senses", "keen-hearing-and-smell", "stone-camouflage"],
+  "actions": [
+    { "name": "Spiked Bone Club", "type": "melee", "toHit": 5, "reach": 5, "targets": "one target", "damage": "1d4+3 bludgeoning plus 1d4 piercing", "damageType": "bludgeoning" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Grimlock"
+}

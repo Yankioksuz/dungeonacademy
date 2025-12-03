@@ -1,0 +1,29 @@
+{
+  "id": "gargoyle",
+  "name": "Gargoyle",
+  "armorClass": 15,
+  "hitPoints": 52,
+  "attackBonus": 4,
+  "damage": "1d6+2 piercing (bite) or 1d6+2 slashing (claws)",
+  "damageType": "piercing",
+  "creatureType": "elemental",
+  "xpReward": 450,
+  "size": "Medium",
+  "alignment": "chaotic evil",
+  "speed": { "walk": 30, "fly": 60 },
+  "abilityScores": { "strength": 15, "dexterity": 11, "constitution": 16, "intelligence": 6, "wisdom": 11, "charisma": 7 },
+  "damageResistances": ["nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing from non-adamantine"],
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["exhaustion", "petrified", "poisoned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 10"],
+  "languages": ["Terran"],
+  "challenge": "2",
+  "traits": ["false-appearance"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two attacks: one bite and one claws." },
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d6+2 piercing", "damageType": "piercing" },
+    { "name": "Claws", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d6+2 slashing", "damageType": "slashing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/g-monster-stat-block.md",
+  "statBlockHeading": "Gargoyle"
+}

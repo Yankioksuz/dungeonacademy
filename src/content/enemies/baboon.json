@@ -1,0 +1,31 @@
+{
+  "id": "baboon",
+  "name": "Baboon",
+  "armorClass": 12,
+  "hitPoints": 3,
+  "attackBonus": 1,
+  "damage": "1d4-1 piercing",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 10,
+  "size": "Small",
+  "alignment": "unaligned",
+  "speed": { "walk": 30, "climb": 30 },
+  "abilityScores": { "strength": 8, "dexterity": 14, "constitution": 11, "intelligence": 4, "wisdom": 12, "charisma": 6 },
+  "senses": ["passive Perception 11"],
+  "challenge": "0",
+  "traits": ["pack-tactics"],
+  "actions": [
+    {
+      "name": "Bite",
+      "type": "melee",
+      "toHit": 1,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "1d4-1 piercing",
+      "damageType": "piercing"
+    }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
+  "statBlockHeading": "Baboon"
+}

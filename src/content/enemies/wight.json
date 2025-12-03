@@ -1,0 +1,31 @@
+{
+  "id": "wight",
+  "name": "Wight",
+  "armorClass": 14,
+  "hitPoints": 45,
+  "attackBonus": 4,
+  "damage": "1d6+2 necrotic (Life Drain) or 1d8+2 slashing (longsword) or 1d8+2 piercing (longbow)",
+  "damageType": "necrotic",
+  "creatureType": "undead",
+  "xpReward": 700,
+  "size": "Medium",
+  "alignment": "neutral evil",
+  "speed": { "walk": 30 },
+  "abilityScores": { "strength": 15, "dexterity": 14, "constitution": 16, "intelligence": 10, "wisdom": 13, "charisma": 15 },
+  "skills": { "perception": 3, "stealth": 4 },
+  "damageResistances": ["necrotic", "non-silvered bludgeoning", "non-silvered piercing", "non-silvered slashing"],
+  "damageImmunities": ["poison"],
+  "conditionImmunities": ["exhaustion", "poisoned"],
+  "senses": ["darkvision 60 ft.", "passive Perception 13"],
+  "languages": ["languages known in life"],
+  "challenge": "3",
+  "traits": ["sunlight-sensitivity"],
+  "actions": [
+    { "name": "Multiattack", "type": "special", "description": "Makes two longsword or two longbow attacks; can replace one longsword attack with Life Drain." },
+    { "name": "Life Drain", "type": "melee", "toHit": 4, "reach": 5, "targets": "one creature", "damage": "1d6+2 necrotic", "damageType": "necrotic", "description": "DC 13 CON save or HP max reduced by damage taken until long rest; dies if max HP hits 0. Humanoids slain rise as zombies under the wight in 24 hours (max 12)." },
+    { "name": "Longsword", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d8+2 slashing", "damageType": "slashing", "description": "1d10+2 if used two-handed." },
+    { "name": "Longbow", "type": "ranged", "toHit": 4, "range": "150/600", "targets": "one target", "damage": "1d8+2 piercing", "damageType": "piercing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/w-monster-stat-block.md",
+  "statBlockHeading": "Wight"
+}

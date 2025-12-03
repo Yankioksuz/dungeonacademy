@@ -1,0 +1,25 @@
+{
+  "id": "panther",
+  "name": "Panther",
+  "armorClass": 12,
+  "hitPoints": 13,
+  "attackBonus": 4,
+  "damage": "1d6+2 piercing (bite) or 1d4+2 slashing (claw)",
+  "damageType": "piercing",
+  "creatureType": "beast",
+  "xpReward": 50,
+  "size": "Medium",
+  "alignment": "unaligned",
+  "speed": { "walk": 50, "climb": 40 },
+  "abilityScores": { "strength": 14, "dexterity": 15, "constitution": 10, "intelligence": 3, "wisdom": 14, "charisma": 7 },
+  "skills": { "perception": 4, "stealth": 6 },
+  "senses": ["passive Perception 14"],
+  "challenge": "1/4",
+  "traits": ["keen-smell", "pounce"],
+  "actions": [
+    { "name": "Bite", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d6+2 piercing", "damageType": "piercing" },
+    { "name": "Claw", "type": "melee", "toHit": 4, "reach": 5, "targets": "one target", "damage": "1d4+2 slashing", "damageType": "slashing" }
+  ],
+  "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/p-monster-stat-block.md",
+  "statBlockHeading": "Panther"
+}
