@@ -5,12 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/
 import { Badge } from './ui/badge';
 import { useTranslation } from 'react-i18next';
 import { Sword, BookOpen, Dice6, DoorOpen, CheckCircle2, Backpack, X, Tent, ShoppingBag, Brain, Wand2 } from 'lucide-react';
-import type { Item, TalentOption, Encounter, SkillName, SpellContent } from '@/types';
+import type { Item, TalentOption, Encounter, SkillName, SpellContent, Subclass } from '@/types';
 import { cn } from '@/lib/utils';
 import { CombatEncounter } from './CombatEncounter';
 import { Inventory } from './Inventory';
 import { DiceRollModal } from './DiceRollModal';
 import { LevelUpModal } from './LevelUpModal';
+import { SUBCLASSES } from '@/data/subclasses';
 import itemsData from '@/content/items.json';
 import spellsData from '@/content/spells.json';
 import talentsContent from '@/content/talents.json';
@@ -26,9 +27,25 @@ import {
   isPreparedCaster,
   shouldCheckScrollUse,
   getProficiencyBonus,
+  getSpellHealing,
 } from '@/lib/spells';
 
 // Force update check
+
+const SUBCLASS_LEVELS: Record<string, number> = {
+  cleric: 1,
+  sorcerer: 1,
+  warlock: 1,
+  druid: 2,
+  wizard: 2,
+  barbarian: 3,
+  bard: 3,
+  fighter: 3,
+  monk: 3,
+  paladin: 3,
+  ranger: 3,
+  rogue: 3,
+};
 
 const itemCollections = [
   itemsData.weapons,
@@ -142,6 +159,8 @@ export function Adventure() {
   const allTalents = talentsContent as TalentOption[];
   const [availableTalents, setAvailableTalents] = useState<TalentOption[]>([]);
   const [selectedTalentId, setSelectedTalentId] = useState<string | null>(null);
+  const [availableSubclasses, setAvailableSubclasses] = useState<Subclass[]>([]);
+  const [selectedSubclassId, setSelectedSubclassId] = useState<string | null>(null);
 
   const visitedEncounters = adventure?.visitedEncounterIds || [];
   const slotBadges = useMemo(() => {
@@ -387,6 +406,7 @@ export function Adventure() {
     if (spell.healing && effectFormula) {
       let healTotal = parseDice(effectFormula);
       healTotal += abilityMod;
+      healTotal += getSpellHealing(spell, effectiveSlotLevel || spell.level, character); // Bonus Healing (e.g. Life Domain)
       const before = character.hitPoints;
       const newHp = Math.min(character.maxHitPoints, before + healTotal);
       const actualHeal = Math.max(0, newHp - before);
@@ -431,7 +451,17 @@ export function Adventure() {
       });
       // Generate talents based on new level if needed
       const newTalents = allTalents.filter(t => !character.talents?.includes(t.id)).slice(0, 3);
+
       setAvailableTalents(newTalents);
+
+      // Check for Subclass Selection
+      const subclassLevel = SUBCLASS_LEVELS[character.class.id] || 3;
+      if (character.level === subclassLevel && !character.subclass) {
+        const classSubclasses = SUBCLASSES[character.class.id] || [];
+        setAvailableSubclasses(classSubclasses);
+      } else {
+        setAvailableSubclasses([]);
+      }
     }
     prevLevelRef.current = character?.level || 1;
   }, [character?.level, allTalents, character]);
@@ -583,6 +613,21 @@ export function Adventure() {
   };
 
   const handleTalentConfirm = () => {
+    // Handle Subclass Selection
+    if (selectedSubclassId && availableSubclasses.length > 0) {
+      const selectedSubclass = availableSubclasses.find(s => s.id === selectedSubclassId);
+      if (selectedSubclass) {
+        updateCharacter((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            subclass: selectedSubclass
+          };
+        });
+        addJournalEntry(`Chose the path of ${selectedSubclass.name}.`, 'Subclass Selected');
+      }
+    }
+
     const selectedTalent = availableTalents.find((talent) => talent.id === selectedTalentId);
 
     if (selectedTalent) {
@@ -616,6 +661,8 @@ export function Adventure() {
 
     setAvailableTalents([]);
     setSelectedTalentId(null);
+    setAvailableSubclasses([]);
+    setSelectedSubclassId(null);
     setShowLevelUp(false);
   };
 
@@ -702,6 +749,16 @@ export function Adventure() {
 
     consumeItem(item);
     setShowInventory(false);
+  };
+
+  const handlePinItem = (item: Item) => {
+    updateCharacter((prev) => {
+      if (!prev || !prev.inventory) return prev;
+      const updatedInventory = prev.inventory.map((i) =>
+        i.id === item.id ? { ...i, pinned: !i.pinned } : i
+      );
+      return { ...prev, inventory: updatedInventory };
+    });
   };
 
   const getAbilityModifier = (ability: string) => {
@@ -824,6 +881,9 @@ export function Adventure() {
         talents={availableTalents}
         selectedTalentId={selectedTalentId}
         onSelectTalent={setSelectedTalentId}
+        subclasses={availableSubclasses}
+        selectedSubclassId={selectedSubclassId}
+        onSelectSubclass={setSelectedSubclassId}
         onConfirm={handleTalentConfirm}
       />
       {showExitConfirm && (
@@ -1317,6 +1377,7 @@ export function Adventure() {
           onEquipItem={equipItem}
           onUnequipItem={unequipItem}
           onUseItem={handleUseInventoryItem}
+          onPinItem={handlePinItem}
           onClose={() => setShowInventory(false)}
         />
       )}

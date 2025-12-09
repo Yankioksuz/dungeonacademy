@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
 import { Sparkles, ArrowUpCircle } from 'lucide-react';
-import type { TalentOption } from '@/types';
+import type { TalentOption, Subclass } from '@/types';
 
 interface LevelUpModalProps {
   isOpen: boolean;
@@ -10,6 +10,9 @@ interface LevelUpModalProps {
   talents: TalentOption[];
   selectedTalentId: string | null;
   onSelectTalent: (talentId: string) => void;
+  subclasses?: Subclass[];
+  selectedSubclassId?: string | null;
+  onSelectSubclass?: (subclassId: string) => void;
   onConfirm: () => void;
 }
 
@@ -20,6 +23,9 @@ export function LevelUpModal({
   talents,
   selectedTalentId,
   onSelectTalent,
+  subclasses = [],
+  selectedSubclassId,
+  onSelectSubclass,
   onConfirm,
 }: LevelUpModalProps) {
   const { t } = useTranslation();
@@ -27,6 +33,7 @@ export function LevelUpModal({
   if (!isOpen) return null;
 
   const hasTalents = talents.length > 0;
+  const hasSubclasses = subclasses && subclasses.length > 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm fade-in">
@@ -54,6 +61,26 @@ export function LevelUpModal({
           </div>
 
           <div className="mt-6 text-left">
+            {hasSubclasses && (
+              <>
+                <p className="text-sm text-muted-foreground mb-2">{t('levelUp.chooseSubclass', 'Choose a Subclass:')}</p>
+                <div className="grid gap-3 mb-6">
+                  {subclasses.map((subclass) => (
+                    <button
+                      key={subclass.id}
+                      className={`p-4 rounded-lg border transition-all text-left ${selectedSubclassId === subclass.id ? 'border-fantasy-gold bg-fantasy-gold/10' : 'border-white/10 hover:border-fantasy-gold/50'}`}
+                      onClick={() => onSelectSubclass?.(subclass.id)}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="font-semibold text-lg">{subclass.name}</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{subclass.description}</p>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
             {hasTalents ? (
               <>
                 <p className="text-sm text-muted-foreground mb-2">{t('levelUp.chooseTalent', 'Choose a new talent:')}</p>
@@ -82,7 +109,7 @@ export function LevelUpModal({
 
           <Button
             onClick={onConfirm}
-            disabled={!selectedTalentId && hasTalents}
+            disabled={(!selectedTalentId && hasTalents) || (!selectedSubclassId && hasSubclasses)}
             className="w-full py-6 text-xl font-bold bg-fantasy-gold hover:bg-fantasy-gold/90 text-fantasy-dark-bg transition-all hover:scale-105 disabled:opacity-60"
           >
             {t('levelUp.continue', 'Continue Adventure')}

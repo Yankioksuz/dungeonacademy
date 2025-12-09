@@ -19,9 +19,10 @@ import { useSaveSystem } from '@/hooks/useSaveSystem';
 import tutorialAdventure from '@/content/adventure.json';
 import spireAdventure from '@/content/adventure-shadows.json';
 import spellsContent from '@/content/spells.json';
-import { getMaxPreparedSpells } from '@/lib/spells';
+import { getMaxPreparedSpells, calculateSpellSlots } from '@/lib/spells';
 import { getProficiencyBonus, createDefaultSkills, getPassiveScore } from '@/utils/skillUtils';
 import { getDefaultFeatureUses } from '@/utils/featureUtils';
+import { CLASS_PROGRESSION } from '@/data/classProgression';
 
 type CharacterUpdater =
   | Partial<PlayerCharacter>
@@ -171,11 +172,15 @@ const migrateCharacter = (char: Partial<PlayerCharacter> | null): PlayerCharacte
   let savingThrowProficiencies = char.savingThrowProficiencies;
   if (!savingThrowProficiencies && char.class) {
     // Try to get from class definition
-    const classDef = characterCreationContent.classes.find(c => c.name === char.class.name);
+    const classDef = char.class ? characterCreationContent.classes.find(c => c.name === char.class!.name) : undefined;
     if (classDef && classDef.savingThrowProficiencies) {
-      savingThrowProficiencies = {};
-      classDef.savingThrowProficiencies.forEach((ability: AbilityName) => {
-        (savingThrowProficiencies as Record<AbilityName, boolean>)[ability] = true;
+      savingThrowProficiencies = {
+        strength: false, dexterity: false, constitution: false,
+        intelligence: false, wisdom: false, charisma: false
+      };
+      classDef.savingThrowProficiencies.forEach((ability: string) => {
+        const abilityName = ability as AbilityName;
+        (savingThrowProficiencies as Record<AbilityName, boolean>)[abilityName] = true;
       });
     } else {
       // Fallback defaults based on class name
@@ -198,12 +203,22 @@ const migrateCharacter = (char: Partial<PlayerCharacter> | null): PlayerCharacte
     skills,
     conditions,
     deathSaves,
-    savingThrowProficiencies: savingThrowProficiencies || {},
+    savingThrowProficiencies: savingThrowProficiencies || {
+      strength: false, dexterity: false, constitution: false,
+      intelligence: false, wisdom: false, charisma: false
+    },
     temporaryHitPoints: char.temporaryHitPoints || 0,
     passivePerception,
     passiveInvestigation,
     passiveInsight,
     featureUses: char.featureUses || getDefaultFeatureUses(char as PlayerCharacter),
+    id: char.id || `player-${Date.now()}`,
+    name: char.name || 'Hero',
+    race: char.race || characterCreationContent.races[0],
+    class: char.class || {
+      ...characterCreationContent.classes[0],
+      savingThrowProficiencies: characterCreationContent.classes[0].savingThrowProficiencies as AbilityName[]
+    },
   };
 };
 
@@ -410,7 +425,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const hitDieString = updatedCharacter.class.hitDie || 'd8';
       const baseHP = parseInt(hitDieString.replace('d', '')) || 8;
       const calculatedMaxHP = baseHP + conModifier;
-      const originBonusHp = updatedCharacter.class.id === 'sorcerer' && updatedCharacter.sorcerousOrigin === 'Draconic Bloodline'
+      const originBonusHp = (updatedCharacter.class.id === 'sorcerer' && (updatedCharacter.subclass?.id === 'draconic' || updatedCharacter.sorcerousOrigin === 'Draconic Bloodline'))
         ? updatedCharacter.level
         : 0;
 
@@ -908,6 +923,29 @@ export function GameProvider({ children }: { children: ReactNode }) {
         // Draconic Bloodline Sorcerer: +1 HP per level
         const draconicBonus = prev.class.id === 'sorcerer' && prev.sorcerousOrigin === 'Draconic Bloodline' ? 1 : 0;
 
+        // Calculate new spell slots
+        const newSpellSlots = calculateSpellSlots(prev.class.name, newLevel);
+        const hasNewSlots = Object.keys(newSpellSlots).length > 0;
+        const slotsToUpdate = hasNewSlots ? newSpellSlots : prev.spellSlots;
+
+        // Unlock new class features
+        const className = prev.class.name.toLowerCase();
+        const progression = CLASS_PROGRESSION[className];
+        let newFeatures: string[] = [];
+
+        if (progression) {
+          // Get features for the new level
+          const featuresForLevel = progression[newLevel] || [];
+          featuresForLevel.forEach(feat => {
+            addJournalEntry(`You gained a new feature: ${feat}`, 'Level Up Feature');
+            newFeatures.push(feat);
+          });
+        }
+
+        // Merge with existing features (assumes features are strings in class definition)
+        const currentFeatures = prev.class.features || [];
+        const uniqueFeatures = [...new Set([...currentFeatures, ...newFeatures])];
+
         const leveledCharacter = {
           ...prev,
           // Carry over surplus XP beyond the threshold and raise the next requirement
@@ -916,11 +954,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
           level: newLevel,
           maxHitPoints: prev.maxHitPoints + 10 + draconicBonus, // Simple HP boost + Draconic bonus
           hitPoints: prev.maxHitPoints + 10 + draconicBonus, // Heal on level up
-          // Add spell slots if caster?
+          spellSlots: slotsToUpdate,
+          class: {
+            ...prev.class,
+            features: uniqueFeatures
+          }
         };
 
         return {
           ...leveledCharacter,
+          proficiencyBonus: getProficiencyBonus(newLevel),
           featureUses: getDefaultFeatureUses(leveledCharacter)
         };
       }

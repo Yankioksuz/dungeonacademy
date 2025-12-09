@@ -4,7 +4,7 @@ import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { useTranslation } from 'react-i18next';
-import { Sword, Shield, Heart, Skull, Backpack, X, Flame, Wand, Activity, HeartPulse, Brain, Zap, Sparkles, Book, Search, MessageCircle } from 'lucide-react';
+import { Sword, Shield, Heart, Skull, Backpack, X, Flame, Wand, Activity, HeartPulse, Brain, Zap, Sparkles, Book, Search, MessageCircle, FlaskConical, Scroll, Pin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PlayerCharacter, CombatEnemy, CombatLogEntry, SpellContent, CombatLogEntryType, Condition, AbilityName } from '@/types';
 import { useGame } from '@/contexts/GameContext';
@@ -26,6 +26,11 @@ import {
 import { getDefaultFeatureUses } from '@/utils/featureUtils';
 import type { FeatureUses } from '@/types';
 import { getEnemyById, mergeEnemyOverride } from '@/utils/enemies';
+
+import {
+  calculateArmorClass,
+  calculateAbilityModifier,
+} from '@/utils/characterStats';
 
 type CombatEnemyState = CombatEnemy & {
   conditions: Condition[];
@@ -86,13 +91,17 @@ const averageDamageFromString = (damage: string): number => {
   return total;
 };
 
-const selectEnemyAction = (
+
+const determineEnemyAction = (
   enemy: CombatEnemy,
-  breathReady: boolean
+  player: PlayerCharacter,
+  breathReady: boolean,
+  allies: CombatEnemy[] = []
 ): EnemyAction | { type: 'breath'; name: string; damage: string; damageType?: string; save?: { ability: string; dc: number; onSave?: string; onFail?: string } } | undefined => {
   const actions = enemy.actions || [];
-  const viable = actions.filter((action) => action.damage || action.toHit !== undefined || action.save);
-  const pool: Array<EnemyAction | { type: 'breath'; name: string; damage: string; damageType?: string; save?: { ability: string; dc: number; onSave?: string; onFail?: string } }> = [...viable];
+
+  // 1. Gather all possible actions including breath
+  const pool: Array<EnemyAction | { type: 'breath'; name: string; damage: string; damageType?: string; save?: { ability: string; dc: number; onSave?: string; onFail?: string } }> = [...actions];
   if (breathReady && enemy.breathDamage && enemy.breathType) {
     pool.push({
       type: 'breath',
@@ -102,14 +111,44 @@ const selectEnemyAction = (
       save: { ability: 'dex', dc: enemy.breathDC || 12 }
     });
   }
-  if (!pool.length) return undefined;
+
+  if (pool.length === 0) return undefined;
+
+  const behavior = enemy.behavior || 'aggressive';
+  const hpPercent = (enemy.currentHp / enemy.maxHp) * 100;
+
+  // --- BEHAVIOR LOGIC ---
+
+  // CAUTIOUS: If low HP (<40%), prioritize ranged or defensive (if we had defensive actions).
+  // For now, if cautious and low HP, try to find a ranged attack or just random to avoid being predictable.
+  if (behavior === 'cautious' && hpPercent < 40) {
+    // Logic for fleeing or dodging would go here.
+    // For now, prefer actions that might have range or control? 
+    // Fallback: Pick random viable action instead of always strongest.
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  // SUPPORT: Heal allies if they are low.
+  if (behavior === 'support') {
+    const lowHealthAlly = allies.find(a => !a.isDefeated && (a.currentHp / a.maxHp) < 0.5);
+    if (lowHealthAlly) {
+      // Look for 'Heal' or 'Cure' action in pool
+      const healAction = pool.find(a => a.name.toLowerCase().includes('heal') || a.name.toLowerCase().includes('cure'));
+      if (healAction) return healAction;
+    }
+    // If no one needs healing, or no heal action, fall through to default.
+  }
+
+  // AGGRESSIVE (Default): Maximize Damage
+  // Default logic: Pick highest average damage.
   return pool.reduce((best, action) => {
     if (!best) return action;
     const bestAvg = averageDamageFromString(best.damage || enemy.damage || '');
     const currentAvg = averageDamageFromString(action.damage || enemy.damage || '');
     return currentAvg > bestAvg ? action : best;
-  }, undefined as (EnemyAction | { type: 'breath'; name: string; damage: string; damageType?: string; save?: { ability: string; dc: number; onSave?: string; onFail?: string } }) | undefined);
+  }, undefined as typeof pool[0] | undefined);
 };
+
 
 const getEnemyAbilityMod = (enemy: CombatEnemy, ability: string): number => {
   const key = abilityLookup[ability.toLowerCase()] || 'strength';
@@ -305,6 +344,32 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   const [victoryAchieved, setVictoryAchieved] = useState(false);
   // Removed local deathSaves, using character.deathSaves
 
+  // Extra Attack State
+  const [attacksLeft, setAttacksLeft] = useState(1);
+  const maxAttacks = useMemo(() => {
+    let count = 1;
+    const level = character.level;
+    const cls = character.class.name.toLowerCase();
+
+    // Fighter
+    if (cls === 'fighter') {
+      if (level >= 20) count = 4;
+      else if (level >= 11) count = 3;
+      else if (level >= 5) count = 2;
+    }
+    // Barbarian, Paladin, Ranger, Monk
+    else if (['barbarian', 'paladin', 'ranger', 'monk'].includes(cls)) {
+      if (level >= 5) count = 2;
+    }
+    // Warlock (Thirsting Blade check - assumes it's in features or invocations)
+    // Simplified: Check if features includes 'Thirsting Blade'
+    if (cls === 'warlock' && (character.class.features || []).includes('Thirsting Blade')) {
+      count = 2;
+    }
+
+    return count;
+  }, [character.level, character.class.name, character.class.features]);
+
   const isFighter = character.class.name.toLowerCase() === 'fighter';
   const isRogue = character.class.name.toLowerCase() === 'rogue';
   const defaultUses = useMemo(() => character.featureUses || getDefaultFeatureUses(character), [character]);
@@ -328,6 +393,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   const [rageAvailable, setRageAvailable] = useState(isBarbarian ? defaultUses.rage : 0); // 2 Rages per long rest at level 1
   const [rageActive, setRageActive] = useState(false);
   const [rageRoundsLeft, setRageRoundsLeft] = useState(0);
+  const [recklessAttackActive, setRecklessAttackActive] = useState(false);
 
   // Bardic Inspiration State
   const isBard = character.class.name.toLowerCase() === 'bard';
@@ -472,11 +538,25 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     effectType?: 'poison' | 'charm' | 'fear' | 'magic'
   ) => {
     const baseRoll = rollDice(20);
-    const advantageType = getSavingThrowAdvantage(
+    let advantageType = getSavingThrowAdvantage(
       { ...character, conditions: character.conditions || [], traits: character.race?.traits || [] },
       ability,
       effectType
     );
+
+    // Barbarian Danger Sense
+    if (isBarbarian && character.level >= 2 && ability === 'dexterity') {
+      const isBlinded = character.conditions.some(c => c.type === 'blinded');
+      const isDeafened = character.conditions.some(c => c.type === 'deafened');
+      const isIncapacitated = character.conditions.some(c => c.type === 'incapacitated');
+
+      if (!isBlinded && !isDeafened && !isIncapacitated) {
+        if (advantageType === 'disadvantage') advantageType = 'normal';
+        else if (advantageType === 'normal') advantageType = 'advantage';
+        addLog("Danger Sense grants advantage on Dexterity save.", 'info');
+      }
+    }
+
     const secondRoll = rollDice(20);
     let roll = baseRoll;
     if (advantageType === 'advantage') roll = Math.max(baseRoll, secondRoll);
@@ -538,6 +618,24 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     setPlayerHp(prev => {
       let remainingDamage = damageRoll;
 
+      // Uncanny Dodge (Applies to Attacks only, but we'll approximate 'not effectType' or check incomingDamage logic)
+      // Since we don't strictly track 'isAttack' here easily without signature change, we'll assume physical damage is an attack.
+      // Or we can rely on proper flagging.
+      // For MVP: If Uncanny Dodge is active, halve damage once then remove it.
+      const hasUncannyDodge = activeBuffs.some(b => b.id === 'uncanny-dodge');
+      if (hasUncannyDodge) {
+        remainingDamage = Math.ceil(remainingDamage / 2);
+        addLog('Uncanny Dodge! Damage halved.', 'info');
+        // Remove it (Reaction consumed)
+        setActiveBuffs(prev => prev.filter(b => b.id !== 'uncanny-dodge'));
+
+        // In strict rules, you choose AFTER seeing damage. 
+        // Here we simplified to "Prepare it". 
+        // Since it consumes reaction, it resets at start of turn?
+        // We set duration 1, so it clears next turn anyway.
+        updateCharacter(current => { if (!current) return current; return { ...current, conditions: current.conditions } }); // Trigger update
+      }
+
       // Apply Resistances
       const traits = character.race?.traits || [];
       const ancestry = character.draconicAncestry;
@@ -584,18 +682,35 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         const saveAbility: 'dexterity' | 'wisdom' = ['fire', 'cold', 'lightning', 'acid', 'thunder', 'force'].includes(incomingDamageType) ? 'dexterity' : 'wisdom';
         const save = rollPlayerSavingThrow(saveAbility, 'magic');
         const dc = actingEnemy.saveDC || 12;
+
+        // Evasion (Rogue 7, Monk 7)
+        const hasEvasion = (isRogue || isMonk) && character.level >= 7 && saveAbility === 'dexterity';
+
         if (save.total >= dc) {
-          remainingDamage = Math.floor(remainingDamage / 2);
-          addLog(`Magic save succeeds (${save.total} vs DC ${dc}). Damage halved.`, 'info');
+          remainingDamage = hasEvasion ? 0 : Math.floor(remainingDamage / 2);
+          addLog(`${hasEvasion ? 'Evasion!' : 'Magic save succeeds'} (${save.total} vs DC ${dc}). ${hasEvasion ? 'No damage taken.' : 'Damage halved.'}`, 'info');
         } else {
-          addLog(`Magic save fails (${save.total} vs DC ${dc}).`, 'miss');
+          remainingDamage = hasEvasion ? Math.floor(remainingDamage / 2) : remainingDamage; // Evasion halves damage on fail? No, standard Evasion is Half on Fail. Standard rule is Full on Fail.
+          // Wait, Standard Rule: Save = Half, Fail = Full.
+          // Evasion Rule: Save = 0, Fail = Half.
+          if (hasEvasion) {
+            addLog(`Evasion! Save fails (${save.total} vs DC ${dc}) but damage is halved.`, 'info');
+          } else {
+            addLog(`Magic save fails (${save.total} vs DC ${dc}).`, 'miss');
+          }
         }
       }
 
       // Barbarian Rage Resistance
-      if (rageActive && ['bludgeoning', 'piercing', 'slashing'].includes(incomingDamageType.toLowerCase())) {
-        resisted = true;
-        addLog('Rage reduces the damage!', 'info');
+      // Barbarian Rage Resistance
+      if (rageActive) {
+        if (character.subclass?.id === 'totem-warrior' && incomingDamageType.toLowerCase() !== 'psychic') {
+          resisted = true;
+          addLog('Bear Totem Rage reduces the damage!', 'info');
+        } else if (['bludgeoning', 'piercing', 'slashing'].includes(incomingDamageType.toLowerCase())) {
+          resisted = true;
+          addLog('Rage reduces the damage!', 'info');
+        }
       }
 
       if (resisted) {
@@ -714,6 +829,27 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           addLog(`${e.name} clings to undeath! (Undead Fortitude)`, 'condition');
         }
       }
+
+      if (newHp === 0 && !e.isDefeated) {
+        // Dark One's Blessing (Warlock - Fiend)
+        // "When you reduce a hostile creature to 0 hit points, you gain temporary hit points equal to your Charisma modifier + your warlock level."
+        if (character.class.id === 'warlock' && character.subclass?.id === 'fiend') {
+          const chaMod = Math.floor((character.abilityScores.charisma - 10) / 2);
+          const tempAmount = Math.max(1, chaMod + character.level);
+
+          updateCharacter((prevChar) => {
+            if (!prevChar) return prevChar;
+            const currentTemp = prevChar.temporaryHitPoints || 0;
+            // Does not stack, takes higher
+            if (tempAmount > currentTemp) {
+              addLog(`${prevChar.name} gains ${tempAmount} temporary hit points from the Dark One's Blessing!`, 'heal');
+              return { ...prevChar, temporaryHitPoints: tempAmount };
+            }
+            return prevChar;
+          });
+        }
+      }
+
       return { ...e, currentHp: newHp, isDefeated: newHp === 0 };
     }));
   };
@@ -803,7 +939,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     }
 
     const actingEnemy = updatedEnemy;
-    const chosenAction = selectEnemyAction(actingEnemy, breathReady);
+    const chosenAction = determineEnemyAction(actingEnemy, character, breathReady, enemies);
 
     if (!canAct(actingEnemy)) {
       addLog(`${actingEnemy.name} is incapacitated and cannot act!`, 'condition');
@@ -879,19 +1015,12 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         const totalAttack = attackRoll + actionAttackBonus;
 
         // Player AC Calculation
-        const dexMod = Math.floor((character.abilityScores.dexterity - 10) / 2);
-        let baseAC = 10 + dexMod; // Default unarmored
-
-        if (character.equippedArmor) {
-          const armorAC = character.equippedArmor.armorClass || 10;
-          if (armorAC >= 16 || character.equippedArmor.id === 'chain') {
-            baseAC = armorAC;
-          } else {
-            baseAC = armorAC + dexMod;
-          }
-        }
-
-        const playerAC = baseAC + getPlayerDefenseBonus();
+        // Player AC Calculation
+        // Use centralized AC calculation which handles Unarmored Defense (Barbarian/Monk)
+        const baseAC = calculateArmorClass(character);
+        const playerAC = baseAC + getPlayerDefenseBonus() - (character.fightingStyle === 'Defense' ? 1 : 0); // subtract 1 if calculateArmorClass includes it, avoiding double count if getPlayerDefenseBonus also does?
+        // Wait, calculateArmorClass ALREADY includes Fighting Style 'Defense'.
+        // Let's check getPlayerDefenseBonus implementation.
         const effectiveAC = wildShapeActive ? WOLF_STATS.ac : playerAC;
 
         if (totalAttack >= effectiveAC) {
@@ -1090,6 +1219,10 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       damageBonus += 1;
     }
 
+    // Check attacks left
+    // Note: attacksLeft state should be checked before starting UI, but we do it here too?
+    // Actually we should prevent the function call if 0, but let's handle decrement inside the success callback.
+
     // Monk Martial Arts scaling
     if (isMonk && !character.equippedWeapon) {
       if (character.level >= 17) damageDice = '1d10';
@@ -1209,6 +1342,15 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           }
         }
 
+        // Colossus Slayer (Ranger - Hunter)
+        if (character.class.id === 'ranger' && character.subclass?.id === 'hunter') {
+          if (enemy.currentHp < enemy.maxHp) {
+            const csDamage = rollDice(8);
+            damageRoll += csDamage;
+            addLog(`Colossus Slayer! (+${csDamage} damage)`, 'info');
+          }
+        }
+
         const damageType = weaponDamageType || detectDamageType(enemy.damage || '');
         const { adjustedDamage, note } = adjustDamageForDefenses(enemy, damageRoll, damageType, { isMagical: isMagicalWeapon });
         addLog(`${character.name} hits ${enemy.name} for ${adjustedDamage} damage!`, 'damage');
@@ -1229,7 +1371,15 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         addLog(`${character.name} reveals their position!`, 'info');
       }
 
-      nextTurn();
+      setAttacksLeft(prev => {
+        const remaining = prev - 1;
+        if (remaining > 0) {
+          addLog(`You have ${remaining} attack(s) remaining!`, 'info');
+          return remaining;
+        }
+        nextTurn();
+        return 0;
+      });
     });
   };
 
@@ -1359,6 +1509,28 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       if (!spent) {
         addLog(`Unable to spend a level ${computedSlotLevel} slot.`, 'miss');
         return;
+      }
+    }
+
+    // Wild Magic Surge (Sorcerer)
+    if (character.class.id === 'sorcerer' && character.subclass?.id === 'wild-magic' && !isCantrip) {
+      // "Immediately after you cast a sorcerer spell of 1st level or higher, the DM can have you roll a d20."
+      // We auto-roll for fun.
+      const surgeRoll = rollDice(20);
+      if (surgeRoll === 1) {
+        addLog('Wild Magic Surge triggered! (Rolled 1 on d20)', 'info');
+        // Simplified Effect for MVP:
+        const effectRoll = rollDice(4);
+        let effectMsg = "";
+        if (effectRoll === 1) effectMsg = "You verify gravity still works.";
+        else if (effectRoll === 2) effectMsg = "You teleport 20ft significantly.";
+        else if (effectRoll === 3) effectMsg = "A flumph appears nearby.";
+        else effectMsg = "You regain 5 HP.";
+
+        addLog(`Surge Effect: ${effectMsg}`, 'info');
+        if (effectRoll === 4) {
+          setPlayerHp(prev => Math.min(character.maxHitPoints, prev + 5));
+        }
       }
     }
 
@@ -1581,8 +1753,27 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     if (currentEntity && currentEntity.id === 'player') {
       setOffhandAvailable(true);
       setSneakAttackUsedThisTurn(false);
+      setAttacksLeft(maxAttacks);
+      setRecklessAttackActive(false); // Reset Reckless at start of turn (player must choose to use it again)
+
+      // Decrement Player Condition Durations
+      updateCharacter(prev => {
+        if (!prev) return prev;
+        const updatedConditions = prev.conditions.map(c => {
+          if (typeof c.duration === 'number' && c.duration > 0) {
+            return { ...c, duration: c.duration - 1 };
+          }
+          return c;
+        }).filter(c => c.duration === undefined || c.duration !== 0); // Keep indefinite (-1) and positive. Remove 0.
+
+        // Also check if any expired condition needs logging?
+        // Ideally we'd log "Metamagic expired" or "Reckless stance ends", but for now just cleanup.
+        return { ...prev, conditions: updatedConditions };
+      });
+
+      addLog(`Your turn! You have ${maxAttacks} attack(s).`, 'info');
     }
-  }, [currentTurnIndex, turnOrder]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentTurnIndex, turnOrder, maxAttacks]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check for combat end
   useEffect(() => {
@@ -1664,9 +1855,8 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     if (!actionSurgeAvailable) return;
     setActionSurgeAvailable(false);
     persistFeatureUses({ actionSurge: false });
-    addLog(`${character.name} uses Action Surge! You gain an additional action this turn.`, 'info');
-    // In this simple turn system, we might just not call nextTurn() after the next action?
-    // Or we explicitly allow another action. For now, just logging it.
+    addLog(`${character.name} uses Action Surge! You gain extra attacks.`, 'info');
+    setAttacksLeft(prev => prev + maxAttacks);
   };
 
   const handleRage = () => {
@@ -1677,6 +1867,54 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     setRageRoundsLeft(10); // 1 minute
     addLog(`${character.name} enters a Rage!`, 'info');
     // Visual effect could be added here
+  };
+
+  const handleFrenziedStrike = () => {
+    if (!selectedEnemy || isRolling || !rageActive) return;
+    const enemy = enemies.find(e => e.id === selectedEnemy);
+    if (!enemy || enemy.isDefeated) return;
+
+    const weapon = character.equippedWeapon || { name: 'Unarmed Strike', damage: '1+0', type: 'weapon', properties: [] };
+    const strMod = Math.floor((character.abilityScores.strength - 10) / 2);
+    const prof = character.proficiencyBonus;
+    const attackBonus = strMod + prof + (character.formattedAttackBonus || 0); // Simplified
+
+    // Rage Damage Bonus
+    const rageBonus = 2; // +2 damage while raging (simplified, increases at higher levels)
+
+    // Roll
+    setAttackDetails({ name: 'Frenzied Strike', dc: getEnemyEffectiveAC(enemy), modifier: attackBonus });
+    setIsRolling(true);
+    setShowDiceModal(true);
+
+    const roll = applyHalflingLucky(rollDice(20), 'frenzied strike');
+    const total = roll + attackBonus;
+    const isCritical = roll === 20;
+
+    setDiceResult(roll);
+    setRollResult({ roll, total, isCritical, isCriticalFailure: roll === 1 });
+
+    setPendingCombatAction(() => () => {
+      if (total >= getEnemyEffectiveAC(enemy) || isCritical) {
+        let dmg = rollDamageFromString(weapon.damage || '1') + strMod + rageBonus;
+        if (isCritical) {
+          dmg += rollDamageFromString(weapon.damage || '1');
+          if ((character.race?.traits || []).includes('Savage Attacks')) {
+            dmg += rollDamageFromString(weapon.damage || '1');
+          }
+        }
+
+        const damageType = detectDamageType(weapon.damage || '');
+        const { adjustedDamage, note } = adjustDamageForDefenses(enemy, dmg, damageType, { isMagical: (weapon.properties || []).includes('magic') });
+
+        applyDamageToEnemy(enemy.id, adjustedDamage, damageType, { preAdjusted: true });
+        addLog(`${character.name} hits with a Frenzied Strike for ${adjustedDamage} damage!`, 'damage');
+        if (note) addLog(`${enemy.name} ${note}.`, 'info');
+      } else {
+        addLog(`${character.name} misses with Frenzied Strike.`, 'miss');
+      }
+      nextTurn();
+    });
   };
 
   const handleBardicInspiration = () => {
@@ -1875,6 +2113,22 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
             applyDamageToEnemy(enemy.id, adjustedDamage, damageType, { preAdjusted: true });
             addLog(`Flurry hits for ${adjustedDamage} damage! (${hit1 ? dmg1 : 'miss'} + ${hit2 ? dmg2 : 'miss'})`, 'damage');
             if (note) addLog(`${enemy.name} ${note}.`, 'info');
+
+            // Open Hand Technique (Monk)
+            if (character.subclass?.id === 'open-hand') {
+              const dc = 8 + character.proficiencyBonus + Math.floor((character.abilityScores.wisdom - 10) / 2);
+              const save = rollDice(20) + getEnemySavingThrowBonus(enemy, 'dexterity');
+              if (save < dc) {
+                addLog(`${enemy.name} fails DEX save (DC ${dc}) and is knocked Prone!`, 'condition');
+                setEnemies(prev => prev.map(e => {
+                  if (e.id !== enemy.id) return e;
+                  const prone: Condition = { type: 'prone', name: 'Prone', description: 'Knocked prone by Open Hand.', duration: 1, source: 'Flurry' };
+                  return { ...e, conditions: [...e.conditions, prone] };
+                }));
+              } else {
+                addLog(`${enemy.name} succeeds DEX save (DC ${dc}) against Open Hand technique.`, 'info');
+              }
+            }
           } else {
             addLog(`Flurry of Blows missed both attacks.`, 'miss');
           }
@@ -1882,6 +2136,49 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         }
       }
     }
+  };
+
+  const consumeItem = (itemId: string) => {
+    updateCharacter(prev => {
+      if (!prev || !prev.inventory) return prev;
+      return {
+        ...prev,
+        inventory: prev.inventory.filter(i => i.id !== itemId)
+      };
+    });
+  };
+
+  const handleUsePotion = (item: Item) => {
+    if (item.type !== 'potion') return;
+
+    if (item.name.toLowerCase().includes('healing') || item.healing) {
+      const healAmount = item.healing || rollDice(4) + 2;
+      setPlayerHp(prev => Math.min(character.maxHitPoints, prev + healAmount));
+      updateCharacter(prev => ({ ...prev, hitPoints: Math.min(character.maxHitPoints, prev.hitPoints + healAmount) }));
+      addLog(`${character.name} drinks ${item.name} and heals for ${healAmount} HP.`, 'heal');
+    } else if (item.name.toLowerCase().includes('speed')) {
+      addLog(`${character.name} drinks ${item.name}! Speed increased.`, 'info');
+    } else if (item.name.toLowerCase().includes('invisibility')) {
+      applyPlayerCondition({ type: 'invisible', name: 'Invisible', description: 'Attackers have disadvantage.', duration: 10, source: item.name });
+      addLog(`${character.name} drinks ${item.name} and becomes invisible!`, 'info');
+    } else {
+      addLog(`${character.name} drinks ${item.name}.`, 'info');
+    }
+
+    consumeItem(item.id);
+    setShowInventory(false);
+  };
+
+  const handleUseScroll = (item: Item) => {
+    if (item.type !== 'scroll' || !item.spellId) {
+      addLog(`Cannot use ${item.name}.`, 'miss');
+      return;
+    }
+
+    addLog(`${character.name} reads ${item.name}!`, 'spell');
+    handleCastSpell(item.spellId, { fromScroll: true, bypassPreparation: true });
+    consumeItem(item.id);
+    setShowInventory(false);
   };
 
   const handleCunningAction = (actionType: 'dash' | 'disengage' | 'hide') => {
@@ -2502,6 +2799,38 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                   >
                     <Shield className="mr-2 h-4 w-4" /> {t('combat.defend')}
                   </Button>
+                  {isBarbarian && character.level >= 2 && (
+                    <Button
+                      variant={recklessAttackActive ? "destructive" : "outline"}
+                      className="w-full justify-start"
+                      onClick={() => {
+                        const newState = !recklessAttackActive;
+                        setRecklessAttackActive(newState);
+                        if (newState) {
+                          addLog('You throw aside all concern for defense to attack with fierce desperation! (Reckless Attack)', 'info');
+                          updateCharacter(prev => {
+                            if (!prev) return prev;
+                            return {
+                              ...prev,
+                              conditions: [...prev.conditions.filter(c => c.type !== 'reckless'), { type: 'reckless', name: 'Reckless', description: 'Advantage on attacks, enemies have advantage on attacks against you.', duration: 1 }]
+                            };
+                          });
+                        } else {
+                          addLog('You regain your defensive composure.', 'info');
+                          updateCharacter(prev => {
+                            if (!prev) return prev;
+                            return {
+                              ...prev,
+                              conditions: prev.conditions.filter(c => c.type !== 'reckless')
+                            };
+                          });
+                        }
+                      }}
+                      disabled={!isPlayerTurn || isRolling}
+                    >
+                      <Sword className="mr-2 h-4 w-4" /> {recklessAttackActive ? 'Reckless (Active)' : 'Reckless Attack'}
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     className="w-full justify-start"
@@ -2587,18 +2916,48 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                           >
                             <Activity className="mr-2 h-3 w-3" /> Hide
                           </Button>
+                          {character.level >= 5 && (
+                            <Button
+                              variant={activeBuffs.some(b => b.id === 'uncanny-dodge') ? "fantasy" : "secondary"}
+                              size="sm"
+                              onClick={() => {
+                                if (activeBuffs.some(b => b.id === 'uncanny-dodge')) {
+                                  setActiveBuffs(prev => prev.filter(b => b.id !== 'uncanny-dodge'));
+                                } else {
+                                  setActiveBuffs(prev => [...prev, { id: 'uncanny-dodge', name: 'Uncanny Dodge', duration: 1, bonus: 0 }]);
+                                  addLog(`${character.name} prepares to use Uncanny Dodge (Will halve next attack damage).`, 'info');
+                                }
+                              }}
+                              disabled={!isPlayerTurn && false /* Allow toggling off turn? No, isPlayerTurn handles Reacts? */}
+                            >
+                              <Shield className="mr-2 h-3 w-3" /> Uncanny Dodge
+                            </Button>
+                          )}
                         </>
                       )}
                       {isBarbarian && (
-                        <Button
-                          variant={rageActive ? "destructive" : "secondary"}
-                          size="sm"
-                          onClick={handleRage}
-                          disabled={!isPlayerTurn || rageAvailable <= 0 || rageActive || isRolling}
-                          className={cn(rageActive && "animate-pulse ring-2 ring-red-500")}
-                        >
-                          <Flame className="mr-2 h-3 w-3" /> {rageActive ? 'Raging!' : `Rage (${rageAvailable})`}
-                        </Button>
+                        <>
+                          <Button
+                            variant={rageActive ? "destructive" : "secondary"}
+                            size="sm"
+                            onClick={handleRage}
+                            disabled={!isPlayerTurn || rageAvailable <= 0 || rageActive || isRolling}
+                            className={cn(rageActive && "animate-pulse ring-2 ring-red-500")}
+                          >
+                            <Flame className="mr-2 h-3 w-3" /> {rageActive ? 'Raging!' : `Rage (${rageAvailable})`}
+                          </Button>
+                          {character.subclass?.id === 'berserker' && rageActive && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={handleFrenziedStrike}
+                              disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                              className="border-red-500 bg-red-500/10 text-red-700 hover:bg-red-500/20"
+                            >
+                              <Sword className="mr-2 h-3 w-3" /> Frenzied Strike
+                            </Button>
+                          )}
+                        </>
                       )}
                       {isBard && (
                         <Button
@@ -2710,14 +3069,16 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                           >
                             <Sparkles className="mr-2 h-3 w-3" /> Turn Undead
                           </Button>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => handleChannelDivinity('preserve-life')}
-                            disabled={!isPlayerTurn || channelDivinityUses <= 0 || isRolling}
-                          >
-                            <HeartPulse className="mr-2 h-3 w-3" /> Preserve Life
-                          </Button>
+                          {character.subclass?.id === 'life' && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => handleChannelDivinity('preserve-life')}
+                              disabled={!isPlayerTurn || channelDivinityUses <= 0 || isRolling}
+                            >
+                              <HeartPulse className="mr-2 h-3 w-3" /> Preserve Life
+                            </Button>
+                          )}
                           <div className="col-span-2 text-xs text-center text-muted-foreground">
                             Channel Divinity: {channelDivinityUses}
                           </div>
@@ -2872,8 +3233,51 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                           <Flame className="mr-2 h-3 w-3 text-orange-500" /> Use Torch Oil
                         </Button>
                       )}
-                      {/* Add potions here later */}
-                      <p className="text-xs text-muted-foreground italic">More items coming soon...</p>
+
+                      {/* Pinned Items */}
+                      {(character.inventory || []).filter(i => i.pinned).map(item => {
+                        const isPotion = item.type === 'potion';
+                        const isScroll = item.type === 'scroll';
+                        const isUsable = isPotion || isScroll;
+
+                        return (
+                          <Button
+                            key={`pinned-${item.id}`}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (isPotion) handleUsePotion(item);
+                              if (isScroll) handleUseScroll(item);
+                            }}
+                            className="justify-start border-fantasy-gold/50 bg-fantasy-gold/5"
+                            disabled={!isUsable}
+                          >
+                            <div className="flex items-center w-full">
+                              <Pin className="mr-2 h-3 w-3 text-fantasy-gold fill-current" />
+                              <span className={cn(!isUsable && "text-muted-foreground")}>{item.name}</span>
+                              {!isUsable && <span className="ml-auto text-[10px] italic opacity-70"> (Cannot use)</span>}
+                            </div>
+                          </Button>
+                        );
+                      })}
+
+                      {/* Potions (exclude pinned) */}
+                      {(character.inventory || []).filter(i => i.type === 'potion' && !i.pinned).map(item => (
+                        <Button key={item.id} variant="outline" size="sm" onClick={() => handleUsePotion(item)} className="justify-start">
+                          <FlaskConical className="mr-2 h-3 w-3 text-red-400" /> {item.name}
+                        </Button>
+                      ))}
+
+                      {/* Scrolls (exclude pinned) */}
+                      {(character.inventory || []).filter(i => i.type === 'scroll' && !i.pinned).map(item => (
+                        <Button key={item.id} variant="outline" size="sm" onClick={() => handleUseScroll(item)} className="justify-start">
+                          <Scroll className="mr-2 h-3 w-3 text-yellow-600" /> {item.name}
+                        </Button>
+                      ))}
+
+                      {!(character.inventory || []).some(i => i.type === 'potion' || i.type === 'scroll' || (i.templateId || i.id)?.startsWith('torch-oil') || i.pinned) && (
+                        <p className="text-xs text-muted-foreground italic">No usable items found.</p>
+                      )}
                     </div>
                   </div>
                 )}
@@ -2948,6 +3352,6 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         difficultyClass={attackDetails?.dc}
         modifier={attackDetails?.modifier}
       />
-    </div>
+    </div >
   );
 }

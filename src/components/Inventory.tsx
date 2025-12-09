@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { useTranslation } from 'react-i18next';
-import { Backpack, Sword, Shield, Heart, Gem, X, Check, Scroll } from 'lucide-react';
+import { Backpack, Sword, Shield, Heart, Gem, X, Check, Scroll, Pin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PlayerCharacter, Item } from '@/types';
 
@@ -12,10 +12,11 @@ interface InventoryProps {
   onEquipItem?: (item: Item) => void;
   onUnequipItem?: (slot: 'weapon' | 'armor') => void;
   onUseItem: (item: Item) => void;
+  onPinItem?: (item: Item) => void;
   onClose: () => void;
 }
 
-export function Inventory({ character, onEquipItem, onUnequipItem, onUseItem, onClose }: InventoryProps) {
+export function Inventory({ character, onEquipItem, onUnequipItem, onUseItem, onPinItem, onClose }: InventoryProps) {
   const { t } = useTranslation();
   const [pendingConsumable, setPendingConsumable] = useState<Item | null>(null);
 
@@ -88,6 +89,19 @@ export function Inventory({ character, onEquipItem, onUnequipItem, onUseItem, on
                 <Check className="h-3 w-3 mr-1" />
                 {t('inventory.equipped')}
               </Badge>
+            )}
+            {onPinItem && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn("h-6 w-6", item.pinned && "text-fantasy-gold")}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPinItem(item);
+                }}
+              >
+                <Pin className={cn("h-4 w-4", item.pinned && "fill-current")} />
+              </Button>
             )}
           </div>
           <p className="text-xs text-muted-foreground mb-2">{item.description}</p>

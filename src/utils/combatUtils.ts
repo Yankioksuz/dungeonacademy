@@ -38,9 +38,11 @@ export function getCombatAdvantage(
     if (hasCondition(attacker, 'prone')) advantage--; // Prone gives disadvantage on attacks
 
     if (hasCondition(attacker, 'invisible')) advantage++;
+    if (hasCondition(attacker, 'reckless')) advantage++; // Reckless Attack (Attacker)
 
     // --- Defender Conditions ---
     if (hasCondition(defender, 'blinded')) advantage++; // Attacker is unseen
+    if (hasCondition(defender, 'reckless')) advantage++; // Reckless Attack (Defender grants advantage)
     if (hasCondition(defender, 'stunned')) advantage++;
     if (hasCondition(defender, 'paralyzed')) advantage++;
     if (hasCondition(defender, 'unconscious')) advantage++;
@@ -117,4 +119,110 @@ export function getSavingThrowAdvantage(
     if (advantage > 0) return 'advantage';
     if (advantage < 0) return 'disadvantage';
     return 'normal';
+}
+
+export function calculateArmorClass(
+    character: Combatant & {
+        dexterity?: number;
+        constitution?: number;
+        wisdom?: number;
+        equippedArmor?: { armorClass: number; type: string };
+        equippedShield?: { armorClass: number };
+        class?: { id: string };
+        subclass?: { id: string };
+    }
+): number {
+    let ac = 10;
+    const dexMod = Math.floor(((character.dexterity || 10) - 10) / 2);
+
+    if (character.equippedArmor) {
+        ac = character.equippedArmor.armorClass;
+        // Add Dex based on armor type (simplified logic: light=full, medium=max 2, heavy=0)
+        // For now trusting the item's AC or just adding Dex if it's not heavy. 
+        // Assuming light/medium for simplicity or checking type if available.
+        if (character.equippedArmor.type === 'light') {
+            ac += dexMod;
+        } else if (character.equippedArmor.type === 'medium') {
+            ac += Math.min(2, dexMod);
+        }
+        // Heavy armor adds no dex
+    } else {
+        // Unarmored
+        ac = 10 + dexMod;
+
+        // Draconic Resilience (Sorcerer)
+        if (character.class?.id === 'sorcerer' && character.subclass?.id === 'draconic') {
+            ac = 13 + dexMod;
+        }
+
+        // Unarmored Defense (Monk)
+        if (character.class?.id === 'monk') {
+            const wisMod = Math.floor(((character.wisdom || 10) - 10) / 2);
+            ac = 10 + dexMod + wisMod;
+        }
+
+        // Unarmored Defense (Barbarian)
+        if (character.class?.id === 'barbarian') {
+            const conMod = Math.floor(((character.constitution || 10) - 10) / 2);
+            const barbAc = 10 + dexMod + conMod;
+            // Use the higher of the two if multiple apply (though usually they don't stack)
+            if (barbAc > ac) ac = barbAc;
+        }
+    }
+
+    if (character.equippedShield) {
+        ac += character.equippedShield.armorClass;
+    }
+
+    // Defensive Duelist or other buffs could be added here
+
+    return ac;
+}
+
+export function calculateDamage(
+    baseDamage: number,
+    damageDice: string, // e.g., "1d8"
+    attacker: Combatant & {
+        class?: { id: string };
+        subclass?: { id: string };
+        hasFeatures?: string[];
+    },
+    defender: Combatant & {
+        hitPoints?: number;
+        maxHitPoints?: number;
+    },
+    isCrit: boolean = false
+): { total: number; breakdown: string } {
+    // const diceParts = damageDice.split('+'); // simplified parsing
+    // In a real function we'd parse this fully. 
+    // For now assuming we just return base + modifications or handle it elsewhere if 'baseDamage' is final roll.
+    // If baseDamage IS the rolled value:
+
+    let total = baseDamage;
+    const parts: string[] = [`Base (${damageDice}): ${baseDamage}`];
+
+    // Colossus Slayer (Ranger - Hunter)
+    // "1d8 extra damage if target is below max HP"
+    if (
+        attacker.class?.id === 'ranger' &&
+        attacker.subclass?.id === 'hunter' &&
+        defender.hitPoints !== undefined &&
+        defender.maxHitPoints !== undefined &&
+        defender.hitPoints < defender.maxHitPoints
+    ) {
+        // Roll 1d8 (Average 4 for now, or use random if allowed here)
+        // Ideally should roll, but let's assume average or random if we import math.
+        const colossusDmg = Math.floor(Math.random() * 8) + 1;
+        total += colossusDmg;
+        parts.push(`Colossus Slayer: ${colossusDmg}`);
+    }
+
+    // Critical Hit processing would normally double dice here if passed in dice count
+    if (isCrit) {
+        // Simplified crit logic: double total (standard 5e is double DICE, but this is a helper)
+        total = Math.floor(total * 1.5); // Homebrew crit or placeholder
+        parts.push('Critical Hit (1.5x)');
+    }
+
+    return { total, breakdown: parts.join(', ') };
 }

@@ -27,7 +27,7 @@ export type ConditionType =
   | 'blinded' | 'charmed' | 'deafened' | 'frightened'
   | 'grappled' | 'incapacitated' | 'invisible' | 'paralyzed'
   | 'petrified' | 'poisoned' | 'prone' | 'restrained'
-  | 'stunned' | 'unconscious' | 'hexed' | 'turned' | 'pacified' | 'hidden';
+  | 'stunned' | 'unconscious' | 'hexed' | 'turned' | 'pacified' | 'hidden' | 'reckless';
 
 export interface Condition {
   type: ConditionType;
@@ -256,6 +256,25 @@ export interface PlayerCharacter {
   };
   featureUses?: FeatureUses;
   adventureHistory?: AdventureHistoryEntry[];
+  subclass?: Subclass; // NEW: Selected Subclass
+}
+
+export interface Subclass {
+  id: string;
+  name: string;
+  description: string;
+  classId: string;
+  featuresByLevel: Record<number, string[]>;
+  features: SubclassFeature[];
+}
+
+export interface SubclassFeature {
+  id: string;
+  name: string;
+  level: number;
+  description: string;
+  type: 'passive' | 'action' | 'bonus_action' | 'reaction';
+  metadata?: Record<string, any>; // For improved Crit range, bonus healing stats, etc.
 }
 
 
@@ -299,6 +318,7 @@ export interface Item {
   spellLevel?: number;
   properties?: string[];
   attackBonus?: number;
+  pinned?: boolean; // NEW: Pin item to Quick Items
 }
 
 export interface CombatEnemy {
@@ -306,69 +326,48 @@ export interface CombatEnemy {
   name: string;
   currentHp: number;
   maxHp: number;
-  temporaryHp: number; // NEW: Temporary HP for enemies
   armorClass: number;
   attackBonus: number;
   damage: string;
   damageType?: string;
-  creatureType?: string;
   effectType?: 'fear' | 'charm' | 'poison' | 'magic';
+  xpReward?: number;
+  creatureType?: string;
+  initiative: number;
+  isDefeated: boolean;
+  actions?: {
+    name: string;
+    toHit: number;
+    damage: string;
+    description?: string;
+    save?: {
+      ability: string;
+      dc: number;
+      onSave?: string;
+      onFail?: string;
+    };
+  }[];
+  conditionImmunities?: string[];
+  damageImmunities?: string[];
+  damageResistances?: string[];
+  damageVulnerabilities?: string[];
+  abilityScores?: Record<string, number>;
+  savingThrows?: Record<string, number>;
+  savingThrowBonus?: number;
+  traits?: string[]; // e.g., 'brute', 'undead'
+  legendaryActions?: {
+    name: string;
+    cost: number;
+    damage?: string;
+    description?: string;
+  }[];
   saveDC?: number;
   breathDC?: number;
   breathDamage?: string;
   breathType?: string;
-  traits?: string[]; // e.g., pack-tactics, nimble-escape, sunlight-sensitivity, brute, undead-fortitude
-  size?: string;
-  alignment?: string;
-  speed?: {
-    walk?: number;
-    fly?: number;
-    swim?: number;
-    burrow?: number;
-    climb?: number;
-  };
-  abilityScores?: {
-    strength: number;
-    dexterity: number;
-    constitution: number;
-    intelligence: number;
-    wisdom: number;
-    charisma: number;
-  };
-  savingThrows?: Record<string, number>;
-  skills?: Record<string, number>;
-  senses?: string[];
-  languages?: string[];
-  damageResistances?: string[];
-  damageImmunities?: string[];
-  damageVulnerabilities?: string[];
-  conditionImmunities?: string[];
-  challenge?: string;
-  initiative: number;
-  isDefeated: boolean;
-  xpReward?: number;
-  savingThrowBonus?: number;
-  conditions: Condition[]; // NEW: Active conditions on enemy
-  actions?: Array<{
-    name: string;
-    type?: 'melee' | 'ranged' | 'save' | 'special';
-    toHit?: number;
-    reach?: number;
-    range?: string;
-    targets?: string;
-    damage?: string;
-    damageType?: string;
-    save?: { ability: string; dc: number; onSave: string; onFail: string };
-    description?: string;
-  }>;
-  legendaryActions?: Array<{
-    name: string;
-    cost?: number;
-    description: string;
-  }>;
-  statBlockSource?: string;
-  statBlockHeading?: string;
+  behavior?: 'aggressive' | 'cautious' | 'controller' | 'support'; // NEW: AI Behavior
 }
+
 
 export interface FeatureUses {
   actionSurge: boolean;
