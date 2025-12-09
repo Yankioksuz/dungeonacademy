@@ -4,7 +4,7 @@ import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { useTranslation } from 'react-i18next';
-import { Sword, Shield, Heart, Skull, Backpack, X, Flame, Wand, Activity, HeartPulse, Brain, Zap, Sparkles } from 'lucide-react';
+import { Sword, Shield, Heart, Skull, Backpack, X, Flame, Wand, Activity, HeartPulse, Brain, Zap, Sparkles, Book, Search, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PlayerCharacter, CombatEnemy, CombatLogEntry, SpellContent, CombatLogEntryType, Condition, AbilityName } from '@/types';
 import { useGame } from '@/contexts/GameContext';
@@ -276,6 +276,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   const [attackDetails, setAttackDetails] = useState<{ name: string; dc: number; modifier: number } | null>(null);
   const [showInventory, setShowInventory] = useState(false);
   const [showSpellMenu, setShowSpellMenu] = useState(false);
+  const [analyzedEnemies, setAnalyzedEnemies] = useState<Set<string>>(new Set());
   const [legendaryPoints, setLegendaryPoints] = useState<Record<string, number>>(() => {
     const map: Record<string, number> = {};
     initialEnemies.forEach((enemy: InitialEnemyInput, index) => {
@@ -337,13 +338,14 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   // Paladin Lay on Hands State
   const isPaladin = character.class.name.toLowerCase() === 'paladin';
   const [layOnHandsPool, setLayOnHandsPool] = useState(isPaladin ? defaultUses.layOnHands : 0);
+  const [divineSmiteActive, setDivineSmiteActive] = useState(false);
 
   // Monk Ki State
-    const isMonk = character.class.name.toLowerCase() === 'monk';
-    const [kiPoints, setKiPoints] = useState(isMonk ? defaultUses.kiPoints : 0);
+  const isMonk = character.class.name.toLowerCase() === 'monk';
+  const [kiPoints, setKiPoints] = useState(isMonk ? defaultUses.kiPoints : 0);
 
-    // Druid Wild Shape State
-    const isDruid = character.class.name.toLowerCase() === 'druid';
+  // Druid Wild Shape State
+  const isDruid = character.class.name.toLowerCase() === 'druid';
   const [wildShapeAvailable, setWildShapeAvailable] = useState(isDruid ? defaultUses.wildShape : 0);
   const [wildShapeActive, setWildShapeActive] = useState(false);
   const [wildShapeHp, setWildShapeHp] = useState(0);
@@ -579,7 +581,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
       const magicTypes = ['fire', 'cold', 'lightning', 'acid', 'poison', 'psychic', 'radiant', 'necrotic', 'thunder', 'force'];
       if (magicTypes.includes(incomingDamageType) && incomingDamageType !== 'poison') {
-        const saveAbility: 'dexterity' | 'wisdom' = ['fire','cold','lightning','acid','thunder','force'].includes(incomingDamageType) ? 'dexterity' : 'wisdom';
+        const saveAbility: 'dexterity' | 'wisdom' = ['fire', 'cold', 'lightning', 'acid', 'thunder', 'force'].includes(incomingDamageType) ? 'dexterity' : 'wisdom';
         const save = rollPlayerSavingThrow(saveAbility, 'magic');
         const dc = actingEnemy.saveDC || 12;
         if (save.total >= dc) {
@@ -591,7 +593,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       }
 
       // Barbarian Rage Resistance
-      if (rageActive && ['bludgeoning', 'piercing', 'slashing'].includes(incomingDamageType)) {
+      if (rageActive && ['bludgeoning', 'piercing', 'slashing'].includes(incomingDamageType.toLowerCase())) {
         resisted = true;
         addLog('Rage reduces the damage!', 'info');
       }
@@ -827,6 +829,12 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           rollType = rollType === 'advantage' ? 'normal' : 'disadvantage';
         }
 
+        // Stealth: Hitting a hidden target has disadvantage
+        if (character.conditions.some(c => c.type === 'hidden')) {
+          rollType = rollType === 'advantage' ? 'normal' : 'disadvantage';
+          addLog(`${character.name} is hidden! Attack is at disadvantage.`, 'info');
+        }
+
         if (actionName) {
           addLog(`${actingEnemy.name} uses ${actionName}.`, 'info');
         }
@@ -1005,7 +1013,18 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
     const weaponProps = character.equippedWeapon?.properties || [];
     const isRanged = weaponProps.includes('ranged');
-    const rollType = getCombatAdvantage(character, enemy, isRanged ? 'ranged' : 'melee');
+    let rollType = getCombatAdvantage(character, enemy, isRanged ? 'ranged' : 'melee');
+
+    // Stealth Advantage Logic
+    const isHidden = character.conditions.some(c => c.type === 'hidden');
+    if (isHidden) {
+      if (rollType === 'disadvantage') rollType = 'normal'; // Cancel out
+      else rollType = 'advantage';
+      addLog(`${character.name} attacks from the shadows! (Advantage)`, 'info');
+      // Remove hidden condition after attack logic checks (handled in pending action or immediately? 
+      // Strictly, you are no longer hidden *after* the attack hits/misses, but for advantage calc it matters now.
+      // We should queue removal.)
+    }
     if ((enemy.traits || []).includes('sunlight-sensitivity')) {
       if (rollType === 'disadvantage') {
         // cancel out
@@ -1156,6 +1175,40 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           addLog(`Hex! (+${hexDamage} necrotic damage)`, 'info');
         }
 
+        // Paladin Divine Smite
+        if (divineSmiteActive && isPaladin) {
+          // Find highest available slot level? Or just level 1?
+          // For MVP, we use Level 1.
+          const slotLevel = 1;
+          const slotPool = character.spellSlots?.[slotLevel];
+          if (slotPool && slotPool.current > 0) {
+            const spent = spendSpellSlot(slotLevel);
+            if (spent) {
+              let smiteDice = 2; // 2d8 for 1st level
+              // Add +1d8 for Undead/Fiend
+              const type = (enemy.creatureType || '').toLowerCase();
+              if (type.includes('undead') || type.includes('fiend')) {
+                smiteDice += 1;
+                addLog('Divine Smite hits an Undead/Fiend! (+1d8)', 'info');
+              }
+              let smiteDamage = 0;
+              for (let i = 0; i < smiteDice; i++) smiteDamage += rollDice(8);
+
+              if (isCritical) {
+                for (let i = 0; i < smiteDice; i++) smiteDamage += rollDice(8);
+                addLog('Divine Smite Critical!', 'info');
+              }
+
+              damageRoll += smiteDamage;
+              addLog(`Divine Smite! (+${smiteDamage} radiant damage)`, 'info');
+              setDivineSmiteActive(false); // Consume toggle
+            }
+          } else {
+            addLog('Divine Smite failed! No Level 1 slots available.', 'miss');
+            setDivineSmiteActive(false);
+          }
+        }
+
         const damageType = weaponDamageType || detectDamageType(enemy.damage || '');
         const { adjustedDamage, note } = adjustDamageForDefenses(enemy, damageRoll, damageType, { isMagical: isMagicalWeapon });
         addLog(`${character.name} hits ${enemy.name} for ${adjustedDamage} damage!`, 'damage');
@@ -1166,6 +1219,16 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       } else {
         addLog(`${character.name} misses ${enemy.name}.`, 'miss');
       }
+
+      // Remove Hidden Condition if present
+      if (isHidden) {
+        updateCharacter(prev => ({
+          ...prev,
+          conditions: prev.conditions.filter(c => c.type !== 'hidden')
+        }));
+        addLog(`${character.name} reveals their position!`, 'info');
+      }
+
       nextTurn();
     });
   };
@@ -1240,11 +1303,11 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           damageRoll += rollWeaponDamage(damageDice);
         }
         const { adjustedDamage, note } = adjustDamageForDefenses(enemy, damageRoll, offhandDamageType, { isMagical: isMagicalOffhand });
-        addLog(`${character.name} hits ${enemy.name} with an off-hand attack using ${offhand.name} for ${adjustedDamage} damage!`, 'damage');
+        addLog(`${character.name} hits ${enemy.name} with an off - hand attack using ${offhand.name} for ${adjustedDamage} damage!`, 'damage');
         if (note) addLog(`${enemy.name} ${note}.`, 'info');
         applyDamageToEnemy(enemy.id, adjustedDamage, offhandDamageType, { preAdjusted: true });
       } else {
-        addLog(`${character.name} misses ${enemy.name} with the off-hand attack.`, 'miss');
+        addLog(`${character.name} misses ${enemy.name} with the off - hand attack.`, 'miss');
       }
       setOffhandAvailable(false);
       nextTurn();
@@ -1332,7 +1395,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       if (spell.id === 'eldritch-blast' && character.class.name.toLowerCase() === 'warlock' && character.level >= 2) {
         const charismaMod = Math.floor((character.abilityScores.charisma - 10) / 2);
         finalDamage += charismaMod;
-        addLog(`Agonizing Blast! (+${charismaMod} damage)`, 'info');
+        addLog(`Agonizing Blast!(+${charismaMod} damage)`, 'info');
       }
 
       // Warlock: Hex Damage (Spells)
@@ -1340,7 +1403,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       if (targetEnemy && targetEnemy.conditions.some(c => c.type === 'hexed') && (spell.damage || spell.level === 0)) {
         const hexDamage = rollDice(6);
         finalDamage += hexDamage;
-        addLog(`Hex! (+${hexDamage} necrotic damage)`, 'info');
+        addLog(`Hex!(+${hexDamage} necrotic damage)`, 'info');
       }
 
       let saveMessage = '';
@@ -1379,7 +1442,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         applyDamageToEnemy(targetEnemyData.id, finalDamage, damageType, { preAdjusted: true });
       }
 
-      addLog(`${character.name} casts ${spell.name} on ${targetEnemyData?.name} for ${finalDamage} ${spell.damageType} damage!${saveMessage}`, 'damage');
+      addLog(`${character.name} casts ${spell.name} on ${targetEnemyData?.name} for ${finalDamage} ${spell.damageType} damage!${saveMessage} `, 'damage');
 
     } else if (spell.healing) {
       // Healing Spell
@@ -1396,7 +1459,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     } else if (spell.id === 'shield') {
       const shieldBonus = 5;
       setActiveBuffs(prev => [...prev.filter(b => b.id !== 'shield-spell'), { id: 'shield-spell', name: 'Shield', bonus: shieldBonus, duration: 1 }]);
-      addLog(`${character.name} casts Shield! (+5 AC)`, 'info');
+      addLog(`${character.name} casts Shield!(+5 AC)`, 'info');
 
     } else if (spell.id === 'hex') {
       if (!selectedEnemy) return;
@@ -1416,6 +1479,14 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         addLog(`Concentration on ${character.concentratingOn.spellName} ends as you begin ${spell.name}.`, 'condition');
       }
       startConcentration(spell.id, spell.name);
+    }
+
+    if (character.conditions.some(c => c.type === 'hidden')) {
+      updateCharacter(prev => ({
+        ...prev,
+        conditions: prev.conditions.filter(c => c.type !== 'hidden')
+      }));
+      addLog(`${character.name} reveals their position by casting a spell!`, 'info');
     }
 
     setShowSpellMenu(false);
@@ -1446,7 +1517,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         // Critical Failure: 2 Failures
         recordDeathSave(false);
         recordDeathSave(false);
-        addLog(`${character.name} suffers a critical failure on death save! (2 failures)`, 'damage');
+        addLog(`${character.name} suffers a critical failure on death save!(2 failures)`, 'damage');
       } else if (roll >= 10) {
         // Success
         recordDeathSave(true);
@@ -1515,8 +1586,8 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
   // Check for combat end
   useEffect(() => {
-    const allEnemiesDefeated = enemies.every(e => e.isDefeated);
-    if (allEnemiesDefeated && enemies.length > 0 && !victoryAchieved) {
+    const allEnemiesHandled = enemies.every(e => e.isDefeated || e.conditions.some(c => c.type === 'pacified'));
+    if (allEnemiesHandled && enemies.length > 0 && !victoryAchieved) {
       setVictoryAchieved(true);
       addLog(t('combat.victory'), 'defeat');
       setTimeout(() => onVictory(), 1500);
@@ -1907,6 +1978,198 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     nextTurn();
   };
 
+  const getEnemyPassivePerception = (enemy: CombatEnemy) => {
+    // 10 + Perception Mod
+    const wisMod = getEnemyAbilityMod(enemy, 'wisdom');
+    const perceptionBonus = enemy.skills?.perception ? (parseInt(enemy.skills.perception.toString()) || 0) : 0;
+    // If skills.perception is just a number in the JSON (simplified), or if it's a structured object we might need more checks.
+    // Assuming for now it matches the type definition or is a direct number if simplified.
+    // If 'skills' is Record<string, number>, we use it.
+    // If checking `skills` type from enemies.ts/types:
+    // It seems `skills` in CombatEnemy is `Record<string, number> | undefined` based on typical usage, 
+    // but definitions say `Skills` is `Record<SkillName, SkillProficiency>`.
+    // Let's assume for enemies it might be simplified or we just use Wis mod if complex.
+    // SAFETY: Use Wis Mod as baseline, add any explicit bonus if we can find it.
+    return 10 + wisMod + perceptionBonus;
+  };
+
+  const handleHide = () => {
+    if (isRolling) return;
+
+    // Check against highest passive perception of active enemies
+    let maxPassive = 0;
+    enemies.forEach(e => {
+      if (!e.isDefeated) {
+        const pp = getEnemyPassivePerception(e);
+        if (pp > maxPassive) maxPassive = pp;
+      }
+    });
+
+    if (maxPassive === 0) maxPassive = 10; // Fallback
+
+    const dexMod = Math.floor((character.abilityScores.dexterity - 10) / 2);
+    const isProficient = character.skills?.stealth?.proficient;
+    const bonus = dexMod + (isProficient ? character.proficiencyBonus : 0);
+    const hasDisadvantage = (character.equippedArmor?.type === 'heavy' || character.equippedArmor?.stealthDisadvantage);
+    // Simplified armor check
+
+    let roll = rollDice(20);
+    if (hasDisadvantage) {
+      roll = Math.min(roll, rollDice(20));
+      addLog('Rolling Stealth with Disadvantage (Armor)', 'info');
+    }
+    roll = applyHalflingLucky(roll, 'stealth check');
+    const total = roll + bonus;
+
+    setAttackDetails({ name: 'Stealth check', dc: maxPassive, modifier: bonus });
+    setIsRolling(true);
+    setShowDiceModal(true);
+    setDiceResult(roll);
+    setRollResult({ roll, total, isCritical: roll === 20, isCriticalFailure: roll === 1 });
+
+    setPendingCombatAction(() => () => {
+      if (total >= maxPassive) {
+        const hiddenCondition: Condition = {
+          type: 'hidden',
+          name: 'Hidden',
+          description: 'Unseen and unheard. Attacks have advantage.',
+          duration: -1,
+          source: 'Hide Action'
+        };
+        applyPlayerCondition(hiddenCondition);
+        addLog(`${character.name} slips into the shadows and is Hidden! (${total} vs PP ${maxPassive})`, 'info');
+      } else {
+        addLog(`${character.name} tries to hide but is spotted! (${total} vs PP ${maxPassive})`, 'miss');
+      }
+      nextTurn();
+    });
+  };
+
+  const handleSpeak = () => {
+    if (!selectedEnemy || isRolling) return;
+    const enemy = enemies.find(e => e.id === selectedEnemy);
+    if (!enemy) return;
+
+    if (enemy.isDefeated) return;
+    if (analyzedEnemies.has(enemy.id) && enemy.conditions.some(c => c.type === 'pacified')) {
+      addLog(`${enemy.name} is already pacified.`, 'info');
+      return;
+    }
+
+    // 1. Check Languages
+    // Default to 'Common' if not specified
+    const enemyLanguages = (enemy.languages || ['Common']).map(l => l.toLowerCase());
+    const playerLanguages = (character.languages || ['Common']).map(l => l.toLowerCase());
+
+    const sharedLanguage = playerLanguages.find(l => enemyLanguages.includes(l));
+
+    if (!sharedLanguage) {
+      addLog(`${character.name} tries to speak to the ${enemy.name}, but you share no languages!`, 'miss');
+      // Don't consume full turn? Or do? Let's consume it as a wasted effort.
+      nextTurn();
+      return;
+    }
+
+    // 2. Roll Persuasion (or Intimidation if we had a choice)
+    // Default to Persuasion for "Speak"
+    const skill = 'persuasion';
+    const dc = 12 + (parseInt(enemy.challenge || '0') || 0);
+
+    const skillMod = Math.floor((character.abilityScores.charisma - 10) / 2);
+    const isProficient = character.skills?.[skill]?.proficient;
+    const bonus = skillMod + (isProficient ? character.proficiencyBonus : 0);
+
+    const roll = applyHalflingLucky(rollDice(20), `persuasion check`);
+    const total = roll + bonus;
+
+    setAttackDetails({ name: `Diplomacy (${sharedLanguage})`, dc, modifier: bonus });
+    setIsRolling(true);
+    setShowDiceModal(true);
+    setDiceResult(roll);
+    setRollResult({ roll, total, isCritical: roll === 20, isCriticalFailure: roll === 1 });
+
+    setPendingCombatAction(() => () => {
+      if (total >= dc) {
+        addLog(`${character.name} convinces the ${enemy.name} to stand down! (Persuasion ${total} vs DC ${dc})`, 'info');
+
+        const pacifiedCondition: Condition = {
+          type: 'pacified',
+          name: 'Pacified',
+          description: 'Enemy is unwilling to fight.',
+          duration: -1, // Permanent until attacked
+          source: character.name
+        };
+
+        setEnemies(prev => prev.map(e => e.id === enemy.id ? {
+          ...e,
+          conditions: [...e.conditions, pacifiedCondition],
+          // Visual cue: fade out or similar handled by renderer checking 'pacified'
+        } : e));
+
+        // Check for Diplomatic Victory (if all active enemies are pacified or defeated)
+        // We'll let the standard useEffect listener handle victory if we treat pacified as "out of combat"
+        // For now, next turn.
+      } else {
+        addLog(`${character.name} fails to persuade the ${enemy.name}.`, 'miss');
+      }
+      nextTurn();
+    });
+  };
+
+  const handleAnalyzeEnemy = () => {
+    if (!selectedEnemy || isRolling) return;
+    const enemy = enemies.find(e => e.id === selectedEnemy);
+    if (!enemy) return;
+
+    if (analyzedEnemies.has(enemy.id)) {
+      addLog(`You have already analyzed ${enemy.name}.`, 'info');
+      return;
+    }
+
+    // Determine Skill
+    let skill: 'arcana' | 'nature' | 'religion' | 'insight' | 'history' = 'insight'; // Default
+    const type = (enemy.creatureType || '').toLowerCase();
+    if (['beast', 'plant', 'fey', 'monstrosity'].some(t => type.includes(t))) skill = 'nature';
+    else if (['undead', 'fiend', 'celestial'].some(t => type.includes(t))) skill = 'religion';
+    else if (['construct', 'elemental', 'dragon', 'aberration'].some(t => type.includes(t))) skill = 'arcana';
+    else if (['humanoid', 'giant'].some(t => type.includes(t))) skill = 'history';
+
+    // Calculate DC (10 + Challenge Rating, min 10)
+    let cr = 0;
+    if (typeof enemy.challenge === 'number') cr = enemy.challenge;
+    else if (typeof enemy.challenge === 'string') cr = parseFloat(enemy.challenge) || 0;
+    const dc = Math.max(10, 10 + Math.floor(cr));
+
+    // Roll Check
+    const skillMod = Math.floor((character.abilityScores[
+      skill === 'nature' || skill === 'religion' || skill === 'insight' ? 'wisdom' : 'intelligence'
+    ] - 10) / 2);
+
+    // Check proficiency
+    const isProficient = character.skills?.[skill]?.proficient;
+    const bonus = skillMod + (isProficient ? character.proficiencyBonus : 0);
+
+    const roll = applyHalflingLucky(rollDice(20), `${skill} check`);
+    const total = roll + bonus;
+
+    setAttackDetails({ name: `Analyze (${skill.charAt(0).toUpperCase() + skill.slice(1)})`, dc, modifier: bonus });
+    setIsRolling(true);
+    setShowDiceModal(true);
+    setDiceResult(roll);
+    setRollResult({ roll, total, isCritical: roll === 20, isCriticalFailure: roll === 1 });
+
+    setPendingCombatAction(() => () => {
+      if (total >= dc) {
+        setAnalyzedEnemies(prev => new Set(prev).add(enemy.id));
+        addLog(`${character.name} successfully analyzes the ${enemy.name}! Weaknesses revealed.`, 'info');
+      } else {
+        addLog(`${character.name} fails to recall information about the ${enemy.name}.`, 'miss');
+      }
+      // Consumes action? Yes, usually.
+      nextTurn();
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Player Status */}
@@ -2129,8 +2392,33 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                   <div><span className="text-muted-foreground">{t('combat.defenses')}:</span> {formatList(selectedEnemyData.damageResistances)}</div>
                   <div><span className="text-muted-foreground">{t('combat.immunities')}:</span> {formatList(selectedEnemyData.damageImmunities)}</div>
                   <div><span className="text-muted-foreground">{t('combat.vulnerabilities')}:</span> {formatList(selectedEnemyData.damageVulnerabilities)}</div>
-                  <div className="md:col-span-2"><span className="text-muted-foreground">{t('combat.conditionImmunities')}:</span> {formatList(selectedEnemyData.conditionImmunities)}</div>
+                  <div className="md:col-span-2 space-y-1">
+                    <div><span className="text-muted-foreground">{t('combat.conditionImmunities')}:</span> {formatList(selectedEnemyData.conditionImmunities)}</div>
+                    {!analyzedEnemies.has(selectedEnemyData.id) && (
+                      <div className="text-xs text-muted-foreground italic flex items-center gap-1">
+                        <Search className="h-3 w-3" /> Analyze enemy to reveal weaknesses
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                {analyzedEnemies.has(selectedEnemyData.id) && (
+                  <div className="mt-2 p-2 bg-blue-900/20 rounded border border-blue-900/30 text-xs">
+                    <p className="font-bold mb-1 text-blue-200 flex items-center gap-1"><Book className="h-3 w-3" /> Analysis Results</p>
+                    {selectedEnemyData.damageVulnerabilities && selectedEnemyData.damageVulnerabilities.length > 0 && (
+                      <p className="text-red-300"><strong>Vulnerable:</strong> {selectedEnemyData.damageVulnerabilities.join(', ')}</p>
+                    )}
+                    {selectedEnemyData.damageResistances && selectedEnemyData.damageResistances.length > 0 && (
+                      <p className="text-yellow-300"><strong>Resistant:</strong> {selectedEnemyData.damageResistances.join(', ')}</p>
+                    )}
+                    {selectedEnemyData.damageImmunities && selectedEnemyData.damageImmunities.length > 0 && (
+                      <p className="text-gray-400"><strong>Immune:</strong> {selectedEnemyData.damageImmunities.join(', ')}</p>
+                    )}
+                    {!selectedEnemyData.damageVulnerabilities?.length && !selectedEnemyData.damageResistances?.length && !selectedEnemyData.damageImmunities?.length && (
+                      <p className="text-muted-foreground">No specific damage resistances or vulnerabilities known.</p>
+                    )}
+                  </div>
+                )}
 
                 {selectedEnemyData.statBlockSource && (
                   <a
@@ -2230,6 +2518,22 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                   >
                     <Backpack className="mr-2 h-4 w-4" /> {t('combat.item')}
                   </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={handleAnalyzeEnemy}
+                    disabled={!isPlayerTurn || isRolling || !selectedEnemy || analyzedEnemies.has(selectedEnemy || '')}
+                  >
+                    <Search className="mr-2 h-4 w-4" /> {analyzedEnemies.has(selectedEnemy || '') ? 'Analyzed' : 'Analyze'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={handleSpeak}
+                    disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                  >
+                    <MessageCircle className="mr-2 h-4 w-4" /> Speak
+                  </Button>
                 </div>
 
                 {/* Class Specific Actions */}
@@ -2307,14 +2611,25 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                         </Button>
                       )}
                       {isPaladin && (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={handleLayOnHands}
-                          disabled={!isPlayerTurn || layOnHandsPool <= 0 || playerHp >= character.maxHitPoints || isRolling}
-                        >
-                          <HeartPulse className="mr-2 h-3 w-3" /> Lay on Hands ({layOnHandsPool})
-                        </Button>
+                        <>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={handleLayOnHands}
+                            disabled={!isPlayerTurn || layOnHandsPool <= 0 || playerHp >= character.maxHitPoints || isRolling}
+                          >
+                            <HeartPulse className="mr-2 h-3 w-3" /> Lay on Hands ({layOnHandsPool})
+                          </Button>
+                          <Button
+                            variant={divineSmiteActive ? "fantasy" : "secondary"}
+                            size="sm"
+                            onClick={() => setDivineSmiteActive(!divineSmiteActive)}
+                            disabled={!isPlayerTurn || (character.spellSlots?.[1]?.current || 0) <= 0 || isRolling}
+                            className={cn(divineSmiteActive && "ring-2 ring-yellow-400")}
+                          >
+                            <Zap className="mr-2 h-3 w-3" /> {divineSmiteActive ? 'Smite Ready!' : 'Divine Smite'}
+                          </Button>
+                        </>
                       )}
                       {isMonk && (
                         <>
@@ -2493,6 +2808,14 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                       disabled={!isPlayerTurn || isRolling || !selectedEnemy}
                     >
                       <Activity className="mr-2 h-3 w-3" /> Grapple
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleHide}
+                      disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                    >
+                      <Activity className="mr-2 h-3 w-3" /> Hide
                     </Button>
                   </div>
                 </div>

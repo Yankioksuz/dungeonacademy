@@ -27,7 +27,7 @@ export type ConditionType =
   | 'blinded' | 'charmed' | 'deafened' | 'frightened'
   | 'grappled' | 'incapacitated' | 'invisible' | 'paralyzed'
   | 'petrified' | 'poisoned' | 'prone' | 'restrained'
-  | 'stunned' | 'unconscious' | 'hexed' | 'turned';
+  | 'stunned' | 'unconscious' | 'hexed' | 'turned' | 'pacified' | 'hidden';
 
 export interface Condition {
   type: ConditionType;
