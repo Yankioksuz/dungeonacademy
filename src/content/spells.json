@@ -570,13 +570,224 @@
     "areaOfEffect": {
       "type": "sphere",
       "size": 20
+    }
+  },
+  {
+    "id": "lightning-bolt",
+    "name": "Lightning Bolt",
+    "level": 3,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "Self (100-foot line)",
+    "components": "V, S, M (a bit of fur and a rod of amber, crystal, or glass)",
+    "duration": "Instantaneous",
+    "description": "A stroke of lightning forming a line 100 feet long and 5 feet wide blasts out from you in a direction you choose. Each creature in the line must make a Dexterity saving throw. A creature takes 8d6 lightning damage on a failed save, or half as much damage on a successful one.",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "damage": "8d6",
+    "damageType": "lightning",
+    "saveType": "dexterity",
+    "areaOfEffect": {
+      "type": "line",
+      "size": 100
     },
-    "targets": "All creatures in area",
+    "upcastDescription": "Damage increases by 1d6 for each slot level above 3rd.",
     "componentTags": {
       "verbal": true,
       "somatic": true,
-      "material": true,
-      "materialDescription": "a tiny ball of bat guano and sulfur"
+      "material": true
+    }
+  },
+  {
+    "id": "fly",
+    "name": "Fly",
+    "level": 3,
+    "school": "Transmutation",
+    "castingTime": "1 action",
+    "range": "Touch",
+    "components": "V, S, M (a wing feather from any bird)",
+    "duration": "Concentration, up to 10 minutes",
+    "description": "You touch a willing creature. The target gains a flying speed of 60 feet for the duration. When the spell ends, the target falls if it is still aloft, unless it can stop the fall.",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "haste",
+    "name": "Haste",
+    "level": 3,
+    "school": "Transmutation",
+    "castingTime": "1 action",
+    "range": "30 feet",
+    "components": "V, S, M (a shaving of licorice root)",
+    "duration": "Concentration, up to 1 minute",
+    "description": "Choose a willing creature that you can see within range. Until the spell ends, the target's speed is doubled, it gains a +2 bonus to AC, it has advantage on Dexterity saving throws, and it gains an additional action on each of its turns. That action can be used only to take the Attack (one weapon attack only), Dash, Disengage, Hide, or Use an Object action. When the spell ends, the target can't move or take actions until after its next turn, as a wave of lethargy sweeps over it.",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "counterspell",
+    "name": "Counterspell",
+    "level": 3,
+    "school": "Abjuration",
+    "castingTime": "1 reaction, which you take when you see a creature within 60 feet of you casting a spell",
+    "range": "60 feet",
+    "components": "S",
+    "duration": "Instantaneous",
+    "description": "You attempt to interrupt a creature in the process of casting a spell. If the creature is casting a spell of 3rd level or lower, its spell fails and has no effect. If it is casting a spell of 4th level or higher, make an ability check using your spellcasting ability. The DC equals 10 + the spell's level. On a success, the creature's spell fails and has no effect.",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "componentTags": {
+      "verbal": false,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "revivify",
+    "name": "Revivify",
+    "level": 3,
+    "school": "Necromancy",
+    "castingTime": "1 action",
+    "range": "Touch",
+    "components": "V, S, M (diamonds worth 300 gp, which the spell consumes)",
+    "duration": "Instantaneous",
+    "description": "You touch a creature that has died within the last minute. That creature returns to life with 1 hit point. This spell can't return to life a creature that has died of old age, nor can it restore any missing body parts.",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "healing": "1",
+    "damageType": "healing",
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "spirit-guardians",
+    "name": "Spirit Guardians",
+    "level": 3,
+    "school": "Conjuration",
+    "castingTime": "1 action",
+    "range": "Self (15-foot radius)",
+    "components": "V, S, M (a holy symbol)",
+    "duration": "Concentration, up to 10 minutes",
+    "description": "You call forth spirits to protect you. They flit around you to a distance of 15 feet for the duration. If you are good or neutral, their spectral form appears angelic or fey (your choice). If you are evil, they appear fiendish. When a creature enters the area for the first time on a turn or starts its turn there, it must make a Wisdom saving throw. On a failed save, the creature takes 3d8 radiant damage (if you are good or neutral) or 3d8 necrotic damage (if you are evil). On a successful save, the creature takes half as much damage.",
+    "classes": [
+      "Cleric"
+    ],
+    "damage": "3d8",
+    "damageType": "radiant",
+    "saveType": "wisdom",
+    "concentration": true,
+    "areaOfEffect": {
+      "type": "sphere",
+      "size": 15
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "hunger-of-hadar",
+    "name": "Hunger of Hadar",
+    "level": 3,
+    "school": "Conjuration",
+    "castingTime": "1 action",
+    "range": "150 feet",
+    "components": "V, S, M (a pickled octopus tentacle)",
+    "duration": "Concentration, up to 1 minute",
+    "description": "You open a gateway to the dark between the stars, a region infested with unknown horrors. A 20-foot-radius sphere of blackness and bitter cold appears, centered on a point with range and lasting for the duration. This void is filled with a cacophony of soft whispers and slurping noises that can be heard up to 30 feet away. No light, magical or otherwise, can illuminate the area, and creatures fully within the area are blinded. The void creates difficult terrain. Any creature that starts its turn in the area takes 2d6 cold damage. Any creature that ends its turn in the area must succeed on a Dexterity saving throw or take 2d6 acid damage as milky, otherworldly tentacles rub against it.",
+    "classes": [
+      "Warlock"
+    ],
+    "damage": "2d6",
+    "damageType": "cold",
+    "concentration": true,
+    "areaOfEffect": {
+      "type": "sphere",
+      "size": 20
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "call-lightning",
+    "name": "Call Lightning",
+    "level": 3,
+    "school": "Conjuration",
+    "castingTime": "1 action",
+    "range": "120 feet",
+    "components": "V, S",
+    "duration": "Concentration, up to 10 minutes",
+    "description": "A storm cloud appears in the shape of a cylinder that is 10 feet tall and has a 60-foot radius, centered on a point you can see 100 feet directly above you. The spell fails if you can't see a point in the air where the storm cloud could appear (for example, if you are in a room that can't accommodate the cloud). When you cast the spell, choose a point you can see within range. A bolt of lightning flashes down from the cloud to that point. Each creature within 5 feet of that point must make a Dexterity saving throw. A creature takes 3d10 lightning damage on a failed save, or half as much damage on a successful one. On each of your turns until the spell ends, you can use your action to call down lightning in this way again, targeting the same point or a different one.",
+    "classes": [
+      "Druid"
+    ],
+    "damage": "3d10",
+    "damageType": "lightning",
+    "saveType": "dexterity",
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "hypnotic-pattern",
+    "name": "Hypnotic Pattern",
+    "level": 3,
+    "school": "Illusion",
+    "castingTime": "1 action",
+    "range": "120 feet",
+    "components": "S, M (a glowing stick of incense or a crystal vial filled with phosphorescent material)",
+    "duration": "Concentration, up to 1 minute",
+    "description": "You create a twisting pattern of colors that weaves through the air inside a 30-foot cube within range. The pattern appears for a moment and vanishes. Each creature in the area who sees the pattern must make a Wisdom saving throw. On a failed save, the creature becomes charmed for the duration. While charmed by this spell, the creature is incapacitated and has a speed of 0.",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "saveType": "wisdom",
+    "concentration": true,
+    "areaOfEffect": {
+      "type": "cube",
+      "size": 30
+    },
+    "componentTags": {
+      "verbal": false,
+      "somatic": true,
+      "material": true
     }
   }
 ]

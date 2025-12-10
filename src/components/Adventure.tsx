@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/
 import { Badge } from './ui/badge';
 import { useTranslation } from 'react-i18next';
 import { Sword, BookOpen, Dice6, DoorOpen, CheckCircle2, Backpack, X, Tent, ShoppingBag, Brain, Wand2 } from 'lucide-react';
-import type { Item, TalentOption, Encounter, SkillName, SpellContent, Subclass } from '@/types';
+import type { Item, TalentOption, Encounter, SkillName, SpellContent, Subclass, Feat } from '@/types';
 import { cn } from '@/lib/utils';
 import { CombatEncounter } from './CombatEncounter';
 import { Inventory } from './Inventory';
@@ -15,6 +15,7 @@ import { SUBCLASSES } from '@/data/subclasses';
 import itemsData from '@/content/items.json';
 import spellsData from '@/content/spells.json';
 import talentsContent from '@/content/talents.json';
+import featsData from '@/content/feats.json';
 import { QuestTracker } from './QuestTracker';
 import { JournalPanel } from './JournalPanel';
 import { Shop } from './Shop';
@@ -157,8 +158,13 @@ export function Adventure() {
   const questEvents = useRef<Set<string>>(new Set());
   const PRIMARY_QUEST_ID = 'stop-goblin-raids';
   const allTalents = talentsContent as TalentOption[];
+  const allFeats = featsData as Feat[];
   const [availableTalents, setAvailableTalents] = useState<TalentOption[]>([]);
   const [selectedTalentId, setSelectedTalentId] = useState<string | null>(null);
+  const [availableFeats, setAvailableFeats] = useState<Feat[]>([]);
+  const [selectedFeatId, setSelectedFeatId] = useState<string | null>(null);
+  const [asiScore1, setAsiScore1] = useState<string | undefined>();
+  const [asiScore2, setAsiScore2] = useState<string | undefined>();
   const [availableSubclasses, setAvailableSubclasses] = useState<Subclass[]>([]);
   const [selectedSubclassId, setSelectedSubclassId] = useState<string | null>(null);
 
@@ -451,8 +457,26 @@ export function Adventure() {
       });
       // Generate talents based on new level if needed
       const newTalents = allTalents.filter(t => !character.talents?.includes(t.id)).slice(0, 3);
-
       setAvailableTalents(newTalents);
+
+      // Check for Feats/ASI (Levels 4, 8, 12, 16, 19)
+      const ASI_LEVELS = [4, 8, 12, 16, 19];
+      // Fighter gets extra at 6 and 14
+      if (character.class.id === 'fighter') {
+        ASI_LEVELS.push(6, 14);
+      }
+      // Rogue gets extra at 10
+      if (character.class.id === 'rogue') {
+        ASI_LEVELS.push(10);
+      }
+
+      if (ASI_LEVELS.includes(character.level)) {
+        const takenFeats = character.feats || [];
+        const available = allFeats.filter(f => !takenFeats.includes(f.id));
+        setAvailableFeats(available);
+      } else {
+        setAvailableFeats([]);
+      }
 
       // Check for Subclass Selection
       const subclassLevel = SUBCLASS_LEVELS[character.class.id] || 3;
@@ -464,7 +488,7 @@ export function Adventure() {
       }
     }
     prevLevelRef.current = character?.level || 1;
-  }, [character?.level, allTalents, character]);
+  }, [character?.level, allTalents, allFeats, character]);
 
   const handleOptionClick = (option: EncounterOptionType) => {
     if (!currentEncounter || !character) return;
@@ -628,6 +652,51 @@ export function Adventure() {
       }
     }
 
+    // Handle Feat Selection
+    if (selectedFeatId && availableFeats.length > 0) {
+      const selectedFeat = availableFeats.find(f => f.id === selectedFeatId);
+      if (selectedFeat) {
+        updateCharacter((prev) => {
+          if (!prev) return prev;
+          const currentFeats = prev.feats || [];
+          let hpBonus = 0;
+          if (selectedFeatId === 'tough') {
+            hpBonus = prev.level * 2;
+          }
+          return {
+            ...prev,
+            maxHitPoints: prev.maxHitPoints + hpBonus,
+            hitPoints: prev.hitPoints + hpBonus,
+            feats: [...currentFeats, selectedFeatId]
+          };
+        });
+        addJournalEntry(`Gained the feat: ${selectedFeat.name}.`, 'Feat Gained');
+      }
+    } else if (asiScore1) {
+      // Handle ASI Selection
+      updateCharacter((prev) => {
+        if (!prev) return prev;
+        const newAbilityScores = { ...prev.abilityScores };
+        // +2 to score1 if score2 is empty
+        if (!asiScore2) {
+          const key = asiScore1 as keyof typeof newAbilityScores;
+          newAbilityScores[key] = (newAbilityScores[key] || 10) + 2;
+          addJournalEntry(`Increased ${key} by 2.`, 'Ability Score Improved');
+        } else {
+          // +1 to both
+          const key1 = asiScore1 as keyof typeof newAbilityScores;
+          const key2 = asiScore2 as keyof typeof newAbilityScores;
+          newAbilityScores[key1] = (newAbilityScores[key1] || 10) + 1;
+          newAbilityScores[key2] = (newAbilityScores[key2] || 10) + 1;
+          addJournalEntry(`Increased ${key1} and ${key2} by 1.`, 'Ability Score Improved');
+        }
+        return {
+          ...prev,
+          abilityScores: newAbilityScores
+        };
+      });
+    }
+
     const selectedTalent = availableTalents.find((talent) => talent.id === selectedTalentId);
 
     if (selectedTalent) {
@@ -661,6 +730,10 @@ export function Adventure() {
 
     setAvailableTalents([]);
     setSelectedTalentId(null);
+    setAvailableFeats([]);
+    setSelectedFeatId(null);
+    setAsiScore1(undefined);
+    setAsiScore2(undefined);
     setAvailableSubclasses([]);
     setSelectedSubclassId(null);
     setShowLevelUp(false);
@@ -881,6 +954,20 @@ export function Adventure() {
         talents={availableTalents}
         selectedTalentId={selectedTalentId}
         onSelectTalent={setSelectedTalentId}
+        feats={availableFeats}
+        selectedFeatId={selectedFeatId}
+        onSelectFeat={(id) => {
+          setSelectedFeatId(id);
+          setAsiScore1(undefined);
+          setAsiScore2(undefined);
+        }}
+        asiScore1={asiScore1}
+        asiScore2={asiScore2}
+        onSelectAsi={(s1, s2) => {
+          setAsiScore1(s1);
+          setAsiScore2(s2);
+          setSelectedFeatId(null);
+        }}
         subclasses={availableSubclasses}
         selectedSubclassId={selectedSubclassId}
         onSelectSubclass={setSelectedSubclassId}

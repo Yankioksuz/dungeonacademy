@@ -1,19 +1,29 @@
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 import { Sparkles, ArrowUpCircle } from 'lucide-react';
-import type { TalentOption, Subclass } from '@/types';
+import type { TalentOption, Subclass, Feat } from '@/types';
 
 interface LevelUpModalProps {
   isOpen: boolean;
   level: number;
   hpIncrease: number;
-  talents: TalentOption[];
+  talents: TalentOption[]; // Deprecated, kept for compat
+  feats?: Feat[];
+  selectedFeatId?: string | null;
+  onSelectFeat?: (featId: string) => void;
   selectedTalentId: string | null;
   onSelectTalent: (talentId: string) => void;
   subclasses?: Subclass[];
   selectedSubclassId?: string | null;
   onSelectSubclass?: (subclassId: string) => void;
   onConfirm: () => void;
+
+  // ASI Props
+  asiScore1?: string; // AbilityName
+  asiScore2?: string; // AbilityName
+  onSelectAsi?: (score1: string, score2?: string) => void; // score2 is optional if putting +2 in one
 }
 
 export function LevelUpModal({
@@ -26,14 +36,30 @@ export function LevelUpModal({
   subclasses = [],
   selectedSubclassId,
   onSelectSubclass,
+  feats = [],
+  selectedFeatId,
+  onSelectFeat,
   onConfirm,
+  // ASI Props
+  asiScore1,
+  asiScore2,
+  onSelectAsi,
 }: LevelUpModalProps) {
   const { t } = useTranslation();
+  const [mode, setMode] = useState<'feat' | 'asi'>('asi');
+
+  // Auto-switch to feat mode if asi is not available or if user has already selected a feat
+  useEffect(() => {
+    if (selectedFeatId) setMode('feat');
+  }, [selectedFeatId]);
 
   if (!isOpen) return null;
 
   const hasTalents = talents.length > 0;
   const hasSubclasses = subclasses && subclasses.length > 0;
+  const hasFeats = feats && feats.length > 0;
+
+  const abilities: string[] = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm fade-in">
@@ -60,7 +86,7 @@ export function LevelUpModal({
             </p>
           </div>
 
-          <div className="mt-6 text-left">
+          <div className="mt-6 text-left max-h-[60vh] overflow-y-auto pr-2">
             {hasSubclasses && (
               <>
                 <p className="text-sm text-muted-foreground mb-2">{t('levelUp.chooseSubclass', 'Choose a Subclass:')}</p>
@@ -79,6 +105,92 @@ export function LevelUpModal({
                   ))}
                 </div>
               </>
+            )}
+
+            {hasFeats && (
+              <div className="space-y-4 mb-6">
+                <div className="flex bg-black/20 p-1 rounded-lg">
+                  <button
+                    className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${mode === 'asi' ? 'bg-fantasy-gold text-black shadow' : 'text-muted-foreground hover:text-white'}`}
+                    onClick={() => { setMode('asi'); onSelectFeat?.(''); }}
+                  >
+                    Ability Score Improvement
+                  </button>
+                  <button
+                    className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${mode === 'feat' ? 'bg-fantasy-gold text-black shadow' : 'text-muted-foreground hover:text-white'}`}
+                    onClick={() => { setMode('feat'); onSelectAsi?.('', ''); }}
+                  >
+                    Feat
+                  </button>
+                </div>
+
+                {mode === 'asi' ? (
+                  <div className="p-4 rounded-lg border border-white/10 bg-black/20 space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Select one ability score to increase by 2, or two ability scores to increase by 1.
+                    </p>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold">Ability Score 1 (+1)</label>
+                      <div className="flex flex-wrap gap-2">
+                        {abilities.map(ability => (
+                          <Button
+                            key={`asi1-${ability}`}
+                            size="sm"
+                            variant={asiScore1 === ability ? 'fantasy' : 'outline'}
+                            onClick={() => onSelectAsi?.(ability, asiScore2)}
+                            className="capitalize"
+                          >
+                            {ability}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold">Ability Score 2 (+1)</label>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          size="sm"
+                          variant={!asiScore2 ? 'fantasy' : 'outline'}
+                          onClick={() => onSelectAsi?.(asiScore1 || '', undefined)}
+                          className="border-dashed"
+                        >
+                          None (+2 to first)
+                        </Button>
+                        {abilities.map(ability => (
+                          <Button
+                            key={`asi2-${ability}`}
+                            size="sm"
+                            variant={asiScore2 === ability ? 'fantasy' : 'outline'}
+                            className="capitalize"
+                            disabled={asiScore1 === ability}
+                            onClick={() => onSelectAsi?.(asiScore1 || '', ability)}
+                          >
+                            {ability}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid gap-3">
+                    {feats.map((feat) => (
+                      <button
+                        key={feat.id}
+                        className={`p-4 rounded-lg border transition-all text-left ${selectedFeatId === feat.id ? 'border-fantasy-gold bg-fantasy-gold/10' : 'border-white/10 hover:border-fantasy-gold/50'}`}
+                        onClick={() => onSelectFeat?.(feat.id)}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-semibold text-lg">{feat.name}</h3>
+                          <Badge variant="outline" className="text-xs">Feat</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{feat.description}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
 
             {hasTalents ? (
@@ -100,16 +212,17 @@ export function LevelUpModal({
                   ))}
                 </div>
               </>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                {t('levelUp.noTalents', 'You have already mastered all available talents.')}
-              </p>
-            )}
+            ) : null}
           </div>
 
           <Button
             onClick={onConfirm}
-            disabled={(!selectedTalentId && hasTalents) || (!selectedSubclassId && hasSubclasses)}
+            disabled={
+              (!selectedTalentId && hasTalents) ||
+              (!selectedSubclassId && hasSubclasses) ||
+              (hasFeats && mode === 'feat' && !selectedFeatId) ||
+              (hasFeats && mode === 'asi' && !asiScore1)
+            }
             className="w-full py-6 text-xl font-bold bg-fantasy-gold hover:bg-fantasy-gold/90 text-fantasy-dark-bg transition-all hover:scale-105 disabled:opacity-60"
           >
             {t('levelUp.continue', 'Continue Adventure')}

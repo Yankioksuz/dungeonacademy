@@ -27,7 +27,7 @@ export type ConditionType =
   | 'blinded' | 'charmed' | 'deafened' | 'frightened'
   | 'grappled' | 'incapacitated' | 'invisible' | 'paralyzed'
   | 'petrified' | 'poisoned' | 'prone' | 'restrained'
-  | 'stunned' | 'unconscious' | 'hexed' | 'turned' | 'pacified' | 'hidden' | 'reckless';
+  | 'stunned' | 'unconscious' | 'hexed' | 'turned' | 'pacified' | 'hidden' | 'reckless' | 'haste' | 'flying';
 
 export interface Condition {
   type: ConditionType;
@@ -257,6 +257,26 @@ export interface PlayerCharacter {
   featureUses?: FeatureUses;
   adventureHistory?: AdventureHistoryEntry[];
   subclass?: Subclass; // NEW: Selected Subclass
+  feats?: string[]; // IDs of taken feats
+}
+
+export interface FeatEffect {
+  type: 'initiative' | 'passive' | 'hpPerLevel' | 'resource' | 'action' | 'toggle' | 'speed';
+  key?: string;
+  value?: number;
+  trigger?: string;
+  reset?: string;
+  attackPenalty?: number;
+  damageBonus?: number;
+  weaponProp?: string;
+  weaponType?: string;
+}
+
+export interface Feat {
+  id: string;
+  name: string;
+  description: string;
+  effects?: FeatEffect[];
 }
 
 export interface Subclass {
@@ -318,7 +338,11 @@ export interface Item {
   spellLevel?: number;
   properties?: string[];
   attackBonus?: number;
-  pinned?: boolean; // NEW: Pin item to Quick Items
+  pinned?: boolean;
+  // Armor-specific properties
+  armorType?: 'light' | 'medium' | 'heavy' | 'shield';
+  stealthDisadvantage?: boolean;
+  strengthRequirement?: number;
 }
 
 export interface CombatEnemy {
@@ -326,6 +350,7 @@ export interface CombatEnemy {
   name: string;
   currentHp: number;
   maxHp: number;
+  maxHitPoints?: number; // Alias for maxHp (used in some contexts)
   armorClass: number;
   attackBonus: number;
   damage: string;
@@ -340,6 +365,11 @@ export interface CombatEnemy {
     toHit: number;
     damage: string;
     description?: string;
+    type?: string;
+    reach?: string;
+    range?: string;
+    targets?: string;
+    damageType?: string;
     save?: {
       ability: string;
       dc: number;
@@ -351,10 +381,10 @@ export interface CombatEnemy {
   damageImmunities?: string[];
   damageResistances?: string[];
   damageVulnerabilities?: string[];
-  abilityScores?: Record<string, number>;
+  abilityScores?: Record<'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma', number>;
   savingThrows?: Record<string, number>;
   savingThrowBonus?: number;
-  traits?: string[]; // e.g., 'brute', 'undead'
+  traits?: string[];
   legendaryActions?: {
     name: string;
     cost: number;
@@ -365,11 +395,22 @@ export interface CombatEnemy {
   breathDC?: number;
   breathDamage?: string;
   breathType?: string;
-  behavior?: 'aggressive' | 'cautious' | 'controller' | 'support'; // NEW: AI Behavior
+  behavior?: 'aggressive' | 'cautious' | 'controller' | 'support';
+  // Extended properties for stat blocks
+  speed?: Record<string, number>;
+  senses?: string[];
+  languages?: string[];
+  skills?: Record<string, number>;
+  challenge?: number | string;
+  size?: string;
+  alignment?: string;
+  statBlockSource?: string;
+  statBlockHeading?: string;
 }
 
 
 export interface FeatureUses {
+  // Core class features
   actionSurge: boolean;
   secondWind: boolean;
   bardicInspiration: number;
@@ -378,7 +419,45 @@ export interface FeatureUses {
   layOnHands: number;
   kiPoints: number;
   wildShape: number;
+  luckPoints: number; // For Lucky feat
   sorceryPoints: number;
+
+  // Fighter subclass features
+  fightingSpirit: number; // Samurai - 3/long rest
+  superiorityDice: number; // Battle Master - 4-6/short rest
+
+  // Rogue subclass features
+  masterDuelist: number; // Swashbuckler - 1/short rest
+
+  // Wizard subclass features
+  portentDice: number; // Divination - 2-3/long rest
+  arcaneWardHp: number; // Abjuration - current ward HP
+  illusorySelf: number; // Illusion - 1/short rest
+
+  // Cleric subclass features
+  wardingFlare: number; // Light - WIS/long rest
+  wrathOfTheStorm: number; // Tempest - WIS/long rest
+
+  // Paladin subclass features
+  vowOfEnmity: number; // Vengeance - uses Channel Divinity
+
+  // Druid subclass features
+  spiritTotem: number; // Shepherd - 1/short rest
+
+  // Sorcerer subclass features
+  tidesOfChaos: number; // Wild Magic - 1/long rest
+  favoredByTheGods: number; // Divine Soul - 1/short rest
+  houndOfIllOmen: number; // Shadow Magic - sorcery point based
+
+  // Warlock subclass features
+  hexbladesCurse: number; // Hexblade - 1/short rest
+  feyPresence: number; // Archfey - 1/short rest
+  entropicWard: number; // Great Old One - 1/short rest
+  healingLightDice: number; // Celestial - 1+level/long rest
+  unbreakableMajesty: number; // Glamour Bard - 1/short rest
+
+  // Barbarian subclass features
+  spiritShield: number; // Ancestral Guardian - unlimited while raging
 }
 
 export interface CombatState {
@@ -422,12 +501,15 @@ export interface Encounter {
   };
   options: EncounterOption[];
   enemy?: {
+    id?: string;
+    enemyId?: string;
     name: string;
     armorClass: number;
     hitPoints: number;
     attackBonus: number;
     damage: string;
     xpReward?: number;
+    damageType?: string;
   };
   skillCheck?: {
     skill: string;

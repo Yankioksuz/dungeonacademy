@@ -1,0 +1,105 @@
+[
+    {
+        "id": "alert",
+        "name": "Alert",
+        "description": "You gain a +5 bonus to initiative and can't be surprised while you are conscious. Other creatures don't gain advantage on attack rolls against you as a result of being unseen by you.",
+        "effects": [
+            {
+                "type": "initiative",
+                "value": 5
+            },
+            {
+                "type": "passive",
+                "key": "immuneToSurprise"
+            },
+            {
+                "type": "passive",
+                "key": "noUnseenAdvantage"
+            }
+        ]
+    },
+    {
+        "id": "tough",
+        "name": "Tough",
+        "description": "Your hit point maximum increases by an amount equal to twice your level when you gain this feat. Whenever you gain a level thereafter, your hit point maximum increases by an additional 2 hit points.",
+        "effects": [
+            {
+                "type": "hpPerLevel",
+                "value": 2
+            }
+        ]
+    },
+    {
+        "id": "lucky",
+        "name": "Lucky",
+        "description": "You have 3 luck points. Whenever you make an attack roll, an ability check, or a saving throw, you can spend one luck point to roll an additional d20.",
+        "effects": [
+            {
+                "type": "resource",
+                "key": "luckPoints",
+                "value": 3,
+                "reset": "longRest"
+            }
+        ]
+    },
+    {
+        "id": "great-weapon-master",
+        "name": "Great Weapon Master",
+        "description": "On your turn, when you score a critical hit with a melee weapon or reduce a creature to 0 hit points with one, you can make one melee weapon attack as a bonus action. Before you make a melee attack with a heavy weapon that you are proficient with, you can choose to take a -5 penalty to the attack roll. If the attack hits, you add +10 to the attack's damage.",
+        "effects": [
+            {
+                "type": "action",
+                "key": "gwmBonusAttack",
+                "trigger": "critOrKill"
+            },
+            {
+                "type": "toggle",
+                "key": "gwmPowerAttack",
+                "attackPenalty": -5,
+                "damageBonus": 10,
+                "weaponProp": "heavy"
+            }
+        ]
+    },
+    {
+        "id": "sharpshooter",
+        "name": "Sharpshooter",
+        "description": "Attacking at long range doesn't impose disadvantage on your ranged weapon attack rolls. Your ranged weapon attacks ignore half cover and three-quarters cover. Before you make an attack with a ranged weapon that you are proficient with, you can choose to take a -5 penalty to the attack roll. If the attack hits, you add +10 to the attack's damage.",
+        "effects": [
+            {
+                "type": "passive",
+                "key": "ignoreLongRangeDisadvantage"
+            },
+            {
+                "type": "passive",
+                "key": "ignoreCover"
+            },
+            {
+                "type": "toggle",
+                "key": "sharpshooterPowerAttack",
+                "attackPenalty": -5,
+                "damageBonus": 10,
+                "weaponType": "ranged"
+            }
+        ]
+    },
+    {
+        "id": "mobile",
+        "name": "Mobile",
+        "description": "Your speed increases by 10 feet. When you use the Dash action, difficult terrain doesn't cost you extra movement on that turn. When you make a melee attack against a creature, you don't provoke opportunity attacks from that creature for the rest of the turn, whether you hit or not.",
+        "effects": [
+            {
+                "type": "speed",
+                "value": 10
+            },
+            {
+                "type": "passive",
+                "key": "dashIgnoresDifficultTerrain"
+            },
+            {
+                "type": "passive",
+                "key": "hitAndRun"
+            }
+        ]
+    }
+]

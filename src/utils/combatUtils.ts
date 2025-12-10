@@ -3,6 +3,7 @@ import type { Condition, ConditionType } from '@/types';
 interface Combatant {
     name: string;
     conditions: Condition[];
+    traits?: string[];
 }
 
 export function hasCondition(entity: Combatant, type: ConditionType): boolean {
@@ -226,3 +227,102 @@ export function calculateDamage(
 
     return { total, breakdown: parts.join(', ') };
 }
+
+// --- Enemy Combat Utilities ---
+
+const DAMAGE_TYPES = [
+    'acid', 'bludgeoning', 'cold', 'fire', 'force', 'lightning', 'necrotic', 'piercing',
+    'poison', 'psychic', 'radiant', 'slashing', 'thunder'
+] as const;
+
+export type DamageType = typeof DAMAGE_TYPES[number];
+
+export const detectDamageType = (damage: string): DamageType => {
+    const normalized = damage.toLowerCase();
+    const match = DAMAGE_TYPES.find((type) => normalized.includes(type));
+    return match || 'slashing';
+};
+
+const abilityLookup: Record<string, 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma'> = {
+    str: 'strength',
+    strength: 'strength',
+    dex: 'dexterity',
+    dexterity: 'dexterity',
+    con: 'constitution',
+    constitution: 'constitution',
+    int: 'intelligence',
+    intelligence: 'intelligence',
+    wis: 'wisdom',
+    wisdom: 'wisdom',
+    cha: 'charisma',
+    charisma: 'charisma',
+};
+
+interface EnemyLike {
+    abilityScores?: Partial<Record<'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma', number>>;
+    savingThrows?: Partial<Record<string, number>>;
+    savingThrowBonus?: number;
+    conditionImmunities?: string[];
+    damageImmunities?: string[];
+    damageResistances?: string[];
+    damageVulnerabilities?: string[];
+}
+
+export const getEnemyAbilityMod = (enemy: EnemyLike, ability: string): number => {
+    const key = abilityLookup[ability.toLowerCase()] || 'strength';
+    const score = enemy.abilityScores?.[key];
+    if (typeof score === 'number') {
+        return Math.floor((score - 10) / 2);
+    }
+    return 0;
+};
+
+export const getEnemySavingThrowBonus = (enemy: EnemyLike, ability: string): number => {
+    const key = abilityLookup[ability.toLowerCase()] || 'strength';
+    const shortKey = key.slice(0, 3);
+    const explicit = enemy.savingThrows?.[key] ?? enemy.savingThrows?.[shortKey];
+    if (typeof explicit === 'number') return explicit;
+    if (enemy.savingThrowBonus) return enemy.savingThrowBonus;
+    return getEnemyAbilityMod(enemy, key);
+};
+
+export const isEnemyConditionImmune = (enemy: EnemyLike, condition: string): boolean => {
+    const immunities = (enemy.conditionImmunities || []).map(i => i.toLowerCase());
+    return immunities.includes(condition.toLowerCase());
+};
+
+export const adjustDamageForDefenses = (
+    enemy: EnemyLike,
+    amount: number,
+    damageType: string,
+    options?: { isSpell?: boolean; isMagical?: boolean }
+): { adjustedDamage: number; note: string | null } => {
+    const type = (damageType || 'slashing').toLowerCase();
+    const isMagical = options?.isSpell || options?.isMagical;
+    const matchType = (entries?: string[]) =>
+        (entries || []).some((entry) => {
+            const normalized = entry.toLowerCase();
+            if (normalized.includes('nonmagical') && isMagical) return false;
+            return normalized.includes(type);
+        });
+
+    if (matchType(enemy.damageImmunities)) {
+        return { adjustedDamage: 0, note: `immune to ${type}` };
+    }
+
+    let adjustedDamage = amount;
+    let note: string | null = null;
+
+    if (matchType(enemy.damageVulnerabilities)) {
+        adjustedDamage *= 2;
+        note = `vulnerable to ${type}`;
+    }
+
+    if (matchType(enemy.damageResistances)) {
+        adjustedDamage = Math.floor(adjustedDamage / 2);
+        note = `resists ${type}`;
+    }
+
+    return { adjustedDamage, note };
+};
+

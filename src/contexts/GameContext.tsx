@@ -207,7 +207,22 @@ const migrateCharacter = (char: Partial<PlayerCharacter> | null): PlayerCharacte
       strength: false, dexterity: false, constitution: false,
       intelligence: false, wisdom: false, charisma: false
     },
+    abilityScores: char.abilityScores || {
+      strength: 10, dexterity: 10, constitution: 10,
+      intelligence: 10, wisdom: 10, charisma: 10
+    },
+    hitPoints: char.hitPoints ?? char.maxHitPoints ?? 10,
+    maxHitPoints: char.maxHitPoints ?? 10,
     temporaryHitPoints: char.temporaryHitPoints || 0,
+    hitDice: char.hitDice || { current: 1, max: 1, die: 'd8' },
+    level: char.level || 1,
+    xp: char.xp || 0,
+    maxXp: char.maxXp || 300,
+    gold: char.gold || 0,
+    languages: char.languages || ['Common'],
+    weaponProficiencies: char.weaponProficiencies || [],
+    armorProficiencies: char.armorProficiencies || [],
+    senses: char.senses || [],
     passivePerception,
     passiveInvestigation,
     passiveInsight,
@@ -219,7 +234,14 @@ const migrateCharacter = (char: Partial<PlayerCharacter> | null): PlayerCharacte
       ...characterCreationContent.classes[0],
       savingThrowProficiencies: characterCreationContent.classes[0].savingThrowProficiencies as AbilityName[]
     },
-  };
+    background: char.background || characterCreationContent.backgrounds[0] || {
+      id: 'soldier',
+      name: 'Soldier',
+      description: 'A trained soldier.',
+      skillProficiencies: ['Athletics', 'Intimidation'],
+      equipment: []
+    },
+  } as PlayerCharacter;
 };
 
 export function GameProvider({ children }: { children: ReactNode }) {
@@ -228,7 +250,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [adventure, setAdventure] = useState<Adventure | null>(null);
   const [characterCreationStep, setCharacterCreationStep] = useState<number>(0);
   const [isInAdventure, setIsInAdventure] = useState(false);
-  const [tutorialsEnabled, setTutorialsEnabled] = useState(true);
+  const [tutorialsEnabled, setTutorialsEnabled] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [quests, setQuests] = useState<QuestEntry[]>([]);
   const [journal, setJournal] = useState<JournalEntry[]>([]);
@@ -362,7 +384,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
           ...characterCreationContent.classes[0],
           savingThrowProficiencies: characterCreationContent.classes[0].savingThrowProficiencies as AbilityName[]
         },
-        background: characterCreationContent.backgrounds[0],
+        background: characterCreationContent.backgrounds[0] || {
+          id: 'soldier',
+          name: 'Soldier',
+          description: 'A trained soldier.',
+          skillProficiencies: ['Athletics', 'Intimidation'],
+          equipment: []
+        },
         portraitId: undefined,
         abilityScores: {
           strength: 10,
@@ -945,6 +973,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         // Merge with existing features (assumes features are strings in class definition)
         const currentFeatures = prev.class.features || [];
         const uniqueFeatures = [...new Set([...currentFeatures, ...newFeatures])];
+        const toughBonus = prev.feats?.includes('tough') ? 2 : 0;
 
         const leveledCharacter = {
           ...prev,
@@ -952,8 +981,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
           xp: newXp - xpForNextLevel,
           maxXp: prev.maxXp + 1000, // Increase requirement
           level: newLevel,
-          maxHitPoints: prev.maxHitPoints + 10 + draconicBonus, // Simple HP boost + Draconic bonus
-          hitPoints: prev.maxHitPoints + 10 + draconicBonus, // Heal on level up
+          maxHitPoints: prev.maxHitPoints + 10 + draconicBonus + toughBonus, // Simple HP boost + Draconic bonus + Tough
+          hitPoints: prev.maxHitPoints + 10 + draconicBonus + toughBonus, // Heal on level up
           spellSlots: slotsToUpdate,
           class: {
             ...prev.class,

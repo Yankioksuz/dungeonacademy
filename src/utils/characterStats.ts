@@ -67,27 +67,48 @@ export function calculateArmorClass(character: PlayerCharacter): number {
         if (character.pactBoon === 'Pact of the Chain') {
             ac += 1;
         }
+        // Ring of Protection
+        if (character.inventory?.some(i => i.id === 'ring-of-protection')) {
+            ac += 1;
+        }
+        // Haste
+        if (character.conditions?.some(c => c.type === 'haste')) {
+            ac += 2;
+        }
         return ac;
     }
 
     // Unarmored Defense for Barbarian/Monk
     const className = character.class.name.toLowerCase();
+    let unarmoredAC = 10 + dexMod;
     if (className === 'barbarian') {
-        return 10 + dexMod + calculateAbilityModifier(character.abilityScores.constitution);
+        unarmoredAC += calculateAbilityModifier(character.abilityScores.constitution);
     }
     if (className === 'monk') {
-        return 10 + dexMod + calculateAbilityModifier(character.abilityScores.wisdom);
+        unarmoredAC += calculateAbilityModifier(character.abilityScores.wisdom);
     }
 
-    let ac = 10 + dexMod;
-    if (character.fightingStyle === 'Defense') ac += 1;
-    if (character.pactBoon === 'Pact of the Chain') ac += 1;
-    if (className === 'sorcerer' && character.sorcerousOrigin === 'Draconic Bloodline') ac += 1;
-    return ac;
+    if (character.fightingStyle === 'Defense') unarmoredAC += 1;
+    if (character.pactBoon === 'Pact of the Chain') unarmoredAC += 1;
+    if (className === 'sorcerer' && character.sorcerousOrigin === 'Draconic Bloodline') unarmoredAC += 1;
+    // Ring of Protection
+    if (character.inventory?.some(i => i.id === 'ring-of-protection')) {
+        unarmoredAC += 1;
+    }
+    // Haste
+    if (character.conditions?.some(c => c.type === 'haste')) {
+        unarmoredAC += 2;
+    }
+
+    return unarmoredAC;
 }
 
 export function calculateInitiative(character: PlayerCharacter): number {
-    return calculateAbilityModifier(character.abilityScores.dexterity);
+    let bonus = calculateAbilityModifier(character.abilityScores.dexterity);
+    if (character.feats?.includes('alert')) {
+        bonus += 5;
+    }
+    return bonus;
 }
 
 export function calculatePassiveScore(character: PlayerCharacter, skillName: string): number {
@@ -99,5 +120,10 @@ export function getSavingThrowModifier(character: PlayerCharacter, ability: keyo
     const isProficient = character.class.savingThrows.includes(ability.charAt(0).toUpperCase() + ability.slice(1));
     const proficiencyBonus = isProficient ? calculateProficiencyBonus(character.level) : 0;
 
-    return abilityMod + proficiencyBonus;
+    let bonus = abilityMod + proficiencyBonus;
+    // Ring of Protection
+    if (character.inventory?.some(i => i.id === 'ring-of-protection')) {
+        bonus += 1;
+    }
+    return bonus;
 }

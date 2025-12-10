@@ -23,6 +23,7 @@ Learn D&D 5e rules by playing through narrated adventures, tactical encounters, 
 - Six-step flow: identity, class, background, ability scores, portrait, review.
 - Random name generator and inline trait explanations to help new players.
 - Calculates HP, hit dice, XP track, spell slots, and a starter spell list based on the chosen class.
+- **Subclass selection** at appropriate levels (e.g., level 3 for most classes) with unique features.
 
 ### Camp
 - Pick between the two packaged adventures and see difficulty/length at a glance.
@@ -34,10 +35,8 @@ Learn D&D 5e rules by playing through narrated adventures, tactical encounters, 
 - Quest tracker and journal update automatically as you progress; manual notes supported.
 - Inventory, shop, and loot flow for weapons, armor, potions, scrolls, and gold.
 - Spellbook with prepared/known spells, upcasting, ritual casting, concentration tracking, and slot spending/restoration.
-- Turn-based combat encounters, level-up modal with XP carryover, and rest menu from inside the adventure.
-
-### Quizzes
-- Question generator covers rules, character creation, spells, and abilities using `src/content`. The `components/Quiz` flow is ready to embed wherever you want a practice mode.
+- Turn-based combat with conditions, enemy AI, stat blocks, and class-specific abilities (Rage, Smite, Ki, Channel Divinity, Wild Shape, etc.).
+- Level-up modal with XP carryover and subclass unlocking; rest menu from inside the adventure.
 
 ## Save & Load
 
@@ -86,18 +85,32 @@ src/
     Adventure.tsx      // Adventure runtime (encounters, quests, spells, combat hooks)
     Camp.tsx           // Adventure selection, resting, history, character view
     CharacterCreation.tsx
-    CombatEncounter.tsx
+    CombatEncounter.tsx // Main combat logic
+    CombatEnemyCard.tsx // Enemy list card component
+    CombatLogPanel.tsx  // Combat log display
+    EnemyStatBlock.tsx  // Detailed enemy stat block
+    ConditionList.tsx   // Status condition display
+    DiceRollModal.tsx   // Animated dice roll overlay
     DiceRoller.tsx
     Inventory.tsx
     QuestTracker.tsx
     JournalPanel.tsx
+    LevelUpModal.tsx    // Level up with subclass selection
+    RestModal.tsx       // Short/long rest handling
     SaveLoadMenu.tsx
-    ui/                // shadcn/ui wrappers
+    Shop.tsx
+    ui/                 // shadcn/ui wrappers
   content/             // JSON data for adventures, items, spells, talents, traits
   contexts/            // GameContext (state, saves, quests, spells, XP)
+  data/                // Class progression, portraits, subclass definitions
   hooks/               // Custom hooks (save system, quizzes, etc.)
   i18n/                // en/tr translations
-  utils/               // Helpers for rolls, stats, quiz generation
+  types/               // TypeScript type definitions
+  utils/               // Helpers for rolls, stats, combat, conditions, enemy AI
+    combatUtils.ts     // Combat calculations and damage adjustments
+    enemyAI.ts         // Enemy action selection logic
+    conditionUtils.ts  // Status condition effects
+    characterStats.ts  // Ability scores and modifiers
 docs/                  // Design notes and feature roadmaps
 ```
 
@@ -109,11 +122,11 @@ docs/                  // Design notes and feature roadmaps
 
 ## Contributing
 
-Educational project—contributions welcome! Ideas:
+Educational project—contributions welcome! Current priorities:
+- **Feats system** – Character feats at ASI levels.
 - Add new adventures or expand encounter branches.
 - Enrich the item/spell/talent lists.
-- Improve combat clarity, tutorial text, or localization coverage.
-- Surface the quiz flow inside the UI.
+- Improve combat clarity and tutorial text.
 
 ## License
 

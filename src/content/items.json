@@ -81,6 +81,42 @@
       "value": 75
     }
   ],
+  "magicItems": [
+    {
+      "id": "bag-of-holding",
+      "name": "Bag of Holding",
+      "type": "wondrous",
+      "description": "This bag has an interior space considerably larger than its outside dimensions.",
+      "value": 500
+    },
+    {
+      "id": "boots-of-elvenkind",
+      "name": "Boots of Elvenkind",
+      "type": "wondrous",
+      "description": "While you wear these boots, your steps make no sound. You have advantage on Dexterity (Stealth) checks that rely on moving silently.",
+      "value": 300
+    },
+    {
+      "id": "ring-of-protection",
+      "name": "Ring of Protection",
+      "type": "ring",
+      "description": "You have a +1 bonus to AC and saving throws while wearing this ring.",
+      "value": 3500,
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "wand-magic-missiles",
+      "name": "Wand of Magic Missiles",
+      "type": "wand",
+      "description": "This wand has 7 charges. While holding it, you can use an action to expend 1 or more of its charges to cast the magic missile spell from it. For 1 charge, you cast the 1st-level version of the spell. You can increase the spell slot level by one for each additional charge you expend.",
+      "value": 300,
+      "properties": [
+        "attunement"
+      ]
+    }
+  ],
   "potions": [
     {
       "id": "healing-potion",
@@ -97,6 +133,20 @@
       "description": "Restores 4d4+4 hit points",
       "healing": 14,
       "value": 150
+    },
+    {
+      "id": "potion-invisibility",
+      "name": "Potion of Invisibility",
+      "type": "potion",
+      "description": "This potion's container looks empty but feels weightless. When you drink it, you become invisible for 1 hour. Anything you wear or carry is invisible with you. The effect ends early if you attack or cast a spell.",
+      "value": 200
+    },
+    {
+      "id": "potion-speed",
+      "name": "Potion of Speed",
+      "type": "potion",
+      "description": "When you drink this potion, you gain the effect of the haste spell for 1 minute (no concentration required).",
+      "value": 400
     }
   ],
   "scrolls": [

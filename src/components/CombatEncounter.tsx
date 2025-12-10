@@ -4,16 +4,28 @@ import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { useTranslation } from 'react-i18next';
-import { Sword, Shield, Heart, Skull, Backpack, X, Flame, Wand, Activity, HeartPulse, Brain, Zap, Sparkles, Book, Search, MessageCircle, FlaskConical, Scroll, Pin } from 'lucide-react';
+import { Sword, Shield, Heart, Skull, Backpack, X, Flame, Wand, Activity, HeartPulse, Brain, Zap, Sparkles, Search, MessageCircle, FlaskConical, Scroll, Pin, Crosshair } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { PlayerCharacter, CombatEnemy, CombatLogEntry, SpellContent, CombatLogEntryType, Condition, AbilityName } from '@/types';
+import type { PlayerCharacter, CombatEnemy, CombatLogEntry, SpellContent, CombatLogEntryType, Condition, AbilityName, Item } from '@/types';
 import { useGame } from '@/contexts/GameContext';
-import { canAct, getCombatAdvantage, getSavingThrowAdvantage } from '@/utils/combatUtils';
+import {
+  canAct,
+  getCombatAdvantage,
+  getSavingThrowAdvantage,
+  detectDamageType,
+  getEnemyAbilityMod,
+  getEnemySavingThrowBonus,
+  isEnemyConditionImmune,
+  adjustDamageForDefenses,
+} from '@/utils/combatUtils';
+import { determineEnemyAction } from '@/utils/enemyAI';
 
 import { createLogEntry } from '@/utils/combatLogger';
 import { CombatLogPanel } from './CombatLogPanel';
 import { ConditionList } from './ConditionList';
 import { DiceRollModal } from './DiceRollModal';
+import { CombatEnemyCard } from './CombatEnemyCard';
+import { EnemyStatBlock } from './EnemyStatBlock';
 import spellsData from '@/content/spells.json';
 import {
   getAvailableSlotLevels,
@@ -29,8 +41,17 @@ import { getEnemyById, mergeEnemyOverride } from '@/utils/enemies';
 
 import {
   calculateArmorClass,
-  calculateAbilityModifier,
 } from '@/utils/characterStats';
+
+// Subclass feature utilities
+import {
+  getCritThreshold,
+  getDivineFuryDamage,
+  getHexbladeCurseEffects,
+  getRakishAudacityBonus,
+  canUseAncestralProtectors,
+  hasHexWarrior,
+} from '@/utils/subclassFeatures';
 
 type CombatEnemyState = CombatEnemy & {
   conditions: Condition[];
@@ -45,18 +66,8 @@ type InitialEnemyInput = {
   breathType?: string;
 };
 
-const DAMAGE_TYPES = [
-  'acid', 'bludgeoning', 'cold', 'fire', 'force', 'lightning', 'necrotic', 'piercing',
-  'poison', 'psychic', 'radiant', 'slashing', 'thunder'
-];
-
-const detectDamageType = (damage: string): string => {
-  const normalized = damage.toLowerCase();
-  const match = DAMAGE_TYPES.find((type) => normalized.includes(type));
-  return match || 'slashing';
-};
-
-const abilityLookup: Record<string, keyof CombatEnemy['abilityScores']> = {
+// Ability name lookup for save ability shorthand
+const abilityLookup: Record<string, AbilityName> = {
   str: 'strength',
   strength: 'strength',
   dex: 'dexterity',
@@ -69,143 +80,6 @@ const abilityLookup: Record<string, keyof CombatEnemy['abilityScores']> = {
   wisdom: 'wisdom',
   cha: 'charisma',
   charisma: 'charisma',
-};
-
-const averageDamageFromString = (damage: string): number => {
-  if (!damage) return 0;
-  let total = 0;
-  let matched = false;
-  const regex = /(\d+)d(\d+)([+-]\d+)?/gi;
-  let m;
-  while ((m = regex.exec(damage)) !== null) {
-    matched = true;
-    const count = Number(m[1]);
-    const sides = Number(m[2]);
-    const mod = m[3] ? Number(m[3]) : 0;
-    total += count * ((sides + 1) / 2) + mod;
-  }
-  if (!matched) {
-    const flat = parseInt(damage, 10);
-    if (!Number.isNaN(flat)) total += flat;
-  }
-  return total;
-};
-
-
-const determineEnemyAction = (
-  enemy: CombatEnemy,
-  player: PlayerCharacter,
-  breathReady: boolean,
-  allies: CombatEnemy[] = []
-): EnemyAction | { type: 'breath'; name: string; damage: string; damageType?: string; save?: { ability: string; dc: number; onSave?: string; onFail?: string } } | undefined => {
-  const actions = enemy.actions || [];
-
-  // 1. Gather all possible actions including breath
-  const pool: Array<EnemyAction | { type: 'breath'; name: string; damage: string; damageType?: string; save?: { ability: string; dc: number; onSave?: string; onFail?: string } }> = [...actions];
-  if (breathReady && enemy.breathDamage && enemy.breathType) {
-    pool.push({
-      type: 'breath',
-      name: 'Breath Weapon',
-      damage: enemy.breathDamage,
-      damageType: enemy.breathType,
-      save: { ability: 'dex', dc: enemy.breathDC || 12 }
-    });
-  }
-
-  if (pool.length === 0) return undefined;
-
-  const behavior = enemy.behavior || 'aggressive';
-  const hpPercent = (enemy.currentHp / enemy.maxHp) * 100;
-
-  // --- BEHAVIOR LOGIC ---
-
-  // CAUTIOUS: If low HP (<40%), prioritize ranged or defensive (if we had defensive actions).
-  // For now, if cautious and low HP, try to find a ranged attack or just random to avoid being predictable.
-  if (behavior === 'cautious' && hpPercent < 40) {
-    // Logic for fleeing or dodging would go here.
-    // For now, prefer actions that might have range or control? 
-    // Fallback: Pick random viable action instead of always strongest.
-    return pool[Math.floor(Math.random() * pool.length)];
-  }
-
-  // SUPPORT: Heal allies if they are low.
-  if (behavior === 'support') {
-    const lowHealthAlly = allies.find(a => !a.isDefeated && (a.currentHp / a.maxHp) < 0.5);
-    if (lowHealthAlly) {
-      // Look for 'Heal' or 'Cure' action in pool
-      const healAction = pool.find(a => a.name.toLowerCase().includes('heal') || a.name.toLowerCase().includes('cure'));
-      if (healAction) return healAction;
-    }
-    // If no one needs healing, or no heal action, fall through to default.
-  }
-
-  // AGGRESSIVE (Default): Maximize Damage
-  // Default logic: Pick highest average damage.
-  return pool.reduce((best, action) => {
-    if (!best) return action;
-    const bestAvg = averageDamageFromString(best.damage || enemy.damage || '');
-    const currentAvg = averageDamageFromString(action.damage || enemy.damage || '');
-    return currentAvg > bestAvg ? action : best;
-  }, undefined as typeof pool[0] | undefined);
-};
-
-
-const getEnemyAbilityMod = (enemy: CombatEnemy, ability: string): number => {
-  const key = abilityLookup[ability.toLowerCase()] || 'strength';
-  const score = enemy.abilityScores?.[key];
-  if (typeof score === 'number') {
-    return Math.floor((score - 10) / 2);
-  }
-  return 0;
-};
-
-const getEnemySavingThrowBonus = (enemy: CombatEnemy, ability: string): number => {
-  const key = abilityLookup[ability.toLowerCase()] || 'strength';
-  const shortKey = key.slice(0, 3);
-  const explicit = enemy.savingThrows?.[key] ?? enemy.savingThrows?.[shortKey];
-  if (typeof explicit === 'number') return explicit;
-  if (enemy.savingThrowBonus) return enemy.savingThrowBonus;
-  return getEnemyAbilityMod(enemy, key);
-};
-
-const isEnemyConditionImmune = (enemy: CombatEnemy, condition: string) => {
-  const immunities = (enemy.conditionImmunities || []).map(i => i.toLowerCase());
-  return immunities.includes(condition.toLowerCase());
-};
-
-const adjustDamageForDefenses = (
-  enemy: CombatEnemy,
-  amount: number,
-  damageType: string,
-  options?: { isSpell?: boolean; isMagical?: boolean }
-) => {
-  const type = (damageType || 'slashing').toLowerCase();
-  const isMagical = options?.isSpell || options?.isMagical;
-  const matchType = (entries?: string[]) =>
-    (entries || []).some((entry) => {
-      const normalized = entry.toLowerCase();
-      if (normalized.includes('nonmagical') && isMagical) return false;
-      return normalized.includes(type);
-    });
-
-  if (matchType(enemy.damageImmunities)) {
-    return { adjustedDamage: 0, note: `immune to ${type}` };
-  }
-
-  let adjustedDamage = amount;
-  let note: string | null = null;
-
-  if (matchType(enemy.damageVulnerabilities)) {
-    adjustedDamage *= 2;
-    note = `vulnerable to ${type}`;
-  }
-
-  if (matchType(enemy.damageResistances)) {
-    adjustedDamage = Math.floor(adjustedDamage / 2);
-    note = `resists ${type}`;
-  }
-
-  return { adjustedDamage, note };
 };
 
 interface CombatEncounterProps {
@@ -384,6 +258,9 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
   const [actionSurgeAvailable, setActionSurgeAvailable] = useState(isFighter ? defaultUses.actionSurge : false);
   const [secondWindAvailable, setSecondWindAvailable] = useState(isFighter ? defaultUses.secondWind : false);
+  // Feat States
+  const [gwmActive, setGwmActive] = useState(false);
+  const [sharpshooterActive, setSharpshooterActive] = useState(false);
   const [sneakAttackUsedThisTurn, setSneakAttackUsedThisTurn] = useState(false);
   const [activeBuffs, setActiveBuffs] = useState<Array<{ id: string; name: string; bonus?: number; duration: number }>>([]);
   const [relentlessEnduranceUsed, setRelentlessEnduranceUsed] = useState(false);
@@ -433,6 +310,68 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   // Wizard State
   const isWizard = character.class.name.toLowerCase() === 'wizard';
   const [arcaneRecoveryUsed, setArcaneRecoveryUsed] = useState(false);
+
+  // Warlock State
+  const isWarlock = character.class.name.toLowerCase() === 'warlock';
+
+  // ==========================================
+  // SUBCLASS FEATURE STATES
+  // ==========================================
+
+  // Combat tracking
+  const [isFirstTurn, setIsFirstTurn] = useState(true); // For Dread Ambusher, Assassinate
+  const [divineFuryUsedThisTurn, setDivineFuryUsedThisTurn] = useState(false); // Zealot first hit bonus
+  const [ancestralProtectorsTarget, setAncestralProtectorsTarget] = useState<string | null>(null); // First enemy hit while raging
+
+  // Fighter Subclass States
+  const [fightingSpiritUses, setFightingSpiritUses] = useState(defaultUses.fightingSpirit || 0); // Samurai
+  const [fightingSpiritActive, setFightingSpiritActive] = useState(false);
+  const [superiorityDiceLeft, setSuperiorityDiceLeft] = useState(defaultUses.superiorityDice || 0); // Battle Master
+
+  // Rogue Subclass States
+  const [psychicBladesUsedThisTurn, setPsychicBladesUsedThisTurn] = useState(false); // Whispers
+
+  // Wizard Subclass States
+  const [portentDiceRolls, setPortentDiceRolls] = useState<number[]>(() => {
+    // Roll portent dice at combat start for Divination wizards
+    if (character.subclass?.id === 'divination') {
+      const count = (character.level || 1) >= 14 ? 3 : 2;
+      return Array.from({ length: count }, () => Math.floor(Math.random() * 20) + 1);
+    }
+    return [];
+  });
+  const [arcaneWardCurrentHp, setArcaneWardCurrentHp] = useState(defaultUses.arcaneWardHp || 0);
+
+  // Cleric Subclass States
+  const [wardingFlareUses, setWardingFlareUses] = useState(defaultUses.wardingFlare || 0);
+  const [wrathOfTheStormUses, setWrathOfTheStormUses] = useState(defaultUses.wrathOfTheStorm || 0);
+
+  // Warlock Subclass States  
+  const [hexbladesCurseTarget, setHexbladesCurseTarget] = useState<string | null>(null);
+  const [hexbladesCurseAvailable, setHexbladesCurseAvailable] = useState(defaultUses.hexbladesCurse || 0);
+  const [healingLightDicePool, setHealingLightDicePool] = useState(defaultUses.healingLightDice || 0);
+
+  // Sorcerer Subclass States
+  const [tidesOfChaosAvailable, setTidesOfChaosAvailable] = useState(defaultUses.tidesOfChaos || 0);
+  const [favoredByTheGodsAvailable, setFavoredByTheGodsAvailable] = useState(defaultUses.favoredByTheGods || 0);
+
+  // Bard Subclass States  
+  const [cuttingWordsUsedThisTurn, setCuttingWordsUsedThisTurn] = useState(false);
+
+  // Paladin Subclass States
+  const [vowOfEnmityTarget, setVowOfEnmityTarget] = useState<string | null>(null);
+
+  // Derived subclass info
+  const subclassId = character.subclass?.id || '';
+  const critThreshold = useMemo(() => {
+    let threshold = getCritThreshold(character);
+    // Hexblade's Curse also lowers crit threshold on cursed target
+    if (hexbladesCurseTarget) {
+      threshold = Math.min(threshold, 19);
+    }
+    return threshold;
+  }, [character, hexbladesCurseTarget]);
+
   const [offhandAvailable, setOffhandAvailable] = useState(true);
   const [offhandWeaponId, setOffhandWeaponId] = useState<string | null>(null);
   const selectedEnemyData = useMemo(
@@ -459,44 +398,22 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     return lightWeapons[0];
   };
 
-  const getLightWeapons = () => {
+  const getLightWeapons = (): Item[] => {
     const equipped = character.equippedWeapon;
-    if (equipped && (equipped.properties || []).includes('light')) return equipped;
     const inv = character.inventory || [];
-    return inv.filter(
+    const lightFromInv = inv.filter(
       (item) =>
         item.type === 'weapon' &&
         (item.properties || []).includes('light')
     );
-  };
-
-  const formatSpeed = useCallback((speed?: CombatEnemy['speed']) => {
-    if (!speed) return t('combat.none');
-    const parts = Object.entries(speed)
-      .filter(([, value]) => !!value)
-      .map(([type, value]) => `${type} ${value} ft.`);
-    return parts.length ? parts.join(', ') : t('combat.none');
-  }, [t]);
-
-  const formatList = useCallback((items?: string[]) => {
-    if (!items || items.length === 0) return t('combat.none');
-    return items.join(', ');
-  }, [t]);
-
-  const formatActionMeta = useCallback((action: NonNullable<CombatEnemy['actions']>[number]) => {
-    const parts: string[] = [];
-    if (action.toHit !== undefined) parts.push(`+${action.toHit} to hit`);
-    if (action.reach) parts.push(`reach ${action.reach} ft.`);
-    if (action.range) parts.push(`range ${action.range}`);
-    if (action.targets) parts.push(action.targets);
-    if (action.damage) parts.push(action.damage);
-    if (action.save) {
-      const dcText = action.save.dc ? `DC ${action.save.dc}` : 'Save';
-      const abilityText = action.save.ability ? ` ${action.save.ability}` : '';
-      parts.push(`${dcText}${abilityText}`);
+    // Include equipped weapon if it's light
+    if (equipped && (equipped.properties || []).includes('light')) {
+      // Avoid duplicates
+      const exists = lightFromInv.some(w => w.id === equipped.id);
+      if (!exists) return [equipped, ...lightFromInv];
     }
-    return parts.join(' · ');
-  }, []);
+    return lightFromInv;
+  };
 
   useEffect(() => {
     const uses = character.featureUses || getDefaultFeatureUses(character);
@@ -848,6 +765,20 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
             return prevChar;
           });
         }
+
+        // Hexblade's Curse Kill Healing
+        if (hexbladesCurseTarget === enemyId) {
+          const hexCurseEffects = getHexbladeCurseEffects(character);
+          if (hexCurseEffects) {
+            const healAmount = hexCurseEffects.healingOnKill;
+            setPlayerHp(prev => Math.min(character.maxHitPoints || 99, prev + healAmount));
+            addLog(`Hexblade's Curse: ${character.name} regains ${healAmount} HP from cursed target's death!`, 'heal');
+            setHexbladesCurseTarget(null); // Curse ends
+          }
+        }
+
+        // Grim Harvest (Wizard - Necromancy) - heal on spell kills
+        // This is already handled in spell damage, but ensure it works for all sources
       }
 
       return { ...e, currentHp: newHp, isDefeated: newHp === 0 };
@@ -886,11 +817,32 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     return total;
   };
 
-  const nextTurn = () => {
+  const nextTurn = useCallback(() => {
     setTimeout(() => {
-      setCurrentTurnIndex(prev => (prev + 1) % turnOrder.length);
+      setCurrentTurnIndex(prev => {
+        // Guard against empty turnOrder (should not happen, but just in case)
+        if (turnOrder.length === 0) return 0;
+        const nextIndex = (prev + 1) % turnOrder.length;
+
+        // Track if we've completed a full round (back to player)
+        const isNewRound = nextIndex === 0;
+
+        // Reset per-turn subclass features when player's turn starts
+        if (turnOrder[nextIndex]?.id === 'player') {
+          setDivineFuryUsedThisTurn(false);
+          setPsychicBladesUsedThisTurn(false);
+          setCuttingWordsUsedThisTurn(false);
+
+          // First turn only lasts for the first round
+          if (isNewRound) {
+            setIsFirstTurn(false);
+          }
+        }
+
+        return nextIndex;
+      });
     }, 500);
-  };
+  }, [turnOrder]);
 
   const performEnemyTurn = (enemyId: string) => {
     const enemy = enemies.find(e => e.id === enemyId);
@@ -1055,7 +1007,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           resolveAttackAction(chosenAction);
         }
       } else {
-        resolveAttackAction(chosenAction || { name: actingEnemy.name, damage: actingEnemy.damage || '1d6+2', damageType: actingEnemy.damageType });
+        resolveAttackAction(chosenAction || { name: actingEnemy.name, toHit: actingEnemy.attackBonus, damage: actingEnemy.damage || '1d6+2', damageType: actingEnemy.damageType });
       }
 
       setActiveBuffs(prev => prev.filter(effect => effect.id !== 'defense-bonus'));
@@ -1170,12 +1122,58 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
     const isMonk = character.class.name.toLowerCase() === 'monk';
     const isSimpleWeapon = character.equippedWeapon?.type.includes('Simple');
-    const useDex = isFinesse || isRanged || (isMonk && (isSimpleWeapon || !character.equippedWeapon));
+    let useDex = isFinesse || isRanged || (isMonk && (isSimpleWeapon || !character.equippedWeapon));
     const isUsingStrength = !useDex;
 
-    let attackModifier = (useDex ? dexMod : abilityMod) + character.proficiencyBonus;
+    // ==========================================
+    // SUBCLASS ATTACK MODIFIERS
+    // ==========================================
+
+    // Hexblade: Hex Warrior - use CHA for weapon attacks
+    const chaMod = Math.floor((character.abilityScores.charisma - 10) / 2);
+    let useCharisma = false;
+    if (hasHexWarrior(character) && !weaponProps.includes('two-handed')) {
+      useCharisma = true;
+      addLog('Hex Warrior: Using Charisma for attack!', 'info');
+    }
+
+    // Samurai: Fighting Spirit - advantage on attacks
+    if (fightingSpiritActive) {
+      if (rollType === 'disadvantage') {
+        rollType = 'normal';
+      } else {
+        rollType = 'advantage';
+      }
+      addLog('Fighting Spirit: Advantage on attack!', 'info');
+    }
+
+    // Swashbuckler: Rakish Audacity - add CHA to initiative (handled elsewhere) and solo sneak attack
+    const rakishAudacity = getRakishAudacityBonus(character);
+
+    // Assassinate: Advantage against creatures that haven't acted yet
+    const enemyHasActed = turnOrder.findIndex(t => t.id === enemy.id) < currentTurnIndex;
+    if (isFirstTurn && subclassId === 'assassin' && !enemyHasActed) {
+      if (rollType === 'disadvantage') {
+        rollType = 'normal';
+      } else {
+        rollType = 'advantage';
+      }
+      addLog('Assassinate: Advantage on creature that hasn\'t acted!', 'info');
+    }
+
+    // Vow of Enmity - advantage against cursed target
+    if (vowOfEnmityTarget === enemy.id) {
+      if (rollType === 'disadvantage') {
+        rollType = 'normal';
+      } else {
+        rollType = 'advantage';
+      }
+      addLog('Vow of Enmity: Advantage on attack!', 'info');
+    }
+
+    let attackModifier = (useCharisma ? chaMod : useDex ? dexMod : abilityMod) + character.proficiencyBonus;
     let damageDice = character.equippedWeapon?.damage || '1d4';
-    let damageBonus = useDex ? dexMod : abilityMod;
+    let damageBonus = useCharisma ? chaMod : useDex ? dexMod : abilityMod;
     const weaponDamageType = detectDamageType(character.equippedWeapon?.damage || damageDice || '');
     const isMagicalWeapon = (character.equippedWeapon?.properties || []).includes('magic');
 
@@ -1187,6 +1185,19 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     if (character.fightingStyle === 'Dueling' && !isRanged && !isTwoHanded) {
       damageBonus += 2;
     }
+
+    // Feat Modifiers
+    if (gwmActive && weaponProps.includes('heavy')) {
+      attackModifier -= 5;
+      damageBonus += 10;
+      addLog('Using Great Weapon Master!', 'info');
+    }
+    if (sharpshooterActive && isRanged) {
+      attackModifier -= 5;
+      damageBonus += 10;
+      addLog('Using Sharpshooter!', 'info');
+    }
+
     const versatileBonus = weaponProps.find(p => p.startsWith('versatile-'));
     if (versatileBonus) {
       const altDie = versatileBonus.split('-')[1];
@@ -1260,11 +1271,22 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     }
 
     const total = roll + attackModifier + inspirationRoll;
-    const isCritical = roll === 20;
+
+    // Dynamic critical hit threshold (Champion, Hexblade's Curse)
+    let effectiveCritThreshold = critThreshold;
+    // Hexblade's Curse only applies to cursed target
+    if (hexbladesCurseTarget === enemy.id) {
+      effectiveCritThreshold = Math.min(effectiveCritThreshold, 19);
+    }
+
+    const isCritical = roll >= effectiveCritThreshold;
     const isCriticalFailure = roll === 1;
 
+    // Assassinate: Auto-crit if target is surprised (first turn and hasn't acted)
+    const isAssassinateCrit = isFirstTurn && subclassId === 'assassin' && !enemyHasActed && total >= targetAC;
+
     setDiceResult(roll);
-    setRollResult({ roll, total, isCritical, isCriticalFailure });
+    setRollResult({ roll, total, isCritical: isCritical || isAssassinateCrit, isCriticalFailure });
 
     setPendingCombatAction(() => () => {
       if (total >= targetAC || isCritical) {
@@ -1349,6 +1371,72 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
             damageRoll += csDamage;
             addLog(`Colossus Slayer! (+${csDamage} damage)`, 'info');
           }
+        }
+
+        // ==========================================
+        // SUBCLASS DAMAGE BONUSES
+        // ==========================================
+
+        // Hexblade's Curse - proficiency bonus damage
+        if (hexbladesCurseTarget === enemy.id) {
+          const curseBonus = character.proficiencyBonus || 2;
+          damageRoll += curseBonus;
+          addLog(`Hexblade's Curse! (+${curseBonus} damage)`, 'info');
+        }
+
+        // Divine Fury (Zealot Barbarian) - first hit while raging
+        if (rageActive && !divineFuryUsedThisTurn) {
+          const furyDamage = getDivineFuryDamage(character, rageActive);
+          if (furyDamage) {
+            const furyRoll = rollDice(6) + Math.floor((character.level || 1) / 2);
+            damageRoll += furyRoll;
+            addLog(`Divine Fury! (+${furyRoll} ${furyDamage.type} damage)`, 'info');
+            setDivineFuryUsedThisTurn(true);
+          }
+        }
+
+        // Ancestral Protectors (Ancestral Guardian) - mark first enemy hit while raging
+        if (rageActive && canUseAncestralProtectors(character, rageActive) && !ancestralProtectorsTarget) {
+          setAncestralProtectorsTarget(enemy.id);
+          addLog(`Ancestral Protectors! ${enemy.name} is harried by spirits!`, 'info');
+        }
+
+        // Dread Ambusher (Gloom Stalker) - first turn extra damage
+        if (isFirstTurn && subclassId === 'gloom-stalker') {
+          const ambushDamage = rollDice(8);
+          damageRoll += ambushDamage;
+          addLog(`Dread Ambusher! (+${ambushDamage} damage)`, 'info');
+        }
+
+        // Planar Warrior (Horizon Walker) - force damage conversion
+        if (subclassId === 'horizon-walker') {
+          const planarDice = (character.level || 1) >= 11 ? 2 : 1;
+          let planarDamage = 0;
+          for (let i = 0; i < planarDice; i++) planarDamage += rollDice(8);
+          damageRoll += planarDamage;
+          addLog(`Planar Warrior! (+${planarDamage} force damage)`, 'info');
+        }
+
+        // Psychic Blades (Whispers Bard) - bonus psychic damage
+        if (subclassId === 'whispers' && inspirationAvailable > 0 && !psychicBladesUsedThisTurn) {
+          const psychicDice = (character.level || 1) >= 15 ? 8 : (character.level || 1) >= 10 ? 5 : (character.level || 1) >= 5 ? 3 : 2;
+          let psychicDamage = 0;
+          for (let i = 0; i < psychicDice; i++) psychicDamage += rollDice(6);
+          damageRoll += psychicDamage;
+          addLog(`Psychic Blades! (+${psychicDamage} psychic damage)`, 'info');
+          setInspirationAvailable(prev => prev - 1);
+          setPsychicBladesUsedThisTurn(true);
+        }
+
+        // Swashbuckler Rakish Audacity - sneak attack when no allies needed
+        if (isRogue && subclassId === 'swashbuckler' && !sneakAttackUsedThisTurn && rakishAudacity) {
+          // Can sneak attack if target is only adjacent enemy (simplified: always allow if have Rakish Audacity)
+          const sneakDice = Math.ceil(character.level / 2);
+          let sneakDamage = 0;
+          for (let i = 0; i < sneakDice; i++) sneakDamage += rollDice(6);
+          damageRoll += sneakDamage;
+          addLog(`Rakish Audacity Sneak Attack! (+${sneakDamage} damage)`, 'info');
+          setSneakAttackUsedThisTurn(true);
         }
 
         const damageType = weaponDamageType || detectDamageType(enemy.damage || '');
@@ -1633,6 +1721,12 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       setActiveBuffs(prev => [...prev.filter(b => b.id !== 'shield-spell'), { id: 'shield-spell', name: 'Shield', bonus: shieldBonus, duration: 1 }]);
       addLog(`${character.name} casts Shield!(+5 AC)`, 'info');
 
+    } else if (spell.id === 'haste') {
+      applyPlayerCondition({ type: 'haste', name: 'Hasted', description: 'Double speed, +2 AC, extra action.', duration: 10, source: 'Haste' });
+      addLog(`${character.name} casts Haste! You feel faster.`, 'info');
+    } else if (spell.id === 'fly') {
+      applyPlayerCondition({ type: 'flying', name: 'Flying', description: 'You have a flying speed of 60 feet. Immune to Prone in most cases.', duration: 600, source: 'Fly' }); // 10 minutes
+      addLog(`${character.name} casts Fly! You take to the skies.`, 'info');
     } else if (spell.id === 'hex') {
       if (!selectedEnemy) return;
       const hexCondition: Condition = {
@@ -1753,25 +1847,27 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     if (currentEntity && currentEntity.id === 'player') {
       setOffhandAvailable(true);
       setSneakAttackUsedThisTurn(false);
-      setAttacksLeft(maxAttacks);
+      // Haste Boost
+      const hasHaste = character.conditions?.some(c => c.type === 'haste');
+      setAttacksLeft(maxAttacks + (hasHaste ? 1 : 0));
+
       setRecklessAttackActive(false); // Reset Reckless at start of turn (player must choose to use it again)
 
-      // Decrement Player Condition Durations
-      updateCharacter(prev => {
-        if (!prev) return prev;
-        const updatedConditions = prev.conditions.map(c => {
-          if (typeof c.duration === 'number' && c.duration > 0) {
-            return { ...c, duration: c.duration - 1 };
-          }
-          return c;
-        }).filter(c => c.duration === undefined || c.duration !== 0); // Keep indefinite (-1) and positive. Remove 0.
-
-        // Also check if any expired condition needs logging?
-        // Ideally we'd log "Metamagic expired" or "Reckless stance ends", but for now just cleanup.
-        return { ...prev, conditions: updatedConditions };
+      // Decrement Player Condition Durations - deferred to avoid setState-during-render warning
+      queueMicrotask(() => {
+        updateCharacter(prev => {
+          if (!prev) return prev;
+          const updatedConditions = prev.conditions.map(c => {
+            if (typeof c.duration === 'number' && c.duration > 0) {
+              return { ...c, duration: c.duration - 1 };
+            }
+            return c;
+          }).filter(c => c.duration === undefined || c.duration !== 0);
+          return { ...prev, conditions: updatedConditions };
+        });
       });
 
-      addLog(`Your turn! You have ${maxAttacks} attack(s).`, 'info');
+      addLog(`Your turn! You have ${maxAttacks + (hasHaste ? 1 : 0)} attack(s).`, 'info');
     }
   }, [currentTurnIndex, turnOrder, maxAttacks]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1877,7 +1973,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     const weapon = character.equippedWeapon || { name: 'Unarmed Strike', damage: '1+0', type: 'weapon', properties: [] };
     const strMod = Math.floor((character.abilityScores.strength - 10) / 2);
     const prof = character.proficiencyBonus;
-    const attackBonus = strMod + prof + (character.formattedAttackBonus || 0); // Simplified
+    const attackBonus = strMod + prof + (character.equippedWeapon?.attackBonus || 0);
 
     // Rage Damage Bonus
     const rageBonus = 2; // +2 damage while raging (simplified, increases at higher levels)
@@ -2157,9 +2253,10 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       updateCharacter(prev => ({ ...prev, hitPoints: Math.min(character.maxHitPoints, prev.hitPoints + healAmount) }));
       addLog(`${character.name} drinks ${item.name} and heals for ${healAmount} HP.`, 'heal');
     } else if (item.name.toLowerCase().includes('speed')) {
-      addLog(`${character.name} drinks ${item.name}! Speed increased.`, 'info');
+      addLog(`${character.name} drinks ${item.name}! Speed increased (Haste).`, 'info');
+      applyPlayerCondition({ type: 'haste', name: 'Hasted', description: 'Double speed, +2 AC, extra action.', duration: 10, source: 'Potion of Speed' });
     } else if (item.name.toLowerCase().includes('invisibility')) {
-      applyPlayerCondition({ type: 'invisible', name: 'Invisible', description: 'Attackers have disadvantage.', duration: 10, source: item.name });
+      applyPlayerCondition({ type: 'invisible', name: 'Invisible', description: 'Attackers have disadvantage.', duration: 600, source: item.name }); // 1 hour
       addLog(`${character.name} drinks ${item.name} and becomes invisible!`, 'info');
     } else {
       addLog(`${character.name} drinks ${item.name}.`, 'info');
@@ -2307,7 +2404,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     const dexMod = Math.floor((character.abilityScores.dexterity - 10) / 2);
     const isProficient = character.skills?.stealth?.proficient;
     const bonus = dexMod + (isProficient ? character.proficiencyBonus : 0);
-    const hasDisadvantage = (character.equippedArmor?.type === 'heavy' || character.equippedArmor?.stealthDisadvantage);
+    const hasDisadvantage = (character.equippedArmor?.armorType === 'heavy' || character.equippedArmor?.stealthDisadvantage);
     // Simplified armor check
 
     let roll = rollDice(20);
@@ -2370,7 +2467,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     // 2. Roll Persuasion (or Intimidation if we had a choice)
     // Default to Persuasion for "Speak"
     const skill = 'persuasion';
-    const dc = 12 + (parseInt(enemy.challenge || '0') || 0);
+    const dc = 12 + (parseInt(String(enemy.challenge ?? '0'), 10) || 0);
 
     const skillMod = Math.floor((character.abilityScores.charisma - 10) / 2);
     const isProficient = character.skills?.[skill]?.proficient;
@@ -2544,6 +2641,38 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                   {buff.name} (+{buff.bonus} AC)
                 </Badge>
               ))}
+
+              {/* Subclass Effect Badges */}
+              {fightingSpiritActive && (
+                <Badge variant="fantasy" className="text-xs animate-pulse">
+                  ⚔️ Fighting Spirit
+                </Badge>
+              )}
+              {vowOfEnmityTarget && (
+                <Badge variant="fantasy" className="text-xs animate-pulse">
+                  🎯 Vow of Enmity
+                </Badge>
+              )}
+              {hexbladesCurseTarget && (
+                <Badge variant="destructive" className="text-xs animate-pulse">
+                  💀 Hexblade's Curse
+                </Badge>
+              )}
+              {ancestralProtectorsTarget && rageActive && (
+                <Badge variant="secondary" className="text-xs">
+                  👻 Ancestral Protectors
+                </Badge>
+              )}
+              {isFirstTurn && (subclassId === 'gloom-stalker' || subclassId === 'assassin') && (
+                <Badge variant="fantasy" className="text-xs animate-pulse">
+                  ⚡ {subclassId === 'gloom-stalker' ? 'Dread Ambusher' : 'Assassinate'} Ready
+                </Badge>
+              )}
+              {divineFuryUsedThisTurn === false && rageActive && subclassId === 'zealot' && (
+                <Badge variant="fantasy" className="text-xs">
+                  ✨ Divine Fury Ready
+                </Badge>
+              )}
             </div>
           </div>
 
@@ -2605,161 +2734,20 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           </h3>
           <div className="grid gap-3">
             {enemies.map((enemy) => (
-              <Card
+              <CombatEnemyCard
                 key={enemy.id}
-                className={cn(
-                  "cursor-pointer transition-all border-2",
-                  selectedEnemy === enemy.id ? "border-primary shadow-md" : "border-border",
-                  enemy.isDefeated ? "opacity-50 grayscale" : ""
-                )}
-                onClick={() => !enemy.isDefeated && setSelectedEnemy(enemy.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="font-bold">{enemy.name}</h4>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Shield className="h-3 w-3" /> AC {getEnemyEffectiveAC(enemy)}
-                      </div>
-                    </div>
-                    {enemy.isDefeated && <Badge variant="destructive">{t('combat.defeated')}</Badge>}
-                  </div>
-                  <Progress
-                    value={(enemy.currentHp / enemy.maxHp) * 100}
-                    className="h-2"
-                  />
-                  {enemy.conditions.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {enemy.conditions.map((condition, idx) => (
-                        <Badge key={`${condition.type}-${idx}`} variant="destructive" className="text-xs">
-                          {condition.type} ({condition.duration})
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                enemy={enemy}
+                isSelected={selectedEnemy === enemy.id}
+                effectiveAC={getEnemyEffectiveAC(enemy)}
+                onSelect={() => setSelectedEnemy(enemy.id)}
+              />
             ))}
           </div>
           {selectedEnemyData && (
-            <Card className="border-dashed border-muted">
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="text-xs uppercase text-muted-foreground">{t('combat.statBlock')}</p>
-                    <h4 className="font-bold">{selectedEnemyData.name}</h4>
-                    <p className="text-xs text-muted-foreground">
-                      {[selectedEnemyData.size, selectedEnemyData.creatureType, selectedEnemyData.alignment].filter(Boolean).join(' · ') || t('combat.none')}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    {selectedEnemyData.challenge && (
-                      <Badge variant="outline" className="text-xs">
-                        CR {selectedEnemyData.challenge}
-                      </Badge>
-                    )}
-                    {selectedEnemyData.xpReward !== undefined && (
-                      <Badge variant="secondary" className="text-xs">
-                        {t('combat.xpShort')}: {selectedEnemyData.xpReward}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-
-                {selectedEnemyData.abilityScores && (
-                  <div className="grid grid-cols-3 gap-2 text-sm">
-                    {(['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'] as const).map((ability) => {
-                      const score = selectedEnemyData.abilityScores?.[ability] || 0;
-                      const mod = Math.floor((score - 10) / 2);
-                      const label = ability.slice(0, 3).toUpperCase();
-                      return (
-                        <div key={ability} className="bg-muted/40 rounded px-2 py-1">
-                          <div className="text-[10px] uppercase text-muted-foreground">{label}</div>
-                          <div className="font-semibold">{score} ({mod >= 0 ? '+' : ''}{mod})</div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                  <div><span className="text-muted-foreground">{t('combat.speed')}:</span> {formatSpeed(selectedEnemyData.speed)}</div>
-                  <div><span className="text-muted-foreground">{t('combat.senses')}:</span> {formatList(selectedEnemyData.senses)}</div>
-                  <div><span className="text-muted-foreground">{t('combat.languages')}:</span> {formatList(selectedEnemyData.languages)}</div>
-                  <div><span className="text-muted-foreground">{t('combat.defenses')}:</span> {formatList(selectedEnemyData.damageResistances)}</div>
-                  <div><span className="text-muted-foreground">{t('combat.immunities')}:</span> {formatList(selectedEnemyData.damageImmunities)}</div>
-                  <div><span className="text-muted-foreground">{t('combat.vulnerabilities')}:</span> {formatList(selectedEnemyData.damageVulnerabilities)}</div>
-                  <div className="md:col-span-2 space-y-1">
-                    <div><span className="text-muted-foreground">{t('combat.conditionImmunities')}:</span> {formatList(selectedEnemyData.conditionImmunities)}</div>
-                    {!analyzedEnemies.has(selectedEnemyData.id) && (
-                      <div className="text-xs text-muted-foreground italic flex items-center gap-1">
-                        <Search className="h-3 w-3" /> Analyze enemy to reveal weaknesses
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {analyzedEnemies.has(selectedEnemyData.id) && (
-                  <div className="mt-2 p-2 bg-blue-900/20 rounded border border-blue-900/30 text-xs">
-                    <p className="font-bold mb-1 text-blue-200 flex items-center gap-1"><Book className="h-3 w-3" /> Analysis Results</p>
-                    {selectedEnemyData.damageVulnerabilities && selectedEnemyData.damageVulnerabilities.length > 0 && (
-                      <p className="text-red-300"><strong>Vulnerable:</strong> {selectedEnemyData.damageVulnerabilities.join(', ')}</p>
-                    )}
-                    {selectedEnemyData.damageResistances && selectedEnemyData.damageResistances.length > 0 && (
-                      <p className="text-yellow-300"><strong>Resistant:</strong> {selectedEnemyData.damageResistances.join(', ')}</p>
-                    )}
-                    {selectedEnemyData.damageImmunities && selectedEnemyData.damageImmunities.length > 0 && (
-                      <p className="text-gray-400"><strong>Immune:</strong> {selectedEnemyData.damageImmunities.join(', ')}</p>
-                    )}
-                    {!selectedEnemyData.damageVulnerabilities?.length && !selectedEnemyData.damageResistances?.length && !selectedEnemyData.damageImmunities?.length && (
-                      <p className="text-muted-foreground">No specific damage resistances or vulnerabilities known.</p>
-                    )}
-                  </div>
-                )}
-
-                {selectedEnemyData.statBlockSource && (
-                  <a
-                    href={selectedEnemyData.statBlockSource.startsWith('http') ? selectedEnemyData.statBlockSource : `/${selectedEnemyData.statBlockSource}`}
-                    className="text-xs text-primary underline"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {t('combat.source')}: {selectedEnemyData.statBlockHeading || selectedEnemyData.statBlockSource}
-                  </a>
-                )}
-
-                {selectedEnemyData.actions && selectedEnemyData.actions.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs uppercase font-bold text-muted-foreground">{t('combat.actionsList')}</p>
-                    {selectedEnemyData.actions.map((action) => (
-                      <div key={action.name} className="border rounded-md p-2 bg-background/60">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="font-semibold text-sm">{action.name}</div>
-                          {action.type && (
-                            <Badge variant="secondary" className="text-[10px] uppercase">{action.type}</Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground">{formatActionMeta(action)}</p>
-                        {action.description && (
-                          <p className="text-xs text-muted-foreground mt-1">{action.description}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {selectedEnemyData.legendaryActions && selectedEnemyData.legendaryActions.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-xs uppercase font-bold text-muted-foreground">{t('combat.legendaryActions')}</p>
-                    {selectedEnemyData.legendaryActions.map((action) => (
-                      <div key={action.name} className="text-xs">
-                        <span className="font-semibold">{action.name}:</span> {action.description}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <EnemyStatBlock
+              enemy={selectedEnemyData}
+              isAnalyzed={analyzedEnemies.has(selectedEnemyData.id)}
+            />
           )}
         </div>
 
@@ -2772,6 +2760,36 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           {playerHp > 0 ? (
             <Card>
               <CardContent className="p-4 space-y-3">
+                {/* Feat Toggles */}
+                {character.feats?.includes('great-weapon-master') && (
+                  <div className="flex items-center space-x-2 pb-2">
+                    <input
+                      type="checkbox"
+                      id="gwm-toggle"
+                      checked={gwmActive}
+                      onChange={(e) => setGwmActive(e.target.checked)}
+                      className="h-4 w-4 rounded border-gray-300 text-fantasy-gold focus:ring-fantasy-gold bg-black/20"
+                    />
+                    <label htmlFor="gwm-toggle" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-red-400">
+                      Great Weapon Master (-5 Hit / +10 Dmg)
+                    </label>
+                  </div>
+                )}
+                {character.feats?.includes('sharpshooter') && (
+                  <div className="flex items-center space-x-2 pb-2">
+                    <input
+                      type="checkbox"
+                      id="sharpshooter-toggle"
+                      checked={sharpshooterActive}
+                      onChange={(e) => setSharpshooterActive(e.target.checked)}
+                      className="h-4 w-4 rounded border-gray-300 text-fantasy-gold focus:ring-fantasy-gold bg-black/20"
+                    />
+                    <label htmlFor="sharpshooter-toggle" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-emerald-400">
+                      Sharpshooter (-5 Hit / +10 Dmg)
+                    </label>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant="default"
@@ -2789,6 +2807,29 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                       disabled={!isPlayerTurn || isRolling}
                     >
                       <Sparkles className="mr-2 h-4 w-4" /> {useInspiration ? 'Using Inspiration!' : 'Use Inspiration'}
+                    </Button>
+                  )}
+                  {character.featureUses?.luckPoints !== undefined && character.featureUses.luckPoints > 0 && (
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-amber-500 border-amber-500/50 hover:bg-amber-500/10"
+                      onClick={() => {
+                        addLog('Used a Luck Point! Reroll the d20.', 'info');
+                        // Logic to decrement luck points would go here, needing an updateCharacter call
+                        updateCharacter((prev) => {
+                          if (!prev || !prev.featureUses) return prev;
+                          return {
+                            ...prev,
+                            featureUses: {
+                              ...prev.featureUses,
+                              luckPoints: prev.featureUses.luckPoints - 1
+                            }
+                          };
+                        });
+                      }}
+                      disabled={!isPlayerTurn || isRolling}
+                    >
+                      <Sparkles className="mr-2 h-4 w-4" /> Use Luck Point ({character.featureUses.luckPoints})
                     </Button>
                   )}
                   <Button
@@ -3104,6 +3145,120 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                           <Sparkles className="mr-2 h-3 w-3" /> Arcane Recovery
                         </Button>
                       )}
+
+                      {/* ==========================================
+                          SUBCLASS-SPECIFIC ABILITIES
+                          ========================================== */}
+
+                      {/* Fighter: Samurai - Fighting Spirit */}
+                      {subclassId === 'samurai' && fightingSpiritUses > 0 && (
+                        <Button
+                          variant={fightingSpiritActive ? "fantasy" : "secondary"}
+                          size="sm"
+                          onClick={() => {
+                            if (!fightingSpiritActive) {
+                              setFightingSpiritActive(true);
+                              setFightingSpiritUses(prev => prev - 1);
+                              // Gain temp HP
+                              const tempHp = (character.level || 1) >= 15 ? 15 : (character.level || 1) >= 10 ? 10 : 5;
+                              updateCharacter(prev => {
+                                if (!prev) return prev;
+                                const currentTemp = prev.temporaryHitPoints || 0;
+                                return { ...prev, temporaryHitPoints: Math.max(currentTemp, tempHp) };
+                              });
+                              addLog(`Fighting Spirit! ${character.name} gains advantage on attacks and ${tempHp} temporary HP!`, 'info');
+                            }
+                          }}
+                          disabled={!isPlayerTurn || fightingSpiritUses <= 0 || fightingSpiritActive || isRolling}
+                          className={cn(fightingSpiritActive && "ring-2 ring-yellow-400")}
+                        >
+                          <Sword className="mr-2 h-3 w-3" /> {fightingSpiritActive ? 'Spirit Active!' : `Fighting Spirit (${fightingSpiritUses})`}
+                        </Button>
+                      )}
+
+                      {/* Paladin: Vengeance - Vow of Enmity */}
+                      {isPaladin && subclassId === 'vengeance' && channelDivinityUses > 0 && (
+                        <Button
+                          variant={vowOfEnmityTarget ? "fantasy" : "secondary"}
+                          size="sm"
+                          onClick={() => {
+                            if (!vowOfEnmityTarget && selectedEnemy) {
+                              setVowOfEnmityTarget(selectedEnemy);
+                              setChannelDivinityUses(prev => prev - 1);
+                              const targetEnemy = enemies.find(e => e.id === selectedEnemy);
+                              addLog(`Vow of Enmity! ${character.name} swears vengeance against ${targetEnemy?.name || 'the enemy'}! Advantage on attacks for 1 minute.`, 'info');
+                            }
+                          }}
+                          disabled={!isPlayerTurn || !selectedEnemy || vowOfEnmityTarget !== null || channelDivinityUses <= 0 || isRolling}
+                          className={cn(vowOfEnmityTarget && "ring-2 ring-purple-500")}
+                        >
+                          <Crosshair className="mr-2 h-3 w-3" /> {vowOfEnmityTarget ? 'Vow Active!' : 'Vow of Enmity'}
+                        </Button>
+                      )}
+
+                      {/* Warlock: Hexblade - Hexblade's Curse */}
+                      {isWarlock && subclassId === 'hexblade' && hexbladesCurseAvailable > 0 && (
+                        <Button
+                          variant={hexbladesCurseTarget ? "destructive" : "secondary"}
+                          size="sm"
+                          onClick={() => {
+                            if (!hexbladesCurseTarget && selectedEnemy) {
+                              setHexbladesCurseTarget(selectedEnemy);
+                              setHexbladesCurseAvailable(prev => prev - 1);
+                              const targetEnemy = enemies.find(e => e.id === selectedEnemy);
+                              addLog(`Hexblade's Curse! ${targetEnemy?.name || 'The enemy'} is cursed! (+${character.proficiencyBonus} damage, crit on 19-20, heal on kill)`, 'info');
+                            }
+                          }}
+                          disabled={!isPlayerTurn || !selectedEnemy || hexbladesCurseTarget !== null || isRolling}
+                          className={cn(hexbladesCurseTarget && "ring-2 ring-purple-700 animate-pulse")}
+                        >
+                          <Skull className="mr-2 h-3 w-3" /> {hexbladesCurseTarget ? 'Curse Active!' : `Hexblade's Curse`}
+                        </Button>
+                      )}
+
+                      {/* Warlock: Celestial - Healing Light */}
+                      {isWarlock && subclassId === 'celestial' && healingLightDicePool > 0 && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => {
+                            const chaMod = Math.max(1, Math.floor((character.abilityScores.charisma - 10) / 2));
+                            const diceToUse = Math.min(chaMod, healingLightDicePool);
+                            let healing = 0;
+                            for (let i = 0; i < diceToUse; i++) {
+                              healing += Math.floor(Math.random() * 6) + 1;
+                            }
+                            setHealingLightDicePool(prev => prev - diceToUse);
+                            setPlayerHp(prev => Math.min(character.maxHitPoints || 99, prev + healing));
+                            addLog(`Healing Light! ${character.name} heals for ${healing} HP (used ${diceToUse}d6)!`, 'heal');
+                          }}
+                          disabled={!isPlayerTurn || healingLightDicePool <= 0 || playerHp >= (character.maxHitPoints || 99) || isRolling}
+                        >
+                          <HeartPulse className="mr-2 h-3 w-3" /> Healing Light ({healingLightDicePool}d6)
+                        </Button>
+                      )}
+
+                      {/* Wizard: Divination - Portent Dice */}
+                      {isWizard && subclassId === 'divination' && portentDiceRolls.length > 0 && (
+                        <div className="col-span-2 p-2 bg-purple-500/10 rounded border border-purple-500/30">
+                          <p className="text-xs font-bold text-purple-300 mb-1">Portent Dice</p>
+                          <div className="flex gap-2 flex-wrap">
+                            {portentDiceRolls.map((roll, index) => (
+                              <Badge key={index} variant="fantasy" className="text-sm font-bold">
+                                {roll}
+                              </Badge>
+                            ))}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">Replace any d20 roll with these!</p>
+                        </div>
+                      )}
+
+                      {/* Bard: Lore - Cutting Words display */}
+                      {isBard && subclassId === 'lore' && inspirationAvailable > 0 && (
+                        <Badge variant="secondary" className="text-xs col-span-2 justify-center py-1">
+                          <Brain className="mr-1 h-3 w-3" /> Cutting Words Ready (use as reaction)
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 )}
@@ -3129,7 +3284,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                         disabled={!isPlayerTurn || isRolling || !selectedEnemy}
                         className="w-full justify-start"
                       >
-                        <Swords className="mr-2 h-3 w-3" /> Off-Hand Attack
+                        <Sword className="mr-2 h-3 w-3" /> Off-Hand Attack
                       </Button>
                     )}
                     {getLightWeapons().length > 0 && (
