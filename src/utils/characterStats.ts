@@ -1,4 +1,10 @@
 import type { PlayerCharacter } from '../types';
+import {
+    getMagicItemACBonus,
+    getMagicItemSaveBonus,
+    getEffectiveAbilityScore
+} from './magicItemEffects';
+
 
 export const SKILLS_ABILITY_MAP: Record<string, keyof PlayerCharacter['abilityScores']> = {
     'acrobatics': 'dexterity',
@@ -46,31 +52,43 @@ export function getSkillModifier(character: PlayerCharacter, skillName: string):
 }
 
 export function calculateArmorClass(character: PlayerCharacter): number {
-    const dexMod = calculateAbilityModifier(character.abilityScores.dexterity);
+    // Use effective DEX score (accounts for magic items like belts)
+    const effectiveDex = getEffectiveAbilityScore(character, 'dexterity');
+    const dexMod = calculateAbilityModifier(effectiveDex);
+
+    // Get magic item AC bonuses (Ring of Protection, Cloak of Protection, +X armor/shields, etc.)
+    const magicItemACBonus = getMagicItemACBonus(character);
 
     if (character.equippedArmor) {
         const armorBase = character.equippedArmor.armorClass || 10;
-        // Light armor: full dex mod
-        // Medium armor: max +2 dex mod
-        // Heavy armor: no dex mod
-        // For now, assuming simple logic or that armor type is handled elsewhere. 
-        // Since Item type doesn't strictly define armor type (light/medium/heavy), 
-        // we might need to infer or just add dex mod for now.
-        // Let's assume standard 5e rules if we can infer type, but for now:
-        // If AC is > 13 it's likely heavy/medium. 
-        // Let's stick to a simple rule: Base AC + Dex Mod.
-        // Ideally, we should update Item type to include armor category.
-        let ac = armorBase + dexMod;
+        const armorType = character.equippedArmor.armorType || 'light';
+
+        let ac = armorBase;
+
+        // Apply DEX modifier based on armor type
+        if (armorType === 'light') {
+            ac += dexMod;
+        } else if (armorType === 'medium') {
+            ac += Math.min(2, dexMod);
+        }
+        // Heavy armor: no DEX bonus
+
+        // Add shield AC if equipped
+        if (character.equippedShield) {
+            ac += character.equippedShield.armorClass || 2;
+        }
+
+        // Fighting Style: Defense
         if (character.fightingStyle === 'Defense') {
             ac += 1;
         }
         if (character.pactBoon === 'Pact of the Chain') {
             ac += 1;
         }
-        // Ring of Protection
-        if (character.inventory?.some(i => i.id === 'ring-of-protection')) {
-            ac += 1;
-        }
+
+        // Add all magic item AC bonuses
+        ac += magicItemACBonus;
+
         // Haste
         if (character.conditions?.some(c => c.type === 'haste')) {
             ac += 2;
@@ -82,19 +100,26 @@ export function calculateArmorClass(character: PlayerCharacter): number {
     const className = character.class.name.toLowerCase();
     let unarmoredAC = 10 + dexMod;
     if (className === 'barbarian') {
-        unarmoredAC += calculateAbilityModifier(character.abilityScores.constitution);
+        const effectiveCon = getEffectiveAbilityScore(character, 'constitution');
+        unarmoredAC += calculateAbilityModifier(effectiveCon);
     }
     if (className === 'monk') {
-        unarmoredAC += calculateAbilityModifier(character.abilityScores.wisdom);
+        const effectiveWis = getEffectiveAbilityScore(character, 'wisdom');
+        unarmoredAC += calculateAbilityModifier(effectiveWis);
     }
 
     if (character.fightingStyle === 'Defense') unarmoredAC += 1;
     if (character.pactBoon === 'Pact of the Chain') unarmoredAC += 1;
-    if (className === 'sorcerer' && character.sorcerousOrigin === 'Draconic Bloodline') unarmoredAC += 1;
-    // Ring of Protection
-    if (character.inventory?.some(i => i.id === 'ring-of-protection')) {
-        unarmoredAC += 1;
+    if (className === 'sorcerer' && character.sorcerousOrigin === 'Draconic Bloodline') unarmoredAC += 3; // 13 base for Draconic Resilience
+
+    // Add shield if equipped (even when unarmored)
+    if (character.equippedShield) {
+        unarmoredAC += character.equippedShield.armorClass || 2;
     }
+
+    // Add magic item AC bonuses (Ring/Cloak of Protection, Bracers of Defense, etc.)
+    unarmoredAC += magicItemACBonus;
+
     // Haste
     if (character.conditions?.some(c => c.type === 'haste')) {
         unarmoredAC += 2;
@@ -116,14 +141,16 @@ export function calculatePassiveScore(character: PlayerCharacter, skillName: str
 }
 
 export function getSavingThrowModifier(character: PlayerCharacter, ability: keyof PlayerCharacter['abilityScores']): number {
-    const abilityMod = calculateAbilityModifier(character.abilityScores[ability]);
+    // Use effective ability score (accounts for magic items)
+    const effectiveScore = getEffectiveAbilityScore(character, ability);
+    const abilityMod = calculateAbilityModifier(effectiveScore);
     const isProficient = character.class.savingThrows.includes(ability.charAt(0).toUpperCase() + ability.slice(1));
     const proficiencyBonus = isProficient ? calculateProficiencyBonus(character.level) : 0;
 
     let bonus = abilityMod + proficiencyBonus;
-    // Ring of Protection
-    if (character.inventory?.some(i => i.id === 'ring-of-protection')) {
-        bonus += 1;
-    }
+
+    // Add magic item save bonuses (Ring/Cloak of Protection, etc.)
+    bonus += getMagicItemSaveBonus(character);
+
     return bonus;
 }

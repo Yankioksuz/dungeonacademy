@@ -3,8 +3,17 @@ import type { PlayerCharacter, SpellContent } from '@/types';
 const preparedCasters = new Set(['Cleric', 'Druid', 'Paladin', 'Wizard']);
 const ritualCasters = new Set(['Wizard', 'Cleric', 'Druid', 'Bard']);
 
-export const getSpellcastingAbility = (cls: string): keyof PlayerCharacter['abilityScores'] => {
+// Subclasses that grant spellcasting
+const spellcastingSubclasses = new Set(['eldritch-knight', 'arcane-trickster']);
+
+export const getSpellcastingAbility = (cls: string, subclassId?: string): keyof PlayerCharacter['abilityScores'] => {
   const name = cls.toLowerCase();
+
+  // Check for gish subclasses first
+  if (subclassId === 'eldritch-knight' || subclassId === 'arcane-trickster') {
+    return 'intelligence';
+  }
+
   if (name.includes('wizard')) return 'intelligence';
   if (name.includes('sorcerer') || name.includes('bard') || name.includes('warlock') || name.includes('paladin')) {
     return 'charisma';
@@ -12,7 +21,21 @@ export const getSpellcastingAbility = (cls: string): keyof PlayerCharacter['abil
   if (name.includes('cleric') || name.includes('druid') || name.includes('ranger')) {
     return 'wisdom';
   }
+  // Default for Fighter/Rogue with casting subclasses
   return 'intelligence';
+};
+
+export const hasSpellcasting = (className: string, subclassId?: string): boolean => {
+  const cls = className.toLowerCase();
+  // Full/Half casters
+  if (['bard', 'cleric', 'druid', 'sorcerer', 'wizard', 'warlock', 'paladin', 'ranger'].some(c => cls.includes(c))) {
+    return true;
+  }
+  // 1/3 casters via subclass
+  if (subclassId && spellcastingSubclasses.has(subclassId)) {
+    return true;
+  }
+  return false;
 };
 
 export const getProficiencyBonus = (level: number) => {
@@ -20,7 +43,7 @@ export const getProficiencyBonus = (level: number) => {
 };
 
 export const getSpellSaveDC = (character: PlayerCharacter) => {
-  const ability = getSpellcastingAbility(character.class.name);
+  const ability = getSpellcastingAbility(character.class.name, character.subclass?.id);
   const abilityMod = Math.floor((character.abilityScores[ability] - 10) / 2);
   return 8 + getProficiencyBonus(character.level) + abilityMod;
 };
@@ -112,7 +135,7 @@ export const shouldCheckScrollUse = (character: PlayerCharacter, spell: SpellCon
   };
 };
 
-export const calculateSpellSlots = (className: string, level: number): Record<number, { current: number; max: number }> => {
+export const calculateSpellSlots = (className: string, level: number, subclassId?: string): Record<number, { current: number; max: number }> => {
   const cls = className.toLowerCase();
   const slots: Record<number, { current: number; max: number }> = {};
 
@@ -128,19 +151,23 @@ export const calculateSpellSlots = (className: string, level: number): Record<nu
 
   // Standard Spellcasting Progression
   // Full Casters: Bard, Cleric, Druid, Sorcerer, Wizard
-  // Half Casters: Paladin, Ranger (Level / 2, rounded down?) -> Paladin/Ranger start at lvl 2
-  // Third Casters: Rogue (Arcane Trickster), Fighter (Eldritch Knight) -> Level / 3
+  // Half Casters: Paladin, Ranger (Level / 2, rounded down) -> Start at lvl 2
+  // Third Casters: Eldritch Knight, Arcane Trickster -> Level / 3, start at level 3
 
   let effectiveLevel = 0;
   if (['bard', 'cleric', 'druid', 'sorcerer', 'wizard'].some(c => cls.includes(c))) {
     effectiveLevel = level;
   } else if (['paladin', 'ranger'].some(c => cls.includes(c))) {
     effectiveLevel = Math.floor(level / 2);
+  } else if (subclassId === 'eldritch-knight' || subclassId === 'arcane-trickster') {
+    // 1/3 casters - Eldritch Knight and Arcane Trickster
+    // They get spellcasting at level 3, so effective level starts then
+    if (level >= 3) {
+      effectiveLevel = Math.max(1, Math.floor(level / 3));
+    }
   } else if (['rogue', 'fighter'].some(c => cls.includes(c))) {
-    // Assuming subclasses might be checked later, for now treating base classes as non-casters or 1/3 if they have spellcasting feature 
-    // Simplified: If they have 'Spellcasting' feature. For MVP, assuming they don't get slots unless subclass selected (not implemented).
-    // But let's support them if they somehow have slots:
-    effectiveLevel = Math.floor(level / 3);
+    // Base Fighter/Rogue without spellcasting subclass - no slots
+    effectiveLevel = 0;
   }
 
   if (effectiveLevel < 1) return {};

@@ -27,7 +27,8 @@ export type ConditionType =
   | 'blinded' | 'charmed' | 'deafened' | 'frightened'
   | 'grappled' | 'incapacitated' | 'invisible' | 'paralyzed'
   | 'petrified' | 'poisoned' | 'prone' | 'restrained'
-  | 'stunned' | 'unconscious' | 'hexed' | 'turned' | 'pacified' | 'hidden' | 'reckless' | 'haste' | 'flying';
+  | 'stunned' | 'unconscious' | 'hexed' | 'turned' | 'pacified' | 'hidden' | 'reckless' | 'haste' | 'flying'
+  | 'displacement-broken'; // Cloak of Displacement temporarily inactive
 
 export interface Condition {
   type: ConditionType;
@@ -238,6 +239,8 @@ export interface PlayerCharacter {
   inventory?: Item[];
   equippedWeapon?: Item;
   equippedArmor?: Item;
+  equippedShield?: Item; // NEW: Separate shield slot
+  attunedItems?: Item[]; // NEW: Magic item attunement (max 3)
   talents?: string[];
   bonusSkills?: string[]; // e.g. human extra skill
   expertiseSkills?: string[]; // e.g. rogue expertise picks

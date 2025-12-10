@@ -4,6 +4,7 @@
       "id": "shortsword",
       "name": "Shortsword",
       "type": "weapon",
+      "subtype": "Simple Melee",
       "description": "A short, versatile blade favored by rogues",
       "damage": "1d6",
       "value": 10,
@@ -17,6 +18,7 @@
       "id": "longsword",
       "name": "Longsword",
       "type": "weapon",
+      "subtype": "Martial Melee",
       "description": "A reliable steel blade",
       "damage": "1d8",
       "value": 15,
@@ -29,6 +31,7 @@
       "id": "staff",
       "name": "Quarterstaff",
       "type": "weapon",
+      "subtype": "Simple Melee",
       "description": "A simple wooden staff",
       "damage": "1d6",
       "value": 2,
@@ -41,6 +44,7 @@
       "id": "shortbow",
       "name": "Shortbow",
       "type": "weapon",
+      "subtype": "Simple Ranged",
       "description": "A small bow used for hunting and skirmishing",
       "damage": "1d6",
       "value": 25,
@@ -53,6 +57,7 @@
       "id": "longbow",
       "name": "Longbow",
       "type": "weapon",
+      "subtype": "Martial Ranged",
       "description": "A large bow with great range",
       "damage": "1d8",
       "value": 50,
@@ -61,24 +66,687 @@
         "two-handed",
         "heavy"
       ]
+    },
+    {
+      "id": "dagger",
+      "name": "Dagger",
+      "type": "weapon",
+      "subtype": "Simple Melee",
+      "description": "A simple blade, easily concealed",
+      "damage": "1d4",
+      "value": 2,
+      "properties": [
+        "finesse",
+        "light",
+        "thrown",
+        "melee"
+      ]
+    },
+    {
+      "id": "handaxe",
+      "name": "Handaxe",
+      "type": "weapon",
+      "subtype": "Simple Melee",
+      "description": "A small axe for throwing or close combat",
+      "damage": "1d6",
+      "value": 5,
+      "properties": [
+        "light",
+        "thrown",
+        "melee"
+      ]
+    },
+    {
+      "id": "javelin",
+      "name": "Javelin",
+      "type": "weapon",
+      "subtype": "Simple Melee",
+      "description": "A light spear designed for throwing",
+      "damage": "1d6",
+      "value": 5,
+      "properties": [
+        "thrown",
+        "melee"
+      ]
+    },
+    {
+      "id": "mace",
+      "name": "Mace",
+      "type": "weapon",
+      "subtype": "Simple Melee",
+      "description": "A heavy metal head on a wooden shaft",
+      "damage": "1d6",
+      "value": 5,
+      "properties": [
+        "melee"
+      ]
+    },
+    {
+      "id": "greataxe",
+      "name": "Greataxe",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A massive two-handed axe that cleaves through armor",
+      "damage": "1d12",
+      "value": 30,
+      "properties": [
+        "heavy",
+        "two-handed",
+        "melee"
+      ]
+    },
+    {
+      "id": "greatsword",
+      "name": "Greatsword",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A massive blade requiring both hands to wield",
+      "damage": "2d6",
+      "value": 50,
+      "properties": [
+        "heavy",
+        "two-handed",
+        "melee"
+      ]
+    },
+    {
+      "id": "battleaxe",
+      "name": "Battleaxe",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A sturdy axe designed for warfare",
+      "damage": "1d8",
+      "value": 10,
+      "properties": [
+        "versatile-1d10",
+        "melee"
+      ]
+    },
+    {
+      "id": "warhammer",
+      "name": "Warhammer",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A hammer built for combat, capable of crushing armor",
+      "damage": "1d8",
+      "value": 15,
+      "properties": [
+        "versatile-1d10",
+        "melee"
+      ]
+    },
+    {
+      "id": "rapier",
+      "name": "Rapier",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A thin, elegant blade perfect for thrusting attacks",
+      "damage": "1d8",
+      "value": 25,
+      "properties": [
+        "finesse",
+        "melee"
+      ]
+    },
+    {
+      "id": "scimitar",
+      "name": "Scimitar",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A curved blade favored by swashbucklers",
+      "damage": "1d6",
+      "value": 25,
+      "properties": [
+        "finesse",
+        "light",
+        "melee"
+      ]
+    },
+    {
+      "id": "flail",
+      "name": "Flail",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A spiked ball on a chain, difficult to parry",
+      "damage": "1d8",
+      "value": 10,
+      "properties": [
+        "melee"
+      ]
+    },
+    {
+      "id": "morningstar",
+      "name": "Morningstar",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A spiked mace that deals devastating wounds",
+      "damage": "1d8",
+      "value": 15,
+      "properties": [
+        "melee"
+      ]
+    },
+    {
+      "id": "halberd",
+      "name": "Halberd",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A polearm combining an axe blade with a spear point",
+      "damage": "1d10",
+      "value": 20,
+      "properties": [
+        "heavy",
+        "reach",
+        "two-handed",
+        "melee"
+      ]
+    },
+    {
+      "id": "glaive",
+      "name": "Glaive",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A long-handled blade for sweeping attacks",
+      "damage": "1d10",
+      "value": 20,
+      "properties": [
+        "heavy",
+        "reach",
+        "two-handed",
+        "melee"
+      ]
+    },
+    {
+      "id": "pike",
+      "name": "Pike",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A very long spear used to keep enemies at bay",
+      "damage": "1d10",
+      "value": 5,
+      "properties": [
+        "heavy",
+        "reach",
+        "two-handed",
+        "melee"
+      ]
+    },
+    {
+      "id": "light-crossbow",
+      "name": "Light Crossbow",
+      "type": "weapon",
+      "subtype": "Simple Ranged",
+      "description": "A simple crossbow, easy to use",
+      "damage": "1d8",
+      "value": 25,
+      "properties": [
+        "ranged",
+        "loading",
+        "two-handed"
+      ]
+    },
+    {
+      "id": "heavy-crossbow",
+      "name": "Heavy Crossbow",
+      "type": "weapon",
+      "subtype": "Martial Ranged",
+      "description": "A powerful crossbow with devastating force",
+      "damage": "1d10",
+      "value": 50,
+      "properties": [
+        "ranged",
+        "loading",
+        "heavy",
+        "two-handed"
+      ]
+    },
+    {
+      "id": "hand-crossbow",
+      "name": "Hand Crossbow",
+      "type": "weapon",
+      "subtype": "Martial Ranged",
+      "description": "A small crossbow that can be wielded in one hand",
+      "damage": "1d6",
+      "value": 75,
+      "properties": [
+        "ranged",
+        "loading",
+        "light"
+      ]
+    },
+    {
+      "id": "trident",
+      "name": "Trident",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A three-pronged spear associated with the sea",
+      "damage": "1d6",
+      "value": 5,
+      "properties": [
+        "thrown",
+        "versatile-1d8",
+        "melee"
+      ]
+    },
+    {
+      "id": "whip",
+      "name": "Whip",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A flexible weapon with significant reach",
+      "damage": "1d4",
+      "value": 2,
+      "properties": [
+        "finesse",
+        "reach",
+        "melee"
+      ]
+    },
+    {
+      "id": "flame-tongue",
+      "name": "Flame Tongue",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "This magic sword bursts into flame on command. While ablaze, it deals an extra 2d6 fire damage to any target it hits.",
+      "damage": "1d8 + 2d6 fire",
+      "value": 5000,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "melee",
+        "versatile-1d10"
+      ]
+    },
+    {
+      "id": "frost-brand",
+      "name": "Frost Brand",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "When you hit with this magic sword, the target takes an extra 1d6 cold damage. While you hold the sword, you have resistance to fire damage.",
+      "damage": "1d8 + 1d6 cold",
+      "value": 6000,
+      "rarity": "very rare",
+      "properties": [
+        "magic",
+        "melee",
+        "versatile-1d10",
+        "attunement"
+      ]
+    },
+    {
+      "id": "vorpal-sword",
+      "name": "Vorpal Sword",
+      "type": "weapon",
+      "subtype": "Legendary Weapon",
+      "description": "This legendary blade can sever heads. When you roll a 20 on an attack roll, you cut off one of the creature's heads if it has one.",
+      "damage": "2d6",
+      "value": 24000,
+      "rarity": "legendary",
+      "properties": [
+        "magic",
+        "melee",
+        "heavy",
+        "two-handed",
+        "attunement"
+      ]
+    },
+    {
+      "id": "holy-avenger",
+      "name": "Holy Avenger",
+      "type": "weapon",
+      "subtype": "Legendary Weapon",
+      "description": "You gain a +3 bonus to attack and damage rolls. When you hit a fiend or undead, it takes an extra 2d10 radiant damage. While you hold this sword, you and friendly creatures within 10 feet have advantage on saving throws against spells.",
+      "damage": "1d8+3",
+      "value": 50000,
+      "rarity": "legendary",
+      "properties": [
+        "magic",
+        "melee",
+        "versatile-1d10",
+        "attunement",
+        "paladin-only"
+      ]
+    },
+    {
+      "id": "oathbow",
+      "name": "Oathbow",
+      "type": "weapon",
+      "subtype": "Legendary Weapon",
+      "description": "When you nock an arrow and whisper \"Swift death to you who have wronged me,\" the target becomes your sworn enemy until it dies. You have advantage on attack rolls against the target.",
+      "damage": "1d8+3d6",
+      "value": 15000,
+      "rarity": "very rare",
+      "properties": [
+        "magic",
+        "ranged",
+        "two-handed",
+        "heavy",
+        "attunement"
+      ]
+    },
+    {
+      "id": "sunblade",
+      "name": "Sun Blade",
+      "type": "weapon",
+      "subtype": "Legendary Weapon",
+      "description": "This radiant blade deals 1d8 radiant damage plus 1d8 extra to undead. While grasped, the blade can be activated, emitting bright sunlight.",
+      "damage": "1d8 radiant",
+      "value": 12000,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "melee",
+        "finesse",
+        "light",
+        "attunement"
+      ]
+    },
+    {
+      "id": "dagger-venom",
+      "name": "Dagger of Venom",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "You gain a +1 bonus to attack and damage rolls. You can use an action to cause thick, black poison to coat the blade. The poison remains for 1 minute or until an attack using this weapon hits a creature.",
+      "damage": "1d4+1",
+      "value": 2500,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "finesse",
+        "light",
+        "thrown",
+        "melee"
+      ]
     }
   ],
   "armor": [
     {
+      "id": "padded",
+      "name": "Padded Armor",
+      "type": "armor",
+      "subtype": "Light Armor",
+      "description": "Quilted layers of cloth and batting",
+      "armorClass": 11,
+      "value": 5,
+      "properties": [
+        "disadvantage-stealth"
+      ],
+      "armorType": "light"
+    },
+    {
       "id": "leather",
       "name": "Leather Armor",
       "type": "armor",
+      "subtype": "Light Armor",
       "description": "Light, flexible leather armor",
       "armorClass": 11,
-      "value": 10
+      "value": 10,
+      "armorType": "light"
+    },
+    {
+      "id": "studded-leather",
+      "name": "Studded Leather Armor",
+      "type": "armor",
+      "subtype": "Light Armor",
+      "description": "Leather armor reinforced with close-set rivets or spikes",
+      "armorClass": 12,
+      "value": 45,
+      "armorType": "light"
+    },
+    {
+      "id": "hide",
+      "name": "Hide Armor",
+      "type": "armor",
+      "subtype": "Medium Armor",
+      "description": "Crude armor of thick furs and pelts",
+      "armorClass": 12,
+      "value": 10,
+      "armorType": "medium"
+    },
+    {
+      "id": "chain-shirt",
+      "name": "Chain Shirt",
+      "type": "armor",
+      "subtype": "Medium Armor",
+      "description": "Interlocking metal rings worn between layers of clothing",
+      "armorClass": 13,
+      "value": 50,
+      "armorType": "medium"
+    },
+    {
+      "id": "scale-mail",
+      "name": "Scale Mail",
+      "type": "armor",
+      "subtype": "Medium Armor",
+      "description": "A coat and leggings covered with overlapping metal scales",
+      "armorClass": 14,
+      "value": 50,
+      "properties": [
+        "disadvantage-stealth"
+      ],
+      "armorType": "medium"
+    },
+    {
+      "id": "breastplate",
+      "name": "Breastplate",
+      "type": "armor",
+      "subtype": "Medium Armor",
+      "description": "A fitted metal chest piece worn with supple leather",
+      "armorClass": 14,
+      "value": 400,
+      "armorType": "medium"
+    },
+    {
+      "id": "half-plate",
+      "name": "Half Plate",
+      "type": "armor",
+      "subtype": "Medium Armor",
+      "description": "Shaped metal plates covering most of the body",
+      "armorClass": 15,
+      "value": 750,
+      "properties": [
+        "disadvantage-stealth"
+      ],
+      "armorType": "medium"
+    },
+    {
+      "id": "ring-mail",
+      "name": "Ring Mail",
+      "type": "armor",
+      "subtype": "Heavy Armor",
+      "description": "Leather armor with heavy rings sewn into it",
+      "armorClass": 14,
+      "value": 30,
+      "properties": [
+        "disadvantage-stealth",
+        "strength-13"
+      ],
+      "armorType": "heavy"
     },
     {
       "id": "chain",
       "name": "Chain Mail",
       "type": "armor",
+      "subtype": "Heavy Armor",
       "description": "Heavy metal rings woven together",
       "armorClass": 16,
-      "value": 75
+      "value": 75,
+      "properties": [
+        "disadvantage-stealth",
+        "strength-13"
+      ],
+      "armorType": "heavy"
+    },
+    {
+      "id": "splint",
+      "name": "Splint Armor",
+      "type": "armor",
+      "subtype": "Heavy Armor",
+      "description": "Vertical strips of metal riveted to a leather backing",
+      "armorClass": 17,
+      "value": 200,
+      "properties": [
+        "disadvantage-stealth",
+        "strength-15"
+      ],
+      "armorType": "heavy"
+    },
+    {
+      "id": "plate",
+      "name": "Plate Armor",
+      "type": "armor",
+      "subtype": "Heavy Armor",
+      "description": "Shaped, interlocking metal plates covering the entire body",
+      "armorClass": 18,
+      "value": 1500,
+      "properties": [
+        "disadvantage-stealth",
+        "strength-15"
+      ],
+      "armorType": "heavy"
+    },
+    {
+      "id": "shield",
+      "name": "Shield",
+      "type": "armor",
+      "subtype": "Shield",
+      "description": "A wooden or metal shield strapped to the arm",
+      "armorClass": 2,
+      "value": 10,
+      "properties": [
+        "shield"
+      ],
+      "armorType": "shield"
+    },
+    {
+      "id": "adamantine-armor",
+      "name": "Adamantine Armor",
+      "type": "armor",
+      "subtype": "Magic Armor",
+      "description": "This suit of armor is reinforced with adamantine. While you're wearing it, any critical hit against you becomes a normal hit.",
+      "armorClass": 18,
+      "value": 5000,
+      "rarity": "uncommon",
+      "properties": [
+        "magic"
+      ]
+    },
+    {
+      "id": "mithral-armor",
+      "name": "Mithral Chain Shirt",
+      "type": "armor",
+      "subtype": "Magic Armor",
+      "description": "Mithral is a light, flexible metal. This armor can be worn under normal clothes. It doesn't impose disadvantage on Dexterity (Stealth) checks.",
+      "armorClass": 13,
+      "value": 800,
+      "rarity": "uncommon",
+      "properties": [
+        "magic"
+      ]
+    },
+    {
+      "id": "armor-resistance",
+      "name": "Armor of Resistance",
+      "type": "armor",
+      "subtype": "Magic Armor",
+      "description": "While wearing this armor, you have resistance to one type of damage. The DM chooses the type or determines it randomly.",
+      "armorClass": 16,
+      "value": 6000,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "armor-invulnerability",
+      "name": "Armor of Invulnerability",
+      "type": "armor",
+      "subtype": "Legendary Armor",
+      "description": "You have resistance to nonmagical damage while you wear this armor. You can use an action to make yourself immune to nonmagical damage for 10 minutes.",
+      "armorClass": 18,
+      "value": 50000,
+      "rarity": "legendary",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "dragon-scale-mail",
+      "name": "Dragon Scale Mail",
+      "type": "armor",
+      "subtype": "Legendary Armor",
+      "description": "Made of the scales of a dragon. You have resistance to the damage type associated with the dragon's breath weapon, advantage on saving throws against dragon Frightful Presence and breath weapons.",
+      "armorClass": 14,
+      "value": 15000,
+      "rarity": "very rare",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "shield-plus-1",
+      "name": "+1 Shield",
+      "type": "armor",
+      "subtype": "Magic Shield",
+      "description": "While holding this shield, you have a +1 bonus to AC in addition to the shield's normal bonus.",
+      "armorClass": 3,
+      "value": 1500,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "shield"
+      ],
+      "armorType": "shield"
+    },
+    {
+      "id": "shield-plus-2",
+      "name": "+2 Shield",
+      "type": "armor",
+      "subtype": "Magic Shield",
+      "description": "While holding this shield, you have a +2 bonus to AC in addition to the shield's normal bonus.",
+      "armorClass": 4,
+      "value": 6000,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "shield"
+      ],
+      "armorType": "shield"
+    },
+    {
+      "id": "animated-shield",
+      "name": "Animated Shield",
+      "type": "armor",
+      "subtype": "Legendary Shield",
+      "description": "While holding this shield, you can speak its command word to cause it to animate. The shield floats in your space, leaving your hands free.",
+      "armorClass": 2,
+      "value": 12000,
+      "rarity": "very rare",
+      "properties": [
+        "magic",
+        "shield",
+        "attunement"
+      ],
+      "armorType": "shield"
+    },
+    {
+      "id": "spellguard-shield",
+      "name": "Spellguard Shield",
+      "type": "armor",
+      "subtype": "Legendary Shield",
+      "description": "While holding this shield, you have advantage on saving throws against spells and magical effects, and spell attacks have disadvantage against you.",
+      "armorClass": 2,
+      "value": 18000,
+      "rarity": "very rare",
+      "properties": [
+        "magic",
+        "shield",
+        "attunement"
+      ],
+      "armorType": "shield"
     }
   ],
   "magicItems": [
@@ -87,14 +755,16 @@
       "name": "Bag of Holding",
       "type": "wondrous",
       "description": "This bag has an interior space considerably larger than its outside dimensions.",
-      "value": 500
+      "value": 500,
+      "rarity": "uncommon"
     },
     {
       "id": "boots-of-elvenkind",
       "name": "Boots of Elvenkind",
       "type": "wondrous",
       "description": "While you wear these boots, your steps make no sound. You have advantage on Dexterity (Stealth) checks that rely on moving silently.",
-      "value": 300
+      "value": 300,
+      "rarity": "uncommon"
     },
     {
       "id": "ring-of-protection",
@@ -102,6 +772,7 @@
       "type": "ring",
       "description": "You have a +1 bonus to AC and saving throws while wearing this ring.",
       "value": 3500,
+      "rarity": "rare",
       "properties": [
         "attunement"
       ]
@@ -110,8 +781,381 @@
       "id": "wand-magic-missiles",
       "name": "Wand of Magic Missiles",
       "type": "wand",
-      "description": "This wand has 7 charges. While holding it, you can use an action to expend 1 or more of its charges to cast the magic missile spell from it. For 1 charge, you cast the 1st-level version of the spell. You can increase the spell slot level by one for each additional charge you expend.",
+      "description": "This wand has 7 charges. While holding it, you can use an action to expend 1 or more of its charges to cast the magic missile spell from it.",
       "value": 300,
+      "rarity": "uncommon",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "cloak-of-displacement",
+      "name": "Cloak of Displacement",
+      "type": "wondrous",
+      "description": "While you wear this cloak, it projects an illusion that makes you appear to be standing in a place near your actual location, causing any creature to have disadvantage on attack rolls against you.",
+      "value": 5000,
+      "rarity": "rare",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "cloak-of-invisibility",
+      "name": "Cloak of Invisibility",
+      "type": "wondrous",
+      "description": "While wearing this cloak, you can pull its hood over your head to cause yourself to become invisible. While you are invisible, anything you are carrying or wearing is invisible with you.",
+      "value": 50000,
+      "rarity": "legendary",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "cloak-of-protection",
+      "name": "Cloak of Protection",
+      "type": "wondrous",
+      "description": "You gain a +1 bonus to AC and saving throws while you wear this cloak.",
+      "value": 3500,
+      "rarity": "uncommon",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "gauntlets-of-ogre-power",
+      "name": "Gauntlets of Ogre Power",
+      "type": "wondrous",
+      "description": "Your Strength score is 19 while you wear these gauntlets. They have no effect on you if your Strength is already 19 or higher.",
+      "value": 8000,
+      "rarity": "uncommon",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "belt-of-giant-strength-hill",
+      "name": "Belt of Hill Giant Strength",
+      "type": "wondrous",
+      "description": "While wearing this belt, your Strength score changes to 21. If your Strength is already equal to or greater than the belt's score, the item has no effect on you.",
+      "value": 8000,
+      "rarity": "rare",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "belt-of-giant-strength-fire",
+      "name": "Belt of Fire Giant Strength",
+      "type": "wondrous",
+      "description": "While wearing this belt, your Strength score changes to 25.",
+      "value": 24000,
+      "rarity": "very rare",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "belt-of-giant-strength-storm",
+      "name": "Belt of Storm Giant Strength",
+      "type": "wondrous",
+      "description": "While wearing this belt, your Strength score changes to 29.",
+      "value": 100000,
+      "rarity": "legendary",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "amulet-of-health",
+      "name": "Amulet of Health",
+      "type": "wondrous",
+      "description": "Your Constitution score is 19 while you wear this amulet. It has no effect on you if your Constitution is already 19 or higher.",
+      "value": 8000,
+      "rarity": "rare",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "headband-of-intellect",
+      "name": "Headband of Intellect",
+      "type": "wondrous",
+      "description": "Your Intelligence score is 19 while you wear this headband. It has no effect on you if your Intelligence is already 19 or higher.",
+      "value": 8000,
+      "rarity": "uncommon",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "eyes-of-the-eagle",
+      "name": "Eyes of the Eagle",
+      "type": "wondrous",
+      "description": "These crystal lenses fit over the eyes. While wearing them, you have advantage on Wisdom (Perception) checks that rely on sight.",
+      "value": 2500,
+      "rarity": "uncommon",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "bracers-of-defense",
+      "name": "Bracers of Defense",
+      "type": "wondrous",
+      "description": "While wearing these bracers, you gain a +2 bonus to AC if you are wearing no armor and using no shield.",
+      "value": 6000,
+      "rarity": "rare",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "bracers-of-archery",
+      "name": "Bracers of Archery",
+      "type": "wondrous",
+      "description": "While wearing these bracers, you have proficiency with the longbow and shortbow, and you gain a +2 bonus to damage rolls on ranged attacks made with such weapons.",
+      "value": 1500,
+      "rarity": "uncommon",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "ring-of-spell-storing",
+      "name": "Ring of Spell Storing",
+      "type": "ring",
+      "description": "This ring stores spells cast into it, holding them until the attuned wearer uses them. The ring can store up to 5 levels worth of spells at a time.",
+      "value": 24000,
+      "rarity": "rare",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "ring-of-invisibility",
+      "name": "Ring of Invisibility",
+      "type": "ring",
+      "description": "While wearing this ring, you can turn invisible as an action. Anything you are wearing or carrying is invisible with you.",
+      "value": 50000,
+      "rarity": "legendary",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "ring-of-regeneration",
+      "name": "Ring of Regeneration",
+      "type": "ring",
+      "description": "While wearing this ring, you regain 1d6 hit points every 10 minutes, provided you have at least 1 hit point. If you lose a body part, the ring causes the missing part to regrow and return to full functionality after 1d6 + 1 days.",
+      "value": 24000,
+      "rarity": "very rare",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "ioun-stone-protection",
+      "name": "Ioun Stone of Protection",
+      "type": "wondrous",
+      "description": "This dusty rose prism orbits your head. You gain a +1 bonus to AC while this stone orbits your head.",
+      "value": 4000,
+      "rarity": "rare",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "ioun-stone-mastery",
+      "name": "Ioun Stone of Mastery",
+      "type": "wondrous",
+      "description": "This pale green prism increases your proficiency bonus by 1 while it orbits your head.",
+      "value": 15000,
+      "rarity": "legendary",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "portable-hole",
+      "name": "Portable Hole",
+      "type": "wondrous",
+      "description": "This fine black cloth, soft as silk, is folded up to the dimensions of a handkerchief. It unfolds into a circular sheet 6 feet in diameter. You can use an action to unfold a portable hole and place it on or against a solid surface, whereupon the portable hole creates an extradimensional hole 10 feet deep.",
+      "value": 8000,
+      "rarity": "rare"
+    },
+    {
+      "id": "immovable-rod",
+      "name": "Immovable Rod",
+      "type": "wondrous",
+      "description": "This flat iron rod has a button on one end. You can use an action to press the button, which causes the rod to become magically fixed in place, defying gravity.",
+      "value": 5000,
+      "rarity": "uncommon"
+    },
+    {
+      "id": "deck-of-many-things",
+      "name": "Deck of Many Things",
+      "type": "wondrous",
+      "description": "Usually found in a box or pouch, this deck contains a number of cards made of ivory or vellum. Most (75 percent) of these decks have only thirteen cards, but the rest have twenty-two. Drawing cards can grant great power or bring ruin.",
+      "value": 50000,
+      "rarity": "legendary"
+    },
+    {
+      "id": "staff-of-power",
+      "name": "Staff of Power",
+      "type": "staff",
+      "description": "This staff can be wielded as a magic quarterstaff that grants a +2 bonus to attack and damage rolls. It has 20 charges for various powerful spells.",
+      "damage": "1d6+2",
+      "value": 95000,
+      "rarity": "very rare",
+      "properties": [
+        "attunement",
+        "spellcaster-only",
+        "melee"
+      ]
+    },
+    {
+      "id": "staff-of-fire",
+      "name": "Staff of Fire",
+      "type": "staff",
+      "description": "You have resistance to fire damage while you hold this staff. The staff has 10 charges for casting fire spells.",
+      "damage": "1d6",
+      "value": 16000,
+      "rarity": "very rare",
+      "properties": [
+        "attunement",
+        "spellcaster-only",
+        "melee"
+      ]
+    },
+    {
+      "id": "staff-of-the-magi",
+      "name": "Staff of the Magi",
+      "type": "staff",
+      "description": "This staff can be wielded as a magic quarterstaff that grants a +2 bonus to attack and damage rolls. While you hold it, you gain a +2 bonus to spell attack rolls. The staff has 50 charges for casting incredibly powerful spells.",
+      "damage": "1d6+2",
+      "value": 350000,
+      "rarity": "legendary",
+      "properties": [
+        "attunement",
+        "wizard-only",
+        "melee"
+      ]
+    },
+    {
+      "id": "wand-of-fireballs",
+      "name": "Wand of Fireballs",
+      "type": "wand",
+      "description": "This wand has 7 charges. While holding it, you can use an action to expend 1 or more of its charges to cast the fireball spell (save DC 15) from it.",
+      "value": 32000,
+      "rarity": "rare",
+      "properties": [
+        "attunement",
+        "spellcaster-only"
+      ]
+    },
+    {
+      "id": "wand-of-lightning-bolts",
+      "name": "Wand of Lightning Bolts",
+      "type": "wand",
+      "description": "This wand has 7 charges. While holding it, you can use an action to expend 1 or more of its charges to cast the lightning bolt spell (save DC 15) from it.",
+      "value": 32000,
+      "rarity": "rare",
+      "properties": [
+        "attunement",
+        "spellcaster-only"
+      ]
+    },
+    {
+      "id": "amulet-of-proof-against-detection",
+      "name": "Amulet of Proof against Detection and Location",
+      "type": "wondrous",
+      "description": "While wearing this amulet, you are hidden from divination magic. You can't be targeted by such magic or perceived through magical scrying sensors.",
+      "value": 20000,
+      "rarity": "uncommon",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "cape-of-the-mountebank",
+      "name": "Cape of the Mountebank",
+      "type": "wondrous",
+      "description": "This cape smells faintly of brimstone. While wearing it, you can use it to cast the dimension door spell as an action. This property of the cape can't be used again until the next dawn.",
+      "value": 12000,
+      "rarity": "rare"
+    },
+    {
+      "id": "mantle-of-spell-resistance",
+      "name": "Mantle of Spell Resistance",
+      "type": "wondrous",
+      "description": "You have advantage on saving throws against spells while you wear this cloak.",
+      "value": 30000,
+      "rarity": "rare",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "pearl-of-power",
+      "name": "Pearl of Power",
+      "type": "wondrous",
+      "description": "While this pearl is on your person, you can use an action to speak its command word and regain one expended spell slot of 3rd level or lower. Once you use the pearl, it can't be used again until the next dawn.",
+      "value": 6000,
+      "rarity": "uncommon",
+      "properties": [
+        "attunement",
+        "spellcaster-only"
+      ]
+    },
+    {
+      "id": "rod-of-the-pact-keeper",
+      "name": "Rod of the Pact Keeper +1",
+      "type": "rod",
+      "description": "While holding this rod, you gain a +1 bonus to spell attack rolls and to the saving throw DCs of your warlock spells. You can regain one warlock spell slot as an action while holding the rod.",
+      "value": 12000,
+      "rarity": "uncommon",
+      "properties": [
+        "attunement",
+        "warlock-only"
+      ]
+    },
+    {
+      "id": "winged-boots",
+      "name": "Winged Boots",
+      "type": "wondrous",
+      "description": "While you wear these boots, you have a flying speed equal to your walking speed. You can use the boots to fly for up to 4 hours.",
+      "value": 8000,
+      "rarity": "uncommon",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "gloves-of-thievery",
+      "name": "Gloves of Thievery",
+      "type": "wondrous",
+      "description": "These gloves are invisible while worn. While wearing them, you gain a +5 bonus to Dexterity (Sleight of Hand) checks and Dexterity checks made to pick locks.",
+      "value": 5000,
+      "rarity": "uncommon"
+    },
+    {
+      "id": "helm-of-telepathy",
+      "name": "Helm of Telepathy",
+      "type": "wondrous",
+      "description": "While wearing this helm, you can use an action to cast the detect thoughts spell (save DC 13) from it. You can also use telepathy to speak mentally to any creature you can see within 30 feet.",
+      "value": 12000,
+      "rarity": "uncommon",
+      "properties": [
+        "attunement"
+      ]
+    },
+    {
+      "id": "periapt-of-wound-closure",
+      "name": "Periapt of Wound Closure",
+      "type": "wondrous",
+      "description": "While you wear this pendant, you stabilize whenever you are dying at the start of your turn. In addition, whenever you roll a Hit Die to regain hit points, double the number of hit points it restores.",
+      "value": 5000,
+      "rarity": "uncommon",
       "properties": [
         "attunement"
       ]

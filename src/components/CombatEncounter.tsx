@@ -53,6 +53,17 @@ import {
   hasHexWarrior,
 } from '@/utils/subclassFeatures';
 
+// Magic item effects
+import {
+  getWeaponAttackBonus,
+  getWeaponExtraDamage,
+  isMagicWeapon,
+  isAttuned,
+  hasCloakOfDisplacement,
+  hasAdamantineArmor,
+} from '@/utils/magicItemEffects';
+
+
 type CombatEnemyState = CombatEnemy & {
   conditions: Condition[];
 };
@@ -923,6 +934,14 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           addLog(`${character.name} is hidden! Attack is at disadvantage.`, 'info');
         }
 
+        // Cloak of Displacement: Attackers have disadvantage
+        const hasCloakActive = hasCloakOfDisplacement(character) &&
+          !character.conditions.some(c => c.type === 'displacement-broken');
+        if (hasCloakActive) {
+          rollType = rollType === 'advantage' ? 'normal' : 'disadvantage';
+          addLog(`Cloak of Displacement! Attack is at disadvantage.`, 'info');
+        }
+
         if (actionName) {
           addLog(`${actingEnemy.name} uses ${actionName}.`, 'info');
         }
@@ -955,6 +974,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         }
 
         let attackRoll = rollDice(20);
+        const originalRoll = attackRoll; // Store for crit check
 
         if (rollType === 'advantage') {
           attackRoll = Math.max(attackRoll, rollDice(20));
@@ -966,6 +986,15 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
         const totalAttack = attackRoll + actionAttackBonus;
 
+        // Check for critical hit (nat 20)
+        let isCriticalHit = attackRoll === 20 || (rollType !== 'disadvantage' && originalRoll === 20);
+
+        // Adamantine Armor: Critical hits become normal hits
+        if (isCriticalHit && hasAdamantineArmor(character)) {
+          isCriticalHit = false;
+          addLog(`Adamantine Armor! Critical hit negated!`, 'info');
+        }
+
         // Player AC Calculation
         // Player AC Calculation
         // Use centralized AC calculation which handles Unarmored Defense (Barbarian/Monk)
@@ -975,7 +1004,18 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         // Let's check getPlayerDefenseBonus implementation.
         const effectiveAC = wildShapeActive ? WOLF_STATS.ac : playerAC;
 
-        if (totalAttack >= effectiveAC) {
+        if (totalAttack >= effectiveAC || isCriticalHit) { // Nat 20 always hits
+          // Break Cloak of Displacement on hit
+          if (hasCloakActive) {
+            applyPlayerCondition({
+              type: 'displacement-broken',
+              name: 'Displacement Broken',
+              description: 'Cloak of Displacement is temporarily inactive until your next turn.',
+              duration: 1,
+              source: actingEnemy.name
+            });
+          }
+
           if (playerHp <= 0 && !wildShapeActive) {
             addLog(`${actingEnemy.name} attacks your unconscious body!`, 'damage');
             recordDeathSave(false);
@@ -985,6 +1025,13 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
             }
           } else {
             let damageRoll = rollDamageFromString(actionDamageFormula);
+
+            // Critical hit: double damage dice
+            if (isCriticalHit) {
+              damageRoll += rollDamageFromString(actionDamageFormula);
+              addLog(`CRITICAL HIT!`, 'damage');
+            }
+
             if ((actingEnemy.traits || []).includes('brute')) {
               damageRoll += rollDice(6);
             }
@@ -1175,7 +1222,21 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     let damageDice = character.equippedWeapon?.damage || '1d4';
     let damageBonus = useCharisma ? chaMod : useDex ? dexMod : abilityMod;
     const weaponDamageType = detectDamageType(character.equippedWeapon?.damage || damageDice || '');
-    const isMagicalWeapon = (character.equippedWeapon?.properties || []).includes('magic');
+    const weaponIsAttuned = character.equippedWeapon ? isAttuned(character, character.equippedWeapon) : false;
+    const isMagicalWeapon = isMagicWeapon(character.equippedWeapon);
+
+    // ==========================================
+    // MAGIC WEAPON BONUSES
+    // ==========================================
+    const magicWeaponBonus = getWeaponAttackBonus(character.equippedWeapon);
+    if (magicWeaponBonus > 0) {
+      attackModifier += magicWeaponBonus;
+      damageBonus += magicWeaponBonus;
+      addLog(`Magic weapon bonus: +${magicWeaponBonus} to attack and damage!`, 'info');
+    }
+
+    // Get extra damage dice from magic weapons (Flame Tongue, Frost Brand, etc.)
+    const extraDamageFromWeapon = getWeaponExtraDamage(character.equippedWeapon, weaponIsAttuned);
 
     // Fighting Styles
     if (character.fightingStyle === 'Archery' && isRanged) {
@@ -1202,7 +1263,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     if (versatileBonus) {
       const altDie = versatileBonus.split('-')[1];
       // If no shield and no offhand already used, use versatile die
-      if (!character.equippedArmor?.name?.toLowerCase().includes('shield')) {
+      if (!character.equippedShield && !character.equippedArmor?.name?.toLowerCase().includes('shield')) {
         damageDice = `1${altDie}`;
       }
     }
@@ -1296,6 +1357,31 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           damageRoll += 2;
           addLog('Rage Damage Bonus! (+2)', 'info');
         }
+
+        // Magic Weapon Extra Damage (Flame Tongue, Frost Brand, etc.)
+        const weaponAttuned = character.equippedWeapon ? isAttuned(character, character.equippedWeapon) : false;
+        const extraDamages = getWeaponExtraDamage(character.equippedWeapon, weaponAttuned);
+        for (const extra of extraDamages) {
+          // Parse dice like "2d6" or "1d6"
+          const diceMatch = extra.dice.match(/(\d+)d(\d+)/);
+          if (diceMatch) {
+            const numDice = parseInt(diceMatch[1]);
+            const diceSize = parseInt(diceMatch[2]);
+            let extraDamageRoll = 0;
+            for (let i = 0; i < numDice; i++) {
+              extraDamageRoll += rollDice(diceSize);
+            }
+            // Double on crit
+            if (isCritical) {
+              for (let i = 0; i < numDice; i++) {
+                extraDamageRoll += rollDice(diceSize);
+              }
+            }
+            damageRoll += extraDamageRoll;
+            addLog(`${extra.description}! (+${extraDamageRoll} ${extra.type} damage)`, 'info');
+          }
+        }
+
         if (isCritical) {
           damageRoll += rollWeaponDamage(damageDice, false); // Crit adds extra dice
 

@@ -11,7 +11,8 @@
     "description": "A mote of fire flashes toward a creature or object within range.",
     "classes": [
       "Sorcerer",
-      "Wizard"
+      "Wizard",
+      "Eldritch Knight"
     ],
     "damage": "1d10",
     "damageType": "fire",
@@ -162,7 +163,8 @@
       "Bard",
       "Sorcerer",
       "Warlock",
-      "Wizard"
+      "Wizard",
+      "Arcane Trickster"
     ],
     "componentTags": {
       "verbal": false,
@@ -208,7 +210,8 @@
     "description": "You create three glowing darts of magical force. Each dart hits a creature of your choice that you can see within range.",
     "classes": [
       "Sorcerer",
-      "Wizard"
+      "Wizard",
+      "Eldritch Knight"
     ],
     "damage": "3d4+3",
     "damageType": "force",
@@ -231,7 +234,8 @@
     "description": "An invisible barrier of magical force appears and protects you. Until the start of your next turn, you have a +5 bonus to AC.",
     "classes": [
       "Sorcerer",
-      "Wizard"
+      "Wizard",
+      "Eldritch Knight"
     ],
     "ritual": false,
     "concentration": false,
@@ -358,7 +362,8 @@
       "Bard",
       "Druid",
       "Sorcerer",
-      "Wizard"
+      "Wizard",
+      "Eldritch Knight"
     ],
     "damage": "2d8",
     "damageType": "thunder",
@@ -386,7 +391,8 @@
     "description": "You touch a willing creature who isn't wearing armor, and a protective magical force surrounds it until the spell ends. The target's base AC becomes 13 + its Dexterity modifier. The spell ends if the target dons armor or if you dismiss the spell as an action.",
     "classes": [
       "Sorcerer",
-      "Wizard"
+      "Wizard",
+      "Eldritch Knight"
     ],
     "componentTags": {
       "verbal": true,
@@ -407,7 +413,8 @@
     "classes": [
       "Bard",
       "Sorcerer",
-      "Wizard"
+      "Wizard",
+      "Arcane Trickster"
     ],
     "damage": "5d8",
     "damageType": "healing",
@@ -457,7 +464,8 @@
       "Bard",
       "Sorcerer",
       "Warlock",
-      "Wizard"
+      "Wizard",
+      "Arcane Trickster"
     ],
     "concentration": true,
     "upcastDescription": "You can target one additional creature for each slot level above 2nd.",
@@ -479,7 +487,8 @@
     "description": "You create three rays of fire and hurl them at targets within range. You can hurl them at one target or several. Make a ranged spell attack for each ray. On a hit, the target takes 2d6 fire damage.",
     "classes": [
       "Sorcerer",
-      "Wizard"
+      "Wizard",
+      "Eldritch Knight"
     ],
     "damage": "2d6",
     "damageType": "fire",
@@ -506,7 +515,8 @@
       "Druid",
       "Sorcerer",
       "Warlock",
-      "Wizard"
+      "Wizard",
+      "Arcane Trickster"
     ],
     "saveType": "wisdom",
     "concentration": true,
@@ -531,7 +541,8 @@
       "Bard",
       "Sorcerer",
       "Warlock",
-      "Wizard"
+      "Wizard",
+      "Eldritch Knight"
     ],
     "damage": "3d8",
     "damageType": "thunder",
@@ -559,7 +570,8 @@
     "description": "A bright streak flashes from your pointing finger to a point you choose within range and then blossoms with a low roar into an explosion of flame.",
     "classes": [
       "Sorcerer",
-      "Wizard"
+      "Wizard",
+      "Eldritch Knight"
     ],
     "damage": "8d6",
     "damageType": "fire",
@@ -584,7 +596,8 @@
     "description": "A stroke of lightning forming a line 100 feet long and 5 feet wide blasts out from you in a direction you choose. Each creature in the line must make a Dexterity saving throw. A creature takes 8d6 lightning damage on a failed save, or half as much damage on a successful one.",
     "classes": [
       "Sorcerer",
-      "Wizard"
+      "Wizard",
+      "Eldritch Knight"
     ],
     "damage": "8d6",
     "damageType": "lightning",
@@ -656,7 +669,8 @@
     "classes": [
       "Sorcerer",
       "Warlock",
-      "Wizard"
+      "Wizard",
+      "Eldritch Knight"
     ],
     "componentTags": {
       "verbal": false,
@@ -776,7 +790,8 @@
       "Bard",
       "Sorcerer",
       "Warlock",
-      "Wizard"
+      "Wizard",
+      "Arcane Trickster"
     ],
     "saveType": "wisdom",
     "concentration": true,
@@ -786,6 +801,1034 @@
     },
     "componentTags": {
       "verbal": false,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "chill-touch",
+    "name": "Chill Touch",
+    "level": 0,
+    "school": "Necromancy",
+    "castingTime": "1 action",
+    "range": "120 feet",
+    "components": "V, S",
+    "duration": "1 round",
+    "description": "You create a ghostly, skeletal hand in the space of a creature within range. Make a ranged spell attack against the creature. On a hit, the target takes 1d8 necrotic damage, and it can't regain hit points until the start of your next turn. If you hit an undead target, it also has disadvantage on attack rolls against you until the end of your next turn.",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "damage": "1d8",
+    "damageType": "necrotic",
+    "cantripScaling": {
+      "level5": "2d8",
+      "level11": "3d8",
+      "level17": "4d8"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "toll-the-dead",
+    "name": "Toll the Dead",
+    "level": 0,
+    "school": "Necromancy",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, S",
+    "duration": "Instantaneous",
+    "description": "You point at one creature you can see within range, and the sound of a dolorous bell fills the air around it for a moment. The target must succeed on a Wisdom saving throw or take 1d8 necrotic damage. If the target is missing any of its hit points, it instead takes 1d12 necrotic damage.",
+    "classes": [
+      "Cleric",
+      "Warlock",
+      "Wizard"
+    ],
+    "damage": "1d8",
+    "damageType": "necrotic",
+    "saveType": "wisdom",
+    "cantripScaling": {
+      "level5": "2d8/2d12",
+      "level11": "3d8/3d12",
+      "level17": "4d8/4d12"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "produce-flame",
+    "name": "Produce Flame",
+    "level": 0,
+    "school": "Conjuration",
+    "castingTime": "1 action",
+    "range": "Self",
+    "components": "V, S",
+    "duration": "10 minutes",
+    "description": "A flickering flame appears in your hand. The flame remains there for the duration and harms neither you nor your equipment. You can also attack with the flame, hurling it at a creature within 30 feet of you. Make a ranged spell attack. On a hit, the target takes 1d8 fire damage.",
+    "classes": [
+      "Druid"
+    ],
+    "damage": "1d8",
+    "damageType": "fire",
+    "cantripScaling": {
+      "level5": "2d8",
+      "level11": "3d8",
+      "level17": "4d8"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "ray-of-frost",
+    "name": "Ray of Frost",
+    "level": 0,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, S",
+    "duration": "Instantaneous",
+    "description": "A frigid beam of blue-white light streaks toward a creature within range. Make a ranged spell attack against the target. On a hit, it takes 1d8 cold damage, and its speed is reduced by 10 feet until the start of your next turn.",
+    "classes": [
+      "Sorcerer",
+      "Wizard",
+      "Eldritch Knight"
+    ],
+    "damage": "1d8",
+    "damageType": "cold",
+    "cantripScaling": {
+      "level5": "2d8",
+      "level11": "3d8",
+      "level17": "4d8"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "shocking-grasp",
+    "name": "Shocking Grasp",
+    "level": 0,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "Touch",
+    "components": "V, S",
+    "duration": "Instantaneous",
+    "description": "Lightning springs from your hand to deliver a shock to a creature you try to touch. Make a melee spell attack against the target. You have advantage on the attack roll if the target is wearing armor made of metal. On a hit, the target takes 1d8 lightning damage, and it can't take reactions until the start of its next turn.",
+    "classes": [
+      "Sorcerer",
+      "Wizard",
+      "Eldritch Knight"
+    ],
+    "damage": "1d8",
+    "damageType": "lightning",
+    "cantripScaling": {
+      "level5": "2d8",
+      "level11": "3d8",
+      "level17": "4d8"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "hex",
+    "name": "Hex",
+    "level": 1,
+    "school": "Enchantment",
+    "castingTime": "1 bonus action",
+    "range": "90 feet",
+    "components": "V, S, M (the petrified eye of a newt)",
+    "duration": "Concentration, up to 1 hour",
+    "description": "You place a curse on a creature that you can see within range. Until the spell ends, you deal an extra 1d6 necrotic damage to the target whenever you hit it with an attack. Also, choose one ability when you cast the spell. The target has disadvantage on ability checks made with the chosen ability.",
+    "classes": [
+      "Warlock"
+    ],
+    "damage": "1d6",
+    "damageType": "necrotic",
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "bless",
+    "name": "Bless",
+    "level": 1,
+    "school": "Enchantment",
+    "castingTime": "1 action",
+    "range": "30 feet",
+    "components": "V, S, M (a sprinkling of holy water)",
+    "duration": "Concentration, up to 1 minute",
+    "description": "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw.",
+    "classes": [
+      "Cleric",
+      "Paladin"
+    ],
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "bane",
+    "name": "Bane",
+    "level": 1,
+    "school": "Enchantment",
+    "castingTime": "1 action",
+    "range": "30 feet",
+    "components": "V, S, M (a drop of blood)",
+    "duration": "Concentration, up to 1 minute",
+    "description": "Up to three creatures of your choice that you can see within range must make Charisma saving throws. Whenever a target that fails this saving throw makes an attack roll or a saving throw before the spell ends, the target must roll a d4 and subtract the number rolled from the attack roll or saving throw.",
+    "classes": [
+      "Bard",
+      "Cleric"
+    ],
+    "saveType": "charisma",
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "faerie-fire",
+    "name": "Faerie Fire",
+    "level": 1,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V",
+    "duration": "Concentration, up to 1 minute",
+    "description": "Each object in a 20-foot cube within range is outlined in blue, green, or violet light. Any creature in the area when the spell is cast is also outlined if it fails a Dexterity saving throw. For the duration, objects and affected creatures shed dim light in a 10-foot radius. Any attack roll against an affected creature or object has advantage if the attacker can see it, and the affected creature or object can't benefit from being invisible.",
+    "classes": [
+      "Bard",
+      "Druid"
+    ],
+    "saveType": "dexterity",
+    "concentration": true,
+    "areaOfEffect": {
+      "type": "cube",
+      "size": 20
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    }
+  },
+  {
+    "id": "hunters-mark",
+    "name": "Hunter's Mark",
+    "level": 1,
+    "school": "Divination",
+    "castingTime": "1 bonus action",
+    "range": "90 feet",
+    "components": "V",
+    "duration": "Concentration, up to 1 hour",
+    "description": "You choose a creature you can see within range and mystically mark it as your quarry. Until the spell ends, you deal an extra 1d6 damage to the target whenever you hit it with a weapon attack, and you have advantage on any Wisdom (Perception) or Wisdom (Survival) check you make to find it.",
+    "classes": [
+      "Ranger"
+    ],
+    "damage": "1d6",
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    }
+  },
+  {
+    "id": "chromatic-orb",
+    "name": "Chromatic Orb",
+    "level": 1,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "90 feet",
+    "components": "V, S, M (a diamond worth at least 50 gp)",
+    "duration": "Instantaneous",
+    "description": "You hurl a 4-inch-diameter sphere of energy at a creature that you can see within range. You choose acid, cold, fire, lightning, poison, or thunder for the type of orb you create. On a hit, the creature takes 3d8 damage of the type you chose.",
+    "classes": [
+      "Sorcerer",
+      "Wizard",
+      "Eldritch Knight"
+    ],
+    "damage": "3d8",
+    "damageType": "varies",
+    "upcastDamage": {
+      "perSlot": "1d8"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "inflict-wounds",
+    "name": "Inflict Wounds",
+    "level": 1,
+    "school": "Necromancy",
+    "castingTime": "1 action",
+    "range": "Touch",
+    "components": "V, S",
+    "duration": "Instantaneous",
+    "description": "Make a melee spell attack against a creature you can reach. On a hit, the target takes 3d10 necrotic damage.",
+    "classes": [
+      "Cleric"
+    ],
+    "damage": "3d10",
+    "damageType": "necrotic",
+    "upcastDamage": {
+      "perSlot": "1d10"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "blur",
+    "name": "Blur",
+    "level": 2,
+    "school": "Illusion",
+    "castingTime": "1 action",
+    "range": "Self",
+    "components": "V",
+    "duration": "Concentration, up to 1 minute",
+    "description": "Your body becomes blurred, shifting and wavering to all who can see you. For the duration, any creature has disadvantage on attack rolls against you. An attacker is immune to this effect if it doesn't rely on sight.",
+    "classes": [
+      "Sorcerer",
+      "Wizard",
+      "Arcane Trickster"
+    ],
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    }
+  },
+  {
+    "id": "mirror-image",
+    "name": "Mirror Image",
+    "level": 2,
+    "school": "Illusion",
+    "castingTime": "1 action",
+    "range": "Self",
+    "components": "V, S",
+    "duration": "1 minute",
+    "description": "Three illusory duplicates of yourself appear in your space. Until the spell ends, the duplicates move with you and mimic your actions, shifting position so it's impossible to track which image is real. Each time a creature targets you with an attack during the spell's duration, roll a d20 to determine whether the attack instead targets one of your duplicates.",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard",
+      "Arcane Trickster"
+    ],
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "spiritual-weapon",
+    "name": "Spiritual Weapon",
+    "level": 2,
+    "school": "Evocation",
+    "castingTime": "1 bonus action",
+    "range": "60 feet",
+    "components": "V, S",
+    "duration": "1 minute",
+    "description": "You create a floating, spectral weapon within range that lasts for the duration or until you cast this spell again. When you cast the spell, you can make a melee spell attack against a creature within 5 feet of the weapon. On a hit, the target takes force damage equal to 1d8 + your spellcasting ability modifier.",
+    "classes": [
+      "Cleric"
+    ],
+    "damage": "1d8",
+    "damageType": "force",
+    "upcastDamage": {
+      "perTwoSlots": "1d8"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "web",
+    "name": "Web",
+    "level": 2,
+    "school": "Conjuration",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, S, M (a bit of spiderweb)",
+    "duration": "Concentration, up to 1 hour",
+    "description": "You conjure a mass of thick, sticky webbing at a point of your choice within range. The webs fill a 20-foot cube from that point for the duration. A creature that starts its turn in the webs or enters them must make a Dexterity saving throw. On a failed save, the creature is restrained.",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "saveType": "dexterity",
+    "concentration": true,
+    "areaOfEffect": {
+      "type": "cube",
+      "size": 20
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "darkness",
+    "name": "Darkness",
+    "level": 2,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, M (bat fur and a drop of pitch or piece of coal)",
+    "duration": "Concentration, up to 10 minutes",
+    "description": "Magical darkness spreads from a point you choose within range to fill a 15-foot-radius sphere for the duration. The darkness spreads around corners. A creature with darkvision can't see through this darkness, and nonmagical light can't illuminate it.",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard",
+      "Eldritch Knight"
+    ],
+    "concentration": true,
+    "areaOfEffect": {
+      "type": "sphere",
+      "size": 15
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": false,
+      "material": true
+    }
+  },
+  {
+    "id": "dispel-magic",
+    "name": "Dispel Magic",
+    "level": 3,
+    "school": "Abjuration",
+    "castingTime": "1 action",
+    "range": "120 feet",
+    "components": "V, S",
+    "duration": "Instantaneous",
+    "description": "Choose one creature, object, or magical effect within range. Any spell of 3rd level or lower on the target ends. For each spell of 4th level or higher on the target, make an ability check using your spellcasting ability. The DC equals 10 + the spell's level. On a successful check, the spell ends.",
+    "classes": [
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Paladin",
+      "Sorcerer",
+      "Warlock",
+      "Wizard",
+      "Eldritch Knight"
+    ],
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "fear",
+    "name": "Fear",
+    "level": 3,
+    "school": "Illusion",
+    "castingTime": "1 action",
+    "range": "Self (30-foot cone)",
+    "components": "V, S, M (a white feather or the heart of a hen)",
+    "duration": "Concentration, up to 1 minute",
+    "description": "You project a phantasmal image of a creature's worst fears. Each creature in a 30-foot cone must succeed on a Wisdom saving throw or drop whatever it is holding and become frightened for the duration.",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard",
+      "Arcane Trickster"
+    ],
+    "saveType": "wisdom",
+    "concentration": true,
+    "areaOfEffect": {
+      "type": "cone",
+      "size": 30
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "banishment",
+    "name": "Banishment",
+    "level": 4,
+    "school": "Abjuration",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, S, M (an item distasteful to the target)",
+    "duration": "Concentration, up to 1 minute",
+    "description": "You attempt to send one creature that you can see within range to another plane of existence. The target must succeed on a Charisma saving throw or be banished. If the target is native to the plane of existence you're on, you banish the target to a harmless demiplane. While there, the target is incapacitated.",
+    "classes": [
+      "Cleric",
+      "Paladin",
+      "Sorcerer",
+      "Warlock",
+      "Wizard",
+      "Eldritch Knight"
+    ],
+    "saveType": "charisma",
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "dimension-door",
+    "name": "Dimension Door",
+    "level": 4,
+    "school": "Conjuration",
+    "castingTime": "1 action",
+    "range": "500 feet",
+    "components": "V",
+    "duration": "Instantaneous",
+    "description": "You teleport yourself from your current location to any other spot within range. You arrive at exactly the spot desired. It can be a place you can see, one you can visualize, or one you can describe by stating distance and direction.",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "componentTags": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    }
+  },
+  {
+    "id": "ice-storm",
+    "name": "Ice Storm",
+    "level": 4,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "300 feet",
+    "components": "V, S, M (a pinch of dust and a few drops of water)",
+    "duration": "Instantaneous",
+    "description": "A hail of rock-hard ice pounds to the ground in a 20-foot-radius, 40-foot-high cylinder centered on a point within range. Each creature in the cylinder must make a Dexterity saving throw. A creature takes 2d8 bludgeoning damage and 4d6 cold damage on a failed save, or half as much damage on a successful one.",
+    "classes": [
+      "Druid",
+      "Sorcerer",
+      "Wizard",
+      "Eldritch Knight"
+    ],
+    "damage": "2d8+4d6",
+    "damageType": "bludgeoning, cold",
+    "saveType": "dexterity",
+    "areaOfEffect": {
+      "type": "cylinder",
+      "size": 20
+    },
+    "upcastDamage": {
+      "perSlot": "1d8 bludgeoning"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "greater-invisibility",
+    "name": "Greater Invisibility",
+    "level": 4,
+    "school": "Illusion",
+    "castingTime": "1 action",
+    "range": "Touch",
+    "components": "V, S",
+    "duration": "Concentration, up to 1 minute",
+    "description": "You or a creature you touch becomes invisible until the spell ends. Anything the target is wearing or carrying is invisible as long as it is on the target's person. The target remains invisible even while attacking or casting spells.",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Wizard",
+      "Arcane Trickster"
+    ],
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "polymorph",
+    "name": "Polymorph",
+    "level": 4,
+    "school": "Transmutation",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, S, M (a caterpillar cocoon)",
+    "duration": "Concentration, up to 1 hour",
+    "description": "This spell transforms a creature that you can see within range into a new form. An unwilling creature must make a Wisdom saving throw to avoid the effect. The target's game statistics, including mental ability scores, are replaced by the statistics of the chosen beast.",
+    "classes": [
+      "Bard",
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "saveType": "wisdom",
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "cone-of-cold",
+    "name": "Cone of Cold",
+    "level": 5,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "Self (60-foot cone)",
+    "components": "V, S, M (a small crystal or glass cone)",
+    "duration": "Instantaneous",
+    "description": "A blast of cold air erupts from your hands. Each creature in a 60-foot cone must make a Constitution saving throw. A creature takes 8d8 cold damage on a failed save, or half as much damage on a successful one.",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "damage": "8d8",
+    "damageType": "cold",
+    "saveType": "constitution",
+    "areaOfEffect": {
+      "type": "cone",
+      "size": 60
+    },
+    "upcastDamage": {
+      "perSlot": "1d8"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "hold-monster",
+    "name": "Hold Monster",
+    "level": 5,
+    "school": "Enchantment",
+    "castingTime": "1 action",
+    "range": "90 feet",
+    "components": "V, S, M (a small, straight piece of iron)",
+    "duration": "Concentration, up to 1 minute",
+    "description": "Choose a creature that you can see within range. The target must succeed on a Wisdom saving throw or be paralyzed for the duration. At the end of each of its turns, the target can make another Wisdom saving throw. On a success, the spell ends on the target.",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "saveType": "wisdom",
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "wall-of-force",
+    "name": "Wall of Force",
+    "level": 5,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "120 feet",
+    "components": "V, S, M (a pinch of powder made by crushing a clear gemstone)",
+    "duration": "Concentration, up to 10 minutes",
+    "description": "An invisible wall of force springs into existence at a point you choose within range. The wall is immune to all damage and can't be dispelled by dispel magic. A disintegrate spell destroys the wall instantly.",
+    "classes": [
+      "Wizard"
+    ],
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "cloudkill",
+    "name": "Cloudkill",
+    "level": 5,
+    "school": "Conjuration",
+    "castingTime": "1 action",
+    "range": "120 feet",
+    "components": "V, S",
+    "duration": "Concentration, up to 10 minutes",
+    "description": "You create a 20-foot-radius sphere of poisonous, yellow-green fog centered on a point you choose within range. The fog spreads around corners. It lasts for the duration or until strong wind disperses it. Any creature that starts its turn in the area must make a Constitution saving throw, taking 5d8 poison damage on a failed save, or half as much damage on a successful one.",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "damage": "5d8",
+    "damageType": "poison",
+    "saveType": "constitution",
+    "concentration": true,
+    "areaOfEffect": {
+      "type": "sphere",
+      "size": 20
+    },
+    "upcastDamage": {
+      "perSlot": "1d8"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "flame-strike",
+    "name": "Flame Strike",
+    "level": 5,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, S, M (pinch of sulfur)",
+    "duration": "Instantaneous",
+    "description": "A vertical column of divine fire roars down from the heavens in a location you specify. Each creature in a 10-foot-radius, 40-foot-high cylinder centered on a point within range must make a Dexterity saving throw. A creature takes 4d6 fire damage and 4d6 radiant damage on a failed save, or half as much damage on a successful one.",
+    "classes": [
+      "Cleric"
+    ],
+    "damage": "4d6+4d6",
+    "damageType": "fire, radiant",
+    "saveType": "dexterity",
+    "areaOfEffect": {
+      "type": "cylinder",
+      "size": 10
+    },
+    "upcastDamage": {
+      "perSlot": "1d6 fire"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "disintegrate",
+    "name": "Disintegrate",
+    "level": 6,
+    "school": "Transmutation",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, S, M (a lodestone and a pinch of dust)",
+    "duration": "Instantaneous",
+    "description": "A thin green ray springs from your pointing finger to a target that you can see within range. The target can be a creature, an object, or a creation of magical force. A creature targeted by this spell must make a Dexterity saving throw. On a failed save, the target takes 10d6 + 40 force damage. If this damage reduces the target to 0 hit points, it is disintegrated.",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "damage": "10d6+40",
+    "damageType": "force",
+    "saveType": "dexterity",
+    "upcastDamage": {
+      "perSlot": "3d6"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "chain-lightning",
+    "name": "Chain Lightning",
+    "level": 6,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "150 feet",
+    "components": "V, S, M (a bit of fur; a piece of amber, glass, or a crystal rod; and three silver pins)",
+    "duration": "Instantaneous",
+    "description": "You create a bolt of lightning that arcs toward a target of your choice that you can see within range. Three bolts then leap from that target to as many as three other targets, each of which must be within 30 feet of the first target. A target must make a Dexterity saving throw, taking 10d8 lightning damage on a failed save, or half as much damage on a successful one.",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "damage": "10d8",
+    "damageType": "lightning",
+    "saveType": "dexterity",
+    "upcastDamage": {
+      "perSlot": "1d8"
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "heal",
+    "name": "Heal",
+    "level": 6,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, S",
+    "duration": "Instantaneous",
+    "description": "Choose a creature that you can see within range. A surge of positive energy washes through the creature, causing it to regain 70 hit points. This spell also ends blindness, deafness, and any diseases affecting the target.",
+    "classes": [
+      "Cleric",
+      "Druid"
+    ],
+    "healing": "70",
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "finger-of-death",
+    "name": "Finger of Death",
+    "level": 7,
+    "school": "Necromancy",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, S",
+    "duration": "Instantaneous",
+    "description": "You send negative energy coursing through a creature that you can see within range, causing it searing pain. The target must make a Constitution saving throw, taking 7d8 + 30 necrotic damage on a failed save, or half as much damage on a successful one. A humanoid killed by this spell rises at the start of your next turn as a zombie that is permanently under your command.",
+    "classes": [
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "damage": "7d8+30",
+    "damageType": "necrotic",
+    "saveType": "constitution",
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "fire-storm",
+    "name": "Fire Storm",
+    "level": 7,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "150 feet",
+    "components": "V, S",
+    "duration": "Instantaneous",
+    "description": "A storm made up of sheets of roaring flame appears in a location you choose within range. The area of the storm consists of up to ten 10-foot cubes. Each creature in the area must make a Dexterity saving throw. It takes 7d10 fire damage on a failed save, or half as much damage on a successful one.",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer"
+    ],
+    "damage": "7d10",
+    "damageType": "fire",
+    "saveType": "dexterity",
+    "areaOfEffect": {
+      "type": "cube",
+      "size": 10
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "dominate-monster",
+    "name": "Dominate Monster",
+    "level": 8,
+    "school": "Enchantment",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V, S",
+    "duration": "Concentration, up to 1 hour",
+    "description": "You attempt to beguile a creature that you can see within range. It must succeed on a Wisdom saving throw or be charmed by you for the duration. While the creature is charmed, you have a telepathic link with it and can issue commands to it.",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "saveType": "wisdom",
+    "concentration": true,
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "sunburst",
+    "name": "Sunburst",
+    "level": 8,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "150 feet",
+    "components": "V, S, M (fire and a piece of sunstone)",
+    "duration": "Instantaneous",
+    "description": "Brilliant sunlight flashes in a 60-foot radius centered on a point you choose within range. Each creature in that light must make a Constitution saving throw. On a failed save, a creature takes 12d6 radiant damage and is blinded for 1 minute. On a successful save, it takes half as much damage and isn't blinded by this spell.",
+    "classes": [
+      "Cleric",
+      "Druid",
+      "Sorcerer",
+      "Wizard"
+    ],
+    "damage": "12d6",
+    "damageType": "radiant",
+    "saveType": "constitution",
+    "areaOfEffect": {
+      "type": "sphere",
+      "size": 60
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": true
+    }
+  },
+  {
+    "id": "power-word-stun",
+    "name": "Power Word Stun",
+    "level": 8,
+    "school": "Enchantment",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V",
+    "duration": "Instantaneous",
+    "description": "You speak a word of power that can overwhelm the mind of one creature you can see within range, leaving it dumbfounded. If the target has 150 hit points or fewer, it is stunned. Otherwise, the spell has no effect. The stunned target must make a Constitution saving throw at the end of each of its turns. On a successful save, this stunning effect ends.",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "componentTags": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    }
+  },
+  {
+    "id": "meteor-swarm",
+    "name": "Meteor Swarm",
+    "level": 9,
+    "school": "Evocation",
+    "castingTime": "1 action",
+    "range": "1 mile",
+    "components": "V, S",
+    "duration": "Instantaneous",
+    "description": "Blazing orbs of fire plummet to the ground at four different points you can see within range. Each creature in a 40-foot-radius sphere centered on each point you choose must make a Dexterity saving throw. The sphere spreads around corners. A creature takes 20d6 fire damage and 20d6 bludgeoning damage on a failed save, or half as much damage on a successful one.",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "damage": "40d6",
+    "damageType": "fire, bludgeoning",
+    "saveType": "dexterity",
+    "areaOfEffect": {
+      "type": "sphere",
+      "size": 40
+    },
+    "componentTags": {
+      "verbal": true,
+      "somatic": true,
+      "material": false
+    }
+  },
+  {
+    "id": "power-word-kill",
+    "name": "Power Word Kill",
+    "level": 9,
+    "school": "Enchantment",
+    "castingTime": "1 action",
+    "range": "60 feet",
+    "components": "V",
+    "duration": "Instantaneous",
+    "description": "You utter a word of power that can compel one creature you can see within range to die instantly. If the creature you choose has 100 hit points or fewer, it dies. Otherwise, the spell has no effect.",
+    "classes": [
+      "Bard",
+      "Sorcerer",
+      "Warlock",
+      "Wizard"
+    ],
+    "componentTags": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    }
+  },
+  {
+    "id": "wish",
+    "name": "Wish",
+    "level": 9,
+    "school": "Conjuration",
+    "castingTime": "1 action",
+    "range": "Self",
+    "components": "V",
+    "duration": "Instantaneous",
+    "description": "Wish is the mightiest spell a mortal creature can cast. By simply speaking aloud, you can alter the very foundations of reality in accord with your desires. The basic use of this spell is to duplicate any other spell of 8th level or lower. You don't need to meet any requirements in that spell, including costly components.",
+    "classes": [
+      "Sorcerer",
+      "Wizard"
+    ],
+    "componentTags": {
+      "verbal": true,
+      "somatic": false,
+      "material": false
+    }
+  },
+  {
+    "id": "true-resurrection",
+    "name": "True Resurrection",
+    "level": 9,
+    "school": "Necromancy",
+    "castingTime": "1 hour",
+    "range": "Touch",
+    "components": "V, S, M (a sprinkle of holy water and diamonds worth at least 25,000 gp)",
+    "duration": "Instantaneous",
+    "description": "You touch a creature that has been dead for no longer than 200 years and that died for any reason except old age. If the creature's soul is free and willing, the creature is restored to life with all its hit points. This spell closes all wounds, neutralizes any poison, cures all diseases, and lifts any curses affecting the creature when it died.",
+    "classes": [
+      "Cleric",
+      "Druid"
+    ],
+    "healing": "full",
+    "componentTags": {
+      "verbal": true,
       "somatic": true,
       "material": true
     }
