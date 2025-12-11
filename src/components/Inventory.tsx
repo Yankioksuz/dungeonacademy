@@ -3,9 +3,10 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { useTranslation } from 'react-i18next';
-import { Backpack, Sword, Shield, Heart, Gem, X, Check, Scroll, Pin } from 'lucide-react';
+import { Backpack, Sword, Shield, Heart, Gem, X, Check, Scroll, Pin, Sparkles, Link, Unlink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PlayerCharacter, Item } from '@/types';
+import { requiresAttunement, isAttuned, MAX_ATTUNED_ITEMS } from '@/utils/magicItemEffects';
 
 interface InventoryProps {
   character: PlayerCharacter;
@@ -13,12 +14,16 @@ interface InventoryProps {
   onUnequipItem?: (slot: 'weapon' | 'armor') => void;
   onUseItem: (item: Item) => void;
   onPinItem?: (item: Item) => void;
+  onAttuneItem?: (item: Item) => void;
+  onUnattuneItem?: (item: Item) => void;
   onClose: () => void;
 }
 
-export function Inventory({ character, onEquipItem, onUnequipItem, onUseItem, onPinItem, onClose }: InventoryProps) {
+export function Inventory({ character, onEquipItem, onUnequipItem, onUseItem, onPinItem, onAttuneItem, onUnattuneItem, onClose }: InventoryProps) {
   const { t } = useTranslation();
   const [pendingConsumable, setPendingConsumable] = useState<Item | null>(null);
+
+  const attunedCount = (character.attunedItems || []).length;
 
   const inventory = character.inventory || [];
   const weapons = inventory.filter(item => item.type === 'weapon');
@@ -68,13 +73,18 @@ export function Inventory({ character, onEquipItem, onUnequipItem, onUseItem, on
     const isEquipped = item.id === character.equippedWeapon?.id || item.id === character.equippedArmor?.id;
     const isSelected = pendingConsumable?.id === item.id;
 
+    // Attunement logic
+    const needsAttunement = requiresAttunement(item);
+    const isItemAttuned = isAttuned(character, item);
+
     return (
       <Card
         key={item.id}
         className={cn(
-          "cursor-pointer transition-all hover:border-fantasy-purple",
+          "cursor-pointer transition-all hover:border-fantasy-purple relative group",
           isSelected && "ring-2 ring-fantasy-gold",
-          isEquipped && "border-fantasy-gold bg-fantasy-gold/10"
+          isEquipped && "border-fantasy-gold bg-fantasy-gold/10",
+          isItemAttuned && "border-blue-400 bg-blue-400/10" // Visual distinction for attuned items
         )}
         onClick={() => handleItemClick(item)}
       >
@@ -83,26 +93,80 @@ export function Inventory({ character, onEquipItem, onUnequipItem, onUseItem, on
             <div className="flex items-center gap-2">
               {getItemIcon(item.type)}
               <h4 className="font-semibold text-sm">{item.name}</h4>
+              {isItemAttuned && (
+                <Sparkles className="h-3 w-3 text-blue-400 animate-pulse" />
+              )}
             </div>
-            {isEquipped && (
-              <Badge variant="gold" className="text-xs">
-                <Check className="h-3 w-3 mr-1" />
-                {t('inventory.equipped')}
-              </Badge>
-            )}
-            {onPinItem && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn("h-6 w-6", item.pinned && "text-fantasy-gold")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onPinItem(item);
-                }}
-              >
-                <Pin className={cn("h-4 w-4", item.pinned && "fill-current")} />
-              </Button>
-            )}
+
+            <div className="flex gap-1">
+              {isEquipped && (
+                <Badge variant="gold" className="text-xs">
+                  <Check className="h-3 w-3 mr-1" />
+                  {t('inventory.equipped')}
+                </Badge>
+              )}
+
+              {needsAttunement && !isItemAttuned && (
+                <Badge variant="outline" className="text-xs border-blue-400 text-blue-400">
+                  <Link className="h-3 w-3 mr-1" />
+                  Attune
+                </Badge>
+              )}
+
+              {needsAttunement && isItemAttuned && (
+                <Badge variant="secondary" className="text-xs bg-blue-500/20 text-blue-300">
+                  <Link className="h-3 w-3 mr-1" />
+                  Attuned
+                </Badge>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-1">
+                {needsAttunement && !isItemAttuned && onAttuneItem && (character.attunedItems?.length || 0) < MAX_ATTUNED_ITEMS && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-blue-400 hover:text-blue-300 hover:bg-blue-900/50"
+                    title="Attune to item"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAttuneItem(item);
+                    }}
+                  >
+                    <Link className="h-4 w-4" />
+                  </Button>
+                )}
+
+                {needsAttunement && isItemAttuned && onUnattuneItem && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-red-400 hover:text-red-300 hover:bg-red-900/50"
+                    title="End Attunement"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUnattuneItem(item);
+                    }}
+                  >
+                    <Unlink className="h-4 w-4" />
+                  </Button>
+                )}
+
+                {onPinItem && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn("h-6 w-6", item.pinned && "text-fantasy-gold")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onPinItem(item);
+                    }}
+                  >
+                    <Pin className={cn("h-4 w-4", item.pinned && "fill-current")} />
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
           <p className="text-xs text-muted-foreground mb-2">{item.description}</p>
           <div className="flex items-center justify-between text-xs">
@@ -125,9 +189,15 @@ export function Inventory({ character, onEquipItem, onUnequipItem, onUseItem, on
               <Backpack className="h-6 w-6 text-fantasy-gold" />
               <CardTitle className="text-2xl">{t('inventory.title')}</CardTitle>
             </div>
-            <Badge variant="gold" className="text-lg px-3 py-1">
-              💰 {character.gold}g
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-fantasy-gold border-fantasy-gold">
+                <Sparkles className="h-3 w-3 mr-1" />
+                {attunedCount}/{MAX_ATTUNED_ITEMS}
+              </Badge>
+              <Badge variant="gold" className="text-lg px-3 py-1">
+                💰 {character.gold}g
+              </Badge>
+            </div>
             <Button variant="ghost" size="sm" onClick={handleClose}>
               <X className="h-5 w-5" />
             </Button>

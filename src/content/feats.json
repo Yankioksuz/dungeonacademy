@@ -2,6 +2,7 @@
     {
         "id": "alert",
         "name": "Alert",
+        "source": "PHB",
         "description": "You gain a +5 bonus to initiative and can't be surprised while you are conscious. Other creatures don't gain advantage on attack rolls against you as a result of being unseen by you.",
         "effects": [
             {
@@ -21,6 +22,7 @@
     {
         "id": "tough",
         "name": "Tough",
+        "source": "PHB",
         "description": "Your hit point maximum increases by an amount equal to twice your level when you gain this feat. Whenever you gain a level thereafter, your hit point maximum increases by an additional 2 hit points.",
         "effects": [
             {
@@ -32,6 +34,7 @@
     {
         "id": "lucky",
         "name": "Lucky",
+        "source": "PHB",
         "description": "You have 3 luck points. Whenever you make an attack roll, an ability check, or a saving throw, you can spend one luck point to roll an additional d20.",
         "effects": [
             {
@@ -45,6 +48,7 @@
     {
         "id": "great-weapon-master",
         "name": "Great Weapon Master",
+        "source": "PHB",
         "description": "On your turn, when you score a critical hit with a melee weapon or reduce a creature to 0 hit points with one, you can make one melee weapon attack as a bonus action. Before you make a melee attack with a heavy weapon that you are proficient with, you can choose to take a -5 penalty to the attack roll. If the attack hits, you add +10 to the attack's damage.",
         "effects": [
             {
@@ -64,6 +68,7 @@
     {
         "id": "sharpshooter",
         "name": "Sharpshooter",
+        "source": "PHB",
         "description": "Attacking at long range doesn't impose disadvantage on your ranged weapon attack rolls. Your ranged weapon attacks ignore half cover and three-quarters cover. Before you make an attack with a ranged weapon that you are proficient with, you can choose to take a -5 penalty to the attack roll. If the attack hits, you add +10 to the attack's damage.",
         "effects": [
             {
@@ -86,6 +91,7 @@
     {
         "id": "mobile",
         "name": "Mobile",
+        "source": "PHB",
         "description": "Your speed increases by 10 feet. When you use the Dash action, difficult terrain doesn't cost you extra movement on that turn. When you make a melee attack against a creature, you don't provoke opportunity attacks from that creature for the rest of the turn, whether you hit or not.",
         "effects": [
             {
@@ -99,6 +105,451 @@
             {
                 "type": "passive",
                 "key": "hitAndRun"
+            }
+        ]
+    },
+    {
+        "id": "sentinel",
+        "name": "Sentinel",
+        "source": "PHB",
+        "description": "When you hit a creature with an opportunity attack, the creature's speed becomes 0 for the rest of the turn. Creatures provoke opportunity attacks from you even if they take the Disengage action before leaving your reach. When a creature within 5 feet of you makes an attack against a target other than you, you can use your reaction to make a melee weapon attack against the attacking creature.",
+        "effects": [
+            {
+                "type": "passive",
+                "key": "opportunityAttackStopsMovement"
+            },
+            {
+                "type": "passive",
+                "key": "ignoreDisengage"
+            },
+            {
+                "type": "reaction",
+                "key": "sentinelReaction"
+            }
+        ]
+    },
+    {
+        "id": "polearm-master",
+        "name": "Polearm Master",
+        "source": "PHB",
+        "description": "When you take the Attack action and attack with only a glaive, halberd, quarterstaff, or spear, you can use a bonus action to make a melee attack with the opposite end of the weapon. This attack uses the same ability modifier as the primary attack. The weapon's damage die for this attack is a d4, and it deals bludgeoning damage. While you are wielding a glaive, halberd, pike, quarterstaff, or spear, other creatures provoke an opportunity attack from you when they enter the reach you have with that weapon.",
+        "effects": [
+            {
+                "type": "bonusAction",
+                "key": "polearmButtEnd",
+                "damage": "1d4",
+                "damageType": "bludgeoning"
+            },
+            {
+                "type": "passive",
+                "key": "polearmOpportunityOnEnter"
+            }
+        ]
+    },
+    {
+        "id": "war-caster",
+        "name": "War Caster",
+        "source": "PHB",
+        "description": "You have practiced casting spells in the midst of combat, learning techniques that grant you the following benefits.",
+        "prerequisites": {
+            "spellcasting": true
+        },
+        "effects": [
+            {
+                "type": "passive",
+                "key": "concentrationAdvantage"
+            },
+            {
+                "type": "passive",
+                "key": "somaticWithHandsFull"
+            },
+            {
+                "type": "reaction",
+                "key": "spellOpportunityAttack"
+            }
+        ]
+    },
+    {
+        "id": "spell-sniper",
+        "name": "Spell Sniper",
+        "source": "PHB",
+        "description": "When you cast a spell that requires you to make an attack roll, the spell's range is doubled. Your ranged spell attacks ignore half cover and three-quarters cover. You learn one cantrip that requires an attack roll. Choose the cantrip from the bard, cleric, druid, sorcerer, warlock, or wizard spell list.",
+        "prerequisites": {
+            "spellcasting": true
+        },
+        "effects": [
+            {
+                "type": "passive",
+                "key": "doubleSpellAttackRange"
+            },
+            {
+                "type": "passive",
+                "key": "ignoreSpellCover"
+            },
+            {
+                "type": "cantrip",
+                "key": "bonusCantrip",
+                "requiresAttackRoll": true
+            }
+        ]
+    },
+    {
+        "id": "observant",
+        "name": "Observant",
+        "source": "PHB",
+        "description": "Quick to notice details of your environment. You gain a +1 to Intelligence or Wisdom, +5 bonus to passive Perception and Investigation, and can read lips.",
+        "effects": [
+            {
+                "type": "abilityScore",
+                "choice": [
+                    "intelligence",
+                    "wisdom"
+                ],
+                "value": 1
+            },
+            {
+                "type": "passiveBonus",
+                "skills": [
+                    "Perception",
+                    "Investigation"
+                ],
+                "value": 5
+            },
+            {
+                "type": "passive",
+                "key": "lipReading"
+            }
+        ]
+    },
+    {
+        "id": "athlete",
+        "name": "Athlete",
+        "source": "PHB",
+        "description": "You have undergone extensive physical training to gain strength and agility.",
+        "effects": [
+            {
+                "type": "abilityScore",
+                "choice": [
+                    "strength",
+                    "dexterity"
+                ],
+                "value": 1
+            },
+            {
+                "type": "passive",
+                "key": "standUp5Feet"
+            },
+            {
+                "type": "passive",
+                "key": "climbingNoHalve"
+            },
+            {
+                "type": "passive",
+                "key": "runningJump5Feet"
+            }
+        ]
+    },
+    {
+        "id": "resilient",
+        "name": "Resilient",
+        "source": "PHB",
+        "description": "Choose one ability score. You gain a +1 to that ability and proficiency in saving throws using the chosen ability.",
+        "effects": [
+            {
+                "type": "abilityScore",
+                "choice": "any",
+                "value": 1
+            },
+            {
+                "type": "savingThrowProficiency",
+                "choice": "any"
+            }
+        ]
+    },
+    {
+        "id": "heavily-armored",
+        "name": "Heavily Armored",
+        "source": "PHB",
+        "description": "You have trained to master the use of heavy armor.",
+        "prerequisites": {
+            "armor": "medium"
+        },
+        "effects": [
+            {
+                "type": "abilityScore",
+                "ability": "strength",
+                "value": 1
+            },
+            {
+                "type": "proficiency",
+                "key": "heavy-armor"
+            }
+        ]
+    },
+    {
+        "id": "heavy-armor-master",
+        "name": "Heavy Armor Master",
+        "source": "PHB",
+        "description": "You can use your armor to deflect strikes that would kill others.",
+        "prerequisites": {
+            "armor": "heavy"
+        },
+        "effects": [
+            {
+                "type": "abilityScore",
+                "ability": "strength",
+                "value": 1
+            },
+            {
+                "type": "damageReduction",
+                "value": 3,
+                "damageTypes": [
+                    "bludgeoning",
+                    "piercing",
+                    "slashing"
+                ],
+                "requiresHeavyArmor": true
+            }
+        ]
+    },
+    {
+        "id": "medium-armor-master",
+        "name": "Medium Armor Master",
+        "source": "PHB",
+        "description": "You have practiced moving in medium armor to gain the following benefits.",
+        "prerequisites": {
+            "armor": "medium"
+        },
+        "effects": [
+            {
+                "type": "passive",
+                "key": "mediumArmorNoStealthDisadvantage"
+            },
+            {
+                "type": "acBonus",
+                "value": 1,
+                "requiresMediumArmor": true,
+                "maxDexBonus": 3
+            }
+        ]
+    },
+    {
+        "id": "dual-wielder",
+        "name": "Dual Wielder",
+        "source": "PHB",
+        "description": "You master fighting with two weapons.",
+        "effects": [
+            {
+                "type": "acBonus",
+                "value": 1,
+                "requiresDualWield": true
+            },
+            {
+                "type": "passive",
+                "key": "dualWieldNonLight"
+            },
+            {
+                "type": "passive",
+                "key": "drawTwoWeapons"
+            }
+        ]
+    },
+    {
+        "id": "defensive-duelist",
+        "name": "Defensive Duelist",
+        "source": "PHB",
+        "description": "When you are wielding a finesse weapon with which you are proficient and another creature hits you with a melee attack, you can use your reaction to add your proficiency bonus to your AC for that attack, potentially causing the attack to miss you.",
+        "prerequisites": {
+            "abilityScore": {
+                "dexterity": 13
+            }
+        },
+        "effects": [
+            {
+                "type": "reaction",
+                "key": "defensiveDuelist",
+                "acBonus": "proficiency",
+                "requiresFinesseWeapon": true
+            }
+        ]
+    },
+    {
+        "id": "savage-attacker",
+        "name": "Savage Attacker",
+        "source": "PHB",
+        "description": "Once per turn when you roll damage for a melee weapon attack, you can reroll the weapon's damage dice and use either total.",
+        "effects": [
+            {
+                "type": "passive",
+                "key": "savageAttackerReroll",
+                "perTurn": true
+            }
+        ]
+    },
+    {
+        "id": "mage-slayer",
+        "name": "Mage Slayer",
+        "source": "PHB",
+        "description": "You have practiced techniques useful in melee combat against spellcasters.",
+        "effects": [
+            {
+                "type": "reaction",
+                "key": "mageSlayerAttack",
+                "trigger": "enemyCastsSpell"
+            },
+            {
+                "type": "passive",
+                "key": "concentrationDisadvantage"
+            },
+            {
+                "type": "passive",
+                "key": "savingThrowAdvantageVsSpells5ft"
+            }
+        ]
+    },
+    {
+        "id": "ritual-caster",
+        "name": "Ritual Caster",
+        "source": "PHB",
+        "description": "You have learned a number of spells that you can cast as rituals.",
+        "prerequisites": {
+            "abilityScore": {
+                "intelligence": 13
+            }
+        },
+        "effects": [
+            {
+                "type": "passive",
+                "key": "ritualCasting"
+            },
+            {
+                "type": "spells",
+                "key": "ritualBook",
+                "count": 2
+            }
+        ]
+    },
+    {
+        "id": "magic-initiate",
+        "name": "Magic Initiate",
+        "source": "PHB",
+        "description": "Choose a class: bard, cleric, druid, sorcerer, warlock, or wizard. You learn two cantrips of your choice from that class's spell list. In addition, choose one 1st-level spell from that same list. You learn that spell and can cast it at its lowest level once per long rest.",
+        "effects": [
+            {
+                "type": "cantrip",
+                "count": 2,
+                "chooseClass": true
+            },
+            {
+                "type": "spell",
+                "level": 1,
+                "count": 1,
+                "usesPerLongRest": 1
+            }
+        ]
+    },
+    {
+        "id": "inspiring-leader",
+        "name": "Inspiring Leader",
+        "source": "PHB",
+        "description": "You can spend 10 minutes inspiring your companions, shoring up their resolve to fight. When you do so, choose up to six friendly creatures (which can include yourself). Each creature gains temporary hit points equal to your level + your Charisma modifier.",
+        "prerequisites": {
+            "abilityScore": {
+                "charisma": 13
+            }
+        },
+        "effects": [
+            {
+                "type": "action",
+                "key": "inspiringLeader",
+                "tempHp": "level + charismaMod",
+                "targets": 6,
+                "castTime": "10 minutes"
+            }
+        ]
+    },
+    {
+        "id": "healer",
+        "name": "Healer",
+        "source": "PHB",
+        "description": "You are an able physician, allowing you to mend wounds quickly and get your allies back in the fight.",
+        "effects": [
+            {
+                "type": "action",
+                "key": "healerStabilize"
+            },
+            {
+                "type": "action",
+                "key": "healerHealersKit",
+                "healing": "1d6 + 4 + creatureHitDice",
+                "perShortRest": true
+            }
+        ]
+    },
+    {
+        "id": "skulker",
+        "name": "Skulker",
+        "source": "PHB",
+        "description": "You are expert at slinking through shadows.",
+        "prerequisites": {
+            "abilityScore": {
+                "dexterity": 13
+            }
+        },
+        "effects": [
+            {
+                "type": "passive",
+                "key": "hideWhenLightlyObscured"
+            },
+            {
+                "type": "passive",
+                "key": "missedAttackNoReveal"
+            },
+            {
+                "type": "passive",
+                "key": "dimLightNoPenalty"
+            }
+        ]
+    },
+    {
+        "id": "charger",
+        "name": "Charger",
+        "source": "PHB",
+        "description": "When you use your action to Dash, you can use a bonus action to make one melee weapon attack or to shove a creature.",
+        "effects": [
+            {
+                "type": "bonusAction",
+                "key": "chargerAttack",
+                "trigger": "dash",
+                "damageBonus": 5,
+                "requirement": "move10FtStraight"
+            },
+            {
+                "type": "bonusAction",
+                "key": "chargerShove",
+                "trigger": "dash",
+                "shoveDistance": 10
+            }
+        ]
+    },
+    {
+        "id": "crossbow-expert",
+        "name": "Crossbow Expert",
+        "source": "PHB",
+        "description": "Thanks to extensive practice with the crossbow, you gain the following benefits.",
+        "effects": [
+            {
+                "type": "passive",
+                "key": "ignoreCrossbowLoading"
+            },
+            {
+                "type": "passive",
+                "key": "noCloseRangeDisadvantage"
+            },
+            {
+                "type": "bonusAction",
+                "key": "crossbowBonusAttack",
+                "trigger": "attackWithOneHanded"
             }
         ]
     }

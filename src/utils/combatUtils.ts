@@ -4,6 +4,7 @@ interface Combatant {
     name: string;
     conditions: Condition[];
     traits?: string[];
+    feats?: string[];
 }
 
 export function hasCondition(entity: Combatant, type: ConditionType): boolean {
@@ -60,37 +61,6 @@ export function getCombatAdvantage(
 
     if (hasCondition(defender, 'invisible')) advantage--; // Attacker can't see defender
 
-    // --- Racial Traits ---
-    // Note: We need to know if the defender has specific traits. 
-    // Since Combatant interface is simple, we might need to check 'race' if available or rely on a 'traits' list if we expand Combatant.
-    // For now, assuming we might pass a fuller object or check name/id if they are players.
-    // Ideally, Combatant should have a 'traits' array. Let's assume we can access it or it's added.
-    // Since we can't easily change the interface everywhere right now without breaking things, 
-    // we will check for specific conditions that represent these traits if they were added as permanent conditions/buffs, 
-    // OR we just check if the entity has a property.
-
-    // However, the cleanest way is to check if the defender has the trait.
-    // Allow optional traits on defender if present.
-    const defTraits = (defender as Combatant & { traits?: string[] }).traits;
-    if (defTraits) {
-        // Brave (Halfling): Advantage on saves vs Frightened. 
-        // This function calculates attack advantage, not save advantage. 
-        // BUT, if we were calculating a save, we'd need a different function.
-        // getCombatAdvantage is currently for ATTACK ROLLS.
-
-        // Wait, 'Brave' gives advantage on SAVING THROWS against being frightened.
-        // 'Fey Ancestry' gives advantage on SAVING THROWS against being charmed.
-        // 'Dwarven Resilience' gives advantage on SAVING THROWS against poison.
-        // 'Gnome Cunning' gives advantage on Int/Wis/Cha SAVES vs magic.
-
-        // This function is for ATTACK rolls (melee/ranged).
-        // None of these traits directly affect incoming attack rolls (AC) or outgoing attack rolls (To Hit),
-        // EXCEPT for things like 'Invisible' or 'Prone'.
-
-        // So actually, getCombatAdvantage doesn't need to change for these specific SAVE-based traits.
-        // We need a `getSavingThrowAdvantage` function!
-    }
-
     // --- Result ---
     if (advantage > 0) return 'advantage';
     if (advantage < 0) return 'disadvantage';
@@ -100,10 +70,11 @@ export function getCombatAdvantage(
 export function getSavingThrowAdvantage(
     actor: Combatant,
     saveType: 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma',
-    effectType?: 'poison' | 'charm' | 'fear' | 'magic'
+    effectType?: 'poison' | 'charm' | 'fear' | 'magic' | 'concentration'
 ): RollType {
     let advantage = 0;
     const traits = (actor as Combatant & { traits?: string[] }).traits || [];
+    const feats = actor.feats || [];
 
     // Brave
     if (effectType === 'fear' && traits.includes('Brave')) advantage++;
@@ -116,6 +87,17 @@ export function getSavingThrowAdvantage(
 
     // Gnome Cunning
     if (effectType === 'magic' && ['intelligence', 'wisdom', 'charisma'].includes(saveType) && traits.includes('Gnome Cunning')) advantage++;
+
+    // War Caster feat: advantage on concentration saves
+    if (effectType === 'concentration' && saveType === 'constitution' && feats.includes('war-caster')) {
+        advantage++;
+    }
+
+    // Mage Slayer feat: advantage on saves vs spells cast within 5 feet
+    // Note: This is a simplification - in full implementation, would need distance check
+    if (effectType === 'magic' && feats.includes('mage-slayer')) {
+        advantage++;
+    }
 
     if (advantage > 0) return 'advantage';
     if (advantage < 0) return 'disadvantage';

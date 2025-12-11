@@ -7,11 +7,13 @@ import { Button } from './ui/button';
 import { MapPin, Trash2, Swords, ShieldCheck, Scroll, History, User } from 'lucide-react';
 import adventureData from '@/content/adventure.json';
 import intrigueAdventure from '@/content/adventure-shadows.json';
+import frozenAdventure from '@/content/adventure-frozen.json';
 import type { Adventure as AdventureType } from '@/types';
 import { portraits } from '@/data/portraits';
 import { PortraitSelector } from './PortraitSelector';
 import tutorialArtwork from '@/assets/campaigns/tutorial-adventure.png';
 import spireArtwork from '@/assets/campaigns/shadows-of-the-spire.png';
+import frozenArtwork from '@/assets/campaigns/frozen-depths.png';
 import { Switch } from './ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { AdventureHistory } from './AdventureHistory';
@@ -37,6 +39,15 @@ const AVAILABLE_ADVENTURES = [
     length: 'Medium',
     data: intrigueAdventure as unknown as AdventureType,
     artwork: spireArtwork,
+  },
+  {
+    id: (frozenAdventure as AdventureType).id,
+    title: frozenAdventure.title,
+    description: frozenAdventure.description,
+    difficulty: 'Advanced',
+    length: 'Long',
+    data: frozenAdventure as unknown as AdventureType,
+    artwork: frozenArtwork,
   }
 ];
 

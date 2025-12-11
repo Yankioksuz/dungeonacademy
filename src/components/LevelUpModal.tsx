@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Sparkles, ArrowUpCircle } from 'lucide-react';
+import { FeatSelectionModal } from './FeatSelectionModal';
+import { Sword, BookOpen, Dice6, DoorOpen, CheckCircle2, Backpack, X, Tent, ShoppingBag, Brain, Wand2, Sparkles, ArrowUpCircle } from 'lucide-react';
 import type { TalentOption, Subclass, Feat } from '@/types';
 
 interface LevelUpModalProps {
@@ -174,21 +175,11 @@ export function LevelUpModal({
                     </div>
                   </div>
                 ) : (
-                  <div className="grid gap-3">
-                    {feats.map((feat) => (
-                      <button
-                        key={feat.id}
-                        className={`p-4 rounded-lg border transition-all text-left ${selectedFeatId === feat.id ? 'border-fantasy-gold bg-fantasy-gold/10' : 'border-white/10 hover:border-fantasy-gold/50'}`}
-                        onClick={() => onSelectFeat?.(feat.id)}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className="font-semibold text-lg">{feat.name}</h3>
-                          <Badge variant="outline" className="text-xs">Feat</Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{feat.description}</p>
-                      </button>
-                    ))}
-                  </div>
+                  <FeatSelectionModal
+                    feats={feats}
+                    selectedFeatId={selectedFeatId || null}
+                    onSelectFeat={(id) => onSelectFeat?.(id)}
+                  />
                 )}
               </div>
             )}

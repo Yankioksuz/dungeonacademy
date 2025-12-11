@@ -6,6 +6,7 @@ import {
     calculateInitiative,
     calculatePassiveScore,
     calculateProficiencyBonus,
+    calculateSpeed,
     getSavingThrowModifier,
 } from '@/utils/characterStats';
 import { SkillList } from './SkillList';
@@ -27,6 +28,7 @@ import {
     Dna
 } from 'lucide-react';
 import spellsData from '@/content/spells.json';
+import feats from '@/content/feats.json';
 
 interface CharacterSheetProps {
     character: PlayerCharacter;
@@ -110,7 +112,7 @@ export function CharacterSheet({ character }: CharacterSheetProps) {
                     {[
                         { icon: Shield, label: 'Armor Class', value: armorClass },
                         { icon: Zap, label: 'Initiative', value: initiative >= 0 ? `+${initiative}` : initiative },
-                        { icon: Footprints, label: 'Speed', value: '30 ft' }
+                        { icon: Footprints, label: 'Speed', value: `${calculateSpeed(character)} ft` }
                     ].map(({ icon: Icon, label, value }) => (
                         <div key={label} className="flex flex-col items-center rounded-2xl border border-fantasy-purple/30 bg-black/30 px-3 py-3 text-center shadow-inner">
                             <Icon className="mb-1 h-4 w-4 text-fantasy-gold" />
@@ -327,6 +329,29 @@ export function CharacterSheet({ character }: CharacterSheetProps) {
                                             </ul>
                                         </div>
 
+                                        {character.feats && character.feats.length > 0 && (
+                                            <div>
+                                                <h3 className="text-xs font-semibold uppercase tracking-[0.3em] text-fantasy-gold">
+                                                    Feats
+                                                </h3>
+                                                <div className="mt-2 space-y-3">
+                                                    {character.feats.map(featId => {
+                                                        const feat = feats.find(f => f.id === featId);
+                                                        if (!feat) return null;
+                                                        return (
+                                                            <div key={featId} className="rounded-xl border border-white/5 bg-black/40 px-3 py-2 text-sm text-white">
+                                                                <div className="flex items-center justify-between">
+                                                                    <span className="font-semibold text-fantasy-gold">{feat.name}</span>
+                                                                    <Badge variant="outline" className="text-[10px]">Feat</Badge>
+                                                                </div>
+                                                                <p className="mt-1 text-xs text-muted-foreground">{feat.description}</p>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
                                     </div>
                                 </ScrollArea>
                             </div>
@@ -399,8 +424,8 @@ export function CharacterSheet({ character }: CharacterSheetProps) {
                             </div>
                         </TabsContent>
                     </Tabs>
-                </div>
-            </div>
-        </div>
+                </div >
+            </div >
+        </div >
     );
 }

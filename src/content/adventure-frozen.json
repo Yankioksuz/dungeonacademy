@@ -1,0 +1,682 @@
+{
+    "id": "frozen-depths",
+    "title": "The Frozen Depths",
+    "description": "The mastermind behind the goblin raids and the Azure Spire conspiracy has fled north to an ancient vault beneath the Frostfang Mountains. Pursue them before they awaken something that should remain frozen forever.",
+    "encounters": [
+        {
+            "id": "intro",
+            "title": "The Trail Grows Cold",
+            "description": "Three weeks after the events at Oakhaven, you receive an urgent message. The mysterious leader who commanded the goblins was never found among the dead—they fled north, taking stolen maps and artifacts. Worse, intelligence from Spymaster Kaela suggests that Archon Ryell of the Azure Spire was merely a puppet. The true mastermind is heading toward the Frostfang Mountains, where ancient records speak of a vault sealed since the Age of Frost. Whatever they're planning, it ends here.",
+            "type": "exploration",
+            "options": [
+                {
+                    "id": "read-kaela-message",
+                    "text": "Read Kaela's intelligence report",
+                    "type": "continue",
+                    "outcome": "Kaela's cipher reads: 'The mirror corruption originated from an external source. Ryell was compromised years ago by an entity calling itself the Pale Architect. My agents traced payments from Vael's accounts to mercenary companies in the north. They're excavating something beneath Mount Rimeheart. This is bigger than political conspiracy—they're after something ancient.'",
+                    "nextEncounterId": "intro",
+                    "stayInEncounter": true
+                },
+                {
+                    "id": "recall-oakhaven",
+                    "text": "Remember what Mara said about the goblin leader",
+                    "type": "continue",
+                    "outcome": "Mara's words echo in your memory: 'The leader had pointed ears—twisted somehow. And its eyes glowed faintly red. It smiled at me through the window.' Whatever that creature was, it wasn't just commanding goblins. It was searching for something—and the maps it stole from Eldred's study showed the northern trade routes through Frostfang Pass.",
+                    "nextEncounterId": "intro",
+                    "stayInEncounter": true
+                },
+                {
+                    "id": "prepare-journey",
+                    "text": "Gather supplies and head north",
+                    "type": "continue",
+                    "outcome": "You stock up on cold-weather gear and begin the long trek north. The temperature drops with each passing day, and soon the world becomes a wasteland of ice and howling wind.",
+                    "nextEncounterId": "frostfang-pass"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "frostfang-pass",
+            "title": "Frostfang Pass",
+            "description": "The mountain pass is treacherous—ice-slicked stone, howling winds, and visibility measured in feet rather than yards. Through the blizzard, you spot a frozen watchtower and the remnants of a merchant caravan, their wagons half-buried in snow. Something moves in the white haze ahead.",
+            "type": "exploration",
+            "options": [
+                {
+                    "id": "investigate-caravan",
+                    "text": "Search the abandoned caravan",
+                    "type": "continue",
+                    "outcome": "The merchants froze where they stood—terror etched on their faces. Their cargo has been ransacked, but you find a merchant's journal. The last entry reads: 'Saw figures in the ice. They weren't walking ON the glacier—they were walking INSIDE it, watching us. The cold isn't natural. It's alive.'",
+                    "nextEncounterId": "frostfang-pass",
+                    "stayInEncounter": true,
+                    "grantsItemIds": [
+                        "merchants-journal"
+                    ]
+                },
+                {
+                    "id": "investigate-watchtower",
+                    "text": "Approach the frozen watchtower",
+                    "type": "continue",
+                    "outcome": "The tower's door hangs open, ice-crusted hinges creaking in the wind. Inside, you find guards frozen at their posts—but their weapons are drawn, pointing toward the stairs leading down.",
+                    "nextEncounterId": "watchtower-interior"
+                },
+                {
+                    "id": "survival-elements",
+                    "text": "[Survival] Find shelter and wait out the storm",
+                    "type": "skill",
+                    "skill": "Survival",
+                    "ability": "Wisdom",
+                    "difficultyClass": 14,
+                    "successOutcome": "You find a sheltered overhang and build a windbreak. As the storm quiets, you spot a trail of footprints leading toward the mountain—and the dark shape of figures following the same path.",
+                    "failureOutcome": "The cold bites deep before you find shelter. You lose precious time and arrive at the watchtower exhausted.",
+                    "nextEncounterId": "frostfang-pass",
+                    "stayInEncounter": true,
+                    "xpReward": 50
+                },
+                {
+                    "id": "ranger-tracking",
+                    "text": "[Ranger] Track the footprints through the snow",
+                    "type": "continue",
+                    "requiresClass": "Ranger",
+                    "outcome": "Your trained eye picks out multiple trails beneath the fresh snow—goblin prints, humanoid boots, and something else. Large, clawed, and walking on two legs. Whatever accompanies the Pale Architect is not human.",
+                    "nextEncounterId": "watchtower-interior",
+                    "xpReward": 40
+                },
+                {
+                    "id": "dwarf-stonecunning",
+                    "text": "[Dwarf] Examine the mountain's geology for hidden passages",
+                    "type": "continue",
+                    "requiresRace": "Dwarf",
+                    "outcome": "Your dwarven instincts sense something wrong with the mountain itself. The stone has been worked—ancient dwarven tunnels, older than any surface records. Your ancestors knew of this place and sealed it for a reason.",
+                    "nextEncounterId": "watchtower-interior",
+                    "xpReward": 40
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "watchtower-interior",
+            "title": "The Last Stand",
+            "description": "The watchtower's interior tells a grim story. Guards froze mid-combat, weapons aimed at stairs leading down into the mountain. Scratched into the frost on one wall: 'SEAL THE ENTRANCE. DO NOT LET THEM REACH THE HEART.' The stairs descend into darkness and bitter cold.",
+            "type": "exploration",
+            "options": [
+                {
+                    "id": "examine-guards",
+                    "text": "Examine the frozen guards",
+                    "type": "continue",
+                    "outcome": "Their insignia marks them as the Rimeguard—an order sworn to watch the Frostfang tunnels. One clutches a silver medallion bearing a snowflake over a closed eye. A note in his pocket reads: 'The Vault of the First Winter must never be opened. What sleeps there would end all warmth.'",
+                    "nextEncounterId": "watchtower-interior",
+                    "stayInEncounter": true,
+                    "grantsItemIds": [
+                        "rimeguard-medallion"
+                    ]
+                },
+                {
+                    "id": "arcana-check",
+                    "text": "[Arcana] Study the unnatural cold",
+                    "type": "skill",
+                    "skill": "Arcana",
+                    "ability": "Intelligence",
+                    "difficultyClass": 13,
+                    "successOutcome": "This isn't just cold—it's a magical emanation from deep below. Something is generating it, radiating frozen death through the mountain. The source is ancient, powerful, and slowly awakening.",
+                    "failureOutcome": "The magic is too alien to fully comprehend, but you sense immense power below.",
+                    "nextEncounterId": "watchtower-interior",
+                    "stayInEncounter": true,
+                    "xpReward": 35
+                },
+                {
+                    "id": "descend-stairs",
+                    "text": "Descend into the tunnels",
+                    "type": "continue",
+                    "outcome": "You take a deep breath and begin your descent. The cold intensifies with each step, and the walls begin to glitter with frost that seems to move when you're not looking directly at it.",
+                    "nextEncounterId": "ice-tunnels-hub"
+                },
+                {
+                    "id": "cleric-blessing",
+                    "text": "[Cleric] Bless the fallen guards before continuing",
+                    "type": "continue",
+                    "requiresClass": "Cleric",
+                    "outcome": "You speak words of rest over the frozen dead. As your blessing settles, the Rimeguard captain's frozen eyes seem to focus on you for a moment. A whisper in your mind: 'The Heart of Winter. The Pale One seeks to claim it. Stop them.' Then only silence.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "xpReward": 50
+                },
+                {
+                    "id": "warlock-whispers",
+                    "text": "[Warlock] Listen for echoes of your patron's knowledge",
+                    "type": "continue",
+                    "requiresClass": "Warlock",
+                    "outcome": "Your patron's presence stirs at the edge of your consciousness. 'This place predates my kind. What sleeps below is from the First Age—a Primordial of endless winter. If it wakes fully, even the gods will shiver.'",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "xpReward": 50
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "ice-tunnels-hub",
+            "title": "The Frozen Labyrinth",
+            "description": "The tunnels open into a vast underground network carved from living ice. Blue-white light pulses through the walls like frozen veins. Three passages branch before you: one echoes with distant hammering, another with whispered voices, and the third with an eerie, beautiful humming.",
+            "type": "exploration",
+            "repeatable": true,
+            "options": [
+                {
+                    "id": "investigate-hammering",
+                    "text": "Follow the sound of hammering",
+                    "repeatText": "Return to the forge passage",
+                    "type": "continue",
+                    "outcome": "The rhythmic hammering grows louder as you approach. Someone—or something—is working metal in the depths.",
+                    "nextEncounterId": "frost-forge"
+                },
+                {
+                    "id": "investigate-whispers",
+                    "text": "Follow the whispered voices",
+                    "repeatText": "Return to the whispering passage",
+                    "type": "continue",
+                    "outcome": "The whispers resolve into fragments of conversation—plotting, scheming, and a name repeated like a prayer: 'The Heart of Winter awaits...'",
+                    "nextEncounterId": "conspirators-camp"
+                },
+                {
+                    "id": "investigate-humming",
+                    "text": "Follow the beautiful humming",
+                    "repeatText": "Return to the humming passage",
+                    "type": "continue",
+                    "outcome": "The sound is hauntingly beautiful, like crystal bells and frozen wind. It draws you forward, promising secrets and power.",
+                    "nextEncounterId": "ice-siren"
+                },
+                {
+                    "id": "perception-check",
+                    "text": "[Perception] Listen for which path the Pale Architect took",
+                    "type": "skill",
+                    "skill": "Perception",
+                    "ability": "Wisdom",
+                    "difficultyClass": 14,
+                    "successOutcome": "Fresh footprints in the frost lead toward the whispering voices. The Pale Architect is making final preparations with their followers. But you also notice older tracks leading to the forge—someone has been here for weeks.",
+                    "failureOutcome": "The echoing acoustics make it impossible to track any single sound source.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "stayInEncounter": true,
+                    "xpReward": 40
+                },
+                {
+                    "id": "head-to-vault",
+                    "text": "Head directly to the Heart of Winter",
+                    "type": "continue",
+                    "outcome": "You've gathered enough intelligence. Time to confront the Pale Architect before the vault opens.",
+                    "nextEncounterId": "heart-approach",
+                    "requiresVisitedEncounterId": "conspirators-camp"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "frost-forge",
+            "title": "The Forge of Endless Winter",
+            "description": "An ancient dwarven forge, now corrupted by elemental ice magic. Frost-burned smiths—undead dwarves frozen mid-strike—continue their work eternally, hammering weapons that smoke with supernatural cold. In the center, a massive golem of ice and iron awaits animation.",
+            "type": "exploration",
+            "options": [
+                {
+                    "id": "observe-forge",
+                    "text": "Study the forge's operation",
+                    "type": "continue",
+                    "outcome": "The undead smiths are creating weapons infused with primordial cold—enough to arm an army. The forging instructions are written in ancient dwarven, modified by a more elegant hand. The Pale Architect has been planning this for centuries.",
+                    "nextEncounterId": "frost-forge",
+                    "stayInEncounter": true
+                },
+                {
+                    "id": "sabotage-forge",
+                    "text": "[Sleight of Hand] Sabotage the forge's mechanisms",
+                    "type": "skill",
+                    "skill": "Sleight of Hand",
+                    "ability": "Dexterity",
+                    "difficultyClass": 15,
+                    "successOutcome": "You disable the cooling runes. The forge will overheat and destroy itself within hours—no more ice weapons for the Pale Architect's army.",
+                    "failureOutcome": "A rune pulses as you touch it! The undead smiths turn toward you, hammers raised.",
+                    "successNextEncounterId": "ice-tunnels-hub",
+                    "failureNextEncounterId": "frost-forge-combat",
+                    "xpReward": 60
+                },
+                {
+                    "id": "dwarf-inheritance",
+                    "text": "[Dwarf] Claim your ancestors' forge by right of blood",
+                    "type": "continue",
+                    "requiresRace": "Dwarf",
+                    "outcome": "You speak the ancient words of forge-right. The undead smiths pause, recognizing kin-claim. One approaches and offers you a perfectly crafted frost axe. 'Finish... what we could not...' it rasps, then crumbles to ice dust.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "grantsItemIds": [
+                        "frost-rune-axe"
+                    ],
+                    "xpReward": 75
+                },
+                {
+                    "id": "attack-forge",
+                    "text": "Attack before the golem awakens!",
+                    "type": "attack",
+                    "outcome": "You draw your weapon and charge the undead smiths before they can complete the golem.",
+                    "nextEncounterId": "frost-forge-combat"
+                },
+                {
+                    "id": "leave-forge",
+                    "text": "Leave quietly and explore elsewhere",
+                    "type": "continue",
+                    "outcome": "You back away from the forge, leaving the undead to their eternal task—for now.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "isExitOption": true
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "frost-forge-combat",
+            "title": "Forge Guardians",
+            "description": "The undead smiths advance with hammers wreathed in killing cold. Their frost-burned eyes hold no recognition—only the imperative to protect the forge.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "wight",
+                "name": "Frost-Burned Smith",
+                "armorClass": 14,
+                "hitPoints": 45,
+                "attackBonus": 4,
+                "damage": "1d8+2",
+                "xpReward": 700,
+                "damageType": "cold"
+            },
+            "options": [
+                {
+                    "id": "defeat-smiths",
+                    "text": "Destroy the undead smiths",
+                    "type": "attack",
+                    "outcome": "The last smith crumbles, and the forge falls silent. Without its workers, the weapon production ends—but the partially-completed golem still looms, dormant for now.",
+                    "nextEncounterId": "ice-tunnels-hub"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "ice-siren",
+            "title": "Voice of the Glacier",
+            "description": "The humming emanates from a frozen pool at the heart of an ice cavern. A figure stands within the ice—beautiful, terrible, and radiating cold. It speaks without moving its lips: 'You seek the one who disturbed my slumber. I can show you... for a price.'",
+            "type": "social",
+            "options": [
+                {
+                    "id": "ask-price",
+                    "text": "\"What price do you demand?\"",
+                    "type": "continue",
+                    "outcome": "'A memory,' the spirit says. 'One that warms you. Give it to me, and I will show you the Pale Architect's path—and weakness.'",
+                    "nextEncounterId": "ice-siren",
+                    "stayInEncounter": true
+                },
+                {
+                    "id": "accept-deal",
+                    "text": "Offer a warm memory",
+                    "type": "continue",
+                    "outcome": "You think of a moment of joy—a campfire with friends, a loved one's smile. The memory grows cold and distant as the spirit drinks. 'The Pale One fears fire and sunlight. They cannot touch blessed silver. And they are bound to a pact older than your kingdoms. Now go. Before I hunger for more.'",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "xpReward": 60
+                },
+                {
+                    "id": "refuse-deal",
+                    "text": "Refuse the spirit's bargain",
+                    "type": "continue",
+                    "outcome": "The spirit's beautiful face twists with rage. 'Then freeze with the rest!' The cavern temperature plummets as the spirit prepares to attack.",
+                    "nextEncounterId": "ice-siren-combat"
+                },
+                {
+                    "id": "persuade-spirit",
+                    "text": "[Persuasion] \"The Pale Architect disturbs your rest. Help me stop them.\"",
+                    "type": "skill",
+                    "skill": "Persuasion",
+                    "ability": "Charisma",
+                    "difficultyClass": 16,
+                    "successOutcome": "The spirit pauses. 'You speak truth. The intruder's presence burns like hot iron. Very well—I will guide you to them. But when this is done, you will leave MY domain forever.'",
+                    "failureOutcome": "The spirit laughs, a sound like cracking ice. 'Bargains are kept or paid in flesh. Choose.'",
+                    "successNextEncounterId": "ice-tunnels-hub",
+                    "failureNextEncounterId": "ice-siren",
+                    "stayInEncounter": true,
+                    "xpReward": 75
+                },
+                {
+                    "id": "bard-song",
+                    "text": "[Bard] Counter the spirit's song with your own",
+                    "type": "continue",
+                    "requiresClass": "Bard",
+                    "outcome": "You weave a melody of warmth and defiance. The spirit listens, transfixed. 'You... understand. You hear the music of ice. Perhaps we are not enemies.' It teaches you a frost-song that will protect you from the cold ahead.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "xpReward": 80
+                },
+                {
+                    "id": "paladin-smite",
+                    "text": "[Paladin] \"Your bargains are foul. Face divine judgment!\"",
+                    "type": "continue",
+                    "requiresClass": "Paladin",
+                    "outcome": "Holy light blazes from your weapon. The spirit screams—a sound of ancient hatred—and attacks with the fury of a blizzard.",
+                    "nextEncounterId": "ice-siren-combat"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "ice-siren-combat",
+            "title": "Wrath of Winter",
+            "description": "The ice spirit unleashes its fury, the cavern becoming a maelstrom of razor-sharp ice shards and killing cold.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "water-elemental",
+                "name": "Frost Siren",
+                "armorClass": 14,
+                "hitPoints": 114,
+                "attackBonus": 7,
+                "damage": "2d8+4",
+                "xpReward": 1800,
+                "damageType": "cold"
+            },
+            "options": [
+                {
+                    "id": "defeat-siren",
+                    "text": "Shatter the ice spirit",
+                    "type": "attack",
+                    "outcome": "The spirit fractures like a breaking glacier, its final scream echoing through the tunnels. In its remains, you find a shard of pure winter—cold but somehow comforting in your hand.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "grantsItemIds": [
+                        "heart-shard"
+                    ]
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "conspirators-camp",
+            "title": "The Pale Court",
+            "description": "You find a hidden encampment where the Pale Architect's followers gather. Cultists in ice-white robes kneel before a crystalline altar, and you recognize faces among them—former agents of the Azure Spire, goblins from Oakhaven, and mercenaries from a dozen nations. At the center stands a figure wrapped in frost: the Pale Architect themselves.",
+            "type": "social",
+            "options": [
+                {
+                    "id": "observe-ritual",
+                    "text": "Hide and observe their ritual",
+                    "type": "continue",
+                    "outcome": "The Pale Architect speaks in a voice like grinding ice: 'The Heart of Winter awaits its heir. For too long, the warm-blooded races have dominated this world. When the First Frost wakes, eternal winter will cleanse all. The Azure Spire's mirrors will broadcast our truth. Oakhaven's artifacts have opened the vault. All the pieces are in place.'",
+                    "nextEncounterId": "conspirators-camp",
+                    "stayInEncounter": true
+                },
+                {
+                    "id": "recognize-faces",
+                    "text": "Study the conspirators for familiar faces",
+                    "type": "continue",
+                    "outcome": "You spot a goblin wearing the skull-painted mask from Oakhaven—the leader who escaped. Near them stands a hooded figure with the posture of a noble—likely one of Vael's inner circle. The conspiracy spans both your previous adventures. This was always the plan.",
+                    "nextEncounterId": "conspirators-camp",
+                    "stayInEncounter": true,
+                    "xpReward": 30
+                },
+                {
+                    "id": "stealth-approach",
+                    "text": "[Stealth] Sneak closer to learn more",
+                    "type": "skill",
+                    "skill": "Stealth",
+                    "ability": "Dexterity",
+                    "difficultyClass": 15,
+                    "successOutcome": "You slip between ice pillars and overhear a conversation: 'The Heart responds only to royal blood—blood of the frost giant kings. The Architect carries the last vial.' This is their weakness: they need a specific component to complete the ritual.",
+                    "failureOutcome": "A cultist spots movement. 'Intruder!' Weapons are drawn.",
+                    "successNextEncounterId": "conspirators-camp",
+                    "failureNextEncounterId": "pale-court-combat",
+                    "stayInEncounter": true,
+                    "xpReward": 60
+                },
+                {
+                    "id": "confront-architect",
+                    "text": "Step forward and confront the Pale Architect",
+                    "type": "continue",
+                    "outcome": "You stride into the light. The Pale Architect turns, and you finally see their face—elven features corrupted by endless cold, eyes burning with red light. 'Ah. The hero of Oakhaven. The thorn in Vael's side. You've been quite irritating. But you're too late. The vault opens tonight.'",
+                    "nextEncounterId": "architect-confrontation"
+                },
+                {
+                    "id": "rogue-assassinate",
+                    "text": "[Rogue] Strike from the shadows at the Pale Architect",
+                    "type": "continue",
+                    "requiresClass": "Rogue",
+                    "outcome": "You melt through the shadows, blade seeking the Architect's throat—but they turn at the last moment, catching your wrist with inhuman speed. 'A valiant attempt. But I've lived a thousand years. Did you think I wouldn't sense the blade of an assassin?' Combat erupts around you.",
+                    "nextEncounterId": "architect-confrontation"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "pale-court-combat",
+            "title": "Cultist Ambush",
+            "description": "The cultists surround you, their robes concealing frost-touched weapons. The Pale Architect watches from behind, amused.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "cultist",
+                "name": "Frost Cultist",
+                "armorClass": 12,
+                "hitPoints": 9,
+                "attackBonus": 3,
+                "damage": "1d6+1",
+                "xpReward": 25,
+                "damageType": "cold"
+            },
+            "options": [
+                {
+                    "id": "defeat-cultists",
+                    "text": "Cut through the cultists",
+                    "type": "attack",
+                    "outcome": "The cultists fall, but the Pale Architect has vanished deeper into the tunnels, toward the Heart of Winter. You must pursue!",
+                    "nextEncounterId": "heart-approach"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "architect-confrontation",
+            "title": "Face to Face with the Enemy",
+            "description": "The Pale Architect regards you with ancient, cold eyes. 'You've been a more capable adversary than I expected. Oakhaven was supposed to be a quiet heist. The Azure Spire, a subtle corruption. But you disrupted both—and now you've followed me here. Admirable. Foolish, but admirable.'",
+            "type": "social",
+            "options": [
+                {
+                    "id": "demand-answers",
+                    "text": "\"Who are you? What is the Heart of Winter?\"",
+                    "type": "continue",
+                    "outcome": "'I am Vaelthris, last of the Frost Court—exiled when my kin chose to sleep rather than rule. The Heart of Winter is the Primordial of Endless Cold, one of the First Powers. It slumbers in the vault below, waiting for someone worthy to wake it. With its power, I will bring eternal winter—a world of ice where my kind will reign forever.'",
+                    "nextEncounterId": "architect-confrontation",
+                    "stayInEncounter": true
+                },
+                {
+                    "id": "threaten-vaelthris",
+                    "text": "\"I've stopped you before. I'll stop you again.\"",
+                    "type": "continue",
+                    "outcome": "Vaelthris laughs—a sound like shattering ice. 'You delayed me. Nothing more. The goblins gathered the artifacts. Vael's mirrors spread chaos. And now, while nations squabble, I claim the greatest power in existence. Your victories were... acceptable losses.' They gesture, and the cultists advance.",
+                    "nextEncounterId": "architect-fight"
+                },
+                {
+                    "id": "insight-vaelthris",
+                    "text": "[Insight] Search for weakness in their composure",
+                    "type": "skill",
+                    "skill": "Insight",
+                    "ability": "Wisdom",
+                    "difficultyClass": 15,
+                    "successOutcome": "Beneath Vaelthris's arrogance, you sense desperation. They've been working toward this moment for centuries—failure is unthinkable. More importantly, they keep glancing at a crystalline vial at their belt. The frost giant blood. Without it, the ritual fails.",
+                    "failureOutcome": "Vaelthris's composure is iron. You cannot read them.",
+                    "nextEncounterId": "architect-confrontation",
+                    "stayInEncounter": true,
+                    "xpReward": 50
+                },
+                {
+                    "id": "attack-vaelthris",
+                    "text": "Attack before they can complete the ritual!",
+                    "type": "attack",
+                    "outcome": "You lunge at Vaelthris, but they're ready—frost magic erupts around them, and their cultist guards interpose themselves.",
+                    "nextEncounterId": "architect-fight"
+                },
+                {
+                    "id": "elf-ancestry",
+                    "text": "[Elf] \"You disgrace our people. The Frost Court fell for good reason.\"",
+                    "type": "continue",
+                    "requiresRace": "Elf",
+                    "outcome": "Vaelthris's composure cracks. 'You know NOTHING of our glory! We ruled when your forest-dwelling ancestors still hunted with sticks! The Frost Court was BETRAYED—and I will restore what was stolen!' Their rage is exploitable.",
+                    "nextEncounterId": "architect-fight",
+                    "xpReward": 40
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "architect-fight",
+            "title": "Vaelthris the Pale",
+            "description": "Vaelthris draws a blade of living ice and begins casting. Frost crawls up the walls as their power unleashes. 'You will make an excellent frozen statue for my throne room!'",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "mage",
+                "name": "Vaelthris the Pale",
+                "armorClass": 15,
+                "hitPoints": 40,
+                "attackBonus": 6,
+                "damage": "2d6+3",
+                "xpReward": 1100,
+                "damageType": "cold"
+            },
+            "options": [
+                {
+                    "id": "defeat-vaelthris",
+                    "text": "Strike down the Pale Architect!",
+                    "type": "attack",
+                    "outcome": "Vaelthris staggers, clutching their wounds. But they're laughing. 'Fool... the ritual is already complete. The Heart wakes!' They collapse, but the ground trembles. The Primordial stirs.",
+                    "nextEncounterId": "heart-approach"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "heart-approach",
+            "title": "The Threshold of Winter",
+            "description": "The tunnel opens into a massive cavern of primordial ice. At its center, a crystalline formation pulses with cold light—the vault containing the Heart of Winter. Cracks spider-web across its surface as something within begins to stir. Vaelthris's vial lies shattered at the vault's base. You have moments before the Primordial fully wakes.",
+            "type": "exploration",
+            "options": [
+                {
+                    "id": "examine-vault",
+                    "text": "Study the vault for weaknesses",
+                    "type": "continue",
+                    "outcome": "Ancient runes circle the vault—binding sigils placed by the Rimeguard centuries ago. They're failing, but you spot the keystone: a hollow socket where the Rimeguard medallion might fit. If you can restore even one seal, it might buy time.",
+                    "nextEncounterId": "heart-approach",
+                    "stayInEncounter": true
+                },
+                {
+                    "id": "use-medallion",
+                    "text": "Place the Rimeguard medallion in the socket",
+                    "type": "continue",
+                    "requiresItemId": "rimeguard-medallion",
+                    "outcome": "The medallion slides into place and blazes with holy light. The cracks in the vault slow—but don't stop entirely. The Heart of Winter is fighting to wake. You need more power.",
+                    "nextEncounterId": "heart-apex",
+                    "xpReward": 100
+                },
+                {
+                    "id": "wizard-counter",
+                    "text": "[Wizard] Weave counter-magic to reinforce the seals",
+                    "type": "continue",
+                    "requiresClass": "Wizard",
+                    "outcome": "You channel all your arcane knowledge into the binding runes. They flare brightly—holding, for now. But you sense the Primordial's awareness turning toward you. It knows you're trying to stop it.",
+                    "nextEncounterId": "heart-apex",
+                    "xpReward": 100
+                },
+                {
+                    "id": "approach-heart",
+                    "text": "Approach the Heart directly",
+                    "type": "continue",
+                    "outcome": "You step toward the vault. The cold is beyond anything you've felt—a fundamental negation of warmth and life. The cracks widen. Something ancient and terrible opens its eyes within the ice.",
+                    "nextEncounterId": "heart-apex"
+                },
+                {
+                    "id": "barbarian-heat",
+                    "text": "[Barbarian] Let your rage burn against the cold",
+                    "type": "continue",
+                    "requiresClass": "Barbarian",
+                    "outcome": "You release your fury—not just as combat rage, but as pure life force. Heat radiates from your body, pushing back the primordial cold. The Heart of Winter recoils from your defiance.",
+                    "nextEncounterId": "heart-apex",
+                    "xpReward": 100
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "heart-apex",
+            "title": "The Heart of Winter",
+            "description": "The vault shatters. A Primordial of endless cold rises—not a creature of flesh, but of concept made manifest. It is the absence of warmth, the death of all growth, the silence at the end of time. But your efforts have weakened it. It is not yet fully awake. This is your one chance.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "young-white-dragon",
+                "name": "The Heart of Winter (Weakened)",
+                "armorClass": 17,
+                "hitPoints": 133,
+                "attackBonus": 7,
+                "damage": "2d10+4",
+                "xpReward": 2300,
+                "damageType": "cold",
+                "creatureType": "elemental",
+                "damageResistances": [
+                    "cold"
+                ],
+                "damageImmunities": [],
+                "conditionImmunities": [
+                    "frightened",
+                    "paralyzed",
+                    "charmed"
+                ]
+            },
+            "options": [
+                {
+                    "id": "final-strike",
+                    "text": "Strike with everything you have!",
+                    "type": "attack",
+                    "outcome": "You pour every ounce of skill and determination into the attack. The Primordial screams—a sound that will haunt your dreams forever—and begins to discorporate. But something remains...",
+                    "nextEncounterId": "victory"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "victory",
+            "title": "The Thaw",
+            "description": "The Heart of Winter dissolves into frost and memory. The unnatural cold begins to lift from the Frostfang Mountains. Around you, the ice tunnels groan as they begin—slowly—to warm. You've done what the Rimeguard couldn't: defeated a Primordial before it fully woke. In the remains of the vault, a single shard of pure winter remains, humming with contained power. Perhaps it can be used for good. Perhaps it should be destroyed. But that is a decision for another day. For now, you have earned your rest—and your legend.",
+            "type": "ending",
+            "options": [
+                {
+                    "id": "take-shard",
+                    "text": "Claim the Winter Shard",
+                    "type": "continue",
+                    "outcome": "You take the shard. Its cold no longer burns—it recognizes you as its master. What you do with a fragment of primordial power is up to you.",
+                    "grantsItemIds": [
+                        "primordial-winter-shard"
+                    ],
+                    "nextEncounterId": "epilogue",
+                    "xpReward": 500
+                },
+                {
+                    "id": "destroy-shard",
+                    "text": "Destroy the shard completely",
+                    "type": "continue",
+                    "outcome": "You bring your weapon down on the shard. It shatters with a scream that echoes through dimensions. Nothing of the Heart of Winter remains. Perhaps that is for the best.",
+                    "nextEncounterId": "epilogue",
+                    "xpReward": 500
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "epilogue",
+            "title": "Echoes of Victory",
+            "description": "Word of your victory spreads quickly. Kaela's agents confirm that with Vaelthris and the Heart defeated, the remaining conspiracy collapses. Refugees erased from the Azure Spire's records are restored. The goblins, freed from Vaelthris's control, scatter and return to their simple raids. Oakhaven breathes easier. The Azure Spire's mirrors are purified. And in taverns across the realm, bards sing of the hero who entered the Frozen Depths and emerged victorious. But as you rest by a warm fire, you wonder: if one Primordial slumbered beneath the earth... what else might be waiting to wake?",
+            "type": "ending",
+            "options": [
+                {
+                    "id": "claim-rest",
+                    "text": "Return to camp victorious",
+                    "type": "continue",
+                    "endsAdventure": true,
+                    "outcome": "Your adventure in the Frozen Depths has ended. But new adventures await...",
+                    "xpReward": 200
+                }
+            ],
+            "completed": false
+        }
+    ]
+}

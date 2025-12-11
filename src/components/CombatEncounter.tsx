@@ -18,6 +18,7 @@ import {
   isEnemyConditionImmune,
   adjustDamageForDefenses,
 } from '@/utils/combatUtils';
+import { getInitiativeBonus, getSavingThrowBonus } from '@/utils/skillUtils';
 import { determineEnemyAction } from '@/utils/enemyAI';
 
 import { createLogEntry } from '@/utils/combatLogger';
@@ -229,6 +230,31 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   const [victoryAchieved, setVictoryAchieved] = useState(false);
   // Removed local deathSaves, using character.deathSaves
 
+  const addLog = (message: string, type: CombatLogEntryType = 'info', details?: string, source?: string, target?: string) => {
+    const entry: CombatLogEntry = {
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
+      message,
+      type,
+      details,
+      source,
+      target
+    };
+    setCombatLog(prev => [entry, ...prev]);
+  };
+
+  const endConcentration = () => {
+    if (character.concentratingOn) {
+      addLog(`Concentration on ${character.concentratingOn.spellName} ended.`, 'info');
+      updateCharacter(prev => {
+        if (!prev) return prev;
+        return { ...prev, concentratingOn: undefined };
+      });
+    }
+  };
+
+
+
   // Extra Attack State
   const [attacksLeft, setAttacksLeft] = useState(1);
   const maxAttacks = useMemo(() => {
@@ -333,6 +359,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   const [isFirstTurn, setIsFirstTurn] = useState(true); // For Dread Ambusher, Assassinate
   const [divineFuryUsedThisTurn, setDivineFuryUsedThisTurn] = useState(false); // Zealot first hit bonus
   const [ancestralProtectorsTarget, setAncestralProtectorsTarget] = useState<string | null>(null); // First enemy hit while raging
+  const [savageAttackerUsedThisTurn, setSavageAttackerUsedThisTurn] = useState(false); // Savage Attacker feat
 
   // Fighter Subclass States
   const [fightingSpiritUses, setFightingSpiritUses] = useState(defaultUses.fightingSpirit || 0); // Samurai
@@ -463,7 +490,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
   const rollPlayerSavingThrow = (
     ability: 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma',
-    effectType?: 'poison' | 'charm' | 'fear' | 'magic'
+    effectType?: 'poison' | 'charm' | 'fear' | 'magic' | 'concentration'
   ) => {
     const baseRoll = rollDice(20);
     let advantageType = getSavingThrowAdvantage(
@@ -471,6 +498,13 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       ability,
       effectType
     );
+
+    // War Caster: Advantage on CON saves for Concentration
+    if (ability === 'constitution' && effectType === 'concentration' && character.feats?.includes('war-caster')) {
+      if (advantageType === 'disadvantage') advantageType = 'normal';
+      else if (advantageType === 'normal') advantageType = 'advantage';
+      addLog("War Caster grants advantage on Concentration save.", 'info');
+    }
 
     // Barbarian Danger Sense
     if (isBarbarian && character.level >= 2 && ability === 'dexterity') {
@@ -533,192 +567,158 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     return { updatedEnemy, messages };
   }, []);
 
-  const addLog = useCallback((message: string, type: CombatLogEntryType, details?: string, source?: string, target?: string) => {
-    const entry = createLogEntry(type, message, details, source, target);
-    setCombatLog(prev => [...prev, entry]);
-  }, []);
+
 
   const applyEnemyDamageToPlayer = (
     actingEnemy: CombatEnemyState,
     damageRoll: number,
     incomingDamageType: string
   ) => {
-    setPlayerHp(prev => {
-      let remainingDamage = damageRoll;
+    let remainingDamage = damageRoll;
 
-      // Uncanny Dodge (Applies to Attacks only, but we'll approximate 'not effectType' or check incomingDamage logic)
-      // Since we don't strictly track 'isAttack' here easily without signature change, we'll assume physical damage is an attack.
-      // Or we can rely on proper flagging.
-      // For MVP: If Uncanny Dodge is active, halve damage once then remove it.
-      const hasUncannyDodge = activeBuffs.some(b => b.id === 'uncanny-dodge');
-      if (hasUncannyDodge) {
-        remainingDamage = Math.ceil(remainingDamage / 2);
-        addLog('Uncanny Dodge! Damage halved.', 'info');
-        // Remove it (Reaction consumed)
-        setActiveBuffs(prev => prev.filter(b => b.id !== 'uncanny-dodge'));
+    // Uncanny Dodge
+    const hasUncannyDodge = activeBuffs.some(b => b.id === 'uncanny-dodge');
+    if (hasUncannyDodge) {
+      remainingDamage = Math.ceil(remainingDamage / 2);
+      addLog('Uncanny Dodge! Damage halved.', 'info');
+      setActiveBuffs(prev => prev.filter(b => b.id !== 'uncanny-dodge'));
+    }
 
-        // In strict rules, you choose AFTER seeing damage. 
-        // Here we simplified to "Prepare it". 
-        // Since it consumes reaction, it resets at start of turn?
-        // We set duration 1, so it clears next turn anyway.
-        updateCharacter(current => { if (!current) return current; return { ...current, conditions: current.conditions } }); // Trigger update
+    // Heavy Armor Master
+    if (character.feats?.includes('heavy-armor-master') &&
+      character.equippedArmor?.armorType === 'heavy' &&
+      ['bludgeoning', 'piercing', 'slashing'].includes(incomingDamageType.toLowerCase())) {
+      remainingDamage = Math.max(0, remainingDamage - 3);
+      addLog('Heavy Armor Master reduces damage by 3.', 'info');
+    }
+
+    // Apply Resistances
+    const traits = character.race?.traits || [];
+    const ancestry = character.draconicAncestry;
+    let resisted = false;
+
+    if (incomingDamageType === 'fire' && traits.includes('Hellish Resistance')) resisted = true;
+    if (incomingDamageType === 'poison' && traits.includes('Dwarven Resilience')) resisted = true;
+    if (ancestry && incomingDamageType.toLowerCase() === ancestry.damageType.toLowerCase()) resisted = true;
+
+    // Rage Resistance
+    if (rageActive) {
+      if (character.subclass?.id === 'totem-warrior' && incomingDamageType.toLowerCase() !== 'psychic') {
+        resisted = true;
+        addLog('Bear Totem Rage reduces the damage!', 'info');
+      } else if (['bludgeoning', 'piercing', 'slashing'].includes(incomingDamageType.toLowerCase())) {
+        resisted = true;
+        addLog('Rage reduces the damage!', 'info');
       }
+    }
 
-      // Apply Resistances
-      const traits = character.race?.traits || [];
-      const ancestry = character.draconicAncestry;
+    // Apply Resistance (halving damage)
+    if (resisted) {
+      remainingDamage = Math.floor(remainingDamage / 2);
+      addLog(`Resisted ${incomingDamageType} damage!`, 'info');
+    }
 
-      if (actingEnemy.effectType) {
-        const effect = actingEnemy.effectType;
-        const saveAbility = effect === 'poison' ? 'constitution' : 'wisdom';
-        const dc = actingEnemy.saveDC || 12;
-        const save = rollPlayerSavingThrow(saveAbility, effect);
-        if (save.total < dc) {
-          if (effect === 'fear') {
-            applyPlayerCondition({ type: 'frightened', name: 'Frightened', description: 'Disadvantage on attacks while source is visible.', duration: 2, source: actingEnemy.name });
-            addLog(`${character.name} is frightened! (Failed save ${save.total} vs DC ${dc})`, 'condition');
-          } else if (effect === 'charm') {
-            applyPlayerCondition({ type: 'charmed', name: 'Charmed', description: 'Cannot attack the charmer; charmer has advantage on socials.', duration: 2, source: actingEnemy.name });
-            addLog(`${character.name} is charmed! (Failed save ${save.total} vs DC ${dc})`, 'condition');
-          } else if (effect === 'poison') {
-            applyPlayerCondition({ type: 'poisoned', name: 'Poisoned', description: 'Disadvantage on attack rolls and ability checks.', duration: 3, source: actingEnemy.name });
-            addLog(`${character.name} is poisoned! (Failed save ${save.total} vs DC ${dc})`, 'condition');
-          }
-        } else {
-          addLog(`${character.name} resists the ${effect} effect. (Save ${save.total} vs DC ${dc})`, 'info');
-        }
-      }
+    // Apply damage to Temporary Hit Points
+    let currentTempHp = character.temporaryHitPoints || 0;
+    if (currentTempHp > 0) {
+      const absorbed = Math.min(currentTempHp, remainingDamage);
+      currentTempHp -= absorbed;
+      remainingDamage -= absorbed;
 
-      let resisted = false;
-      if (incomingDamageType === 'fire' && traits.includes('Hellish Resistance')) resisted = true;
-      if (incomingDamageType === 'poison' && traits.includes('Dwarven Resilience')) resisted = true;
-      if (ancestry && incomingDamageType.toLowerCase() === ancestry.damageType.toLowerCase()) resisted = true;
-
-      if (incomingDamageType === 'poison') {
-        const save = rollPlayerSavingThrow('constitution', 'poison');
-        const dc = 12;
-        if (save.total >= dc) {
-          remainingDamage = Math.floor(remainingDamage / 2);
-          addLog(`Constitution save succeeds vs poison (${save.total} vs DC ${dc}). Damage halved.`, 'info');
-        } else {
-          addLog(`Constitution save fails vs poison (${save.total} vs DC ${dc}).`, 'miss');
-        }
-      }
-
-      const magicTypes = ['fire', 'cold', 'lightning', 'acid', 'poison', 'psychic', 'radiant', 'necrotic', 'thunder', 'force'];
-      if (magicTypes.includes(incomingDamageType) && incomingDamageType !== 'poison') {
-        const saveAbility: 'dexterity' | 'wisdom' = ['fire', 'cold', 'lightning', 'acid', 'thunder', 'force'].includes(incomingDamageType) ? 'dexterity' : 'wisdom';
-        const save = rollPlayerSavingThrow(saveAbility, 'magic');
-        const dc = actingEnemy.saveDC || 12;
-
-        // Evasion (Rogue 7, Monk 7)
-        const hasEvasion = (isRogue || isMonk) && character.level >= 7 && saveAbility === 'dexterity';
-
-        if (save.total >= dc) {
-          remainingDamage = hasEvasion ? 0 : Math.floor(remainingDamage / 2);
-          addLog(`${hasEvasion ? 'Evasion!' : 'Magic save succeeds'} (${save.total} vs DC ${dc}). ${hasEvasion ? 'No damage taken.' : 'Damage halved.'}`, 'info');
-        } else {
-          remainingDamage = hasEvasion ? Math.floor(remainingDamage / 2) : remainingDamage; // Evasion halves damage on fail? No, standard Evasion is Half on Fail. Standard rule is Full on Fail.
-          // Wait, Standard Rule: Save = Half, Fail = Full.
-          // Evasion Rule: Save = 0, Fail = Half.
-          if (hasEvasion) {
-            addLog(`Evasion! Save fails (${save.total} vs DC ${dc}) but damage is halved.`, 'info');
-          } else {
-            addLog(`Magic save fails (${save.total} vs DC ${dc}).`, 'miss');
-          }
-        }
-      }
-
-      // Barbarian Rage Resistance
-      // Barbarian Rage Resistance
-      if (rageActive) {
-        if (character.subclass?.id === 'totem-warrior' && incomingDamageType.toLowerCase() !== 'psychic') {
-          resisted = true;
-          addLog('Bear Totem Rage reduces the damage!', 'info');
-        } else if (['bludgeoning', 'piercing', 'slashing'].includes(incomingDamageType.toLowerCase())) {
-          resisted = true;
-          addLog('Rage reduces the damage!', 'info');
-        }
-      }
-
-      if (resisted) {
-        remainingDamage = Math.floor(remainingDamage / 2);
-        addLog(`Resisted ${incomingDamageType} damage!`, 'info');
-      }
-
-      let currentTempHp = character.temporaryHitPoints || 0;
-
-      if (currentTempHp > 0) {
-        const absorbed = Math.min(currentTempHp, remainingDamage);
-        currentTempHp -= absorbed;
-        remainingDamage -= absorbed;
-
-        updateCharacter(current => {
-          if (!current) return current;
-          return { ...current, temporaryHitPoints: currentTempHp };
-        });
-
-        if (absorbed > 0) {
-          addLog(`${character.name}'s temporary hit points absorb ${absorbed} damage!`, 'info');
-        }
-      }
-
-      let newHp = Math.max(0, prev - remainingDamage);
-
-      if (wildShapeActive) {
-        // Apply damage to Wild Shape HP first
-        let excessDamage = 0;
-        setWildShapeHp(prevWsHp => {
-          const newWsHp = prevWsHp - remainingDamage;
-          if (newWsHp <= 0) {
-            excessDamage = Math.abs(newWsHp);
-            setWildShapeActive(false);
-            addLog(`${character.name} reverts to normal form!`, 'info');
-            return 0;
-          }
-          return newWsHp;
-        });
-
-        if (excessDamage > 0) {
-          addLog(`Excess damage (${excessDamage}) carries over to normal form!`, 'damage');
-          return Math.max(0, prev - excessDamage);
-        }
-        return prev; // No change to player HP if Wild Shape absorbed it all
-      }
-
-      if (newHp === 0) {
-        if ((character.race?.traits || []).includes('Relentless Endurance') && !relentlessEnduranceUsed) {
-          newHp = 1;
-          setRelentlessEnduranceUsed(true);
-          addLog(`${character.name} uses Relentless Endurance to stay at 1 HP!`, 'heal');
-        } else {
-          addLog(`${character.name} falls unconscious!`, 'miss');
-        }
-      }
-
-      updateCharacter((current) => {
+      updateCharacter(current => {
         if (!current) return current;
-        return { ...current, hitPoints: newHp };
+        return { ...current, temporaryHitPoints: currentTempHp };
       });
 
-      // Knock Prone on hits from certain enemies
-      if ((actingEnemy.traits || []).includes('knock-prone')) {
-        const dc = actingEnemy.saveDC || 11;
-        const save = rollPlayerSavingThrow('strength');
-        if (save.total < dc) {
-          applyPlayerCondition({
-            type: 'prone',
-            name: 'Prone',
-            description: 'Disadvantage on ranged attacks; melee attackers have advantage.',
-            duration: 2,
-            source: actingEnemy.name
-          });
-          addLog(`${character.name} is knocked prone! (Failed STR save ${save.total} vs DC ${dc})`, 'condition');
+      if (absorbed > 0) {
+        addLog(`${character.name}'s temporary hit points absorb ${absorbed} damage!`, 'info');
+      }
+    }
+
+    // Apply damage to Wild Shape HP if active
+    if (wildShapeActive && remainingDamage > 0) {
+      let excessDamage = 0;
+      setWildShapeHp(prevWsHp => {
+        const newWsHp = prevWsHp - remainingDamage;
+        if (newWsHp <= 0) {
+          excessDamage = Math.abs(newWsHp);
+          setWildShapeActive(false);
+          addLog(`${character.name} reverts to normal form!`, 'info');
+          return 0;
+        }
+        return newWsHp;
+      });
+      remainingDamage = excessDamage;
+    }
+
+    // Apply Damage to HP
+    if (remainingDamage > 0) {
+      setPlayerHp(prev => {
+        let newHp = Math.max(0, prev - remainingDamage);
+
+        if (newHp === 0) {
+          if (traits.includes('Relentless Endurance') && !relentlessEnduranceUsed) {
+            newHp = 1;
+            setRelentlessEnduranceUsed(true);
+            addLog(`${character.name} uses Relentless Endurance to stay at 1 HP!`, 'heal');
+          } else {
+            addLog(`${character.name} falls unconscious!`, 'miss');
+          }
+        }
+
+        updateCharacter(char => {
+          if (!char) return char;
+          return { ...char, hitPoints: newHp };
+        });
+
+        return newHp;
+      });
+
+      addLog(`${actingEnemy.name} deals ${remainingDamage} ${incomingDamageType} damage to ${character.name}.`, 'damage', undefined, actingEnemy.name, character.name);
+
+      // Concentration Check
+      if (character.concentratingOn) {
+        const dc = Math.max(10, Math.floor(remainingDamage / 2));
+        const saveResult = rollPlayerSavingThrow('constitution', 'concentration');
+
+        if (saveResult.total >= dc) {
+          addLog(`Maintained concentration on ${character.concentratingOn.spellName}. (Rolled ${saveResult.total} vs DC ${dc})`, 'info');
+        } else {
+          addLog(`Lost concentration on ${character.concentratingOn.spellName}! (Rolled ${saveResult.total} vs DC ${dc})`, 'warning');
+          endConcentration();
         }
       }
+    } else {
+      addLog(`${actingEnemy.name} deals no damage to ${character.name}.`, 'info');
+    }
 
-      return newHp;
-    });
+    // Handle Secondary Effects (Poison, Charm, Fear)
+    if (actingEnemy.effectType) {
+      const effect = actingEnemy.effectType;
+      const dc = actingEnemy.saveDC || 12;
+      const saveAbility = effect === 'poison' ? 'constitution' : 'wisdom';
+      const save = rollPlayerSavingThrow(saveAbility, effect as 'poison' | 'charm' | 'fear');
+
+      if (save.total < dc) {
+        if (effect === 'fear') {
+          applyPlayerCondition({ type: 'frightened', name: 'Frightened', description: 'Disadvantage on attacks while source is visible.', duration: 2, source: actingEnemy.name });
+          addLog(`${character.name} is frightened! (Failed save ${save.total} vs DC ${dc})`, 'condition');
+        } else if (effect === 'charm') {
+          applyPlayerCondition({ type: 'charmed', name: 'Charmed', description: 'Cannot attack the charmer; charmer has advantage on socials.', duration: 2, source: actingEnemy.name });
+          addLog(`${character.name} is charmed! (Failed save ${save.total} vs DC ${dc})`, 'condition');
+        } else if (effect === 'poison') {
+          const monkImmune = character.class.id === 'monk' && character.level >= 10;
+          if (!monkImmune && !traits.includes('Poison Immunity')) {
+            applyPlayerCondition({ type: 'poisoned', name: 'Poisoned', description: 'Disadvantage on attack rolls and ability checks.', duration: 3, source: actingEnemy.name });
+            addLog(`${character.name} is poisoned! (Failed save ${save.total} vs DC ${dc})`, 'condition');
+          } else {
+            addLog(`${character.name} is immune to poison.`, 'info');
+          }
+        }
+      } else {
+        addLog(`${character.name} resists the ${effect} effect. (Save ${save.total} vs DC ${dc})`, 'info');
+      }
+    }
   };
 
   const spendLegendaryAction = (enemyId: string, action: NonNullable<CombatEnemy['legendaryActions']>[number]) => {
@@ -838,11 +838,20 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         // Track if we've completed a full round (back to player)
         const isNewRound = nextIndex === 0;
 
-        // Reset per-turn subclass features when player's turn starts
+        // Reset per-turn features when player's turn starts
         if (turnOrder[nextIndex]?.id === 'player') {
+          // Reset attack count for the new turn
+          setAttacksLeft(maxAttacks);
+
+          // Reset per-turn combat features
+          setSneakAttackUsedThisTurn(false);
+          setSavageAttackerUsedThisTurn(false);
           setDivineFuryUsedThisTurn(false);
           setPsychicBladesUsedThisTurn(false);
           setCuttingWordsUsedThisTurn(false);
+
+          // Reset offhand attack availability
+          setOffhandAvailable(true);
 
           // First turn only lasts for the first round
           if (isNewRound) {
@@ -853,7 +862,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         return nextIndex;
       });
     }, 500);
-  }, [turnOrder]);
+  }, [turnOrder, maxAttacks]);
 
   const performEnemyTurn = (enemyId: string) => {
     const enemy = enemies.find(e => e.id === enemyId);
@@ -1131,6 +1140,10 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
   const handlePlayerAttack = () => {
     if (!selectedEnemy || isRolling) return;
+    if (attacksLeft <= 0) {
+      addLog('No attacks remaining this turn!', 'miss');
+      return;
+    }
     const enemy = enemies.find(e => e.id === selectedEnemy);
     if (!enemy || enemy.isDefeated) return;
 
@@ -1331,7 +1344,11 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       setUseInspiration(false);
     }
 
-    const total = roll + attackModifier + inspirationRoll;
+    let finalAttackModifier = attackModifier;
+    if (gwmActive && !isRanged) finalAttackModifier -= 5; // Assumes Heavy check is done or user knows
+    if (sharpshooterActive && isRanged) finalAttackModifier -= 5;
+
+    const total = roll + finalAttackModifier + inspirationRoll;
 
     // Dynamic critical hit threshold (Champion, Hexblade's Curse)
     let effectiveCritThreshold = critThreshold;
@@ -1353,9 +1370,30 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       if (total >= targetAC || isCritical) {
         let damageRoll = rollWeaponDamage(damageDice, true) + damageBonus;
 
+        // Savage Attacker feat: reroll damage once per turn
+        if (character.feats?.includes('savage-attacker') && !isRanged && !savageAttackerUsedThisTurn) {
+          const reroll = rollWeaponDamage(damageDice, true) + damageBonus;
+          if (reroll > damageRoll) {
+            addLog(`Savage Attacker! Rerolled damage: ${damageRoll} → ${reroll}`, 'info');
+            damageRoll = reroll;
+          } else {
+            addLog(`Savage Attacker! Kept original damage (${damageRoll} vs reroll ${reroll})`, 'info');
+          }
+          setSavageAttackerUsedThisTurn(true);
+        }
+
         if (rageActive && !isRanged && isUsingStrength) {
           damageRoll += 2;
           addLog('Rage Damage Bonus! (+2)', 'info');
+        }
+
+        if (gwmActive && !isRanged) {
+          damageRoll += 10;
+          addLog('Great Weapon Master! (+10)', 'info');
+        }
+        if (sharpshooterActive && isRanged) {
+          damageRoll += 10;
+          addLog('Sharpshooter! (+10)', 'info');
         }
 
         // Magic Weapon Extra Damage (Flame Tongue, Frost Brand, etc.)
@@ -2881,9 +2919,9 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                     variant="default"
                     className="w-full justify-start"
                     onClick={handlePlayerAttack}
-                    disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                    disabled={!isPlayerTurn || isRolling || !selectedEnemy || attacksLeft <= 0}
                   >
-                    <Sword className="mr-2 h-4 w-4" /> {t('combat.attack')}
+                    <Sword className="mr-2 h-4 w-4" /> {t('combat.attack')} {attacksLeft > 1 && `(${attacksLeft})`}
                   </Button>
                   {hasInspirationDie && (
                     <Button
@@ -2908,7 +2946,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                             ...prev,
                             featureUses: {
                               ...prev.featureUses,
-                              luckPoints: prev.featureUses.luckPoints - 1
+                              luckPoints: (prev.featureUses.luckPoints ?? 0) - 1
                             }
                           };
                         });
@@ -3229,6 +3267,49 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                           disabled={!isPlayerTurn || arcaneRecoveryUsed || isRolling}
                         >
                           <Sparkles className="mr-2 h-3 w-3" /> Arcane Recovery
+                        </Button>
+                      )}
+
+                      {/* ==========================================
+                          FEAT ABILITIES
+                          ========================================== */}
+                      {character.feats?.includes('great-weapon-master') && (
+                        <Button
+                          variant={gwmActive ? "fantasy" : "secondary"}
+                          size="sm"
+                          onClick={() => setGwmActive(!gwmActive)}
+                          disabled={!isPlayerTurn || isRolling}
+                        >
+                          <Sword className="mr-2 h-3 w-3" /> {gwmActive ? 'GWM Active (-5/+10)' : 'Great Weapon Master'}
+                        </Button>
+                      )}
+                      {character.feats?.includes('sharpshooter') && (
+                        <Button
+                          variant={sharpshooterActive ? "fantasy" : "secondary"}
+                          size="sm"
+                          onClick={() => setSharpshooterActive(!sharpshooterActive)}
+                          disabled={!isPlayerTurn || isRolling}
+                        >
+                          <Crosshair className="mr-2 h-3 w-3" /> {sharpshooterActive ? 'Sharpshooter Active (-5/+10)' : 'Sharpshooter'}
+                        </Button>
+                      )}
+                      {character.feats?.includes('lucky') && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => {
+                            const current = character.featureUses?.luckPoints ?? 0;
+                            if (current > 0) {
+                              updateCharacter(prev => {
+                                if (!prev) return prev;
+                                return { ...prev, featureUses: { ...prev.featureUses, luckPoints: current - 1 } as FeatureUses };
+                              });
+                              addLog(`${character.name} uses a Luck point!`, 'info');
+                            }
+                          }}
+                          disabled={!isPlayerTurn || isRolling || (character.featureUses?.luckPoints ?? 0) <= 0}
+                        >
+                          <Sparkles className="mr-2 h-3 w-3" /> Use Luck Point ({character.featureUses?.luckPoints ?? 0})
                         </Button>
                       )}
 

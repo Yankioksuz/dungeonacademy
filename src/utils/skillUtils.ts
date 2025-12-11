@@ -69,13 +69,20 @@ export function getSkillModifier(
 
 /**
  * Get passive score for a skill
- * Formula: 10 + skill modifier
+ * Formula: 10 + skill modifier (+5 if Observant)
  */
 export function getPassiveScore(
     character: PlayerCharacter,
     skill: SkillName
 ): number {
-    return 10 + getSkillModifier(character, skill);
+    let score = 10 + getSkillModifier(character, skill);
+
+    // Observant Feat: +5 to Passive Perception and Investigation
+    if ((skill === 'perception' || skill === 'investigation') && character.feats?.includes('observant')) {
+        score += 5;
+    }
+
+    return score;
 }
 
 /**
@@ -187,8 +194,25 @@ export function getArmorClass(character: PlayerCharacter): number {
 
 /**
  * Calculate initiative bonus
- * Formula: DEX modifier
+ * Formula: DEX modifier (+ bonuses)
  */
 export function getInitiativeBonus(character: PlayerCharacter): number {
-    return getAbilityModifier(character.abilityScores.dexterity);
+    let bonus = getAbilityModifier(character.abilityScores.dexterity);
+
+    // Alert Feat
+    if (character.feats?.includes('alert')) {
+        bonus += 5;
+    }
+
+    // Swashbuckler (Rakish Audacity) - adds Cha mod to initiative
+    if (character.class.id === 'rogue' && character.subclass?.id === 'swashbuckler') {
+        bonus += getAbilityModifier(character.abilityScores.charisma);
+    }
+
+    // Gloom Stalker (Dread Ambusher) - adds Wis mod to initiative
+    if (character.class.id === 'ranger' && character.subclass?.id === 'gloom-stalker') {
+        bonus += getAbilityModifier(character.abilityScores.wisdom);
+    }
+
+    return bonus;
 }

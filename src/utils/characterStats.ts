@@ -69,7 +69,9 @@ export function calculateArmorClass(character: PlayerCharacter): number {
         if (armorType === 'light') {
             ac += dexMod;
         } else if (armorType === 'medium') {
-            ac += Math.min(2, dexMod);
+            // Medium Armor Master allows +3 DEX instead of +2
+            const maxDexBonus = character.feats?.includes('medium-armor-master') ? 3 : 2;
+            ac += Math.min(maxDexBonus, dexMod);
         }
         // Heavy armor: no DEX bonus
 
@@ -93,6 +95,12 @@ export function calculateArmorClass(character: PlayerCharacter): number {
         if (character.conditions?.some(c => c.type === 'haste')) {
             ac += 2;
         }
+
+        // Dual Wielder feat: +1 AC when wielding two melee weapons
+        if (character.feats?.includes('dual-wielder') && isDualWielding(character)) {
+            ac += 1;
+        }
+
         return ac;
     }
 
@@ -125,7 +133,21 @@ export function calculateArmorClass(character: PlayerCharacter): number {
         unarmoredAC += 2;
     }
 
+    // Dual Wielder feat: +1 AC when wielding two melee weapons
+    if (character.feats?.includes('dual-wielder') && isDualWielding(character)) {
+        unarmoredAC += 1;
+    }
+
     return unarmoredAC;
+}
+
+// Helper to check if character is dual wielding
+function isDualWielding(character: PlayerCharacter): boolean {
+    // Check if character has a weapon equipped and a shield is NOT equipped
+    // In D&D 5e context, if you have a weapon but no shield, you could be dual wielding
+    // This is a simplified check - the actual dual wielding logic would depend on inventory
+    // For now, we check if they have fightingStyle 'Two-Weapon Fighting' as an indicator
+    return !!(character.equippedWeapon && !character.equippedShield && character.fightingStyle === 'Two-Weapon Fighting');
 }
 
 export function calculateInitiative(character: PlayerCharacter): number {
@@ -137,14 +159,63 @@ export function calculateInitiative(character: PlayerCharacter): number {
 }
 
 export function calculatePassiveScore(character: PlayerCharacter, skillName: string): number {
-    return 10 + getSkillModifier(character, skillName);
+    let base = 10 + getSkillModifier(character, skillName);
+
+    // Observant feat: +5 to passive Perception and Investigation
+    if (character.feats?.includes('observant')) {
+        const normalizedSkill = skillName.toLowerCase();
+        if (normalizedSkill === 'perception' || normalizedSkill === 'investigation') {
+            base += 5;
+        }
+    }
+
+    return base;
+}
+
+export function calculateSpeed(character: PlayerCharacter): number {
+    // Base speed from race (default 30)
+    let speed = character.race?.speed || 30;
+
+    // Mobile feat: +10 feet
+    if (character.feats?.includes('mobile')) {
+        speed += 10;
+    }
+
+    // Barbarian: Fast Movement at level 5+ (unarmored or light/medium armor)
+    if (character.class.id === 'barbarian' && character.level >= 5) {
+        const armorType = character.equippedArmor?.armorType;
+        if (!armorType || armorType === 'light' || armorType === 'medium') {
+            speed += 10;
+        }
+    }
+
+    // Monk: Unarmored Movement
+    if (character.class.id === 'monk' && !character.equippedArmor && !character.equippedShield) {
+        if (character.level >= 2) speed += 10;
+        if (character.level >= 6) speed += 5;  // +15 total
+        if (character.level >= 10) speed += 5; // +20 total
+        if (character.level >= 14) speed += 5; // +25 total
+        if (character.level >= 18) speed += 5; // +30 total
+    }
+
+    return speed;
 }
 
 export function getSavingThrowModifier(character: PlayerCharacter, ability: keyof PlayerCharacter['abilityScores']): number {
     // Use effective ability score (accounts for magic items)
     const effectiveScore = getEffectiveAbilityScore(character, ability);
     const abilityMod = calculateAbilityModifier(effectiveScore);
-    const isProficient = character.class.savingThrows.includes(ability.charAt(0).toUpperCase() + ability.slice(1));
+
+    // Check class-based save proficiencies
+    const classProficient = character.class.savingThrows.includes(ability.charAt(0).toUpperCase() + ability.slice(1));
+
+    // Check feat-based save proficiencies (Resilient)
+    // Resilient feat grants proficiency in a chosen ability's saving throw
+    // The chosen ability is stored in character.resilientAbility
+    const resilientProficient = character.feats?.includes('resilient') &&
+        character.resilientAbility === ability;
+
+    const isProficient = classProficient || resilientProficient;
     const proficiencyBonus = isProficient ? calculateProficiencyBonus(character.level) : 0;
 
     let bonus = abilityMod + proficiencyBonus;

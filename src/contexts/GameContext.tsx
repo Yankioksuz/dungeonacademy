@@ -21,6 +21,7 @@ import spireAdventure from '@/content/adventure-shadows.json';
 import spellsContent from '@/content/spells.json';
 import { getMaxPreparedSpells, calculateSpellSlots } from '@/lib/spells';
 import { getProficiencyBonus, createDefaultSkills, getPassiveScore } from '@/utils/skillUtils';
+import { calculateMaxHitPoints } from '@/utils/characterUtils';
 import { getDefaultFeatureUses } from '@/utils/featureUtils';
 import { CLASS_PROGRESSION } from '@/data/classProgression';
 
@@ -72,6 +73,9 @@ interface GameContextType {
   resetDeathSaves: () => void;
   // NEW: Temporary HP
   addTemporaryHitPoints: (amount: number) => void;
+  // NEW: Attunement
+  attuneItem: (item: Item) => boolean;
+  unattuneItem: (item: Item) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -419,6 +423,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
         passiveInvestigation: 10,
         passiveInsight: 10,
         talents: [],
+        languages: ['Common'],
+        weaponProficiencies: [],
+        armorProficiencies: [],
+        senses: [],
       };
 
       const abilityScores = (() => {
@@ -445,31 +453,27 @@ export function GameProvider({ children }: { children: ReactNode }) {
         class: finalData?.class ? {
           ...finalData.class,
           savingThrowProficiencies: finalData.class.savingThrowProficiencies as AbilityName[]
-        } : baseCharacter.class
+        } : baseCharacter.class,
+        languages: finalData?.languages || baseCharacter.languages || [],
+        weaponProficiencies: finalData?.weaponProficiencies || baseCharacter.weaponProficiencies || [],
+        armorProficiencies: finalData?.armorProficiencies || baseCharacter.armorProficiencies || [],
+        senses: finalData?.senses || baseCharacter.senses || []
       };
 
-      // Calculate HP based on class hit die + CON modifier
-      const conModifier = Math.floor((updatedCharacter.abilityScores.constitution - 10) / 2);
-      const hitDieString = updatedCharacter.class.hitDie || 'd8';
-      const baseHP = parseInt(hitDieString.replace('d', '')) || 8;
-      const calculatedMaxHP = baseHP + conModifier;
-      const originBonusHp = (updatedCharacter.class.id === 'sorcerer' && (updatedCharacter.subclass?.id === 'draconic' || updatedCharacter.sorcerousOrigin === 'Draconic Bloodline'))
-        ? updatedCharacter.level
-        : 0;
+      // Calculate HP using utility
+      const calculatedMaxHP = calculateMaxHitPoints(updatedCharacter);
 
       console.log('Character HP calculation:', {
         class: updatedCharacter.class.name,
-        hitDie: hitDieString,
-        baseHP,
+        hitDie: updatedCharacter.class.hitDie,
         constitution: updatedCharacter.abilityScores.constitution,
-        conModifier,
-        calculatedMaxHP: calculatedMaxHP + originBonusHp
+        calculatedMaxHP
       });
 
       return {
         ...updatedCharacter,
-        maxHitPoints: calculatedMaxHP + originBonusHp,
-        hitPoints: calculatedMaxHP + originBonusHp,
+        maxHitPoints: calculatedMaxHP,
+        hitPoints: calculatedMaxHP,
         hitDice: {
           current: updatedCharacter.level,
           max: updatedCharacter.level,
@@ -1082,6 +1086,45 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Attunement functions
+  const MAX_ATTUNED_ITEMS = 3;
+
+  const attuneItem = useCallback((item: Item): boolean => {
+    let success = false;
+    setCharacter((prev) => {
+      if (!prev) return null;
+      const currentAttuned = prev.attunedItems || [];
+
+      // Check if already attuned
+      if (currentAttuned.some(i => i.id === item.id)) {
+        return prev;
+      }
+
+      // Check if at max
+      if (currentAttuned.length >= MAX_ATTUNED_ITEMS) {
+        return prev;
+      }
+
+      success = true;
+      return {
+        ...prev,
+        attunedItems: [...currentAttuned, item]
+      };
+    });
+    return success;
+  }, []);
+
+  const unattuneItem = useCallback((item: Item) => {
+    setCharacter((prev) => {
+      if (!prev) return null;
+      const currentAttuned = prev.attunedItems || [];
+      return {
+        ...prev,
+        attunedItems: currentAttuned.filter(i => i.id !== item.id)
+      };
+    });
+  }, []);
+
   return (
     <GameContext.Provider
       value={{
@@ -1125,6 +1168,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         recordDeathSave,
         resetDeathSaves,
         addTemporaryHitPoints,
+        attuneItem,
+        unattuneItem,
       }}
     >
       {children}

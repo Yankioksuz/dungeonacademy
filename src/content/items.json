@@ -1271,6 +1271,54 @@
       "type": "treasure",
       "description": "A weathered map with a fresh charcoal route drawn toward the Azure Spire and a note to deliver it to Spymaster Kaela",
       "value": 1
+    },
+    {
+      "id": "merchants-journal",
+      "name": "Frozen Merchant's Journal",
+      "type": "treasure",
+      "description": "The last journal of a merchant who froze in Frostfang Pass. The entries describe strange figures walking inside the glaciers.",
+      "value": 10
+    },
+    {
+      "id": "rimeguard-medallion",
+      "name": "Rimeguard Medallion",
+      "type": "treasure",
+      "description": "A silver medallion bearing a snowflake over a closed eye—the symbol of the Rimeguard, ancient wardens of the Frostfang tunnels. It pulses with protective magic.",
+      "value": 250
+    },
+    {
+      "id": "frost-rune-axe",
+      "name": "Frost-Rune Axe",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "Forged by undead dwarven smiths in the Frozen Depths. This axe deals an extra 1d6 cold damage and glows with pale blue runes.",
+      "damage": "1d8 + 1d6 cold",
+      "value": 3500,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "melee",
+        "versatile-1d10"
+      ]
+    },
+    {
+      "id": "heart-shard",
+      "name": "Shard of Winter",
+      "type": "wondrous",
+      "description": "A fragment of the Frost Siren, cold to the touch but somehow comforting. Grants resistance to cold damage while held.",
+      "value": 2000,
+      "rarity": "rare"
+    },
+    {
+      "id": "primordial-winter-shard",
+      "name": "Primordial Winter Shard",
+      "type": "wondrous",
+      "description": "A fragment of the Heart of Winter itself—a Primordial of endless cold. It pulses with dormant but immense power, cold beyond cold. What you do with a piece of a god is up to you.",
+      "value": 50000,
+      "rarity": "legendary",
+      "properties": [
+        "attunement"
+      ]
     }
   ]
 }

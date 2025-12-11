@@ -27,9 +27,17 @@ import {
   getUpcastDamageOrEffect,
   isPreparedCaster,
   shouldCheckScrollUse,
-  getProficiencyBonus,
   getSpellHealing,
 } from '@/lib/spells';
+import {
+  getProficiencyBonus,
+  getInitiativeBonus,
+  getSavingThrowBonus,
+  getArmorClass
+} from '@/utils/skillUtils';
+import { calculateMaxHitPoints } from '@/utils/characterUtils';
+import { checkFeatPrerequisites } from '@/utils/featUtils';
+import { getNPCPortraitSrc } from '@/data/npcPortraits';
 
 // Force update check
 
@@ -120,7 +128,9 @@ export function Adventure() {
     tutorialsEnabled,
     startConcentration,
     endConcentration,
-    spendSpellSlot
+    spendSpellSlot,
+    attuneItem,
+    unattuneItem
   } = useGame();
   const currentEncounter = useMemo<Encounter | null>(() => {
     if (!adventure || !adventure.encounters || adventure.encounters.length === 0) {
@@ -158,7 +168,7 @@ export function Adventure() {
   const questEvents = useRef<Set<string>>(new Set());
   const PRIMARY_QUEST_ID = 'stop-goblin-raids';
   const allTalents = talentsContent as TalentOption[];
-  const allFeats = featsData as Feat[];
+  const allFeats = featsData;
   const [availableTalents, setAvailableTalents] = useState<TalentOption[]>([]);
   const [selectedTalentId, setSelectedTalentId] = useState<string | null>(null);
   const [availableFeats, setAvailableFeats] = useState<Feat[]>([]);
@@ -472,7 +482,7 @@ export function Adventure() {
 
       if (ASI_LEVELS.includes(character.level)) {
         const takenFeats = character.feats || [];
-        const available = allFeats.filter(f => !takenFeats.includes(f.id));
+        const available = allFeats.filter(f => !takenFeats.includes(f.id) && checkFeatPrerequisites(f, character));
         setAvailableFeats(available);
       } else {
         setAvailableFeats([]);
@@ -659,15 +669,17 @@ export function Adventure() {
         updateCharacter((prev) => {
           if (!prev) return prev;
           const currentFeats = prev.feats || [];
-          let hpBonus = 0;
-          if (selectedFeatId === 'tough') {
-            hpBonus = prev.level * 2;
-          }
+          const newFeats = [...currentFeats, selectedFeatId];
+
+          // Use utility to calculate new Max HP (handles Tough feat etc)
+          const newMaxHp = calculateMaxHitPoints({ ...prev, feats: newFeats });
+          const hpDiff = newMaxHp - prev.maxHitPoints;
+
           return {
             ...prev,
-            maxHitPoints: prev.maxHitPoints + hpBonus,
-            hitPoints: prev.hitPoints + hpBonus,
-            feats: [...currentFeats, selectedFeatId]
+            maxHitPoints: newMaxHp,
+            hitPoints: prev.hitPoints + hpDiff, // Heal for the gained amount
+            feats: newFeats
           };
         });
         addJournalEntry(`Gained the feat: ${selectedFeat.name}.`, 'Feat Gained');
@@ -1157,9 +1169,61 @@ export function Adventure() {
                 </div>
               )}
 
-              {/* Description */}
+              {/* Description with optional NPC Portrait */}
               <div className="space-y-2">
-                <p className="text-lg">{currentEncounter.description}</p>
+                {/* NPC Portrait Detection */}
+                {(() => {
+                  // Check for NPC names in the encounter title or description
+                  const npcIds = ['thora', 'pip', 'mara', 'kaela', 'eldred', 'vael', 'ryell'];
+                  const titleLower = currentEncounter.title.toLowerCase();
+                  const descLower = currentEncounter.description.toLowerCase();
+
+                  // Find the NPC that appears earliest in the title or description
+                  let bestMatch = null;
+                  let bestIndex = Infinity;
+
+                  for (const id of npcIds) {
+                    // Check title (highest priority)
+                    const titleIdx = titleLower.indexOf(id);
+                    if (titleIdx !== -1) {
+                      // Title matches are effectively index 0 priority (or slightly better)
+                      const adjustedIdx = titleIdx - 1000;
+                      if (adjustedIdx < bestIndex) {
+                        bestIndex = adjustedIdx;
+                        bestMatch = id;
+                      }
+                      continue;
+                    }
+
+                    // Check description if social
+                    if (currentEncounter.type === 'social') {
+                      const descIdx = descLower.indexOf(id);
+                      if (descIdx !== -1 && descIdx < bestIndex) {
+                        bestIndex = descIdx;
+                        bestMatch = id;
+                      }
+                    }
+                  }
+
+                  const matchedNpc = bestMatch;
+
+                  const portraitSrc = matchedNpc ? getNPCPortraitSrc(matchedNpc) : undefined;
+
+                  if (portraitSrc && (currentEncounter.type === 'social' || titleLower.includes(matchedNpc || ''))) {
+                    return (
+                      <div className="flex gap-4 items-start">
+                        <img
+                          src={portraitSrc}
+                          alt={matchedNpc || 'NPC'}
+                          className="w-24 h-24 rounded-lg border-2 border-fantasy-gold/50 object-cover shadow-lg flex-shrink-0"
+                        />
+                        <p className="text-lg flex-1">{currentEncounter.description}</p>
+                      </div>
+                    );
+                  }
+
+                  return <p className="text-lg">{currentEncounter.description}</p>;
+                })()}
 
                 {/* Outcome Message from Last Choice */}
                 {outcomeMessage && !isRollingDice && (
@@ -1244,7 +1308,7 @@ export function Adventure() {
                             isSelected && "opacity-60 text-muted-foreground"
                           )}
                           onClick={() => handleOptionClick(option)}
-                          disabled={currentEncounter.completed}
+                          disabled={currentEncounter.completed && !option.endsAdventure}
                         >
                           <div className="flex flex-wrap items-center gap-3 w-full">
                             <span className="flex items-center gap-2 text-left">
@@ -1277,197 +1341,209 @@ export function Adventure() {
           </Card>
         </div>
       </div>
-      {showQuestJournal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="relative w-full max-w-4xl">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
-              onClick={() => setShowQuestJournal(false)}
-            >
-              <X className="h-6 w-6" />
-            </Button>
-            <div className="grid gap-4 md:grid-cols-2">
-              <QuestTracker quests={quests} />
-              <JournalPanel journal={journal} />
+      {
+        showQuestJournal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+            <div className="relative w-full max-w-4xl">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
+                onClick={() => setShowQuestJournal(false)}
+              >
+                <X className="h-6 w-6" />
+              </Button>
+              <div className="grid gap-4 md:grid-cols-2">
+                <QuestTracker quests={quests} />
+                <JournalPanel journal={journal} />
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
-      {showRestMenu && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="relative w-full max-w-md">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
-              onClick={() => setShowRestMenu(false)}
-            >
-              <X className="h-6 w-6" />
-            </Button>
-            <Card className="border-fantasy-gold bg-fantasy-dark-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Tent className="h-6 w-6 text-fantasy-gold" />
-                  Rest & Recovery
-                </CardTitle>
-                <CardDescription>
-                  Take a moment to tend to your wounds and prepare for the journey ahead.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Button
-                  variant="outline"
-                  className="w-full justify-between h-auto py-4"
-                  onClick={handleShortRest}
-                >
-                  <div className="flex flex-col items-start">
-                    <span className="font-bold">Short Rest</span>
-                    <span className="text-xs text-muted-foreground">Spend 1 Hit Die to regain HP.</span>
-                  </div>
-                  <Badge variant="secondary">1 hr</Badge>
-                </Button>
-                <Button
-                  variant="fantasy"
-                  className="w-full justify-between h-auto py-4"
-                  onClick={handleLongRest}
-                >
-                  <div className="flex flex-col items-start">
-                    <span className="font-bold">Long Rest</span>
-                    <span className="text-xs text-white/80">Restore all HP and Spell Slots.</span>
-                  </div>
-                  <Badge variant="secondary" className="bg-black/20">8 hrs</Badge>
-                </Button>
-              </CardContent>
-            </Card>
+      {
+        showRestMenu && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+            <div className="relative w-full max-w-md">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
+                onClick={() => setShowRestMenu(false)}
+              >
+                <X className="h-6 w-6" />
+              </Button>
+              <Card className="border-fantasy-gold bg-fantasy-dark-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Tent className="h-6 w-6 text-fantasy-gold" />
+                    Rest & Recovery
+                  </CardTitle>
+                  <CardDescription>
+                    Take a moment to tend to your wounds and prepare for the journey ahead.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between h-auto py-4"
+                    onClick={handleShortRest}
+                  >
+                    <div className="flex flex-col items-start">
+                      <span className="font-bold">Short Rest</span>
+                      <span className="text-xs text-muted-foreground">Spend 1 Hit Die to regain HP.</span>
+                    </div>
+                    <Badge variant="secondary">1 hr</Badge>
+                  </Button>
+                  <Button
+                    variant="fantasy"
+                    className="w-full justify-between h-auto py-4"
+                    onClick={handleLongRest}
+                  >
+                    <div className="flex flex-col items-start">
+                      <span className="font-bold">Long Rest</span>
+                      <span className="text-xs text-white/80">Restore all HP and Spell Slots.</span>
+                    </div>
+                    <Badge variant="secondary" className="bg-black/20">8 hrs</Badge>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
-      {showSpellMenu && !inCombat && character && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="relative w-full max-w-2xl">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
-              onClick={() => setShowSpellMenu(false)}
-            >
-              <X className="h-6 w-6" />
-            </Button>
-            <Card className="border-fantasy-purple bg-fantasy-dark-card">
-              <CardHeader>
-                <CardTitle className="flex justify-between items-center">
-                  <span>Spellbook</span>
-                  {slotBadges.length > 0 && (
-                    <Badge variant="outline">
-                      {slotBadges.join(' | ')}
-                    </Badge>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-2 max-h-[70vh] overflow-y-auto">
-                {character.knownSpells?.map((spellId) => {
-                  const spell = spellsData.find((s) => s.id === spellId) as unknown as SpellContent;
-                  if (!spell) return null;
-                  const availableSlotLevels = getAvailableSlotLevels(character, spell);
-                  const canCastAsRitual = spell.ritual && canRitualCast(character);
-                  const isCantrip = spell.level === 0;
-                  const noResources =
-                    !isCantrip &&
-                    availableSlotLevels.length === 0 &&
-                    !canCastAsRitual;
-                  const preparedRequirement =
-                    !isPreparedCaster(character.class.name) ||
-                    (character.preparedSpells || character.knownSpells || []).includes(spellId);
+      {
+        showSpellMenu && !inCombat && character && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+            <div className="relative w-full max-w-2xl">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
+                onClick={() => setShowSpellMenu(false)}
+              >
+                <X className="h-6 w-6" />
+              </Button>
+              <Card className="border-fantasy-purple bg-fantasy-dark-card">
+                <CardHeader>
+                  <CardTitle className="flex justify-between items-center">
+                    <span>Spellbook</span>
+                    {slotBadges.length > 0 && (
+                      <Badge variant="outline">
+                        {slotBadges.join(' | ')}
+                      </Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-2 max-h-[70vh] overflow-y-auto">
+                  {character.knownSpells?.map((spellId) => {
+                    const spell = spellsData.find((s) => s.id === spellId) as unknown as SpellContent;
+                    if (!spell) return null;
+                    const availableSlotLevels = getAvailableSlotLevels(character, spell);
+                    const canCastAsRitual = spell.ritual && canRitualCast(character);
+                    const isCantrip = spell.level === 0;
+                    const noResources =
+                      !isCantrip &&
+                      availableSlotLevels.length === 0 &&
+                      !canCastAsRitual;
+                    const preparedRequirement =
+                      !isPreparedCaster(character.class.name) ||
+                      (character.preparedSpells || character.knownSpells || []).includes(spellId);
 
-                  return (
-                    <div
-                      key={spellId}
-                      className="w-full rounded-md border border-fantasy-purple/30 p-3 hover:bg-fantasy-purple/10 transition"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex flex-col items-start text-left">
-                          <span className="font-bold flex items-center gap-2">
-                            {spell.name}
-                            {spell.concentration && (
-                              <Badge variant="outline" className="text-[11px] flex items-center gap-1">
-                                <Brain className="h-3 w-3" /> Concentration
-                              </Badge>
+                    return (
+                      <div
+                        key={spellId}
+                        className="w-full rounded-md border border-fantasy-purple/30 p-3 hover:bg-fantasy-purple/10 transition"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex flex-col items-start text-left">
+                            <span className="font-bold flex items-center gap-2">
+                              {spell.name}
+                              {spell.concentration && (
+                                <Badge variant="outline" className="text-[11px] flex items-center gap-1">
+                                  <Brain className="h-3 w-3" /> Concentration
+                                </Badge>
+                              )}
+                            </span>
+                            <span className="text-xs text-muted-foreground line-clamp-2">{spell.description}</span>
+                            {!preparedRequirement && (
+                              <span className="text-[11px] text-amber-400 mt-1">Not prepared</span>
                             )}
-                          </span>
-                          <span className="text-xs text-muted-foreground line-clamp-2">{spell.description}</span>
-                          {!preparedRequirement && (
-                            <span className="text-[11px] text-amber-400 mt-1">Not prepared</span>
+                          </div>
+                          <Badge variant="secondary" className="ml-2 shrink-0">Lvl {spell.level}</Badge>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {isCantrip && (
+                            <Button
+                              size="sm"
+                              variant="fantasy"
+                              onClick={() => handleAdventureCast(spellId)}
+                            >
+                              Cast Cantrip
+                            </Button>
+                          )}
+                          {availableSlotLevels.map((lvl) => (
+                            <Button
+                              key={`${spellId}-slot-${lvl}-adv`}
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleAdventureCast(spellId, { slotLevel: lvl })}
+                              disabled={!preparedRequirement}
+                            >
+                              Use Lvl {lvl} Slot
+                            </Button>
+                          ))}
+                          {canCastAsRitual && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleAdventureCast(spellId, { castAsRitual: true })}
+                              disabled={!preparedRequirement}
+                            >
+                              Cast as Ritual
+                            </Button>
+                          )}
+                          {noResources && (
+                            <span className="text-xs text-muted-foreground">No slots remaining</span>
                           )}
                         </div>
-                        <Badge variant="secondary" className="ml-2 shrink-0">Lvl {spell.level}</Badge>
                       </div>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {isCantrip && (
-                          <Button
-                            size="sm"
-                            variant="fantasy"
-                            onClick={() => handleAdventureCast(spellId)}
-                          >
-                            Cast Cantrip
-                          </Button>
-                        )}
-                        {availableSlotLevels.map((lvl) => (
-                          <Button
-                            key={`${spellId}-slot-${lvl}-adv`}
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleAdventureCast(spellId, { slotLevel: lvl })}
-                            disabled={!preparedRequirement}
-                          >
-                            Use Lvl {lvl} Slot
-                          </Button>
-                        ))}
-                        {canCastAsRitual && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleAdventureCast(spellId, { castAsRitual: true })}
-                            disabled={!preparedRequirement}
-                          >
-                            Cast as Ritual
-                          </Button>
-                        )}
-                        {noResources && (
-                          <span className="text-xs text-muted-foreground">No slots remaining</span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-                {(!character.knownSpells || character.knownSpells.length === 0) && (
-                  <p className="text-center text-muted-foreground py-4">You don't know any spells.</p>
-                )}
-              </CardContent>
-            </Card>
+                    );
+                  })}
+                  {(!character.knownSpells || character.knownSpells.length === 0) && (
+                    <p className="text-center text-muted-foreground py-4">You don't know any spells.</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Shop Modal */}
-      {showShop && (
-        <Shop onClose={() => setShowShop(false)} />
-      )}
+      {
+        showShop && (
+          <Shop onClose={() => setShowShop(false)} />
+        )
+      }
 
       {/* Inventory Modal */}
-      {showInventory && (
-        <Inventory
-          character={character}
-          onEquipItem={equipItem}
-          onUnequipItem={unequipItem}
-          onUseItem={handleUseInventoryItem}
-          onPinItem={handlePinItem}
-          onClose={() => setShowInventory(false)}
-        />
-      )}
-    </div>
+      {
+        showInventory && (
+          <Inventory
+            character={character}
+            onEquipItem={equipItem}
+            onUnequipItem={unequipItem}
+            onUseItem={handleUseInventoryItem}
+            onPinItem={handlePinItem}
+            onAttuneItem={attuneItem}
+            onUnattuneItem={unattuneItem}
+            onClose={() => setShowInventory(false)}
+          />
+        )
+      }
+    </div >
   );
 }

@@ -108,6 +108,7 @@ export interface Race {
   description: string;
   abilityScoreIncrease: { [key: string]: number | undefined };
   traits: string[];
+  speed?: number; // Base walking speed in feet (default 30)
 }
 
 export interface Class {
@@ -198,7 +199,7 @@ export interface PlayerCharacter {
   hitPoints: number;
   maxHitPoints: number;
   temporaryHitPoints: number; // NEW: Temporary HP
-  hitDice: {
+  hitDice?: {
     current: number;
     max: number;
     die: string; // e.g., "d10"
@@ -261,10 +262,12 @@ export interface PlayerCharacter {
   adventureHistory?: AdventureHistoryEntry[];
   subclass?: Subclass; // NEW: Selected Subclass
   feats?: string[]; // IDs of taken feats
+  resilientAbility?: AbilityName; // Chosen ability for Resilient feat
 }
 
 export interface FeatEffect {
   type: 'initiative' | 'passive' | 'hpPerLevel' | 'resource' | 'action' | 'toggle' | 'speed';
+  description?: string; // Human readable description of effect
   key?: string;
   value?: number;
   trigger?: string;
@@ -279,6 +282,33 @@ export interface Feat {
   id: string;
   name: string;
   description: string;
+  source?: string; // PHB, XGE, etc.
+
+  // Prerequisites
+  prerequisites?: {
+    abilityScore?: {
+      ability: AbilityName;
+      minimum: number;
+    };
+    race?: string[];
+    class?: string[];
+    level?: number;
+    proficiency?: string;
+    armor?: string; // e.g. "Medium Armor"
+    spellcasting?: boolean;
+  };
+
+  // Benefits
+  benefits: {
+    abilityScoreIncrease?: {
+      ability: AbilityName | 'choice' | 'chosen';
+      amount: number;
+    }[];
+    specialAbility?: string;
+    proficiencies?: string[];
+    other?: string[];
+  };
+
   effects?: FeatEffect[];
 }
 
@@ -420,9 +450,9 @@ export interface FeatureUses {
   rage: number;
   channelDivinity: number;
   layOnHands: number;
+  luckPoints?: number;
   kiPoints: number;
   wildShape: number;
-  luckPoints: number; // For Lucky feat
   sorceryPoints: number;
 
   // Fighter subclass features
@@ -477,7 +507,7 @@ export interface CombatState {
 
 export type CombatLogEntryType =
   | 'attack' | 'damage' | 'heal' | 'miss' | 'defeat' | 'info' | 'xp' | 'levelup'
-  | 'spell' | 'condition' | 'initiative';
+  | 'spell' | 'condition' | 'initiative' | 'warning';
 
 export interface CombatLogEntry {
   id: string;
