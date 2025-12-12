@@ -25,16 +25,19 @@ import {
     Footprints,
     Backpack,
     Scroll,
-    Dna
+    Dna,
+    X,
+    Award
 } from 'lucide-react';
 import spellsData from '@/content/spells.json';
 import feats from '@/content/feats.json';
 
 interface CharacterSheetProps {
     character: PlayerCharacter;
+    onClose?: () => void;
 }
 
-export function CharacterSheet({ character }: CharacterSheetProps) {
+export function CharacterSheet({ character, onClose }: CharacterSheetProps) {
     const [activeTab, setActiveTab] = useState("equipment");
     const proficiencyBonus = calculateProficiencyBonus(character.level);
     const armorClass = calculateArmorClass(character);
@@ -62,7 +65,17 @@ export function CharacterSheet({ character }: CharacterSheetProps) {
     ];
 
     return (
-        <div className="scroll-parchment rounded-3xl border border-fantasy-gold/40 p-6 shadow-fantasy text-foreground space-y-6">
+        <div className="relative scroll-parchment rounded-3xl border border-fantasy-gold/40 p-6 shadow-fantasy text-foreground space-y-6">
+            {/* Close Button */}
+            {onClose && (
+                <button
+                    onClick={onClose}
+                    className="absolute top-4 right-4 z-10 rounded-full bg-black/40 p-2 text-muted-foreground hover:bg-black/60 hover:text-white transition-colors"
+                >
+                    <X className="h-5 w-5" />
+                </button>
+            )}
+
             {/* Hero header */}
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
                 <div className="flex flex-1 flex-col gap-4 sm:flex-row sm:items-center">
@@ -266,7 +279,47 @@ export function CharacterSheet({ character }: CharacterSheetProps) {
                         <TabsContent value="features" className="mt-4">
                             <div className="rounded-2xl border border-fantasy-purple/40 bg-black/30 p-5">
                                 <ScrollArea className="h-[500px] pr-4">
-                                    <div className="space-y-5 text-sm leading-relaxed text-white/90">
+                                    <div className="space-y-6 text-sm leading-relaxed text-white/90">
+
+                                        {/* Proficiencies Section */}
+                                        <div className="rounded-xl bg-fantasy-purple/5 p-4 border border-fantasy-purple/20">
+                                            <h3 className="text-xs font-semibold uppercase tracking-[0.3em] text-fantasy-gold mb-3 flex items-center gap-2">
+                                                <Award className="h-4 w-4" /> Proficiencies & Languages
+                                            </h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5 font-semibold">Armor</div>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {character.armorProficiencies?.length > 0 ? (
+                                                            character.armorProficiencies.map(p => (
+                                                                <Badge key={p} variant="outline" className="bg-black/40 border-fantasy-gold/20 text-xs text-fantasy-gold/90 hover:bg-fantasy-gold/10">{p}</Badge>
+                                                            ))
+                                                        ) : <span className="text-xs text-muted-foreground italic">None</span>}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5 font-semibold">Weapons</div>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {character.weaponProficiencies?.length > 0 ? (
+                                                            character.weaponProficiencies.map(p => (
+                                                                <Badge key={p} variant="outline" className="bg-black/40 border-fantasy-gold/20 text-xs text-fantasy-gold/90 hover:bg-fantasy-gold/10">{p}</Badge>
+                                                            ))
+                                                        ) : <span className="text-xs text-muted-foreground italic">None</span>}
+                                                    </div>
+                                                </div>
+                                                <div className="md:col-span-2">
+                                                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5 font-semibold">Languages</div>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {character.languages?.length > 0 ? (
+                                                            character.languages.map(p => (
+                                                                <Badge key={p} variant="secondary" className="text-xs bg-fantasy-purple/20 text-fantasy-purple-foreground hover:bg-fantasy-purple/30">{p}</Badge>
+                                                            ))
+                                                        ) : <span className="text-xs text-muted-foreground italic">Common</span>}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div>
                                             <h3 className="text-xs font-semibold uppercase tracking-[0.3em] text-fantasy-gold">
                                                 Racial Traits — {character.race.name}

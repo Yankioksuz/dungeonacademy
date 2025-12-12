@@ -13,14 +13,19 @@ import type {
   AbilityName,
   SavingThrowProficiencies,
   SkillName,
+  EquipmentSlot,
+  Equipment,
 } from '@/types';
 import characterCreationContent from '@/content/characterCreation.json';
 import { useSaveSystem } from '@/hooks/useSaveSystem';
 import tutorialAdventure from '@/content/adventure.json';
 import spireAdventure from '@/content/adventure-shadows.json';
 import spellsContent from '@/content/spells.json';
-import { getMaxPreparedSpells, calculateSpellSlots } from '@/lib/spells';
+import { getMaxPreparedSpells } from '@/lib/spells';
 import { getProficiencyBonus, createDefaultSkills, getPassiveScore } from '@/utils/skillUtils';
+import {
+  calculateSpellSlots
+} from '@/utils/characterStats';
 import { calculateMaxHitPoints } from '@/utils/characterUtils';
 import { getDefaultFeatureUses } from '@/utils/featureUtils';
 import { CLASS_PROGRESSION } from '@/data/classProgression';
@@ -76,6 +81,9 @@ interface GameContextType {
   // NEW: Attunement
   attuneItem: (item: Item) => boolean;
   unattuneItem: (item: Item) => void;
+  // NEW: Equipment slots
+  equipToSlot: (item: Item, slot: EquipmentSlot) => void;
+  unequipSlot: (slot: EquipmentSlot) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -278,6 +286,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setAdventure(savedAdventure);
     setCharacterCreationStep(savedGame.characterCreationStep);
     setIsInAdventure(savedGame.isInAdventure);
+
+    // Recalculate spell slots from scratch to fix any legacy data issues
+    // This ensures non-casters don't have stray slots from previous bugs
+    if (migratedCharacter) {
+      migratedCharacter.spellSlots = calculateSpellSlots(migratedCharacter);
+      setCharacter(migratedCharacter); // Update character state with recalculated slots
+    }
+
     setQuests(savedGame.quests || []);
     setJournal(savedGame.journal || []);
     return true;
@@ -508,9 +524,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
           const className = updatedCharacter.class.name;
           if (['Fighter', 'Paladin', 'Ranger', 'Barbarian'].includes(className)) {
             profs.push('Simple Weapons', 'Martial Weapons');
-          } else if (['Cleric', 'Druid', 'Rogue', 'Warlock'].includes(className)) {
+          } else if (['Cleric', 'Warlock'].includes(className)) {
             profs.push('Simple Weapons');
-          } else {
+          } else if (className === 'Druid') {
+            profs.push('Club', 'Dagger', 'Dart', 'Javelin', 'Mace', 'Quarterstaff', 'Scimitar', 'Sickle', 'Sling', 'Spear');
+          } else if (className === 'Rogue' || className === 'Bard') {
+            profs.push('Simple Weapons', 'Hand Crossbow', 'Longsword', 'Rapier', 'Shortsword');
+          } else if (className === 'Monk') {
+            profs.push('Simple Weapons', 'Shortsword');
+          } else if (['Sorcerer', 'Wizard'].includes(className)) {
             profs.push('Dagger', 'Dart', 'Sling', 'Quarterstaff', 'Light Crossbow');
           }
           return profs;
@@ -520,7 +542,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
           const className = updatedCharacter.class.name;
           if (['Fighter', 'Paladin'].includes(className)) profs.push('All Armor', 'Shields');
           else if (['Ranger', 'Cleric', 'Barbarian', 'Druid'].includes(className)) profs.push('Light Armor', 'Medium Armor', 'Shields');
-          else if (['Rogue', 'Warlock'].includes(className)) profs.push('Light Armor');
+          else if (['Rogue', 'Warlock', 'Bard'].includes(className)) profs.push('Light Armor');
           return profs;
         })(),
         senses: (() => {
@@ -592,9 +614,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
           return profs;
         })(),
         talents: updatedCharacter.talents || [],
-        spellSlots: {
-          1: { current: 2, max: 2 } // Default 2 level 1 slots for everyone for now
-        },
+        spellSlots: calculateSpellSlots(updatedCharacter),
         knownSpells: (() => {
           const classSpells = spellsContent
             .filter(spell =>
@@ -784,6 +804,118 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // NEW: Equipment slot functions
+  const equipToSlot = useCallback((item: Item, slot: EquipmentSlot) => {
+    setCharacter((prev) => {
+      if (!prev) return null;
+
+      const newEquipment: Equipment = { ...prev.equipment };
+      newEquipment[slot] = item;
+
+      // Also update legacy fields for backward compatibility
+      let updates: Partial<PlayerCharacter> = { equipment: newEquipment };
+      if (slot === 'mainHand') {
+        updates.equippedWeapon = item;
+      } else if (slot === 'armor') {
+        updates.equippedArmor = item;
+      } else if (slot === 'offHand' && item.type === 'shield') {
+        updates.equippedShield = item;
+      }
+
+      // Check armor proficiency and apply condition if needed
+      let conditions = [...(prev.conditions || [])];
+      const armorItem = slot === 'armor' ? item : prev.equippedArmor;
+      const shieldItem = slot === 'offHand' && item.type === 'shield' ? item : prev.equippedShield;
+
+      // Check if character is now wearing non-proficient armor/shield
+      const profs = prev.armorProficiencies || [];
+      const hasAllArmor = profs.includes('All Armor');
+      const hasLightArmor = profs.includes('Light Armor');
+      const hasMediumArmor = profs.includes('Medium Armor');
+      const hasHeavyArmor = profs.includes('Heavy Armor');
+      const hasShields = profs.includes('Shields');
+
+      let isNotProficient = false;
+      if (armorItem?.armorType) {
+        const armorType = armorItem.armorType;
+        if (armorType === 'light' && !hasLightArmor && !hasAllArmor) isNotProficient = true;
+        if (armorType === 'medium' && !hasMediumArmor && !hasAllArmor) isNotProficient = true;
+        if (armorType === 'heavy' && !hasHeavyArmor && !hasAllArmor) isNotProficient = true;
+      }
+      if (shieldItem && !hasShields) {
+        isNotProficient = true;
+      }
+
+      // Update conditions
+      const hasArmorCondition = conditions.some(c => c.type === 'armor-not-proficient');
+      if (isNotProficient && !hasArmorCondition) {
+        conditions.push({
+          type: 'armor-not-proficient',
+          name: 'Armor Non-Proficiency',
+          description: 'Disadvantage on STR/DEX ability checks, attack rolls, and saving throws. Cannot cast spells.',
+          duration: -1,
+          source: 'Equipment'
+        });
+      } else if (!isNotProficient && hasArmorCondition) {
+        conditions = conditions.filter(c => c.type !== 'armor-not-proficient');
+      }
+      updates.conditions = conditions;
+
+      return { ...prev, ...updates };
+    });
+  }, []);
+
+  const unequipSlot = useCallback((slot: EquipmentSlot) => {
+    setCharacter((prev) => {
+      if (!prev) return null;
+
+      const newEquipment: Equipment = { ...prev.equipment };
+      delete newEquipment[slot];
+
+      // Also update legacy fields for backward compatibility
+      let updates: Partial<PlayerCharacter> = { equipment: newEquipment };
+      if (slot === 'mainHand') {
+        updates.equippedWeapon = undefined;
+      } else if (slot === 'armor') {
+        updates.equippedArmor = undefined;
+      } else if (slot === 'offHand') {
+        updates.equippedShield = undefined;
+      }
+
+      // Re-check armor proficiency after unequipping
+      let conditions = [...(prev.conditions || [])];
+      const armorItem = slot === 'armor' ? undefined : prev.equippedArmor;
+      const shieldItem = slot === 'offHand' ? undefined : prev.equippedShield;
+
+      // Check if still wearing non-proficient armor/shield
+      const profs = prev.armorProficiencies || [];
+      const hasAllArmor = profs.includes('All Armor');
+      const hasLightArmor = profs.includes('Light Armor');
+      const hasMediumArmor = profs.includes('Medium Armor');
+      const hasHeavyArmor = profs.includes('Heavy Armor');
+      const hasShields = profs.includes('Shields');
+
+      let isNotProficient = false;
+      if (armorItem?.armorType) {
+        const armorType = armorItem.armorType;
+        if (armorType === 'light' && !hasLightArmor && !hasAllArmor) isNotProficient = true;
+        if (armorType === 'medium' && !hasMediumArmor && !hasAllArmor) isNotProficient = true;
+        if (armorType === 'heavy' && !hasHeavyArmor && !hasAllArmor) isNotProficient = true;
+      }
+      if (shieldItem && !hasShields) {
+        isNotProficient = true;
+      }
+
+      // Update conditions
+      if (!isNotProficient) {
+        conditions = conditions.filter(c => c.type !== 'armor-not-proficient');
+      }
+      updates.conditions = conditions;
+
+      return { ...prev, ...updates };
+    });
+  }, []);
+
   const useItem = useCallback((item: Item) => {
     setCharacter((prev) => {
       if (!prev) return null;
@@ -956,7 +1088,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         const draconicBonus = prev.class.id === 'sorcerer' && prev.sorcerousOrigin === 'Draconic Bloodline' ? 1 : 0;
 
         // Calculate new spell slots
-        const newSpellSlots = calculateSpellSlots(prev.class.name, newLevel);
+        const newSpellSlots = calculateSpellSlots({ ...prev, level: newLevel });
         const hasNewSlots = Object.keys(newSpellSlots).length > 0;
         const slotsToUpdate = hasNewSlots ? newSpellSlots : prev.spellSlots;
 
@@ -1170,6 +1302,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         addTemporaryHitPoints,
         attuneItem,
         unattuneItem,
+        equipToSlot,
+        unequipSlot,
       }}
     >
       {children}

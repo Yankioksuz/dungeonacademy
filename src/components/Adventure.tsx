@@ -19,6 +19,8 @@ import featsData from '@/content/feats.json';
 import { QuestTracker } from './QuestTracker';
 import { JournalPanel } from './JournalPanel';
 import { Shop } from './Shop';
+import { CharacterSheet } from './CharacterSheet';
+import { portraits } from '@/data/portraits';
 import {
   canRitualCast,
   getAvailableSlotLevels,
@@ -130,7 +132,9 @@ export function Adventure() {
     endConcentration,
     spendSpellSlot,
     attuneItem,
-    unattuneItem
+    unattuneItem,
+    equipToSlot,
+    unequipSlot
   } = useGame();
   const currentEncounter = useMemo<Encounter | null>(() => {
     if (!adventure || !adventure.encounters || adventure.encounters.length === 0) {
@@ -159,6 +163,7 @@ export function Adventure() {
   const [outcomeMessage, setOutcomeMessage] = useState<string | null>(null);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [showSpellMenu, setShowSpellMenu] = useState(false);
+  const [showCharacterSheet, setShowCharacterSheet] = useState(false);
 
   const [selectedOptions, setSelectedOptions] = useState<Set<string>>(new Set());
 
@@ -256,6 +261,11 @@ export function Adventure() {
       setInCombat(true);
     }
   }, [currentEncounter]);
+
+  // Clear outcome message when encounter changes
+  useEffect(() => {
+    setOutcomeMessage(null);
+  }, [currentEncounter?.id]);
 
   // Adventure is started from Game component, no auto-start needed
 
@@ -1012,9 +1022,35 @@ export function Adventure() {
 
       {/* Character Stats Bar */}
       <div className="mb-6 flex flex-wrap gap-4 justify-center items-center">
-        <Badge variant="fantasy" className="text-sm px-4 py-2">
-          {character.name} - {character.race.name} {character.class.name}
-        </Badge>
+        {/* Character Portrait Trigger */}
+        {/* Character Profile Pill */}
+        <button
+          onClick={() => setShowCharacterSheet(true)}
+          className="group relative flex items-center pr-5 pl-1 py-1 gap-3 bg-black/40 hover:bg-black/60 border border-fantasy-gold/30 rounded-full transition-all hover:border-fantasy-gold/60"
+        >
+          <div className="h-10 w-10 rounded-full border border-fantasy-gold/70 overflow-hidden bg-black/50 shadow-md">
+            {character.portraitId ? (
+              <img
+                src={portraits.find(p => p.id === character.portraitId)?.src}
+                alt={character.name}
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-fantasy-dark-card text-fantasy-gold font-fantasy text-sm">
+                {character.name.charAt(0)}
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col items-start gap-0.5">
+            <span className="text-sm font-bold text-fantasy-gold leading-none">
+              {character.name}
+            </span>
+            <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold flex items-center gap-1.5">
+              {character.race.name} {character.class.name} <span className="text-fantasy-gold/50">•</span> Lvl {character.level}
+            </span>
+          </div>
+        </button>
         <Badge variant="gold" className="text-sm px-4 py-2">
           HP: {character.hitPoints}/{character.maxHitPoints}
         </Badge>
@@ -1076,16 +1112,18 @@ export function Adventure() {
             <Tent className="h-4 w-4" />
             {t('adventure.rest', 'Rest')}
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowSpellMenu(true)}
-            className="flex items-center gap-2"
-            disabled={inCombat || !character.knownSpells?.length}
-          >
-            <Wand2 className="h-4 w-4" />
-            Cast Spell
-          </Button>
+          {(character.knownSpells?.length > 0 || Object.keys(character.spellSlots || {}).length > 0) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowSpellMenu(true)}
+              className="flex items-center gap-2"
+              disabled={inCombat}
+            >
+              <Wand2 className="h-4 w-4" />
+              Cast Spell
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -1134,36 +1172,40 @@ export function Adventure() {
         <div className="w-full lg:flex-1 order-1 lg:order-2">
           <Card className="w-full scroll-parchment slide-up">
             <CardHeader>
-              <div className="flex items-center justify-between mb-2">
-                <Badge variant="fantasy">{currentEncounter.type}</Badge>
-                {currentEncounter.completed && (
+              {currentEncounter.completed && (
+                <div className="mb-2">
                   <Badge variant="gold">
                     <CheckCircle2 className="h-3 w-3 mr-1" />
                     {t('adventure.completed')}
                   </Badge>
-                )}
-              </div>
+                </div>
+              )}
               <CardTitle className="text-2xl">{currentEncounter.title}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Tutorial Box */}
               {currentEncounter.tutorial && showTutorial && (
-                <div className="p-4 bg-fantasy-purple/20 border border-fantasy-purple/50 rounded-md">
-                  <div className="flex items-start gap-3">
-                    <BookOpen className="h-5 w-5 text-fantasy-gold mt-0.5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-fantasy-gold mb-1">
-                        {t('adventure.tutorial')}: {currentEncounter.tutorial.title}
-                      </h4>
-                      <p className="text-sm">{currentEncounter.tutorial.content}</p>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="mt-2"
-                        onClick={() => setShowTutorial(false)}
-                      >
-                        {t('adventure.hideTutorial')}
-                      </Button>
+                <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-fantasy-dark-card to-fantasy-dark-surface border border-fantasy-gold/30 shadow-lg">
+                  <div className="absolute inset-y-0 left-0 w-1 bg-fantasy-gold" />
+                  <div className="p-5 pl-6">
+                    <div className="flex items-start gap-4">
+                      <BookOpen className="h-6 w-6 text-fantasy-gold mt-1 flex-shrink-0" />
+                      <div className="flex-1 space-y-3">
+                        <h4 className="text-lg font-semibold text-fantasy-gold">
+                          {t('adventure.tutorial')}: {currentEncounter.tutorial.title}
+                        </h4>
+                        <p className="text-base leading-relaxed text-foreground/90">
+                          {currentEncounter.tutorial.content}
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-muted-foreground hover:text-fantasy-gold"
+                          onClick={() => setShowTutorial(false)}
+                        >
+                          {t('adventure.hideTutorial')}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1206,10 +1248,26 @@ export function Adventure() {
                   }
 
                   const matchedNpc = bestMatch;
-
                   const portraitSrc = matchedNpc ? getNPCPortraitSrc(matchedNpc) : undefined;
+                  const hasNpcPortrait = portraitSrc && (currentEncounter.type === 'social' || titleLower.includes(matchedNpc || ''));
+                  const hasOutcome = outcomeMessage && !isRollingDice;
 
-                  if (portraitSrc && (currentEncounter.type === 'social' || titleLower.includes(matchedNpc || ''))) {
+                  // Smart Hide: If we have an outcome and an NPC, show outcome as the NPC's speech
+                  if (hasNpcPortrait && hasOutcome) {
+                    return (
+                      <div className="flex gap-4 items-start fade-in">
+                        <img
+                          src={portraitSrc}
+                          alt={matchedNpc || 'NPC'}
+                          className="w-24 h-24 rounded-lg border-2 border-fantasy-gold/50 object-cover shadow-lg flex-shrink-0"
+                        />
+                        <p className="text-lg leading-relaxed flex-1">{outcomeMessage}</p>
+                      </div>
+                    );
+                  }
+
+                  // Show portrait with initial description (no outcome yet)
+                  if (hasNpcPortrait) {
                     return (
                       <div className="flex gap-4 items-start">
                         <img
@@ -1222,26 +1280,57 @@ export function Adventure() {
                     );
                   }
 
+                  // No NPC portrait - show description normally
                   return <p className="text-lg">{currentEncounter.description}</p>;
                 })()}
 
-                {/* Outcome Message from Last Choice */}
-                {outcomeMessage && !isRollingDice && (
-                  <div className="p-4 bg-fantasy-purple/20 border border-fantasy-purple/50 rounded-md my-4 fade-in">
-                    <p className="text-sm italic text-fantasy-gold">{outcomeMessage}</p>
-                  </div>
-                )}
+                {/* Outcome Message from Last Choice - only show if no NPC portrait handled it */}
+                {outcomeMessage && !isRollingDice && (() => {
+                  // Check if an NPC portrait is handling the outcome display
+                  const npcIds = ['thora', 'pip', 'mara', 'kaela', 'eldred', 'vael', 'ryell'];
+                  const titleLower = currentEncounter.title.toLowerCase();
+                  const descLower = currentEncounter.description.toLowerCase();
+
+                  let hasNpcMatch = false;
+                  for (const id of npcIds) {
+                    if (titleLower.includes(id) || (currentEncounter.type === 'social' && descLower.includes(id))) {
+                      const portraitSrc = getNPCPortraitSrc(id);
+                      if (portraitSrc) {
+                        hasNpcMatch = true;
+                        break;
+                      }
+                    }
+                  }
+
+                  // If NPC portrait is showing the outcome, don't show it again
+                  if (hasNpcMatch) {
+                    return null;
+                  }
+
+                  // Show standalone outcome for non-NPC encounters
+                  return (
+                    <div className="my-6 pl-5 border-l-4 border-fantasy-gold/60 fade-in">
+                      <p className="text-lg font-body text-foreground leading-relaxed">
+                        {outcomeMessage}
+                      </p>
+                    </div>
+                  );
+                })()}
 
                 {/* Dynamic character-specific flavor text */}
                 {showTutorial && currentEncounter.type === 'combat' && character.class.name === 'Wizard' && (
-                  <p className="text-sm text-fantasy-purple italic">
-                    Your arcane training gives you a moment to assess the magical energies in the area...
-                  </p>
+                  <div className="my-4 pl-5 border-l-4 border-fantasy-purple/60">
+                    <p className="text-base text-fantasy-purple-light leading-relaxed">
+                      Your arcane training gives you a moment to assess the magical energies in the area...
+                    </p>
+                  </div>
                 )}
                 {showTutorial && currentEncounter.type === 'combat' && character.class.name === 'Barbarian' && (
-                  <p className="text-sm text-red-400 italic">
-                    You feel the battle rage stirring within you, ready to be unleashed...
-                  </p>
+                  <div className="my-4 pl-5 border-l-4 border-red-500/60">
+                    <p className="text-base text-red-400 leading-relaxed">
+                      You feel the battle rage stirring within you, ready to be unleashed...
+                    </p>
+                  </div>
                 )}
               </div>
 
@@ -1261,7 +1350,7 @@ export function Adventure() {
 
               {/* Options */}
               <div className="space-y-3">
-                <h4 className="font-semibold">{t('adventure.whatDoYouDo')}</h4>
+                <h4 className="font-semibold text-lg">{t('adventure.whatDoYouDo')}</h4>
                 {currentEncounter.options
                   .filter((option) => {
                     // Filter options based on character requirements
@@ -1302,7 +1391,7 @@ export function Adventure() {
                         <Button
                           variant={option.type === 'attack' ? 'destructive' : 'outline'}
                           className={cn(
-                            "w-full justify-start text-left h-auto py-4 px-4",
+                            "w-full justify-start text-left h-auto py-5 px-5 text-base",
                             (option.requiresRace || option.requiresClass || option.requiresBackground) &&
                             "border-fantasy-gold/50 bg-fantasy-gold/10 hover:bg-fantasy-gold/20",
                             isSelected && "opacity-60 text-muted-foreground"
@@ -1312,8 +1401,8 @@ export function Adventure() {
                         >
                           <div className="flex flex-wrap items-center gap-3 w-full">
                             <span className="flex items-center gap-2 text-left">
-                              {option.isExitOption && <DoorOpen className="h-4 w-4 text-muted-foreground" />}
-                              {isSkillCheck && <Dice6 className="h-4 w-4 text-fantasy-purple" />}
+                              {option.isExitOption && <DoorOpen className="h-5 w-5 text-muted-foreground" />}
+                              {isSkillCheck && <Dice6 className="h-5 w-5 text-fantasy-purple" />}
                               <span>{optionLabel}</span>
                             </span>
                             {skillData && skillData.skill && skillData.ability && skillData.difficulty && (
@@ -1343,17 +1432,23 @@ export function Adventure() {
       </div>
       {
         showQuestJournal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-            <div className="relative w-full max-w-4xl">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="relative w-full max-w-4xl bg-fantasy-dark-card border border-fantasy-gold/30 rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
               <Button
                 variant="ghost"
-                size="sm"
-                className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
+                size="icon"
+                className="absolute top-4 right-4 z-10 text-muted-foreground hover:text-white hover:bg-white/10 rounded-full"
                 onClick={() => setShowQuestJournal(false)}
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               </Button>
-              <div className="grid gap-4 md:grid-cols-2">
+
+              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-fantasy-gold/20">
+                <BookOpen className="h-6 w-6 text-fantasy-gold" />
+                <h2 className="text-2xl font-fantasy text-fantasy-gold tracking-wide">Quest Log & Journal</h2>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2">
                 <QuestTracker quests={quests} />
                 <JournalPanel journal={journal} />
               </div>
@@ -1364,17 +1459,17 @@ export function Adventure() {
 
       {
         showRestMenu && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-sm animate-in fade-in duration-300">
             <div className="relative w-full max-w-md">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
-                onClick={() => setShowRestMenu(false)}
-              >
-                <X className="h-6 w-6" />
-              </Button>
-              <Card className="border-fantasy-gold bg-fantasy-dark-card">
+              <Card className="border-fantasy-gold bg-fantasy-dark-card shadow-2xl">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 z-10 text-muted-foreground hover:text-white hover:bg-white/10 rounded-full"
+                  onClick={() => setShowRestMenu(false)}
+                >
+                  <X className="h-5 w-5" />
+                </Button>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Tent className="h-6 w-6 text-fantasy-gold" />
@@ -1387,7 +1482,7 @@ export function Adventure() {
                 <CardContent className="space-y-4">
                   <Button
                     variant="outline"
-                    className="w-full justify-between h-auto py-4"
+                    className="w-full justify-between h-auto py-4 hover:border-fantasy-gold/50 transition-colors"
                     onClick={handleShortRest}
                   >
                     <div className="flex flex-col items-start">
@@ -1416,20 +1511,20 @@ export function Adventure() {
 
       {
         showSpellMenu && !inCombat && character && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-sm animate-in fade-in duration-300">
             <div className="relative w-full max-w-2xl">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute -top-12 right-0 text-white hover:text-fantasy-gold"
-                onClick={() => setShowSpellMenu(false)}
-              >
-                <X className="h-6 w-6" />
-              </Button>
-              <Card className="border-fantasy-purple bg-fantasy-dark-card">
+              <Card className="border-fantasy-purple bg-fantasy-dark-card shadow-2xl relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-3 right-3 z-10 text-muted-foreground hover:text-white hover:bg-white/10 rounded-full"
+                  onClick={() => setShowSpellMenu(false)}
+                >
+                  <X className="h-5 w-5" />
+                </Button>
                 <CardHeader>
-                  <CardTitle className="flex justify-between items-center">
-                    <span>Spellbook</span>
+                  <CardTitle className="flex justify-between items-center pr-8">
+                    <span className="font-fantasy tracking-wider text-fantasy-gold">Spells & Magic</span>
                     {slotBadges.length > 0 && (
                       <Badge variant="outline">
                         {slotBadges.join(' | ')}
@@ -1437,7 +1532,7 @@ export function Adventure() {
                     )}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="grid gap-2 max-h-[70vh] overflow-y-auto">
+                <CardContent className="grid gap-2 max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar">
                   {character.knownSpells?.map((spellId) => {
                     const spell = spellsData.find((s) => s.id === spellId) as unknown as SpellContent;
                     if (!spell) return null;
@@ -1455,31 +1550,43 @@ export function Adventure() {
                     return (
                       <div
                         key={spellId}
-                        className="w-full rounded-md border border-fantasy-purple/30 p-3 hover:bg-fantasy-purple/10 transition"
+                        className="w-full rounded-xl border border-fantasy-purple/30 bg-black/20 p-4 hover:bg-fantasy-purple/10 hover:border-fantasy-purple/50 transition-all"
                       >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex flex-col items-start text-left">
-                            <span className="font-bold flex items-center gap-2">
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <div className="flex-1">
+                            <h4 className="font-bold text-base text-white flex items-center gap-2 mb-1">
                               {spell.name}
                               {spell.concentration && (
-                                <Badge variant="outline" className="text-[11px] flex items-center gap-1">
+                                <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 flex items-center gap-1 border-amber-500/50 text-amber-400">
                                   <Brain className="h-3 w-3" /> Concentration
                                 </Badge>
                               )}
-                            </span>
-                            <span className="text-xs text-muted-foreground line-clamp-2">{spell.description}</span>
+                            </h4>
+                            <div className="flex items-center gap-2 text-[11px] text-muted-foreground mb-2">
+                              <span className="text-fantasy-purple">{spell.school}</span>
+                              <span>•</span>
+                              <span>{spell.castingTime}</span>
+                              <span>•</span>
+                              <span>{spell.range}</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground/90 leading-relaxed">
+                              {spell.description}
+                            </p>
                             {!preparedRequirement && (
-                              <span className="text-[11px] text-amber-400 mt-1">Not prepared</span>
+                              <span className="text-[11px] text-amber-400 mt-2 inline-block">⚠ Not prepared</span>
                             )}
                           </div>
-                          <Badge variant="secondary" className="ml-2 shrink-0">Lvl {spell.level}</Badge>
+                          <Badge variant="secondary" className="shrink-0 text-xs px-2 py-1 bg-fantasy-purple/20 text-fantasy-purple border-fantasy-purple/30">
+                            {spell.level === 0 ? 'Cantrip' : `Lvl ${spell.level}`}
+                          </Badge>
                         </div>
-                        <div className="mt-2 flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-white/10">
                           {isCantrip && (
                             <Button
                               size="sm"
                               variant="fantasy"
                               onClick={() => handleAdventureCast(spellId)}
+                              className="text-xs"
                             >
                               Cast Cantrip
                             </Button>
@@ -1491,6 +1598,7 @@ export function Adventure() {
                               variant="outline"
                               onClick={() => handleAdventureCast(spellId, { slotLevel: lvl })}
                               disabled={!preparedRequirement}
+                              className="text-xs"
                             >
                               Use Lvl {lvl} Slot
                             </Button>
@@ -1501,12 +1609,13 @@ export function Adventure() {
                               variant="ghost"
                               onClick={() => handleAdventureCast(spellId, { castAsRitual: true })}
                               disabled={!preparedRequirement}
+                              className="text-xs"
                             >
-                              Cast as Ritual
+                              🕯️ Ritual
                             </Button>
                           )}
                           {noResources && (
-                            <span className="text-xs text-muted-foreground">No slots remaining</span>
+                            <span className="text-xs text-muted-foreground italic">No slots remaining</span>
                           )}
                         </div>
                       </div>
@@ -1536,6 +1645,8 @@ export function Adventure() {
             character={character}
             onEquipItem={equipItem}
             onUnequipItem={unequipItem}
+            onEquipToSlot={equipToSlot}
+            onUnequipSlot={unequipSlot}
             onUseItem={handleUseInventoryItem}
             onPinItem={handlePinItem}
             onAttuneItem={attuneItem}
@@ -1544,6 +1655,19 @@ export function Adventure() {
           />
         )
       }
+
+      {/* Character Sheet Modal */}
+      {
+        showCharacterSheet && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="relative w-full max-w-5xl max-h-[95vh] overflow-y-auto no-scrollbar pt-6">
+              <CharacterSheet character={character} onClose={() => setShowCharacterSheet(false)} />
+            </div>
+          </div>
+        )
+      }
+
+
     </div >
   );
 }

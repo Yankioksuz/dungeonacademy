@@ -1,4 +1,4 @@
-import type { PlayerCharacter } from '../types';
+import type { PlayerCharacter, Item } from '../types';
 import {
     getMagicItemACBonus,
     getMagicItemSaveBonus,
@@ -111,7 +111,7 @@ export function calculateArmorClass(character: PlayerCharacter): number {
         const effectiveCon = getEffectiveAbilityScore(character, 'constitution');
         unarmoredAC += calculateAbilityModifier(effectiveCon);
     }
-    if (className === 'monk') {
+    if (className === 'monk' && !character.equippedShield) {
         const effectiveWis = getEffectiveAbilityScore(character, 'wisdom');
         unarmoredAC += calculateAbilityModifier(effectiveWis);
     }
@@ -207,7 +207,12 @@ export function getSavingThrowModifier(character: PlayerCharacter, ability: keyo
     const abilityMod = calculateAbilityModifier(effectiveScore);
 
     // Check class-based save proficiencies
-    const classProficient = character.class.savingThrows.includes(ability.charAt(0).toUpperCase() + ability.slice(1));
+    let classProficient = character.class.savingThrows.includes(ability.charAt(0).toUpperCase() + ability.slice(1));
+
+    // Monk Level 14: Diamond Soul (Proficiency in all saves)
+    if (character.class.id === 'monk' && character.level >= 14) {
+        classProficient = true;
+    }
 
     // Check feat-based save proficiencies (Resilient)
     // Resilient feat grants proficiency in a chosen ability's saving throw
@@ -223,5 +228,197 @@ export function getSavingThrowModifier(character: PlayerCharacter, ability: keyo
     // Add magic item save bonuses (Ring/Cloak of Protection, etc.)
     bonus += getMagicItemSaveBonus(character);
 
+    // Paladin Level 6: Aura of Protection (Charisma modifier to all saves)
+    if (character.class.id === 'paladin' && character.level >= 6) {
+        const chaMod = calculateAbilityModifier(getEffectiveAbilityScore(character, 'charisma'));
+        // Minimum bonus is +1? RAW says "bonus equal to your Charisma modifier (minimum of +1)"
+        if (chaMod > 0) bonus += chaMod;
+    }
+
     return bonus;
+}
+
+/**
+ * Check if character is proficient with the given armor type
+ * @returns true if proficient, false otherwise
+ */
+export function isArmorProficient(character: PlayerCharacter, armorType: 'light' | 'medium' | 'heavy' | 'shield' | undefined): boolean {
+    if (!armorType) return true; // No armor = no proficiency needed
+
+    const profs = character.armorProficiencies || [];
+
+    // "All Armor" covers light, medium, and heavy (but not shields separately)
+    if (profs.includes('All Armor') && armorType !== 'shield') {
+        return true;
+    }
+
+    // Check specific proficiencies
+    if (armorType === 'light' && (profs.includes('Light Armor') || profs.includes('All Armor'))) {
+        return true;
+    }
+    if (armorType === 'medium' && (profs.includes('Medium Armor') || profs.includes('All Armor'))) {
+        return true;
+    }
+    if (armorType === 'heavy' && (profs.includes('Heavy Armor') || profs.includes('All Armor'))) {
+        return true;
+    }
+    if (armorType === 'shield' && profs.includes('Shields')) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Get armor proficiency penalties for the character
+ * In D&D 5e, wearing armor you're not proficient with gives:
+ * - Disadvantage on any ability check, saving throw, or attack roll that involves Strength or Dexterity
+ * - Can't cast spells
+ */
+export interface ArmorProficiencyPenalties {
+    hasDisadvantage: boolean;
+    cannotCastSpells: boolean;
+    reason: string;
+}
+
+export function getArmorProficiencyPenalties(character: PlayerCharacter): ArmorProficiencyPenalties {
+    const noPenalties: ArmorProficiencyPenalties = {
+        hasDisadvantage: false,
+        cannotCastSpells: false,
+        reason: ''
+    };
+
+    // Check equipped armor
+    if (character.equippedArmor) {
+        const armorType = character.equippedArmor.armorType;
+        if (!isArmorProficient(character, armorType)) {
+            return {
+                hasDisadvantage: true,
+                cannotCastSpells: true,
+                reason: `Not proficient with ${armorType} armor`
+            };
+        }
+    }
+
+    // Check equipped shield
+    if (character.equippedShield) {
+        if (!isArmorProficient(character, 'shield')) {
+            return {
+                hasDisadvantage: true,
+                cannotCastSpells: true,
+                reason: 'Not proficient with shields'
+            };
+        }
+    }
+
+    return noPenalties;
+}
+
+/**
+ * Check if character is wearing armor they're proficient with
+ */
+export function isWearingProficientArmor(character: PlayerCharacter): boolean {
+    const penalties = getArmorProficiencyPenalties(character);
+    return !penalties.hasDisadvantage;
+}
+
+
+/**
+ * Check if character is proficient with the given weapon
+ * @returns true if proficient, false otherwise
+ */
+export function isWeaponProficient(character: PlayerCharacter, weapon: Item | undefined): boolean {
+    if (!weapon || weapon.type !== 'weapon') return false;
+
+    const profs = character.weaponProficiencies || [];
+
+    // Check specific weapon name proficiency (e.g., "Longsword", "Rapier")
+    if (profs.includes(weapon.name)) return true;
+
+    // Check category proficiency (Simple/Martial)
+    const subtype = weapon.subtype || '';
+    if (subtype.includes('Simple') && profs.includes('Simple Weapons')) return true;
+    if (subtype.includes('Martial') && profs.includes('Martial Weapons')) return true;
+
+    // Check Monk weapons (Shortsword + simple melee weapons that lack 'heavy' or 'two-handed')
+    if (character.class.name === 'Monk') {
+        if (weapon.name === 'Shortsword') return true;
+        if (subtype.includes('Simple Melee') &&
+            !weapon.properties?.includes('two-handed') &&
+            !weapon.properties?.includes('heavy')) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Calculate available spell slots based on class and level (D&D 5e Standard)
+ */
+export function calculateSpellSlots(character: PlayerCharacter): Record<number, { current: number; max: number }> {
+    const level = character.level;
+    const className = character.class.name.toLowerCase();
+
+    // Slot progression table for Full Casters (Bard, Cleric, Druid, Sorcerer, Wizard)
+    // Row = Level (1-20), Col = Slot Level (1-9)
+    const fullCasterSlots = [
+        [2, 0, 0, 0, 0, 0, 0, 0, 0], // Lvl 1
+        [3, 0, 0, 0, 0, 0, 0, 0, 0], // Lvl 2
+        [4, 2, 0, 0, 0, 0, 0, 0, 0], // Lvl 3
+        [4, 3, 0, 0, 0, 0, 0, 0, 0], // Lvl 4
+        [4, 3, 2, 0, 0, 0, 0, 0, 0], // Lvl 5
+        [4, 3, 3, 0, 0, 0, 0, 0, 0], // Lvl 6
+        [4, 3, 3, 1, 0, 0, 0, 0, 0], // Lvl 7
+        [4, 3, 3, 2, 0, 0, 0, 0, 0], // Lvl 8
+        [4, 3, 3, 3, 1, 0, 0, 0, 0], // Lvl 9
+        [4, 3, 3, 3, 2, 0, 0, 0, 0], // Lvl 10
+        [4, 3, 3, 3, 2, 1, 0, 0, 0], // Lvl 11
+        [4, 3, 3, 3, 2, 1, 0, 0, 0], // Lvl 12
+        [4, 3, 3, 3, 2, 1, 1, 0, 0], // Lvl 13
+        [4, 3, 3, 3, 2, 1, 1, 0, 0], // Lvl 14
+        [4, 3, 3, 3, 2, 1, 1, 1, 0], // Lvl 15
+        [4, 3, 3, 3, 2, 1, 1, 1, 0], // Lvl 16
+        [4, 3, 3, 3, 2, 1, 1, 1, 1], // Lvl 17
+        [4, 3, 3, 3, 3, 1, 1, 1, 1], // Lvl 18
+        [4, 3, 3, 3, 3, 2, 1, 1, 1], // Lvl 19
+        [4, 3, 3, 3, 3, 2, 2, 1, 1], // Lvl 20
+    ];
+
+    // Half Casters (Paladin, Ranger) - Start at Level 2, effectively Level/2 rounded up
+    const isHalfCaster = ['paladin', 'ranger'].includes(className);
+
+    // Warlock Pact Magic - Special Case
+    // Uses short rest slots, always highest level available
+    if (className === 'warlock') {
+        const slots = level >= 17 ? 4 : level >= 11 ? 3 : level >= 2 ? 2 : 1;
+        const slotLevel = level >= 9 ? 5 : level >= 7 ? 4 : level >= 5 ? 3 : level >= 3 ? 2 : 1;
+
+        // Return single entry for warlock slot level
+        return {
+            [slotLevel]: { current: slots, max: slots }
+        };
+    }
+
+    let slotCounts: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    if (['bard', 'cleric', 'druid', 'sorcerer', 'wizard'].includes(className)) {
+        slotCounts = fullCasterSlots[Math.min(level, 20) - 1] || slotCounts;
+    } else if (isHalfCaster && level >= 2) {
+        // Effective caster level is roughly level / 2
+        // Just approximation mapping to full caster table for now
+        const effectiveLevel = Math.ceil(level / 2);
+        slotCounts = fullCasterSlots[Math.min(effectiveLevel, 20) - 1] || slotCounts;
+    }
+    // Arcane Trickster / Eldritch Knight check could go here (1/3 caster)
+
+    // Construct spellSlots object
+    const spellSlots: Record<number, { current: number; max: number }> = {};
+    slotCounts.forEach((count, index) => {
+        if (count > 0) {
+            spellSlots[index + 1] = { current: count, max: count };
+        }
+    });
+
+    return spellSlots;
 }

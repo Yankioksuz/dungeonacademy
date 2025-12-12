@@ -18,7 +18,7 @@ import {
   isEnemyConditionImmune,
   adjustDamageForDefenses,
 } from '@/utils/combatUtils';
-import { getInitiativeBonus, getSavingThrowBonus } from '@/utils/skillUtils';
+import { getInitiativeBonus } from '@/utils/skillUtils';
 import { determineEnemyAction } from '@/utils/enemyAI';
 
 import { createLogEntry } from '@/utils/combatLogger';
@@ -42,6 +42,8 @@ import { getEnemyById, mergeEnemyOverride } from '@/utils/enemies';
 
 import {
   calculateArmorClass,
+  isWeaponProficient,
+  getSavingThrowModifier, // Use robust modifier calculator
 } from '@/utils/characterStats';
 
 // Subclass feature utilities
@@ -494,7 +496,12 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   ) => {
     const baseRoll = rollDice(20);
     let advantageType = getSavingThrowAdvantage(
-      { ...character, conditions: character.conditions || [], traits: character.race?.traits || [] },
+      {
+        ...character,
+        conditions: character.conditions || [],
+        traits: character.race?.traits || [],
+        features: character.class.features || []
+      },
       ability,
       effectType
     );
@@ -506,18 +513,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       addLog("War Caster grants advantage on Concentration save.", 'info');
     }
 
-    // Barbarian Danger Sense
-    if (isBarbarian && character.level >= 2 && ability === 'dexterity') {
-      const isBlinded = character.conditions.some(c => c.type === 'blinded');
-      const isDeafened = character.conditions.some(c => c.type === 'deafened');
-      const isIncapacitated = character.conditions.some(c => c.type === 'incapacitated');
-
-      if (!isBlinded && !isDeafened && !isIncapacitated) {
-        if (advantageType === 'disadvantage') advantageType = 'normal';
-        else if (advantageType === 'normal') advantageType = 'advantage';
-        addLog("Danger Sense grants advantage on Dexterity save.", 'info');
-      }
-    }
+    // Barbarian Danger Sense (Handled by getSavingThrowAdvantage)
 
     const secondRoll = rollDice(20);
     let roll = baseRoll;
@@ -525,9 +521,8 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     if (advantageType === 'disadvantage') roll = Math.min(baseRoll, secondRoll);
     roll = applyHalflingLucky(roll, 'saving throw');
 
-    const abilityMod = Math.floor((character.abilityScores[ability] - 10) / 2);
-    const prof = character.savingThrowProficiencies?.[ability] ? character.proficiencyBonus : 0;
-    return { roll, total: roll + abilityMod + prof, advantageType };
+    const total = roll + getSavingThrowModifier(character, ability);
+    return { roll, total, advantageType };
   };
 
   const getPlayerDefenseBonus = () => {
@@ -1231,7 +1226,8 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       addLog('Vow of Enmity: Advantage on attack!', 'info');
     }
 
-    let attackModifier = (useCharisma ? chaMod : useDex ? dexMod : abilityMod) + character.proficiencyBonus;
+    const effectiveProficiencyBonus = isWeaponProficient(character, character.equippedWeapon) ? character.proficiencyBonus : 0;
+    let attackModifier = (useCharisma ? chaMod : useDex ? dexMod : abilityMod) + effectiveProficiencyBonus;
     let damageDice = character.equippedWeapon?.damage || '1d4';
     let damageBonus = useCharisma ? chaMod : useDex ? dexMod : abilityMod;
     const weaponDamageType = detectDamageType(character.equippedWeapon?.damage || damageDice || '');

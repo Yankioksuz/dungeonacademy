@@ -4,6 +4,8 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Badge } from './ui/badge';
 import { Tooltip } from './ui/tooltip';
+import { Alert, AlertDescription } from './ui/alert';
+import { Input } from './ui/input';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, ArrowRight, ArrowLeft, User, CheckCircle2, Shuffle } from 'lucide-react';
 import characterCreationContent from '@/content/characterCreation.json';
@@ -275,9 +277,9 @@ export function CharacterCreation() {
         return (
           <div className="space-y-4">
             {/* Tutorial */}
-            <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30">
-              <p className="text-sm">{t('characterCreation.identityTutorial')}</p>
-            </div>
+            <Alert variant="fantasy">
+              <AlertDescription className="text-sm">{t('characterCreation.identityTutorial')}</AlertDescription>
+            </Alert>
 
             {/* Race Selection */}
             <div className="space-y-3">
@@ -442,12 +444,12 @@ export function CharacterCreation() {
               <p className="text-sm font-semibold mb-3">{t('characterCreation.nameLabel')}</p>
               <p className="text-xs text-muted-foreground mb-3">{t('characterCreation.nameTutorial')}</p>
               <div className="flex gap-2">
-                <input
+                <Input
                   type="text"
                   value={characterName}
                   onChange={(e) => setCharacterName(e.target.value)}
                   placeholder={t('characterCreation.namePlaceholder')}
-                  className="flex-1 px-4 py-2 bg-fantasy-dark-surface border border-fantasy-purple/30 rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-fantasy-purple"
+                  className="flex-1 bg-fantasy-dark-surface border-fantasy-purple/30"
                 />
                 <Tooltip content={t('characterCreation.generateRandomName')} position="top">
                   <Button
@@ -481,9 +483,9 @@ export function CharacterCreation() {
         // Class Selection
         return (
           <div className="space-y-4">
-            <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30 mb-4">
-              <p className="text-sm">{t('characterCreation.classTutorial')}</p>
-            </div>
+            <Alert variant="fantasy" className="mb-4">
+              <AlertDescription className="text-sm">{t('characterCreation.classTutorial')}</AlertDescription>
+            </Alert>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {characterCreationContent.classes.map((classOption) => {
                 const isSelected = selectedClass?.id === classOption.id;
@@ -654,9 +656,9 @@ export function CharacterCreation() {
         // Background Selection
         return (
           <div className="space-y-4">
-            <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30 mb-4">
-              <p className="text-sm">{t('characterCreation.backgroundTutorial')}</p>
-            </div>
+            <Alert variant="fantasy" className="mb-4">
+              <AlertDescription className="text-sm">{t('characterCreation.backgroundTutorial')}</AlertDescription>
+            </Alert>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {characterCreationContent.backgrounds.map((bg) => {
                 const isSelected = selectedBackground?.id === bg.id;
@@ -765,8 +767,8 @@ export function CharacterCreation() {
 
         return (
           <div className="space-y-4">
-            <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30 mb-4 space-y-2">
-              <p className="text-sm">{t('characterCreation.abilityScoresTutorial')}</p>
+            <Alert variant="fantasy" className="mb-4 space-y-2">
+              <AlertDescription className="text-sm">{t('characterCreation.abilityScoresTutorial')}</AlertDescription>
               <p className="text-xs text-muted-foreground">
                 Points remaining: <strong>{remainingPoints}</strong> (total budget {POINT_LIMIT})
               </p>
@@ -786,7 +788,7 @@ export function CharacterCreation() {
               >
                 Reset to Default Array
               </Button>
-            </div>
+            </Alert>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Object.entries(abilityScores).map(([ability, value]) => {
                 const modifier = Math.floor((value - 10) / 2);

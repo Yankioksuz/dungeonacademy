@@ -28,7 +28,8 @@ export type ConditionType =
   | 'grappled' | 'incapacitated' | 'invisible' | 'paralyzed'
   | 'petrified' | 'poisoned' | 'prone' | 'restrained'
   | 'stunned' | 'unconscious' | 'hexed' | 'turned' | 'pacified' | 'hidden' | 'reckless' | 'haste' | 'flying'
-  | 'displacement-broken'; // Cloak of Displacement temporarily inactive
+  | 'displacement-broken' // Cloak of Displacement temporarily inactive
+  | 'armor-not-proficient'; // Wearing armor without proficiency
 
 export interface Condition {
   type: ConditionType;
@@ -235,13 +236,15 @@ export interface PlayerCharacter {
   passiveInvestigation: number;
   passiveInsight: number;
 
-  // Existing fields
+  // Equipment System
   spells?: SpellContent[];
   inventory?: Item[];
+  equipment?: Equipment;  // NEW: Full equipment loadout
+  // Legacy fields (maintained for backward compatibility)
   equippedWeapon?: Item;
   equippedArmor?: Item;
-  equippedShield?: Item; // NEW: Separate shield slot
-  attunedItems?: Item[]; // NEW: Magic item attunement (max 3)
+  equippedShield?: Item;
+  attunedItems?: Item[]; // Magic item attunement (max 3)
   talents?: string[];
   bonusSkills?: string[]; // e.g. human extra skill
   expertiseSkills?: string[]; // e.g. rogue expertise picks
@@ -356,11 +359,29 @@ export interface TalentOption {
   };
 }
 
+// Equipment Slot System
+export type EquipmentSlot = 'mainHand' | 'offHand' | 'armor' | 'helmet' | 'gloves' | 'boots' | 'amulet' | 'ring1' | 'ring2';
+
+export interface Equipment {
+  mainHand?: Item;    // Primary weapon
+  offHand?: Item;     // Shield or secondary weapon
+  armor?: Item;       // Body armor
+  helmet?: Item;      // Head slot
+  gloves?: Item;      // Hands slot
+  boots?: Item;       // Feet slot
+  amulet?: Item;      // Neck slot
+  ring1?: Item;       // Ring slot 1
+  ring2?: Item;       // Ring slot 2
+}
+
 export interface Item {
   id: string;
   templateId?: string;
   name: string;
-  type: 'weapon' | 'armor' | 'potion' | 'scroll' | 'treasure';
+  type: string; // broadened from strict union to string to allow flexibility, or keep union if preferred
+  subtype?: string; // e.g., "Simple Melee", "Martial Ranged"
+  armorType?: 'light' | 'medium' | 'heavy' | 'shield';
+  rarity?: 'common' | 'uncommon' | 'rare' | 'very rare' | 'legendary' | 'artifact';
   description: string;
   damage?: string;
   armorClass?: number;
@@ -376,6 +397,10 @@ export interface Item {
   armorType?: 'light' | 'medium' | 'heavy' | 'shield';
   stealthDisadvantage?: boolean;
   strengthRequirement?: number;
+  // Stat bonuses for equipment
+  acBonus?: number;  // Bonus to AC (rings, amulets)
+  savingThrowBonus?: number;
+  abilityBonus?: { ability: string; value: number };
 }
 
 export interface CombatEnemy {

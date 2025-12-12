@@ -4,13 +4,80 @@
       "id": "shortsword",
       "name": "Shortsword",
       "type": "weapon",
-      "subtype": "Simple Melee",
+      "subtype": "Martial Melee",
       "description": "A short, versatile blade favored by rogues",
       "damage": "1d6",
       "value": 10,
       "properties": [
         "finesse",
         "light",
+        "melee"
+      ]
+    },
+    {
+      "id": "club",
+      "name": "Club",
+      "type": "weapon",
+      "subtype": "Simple Melee",
+      "description": "A sturdy wooden club",
+      "damage": "1d4",
+      "value": 0.1,
+      "properties": [
+        "light",
+        "melee"
+      ]
+    },
+    {
+      "id": "greatclub",
+      "name": "Greatclub",
+      "type": "weapon",
+      "subtype": "Simple Melee",
+      "description": "A massive wooden club",
+      "damage": "1d8",
+      "value": 0.2,
+      "properties": [
+        "two-handed",
+        "melee"
+      ]
+    },
+    {
+      "id": "light-hammer",
+      "name": "Light Hammer",
+      "type": "weapon",
+      "subtype": "Simple Melee",
+      "description": "A light hammer useful for throwing",
+      "damage": "1d4",
+      "value": 2,
+      "properties": [
+        "light",
+        "thrown",
+        "melee"
+      ]
+    },
+    {
+      "id": "sickle",
+      "name": "Sickle",
+      "type": "weapon",
+      "subtype": "Simple Melee",
+      "description": "A farming tool adapted for combat",
+      "damage": "1d4",
+      "value": 1,
+      "properties": [
+        "light",
+        "melee"
+      ]
+    },
+    {
+      "id": "spear",
+      "name": "Spear",
+      "type": "weapon",
+      "subtype": "Simple Melee",
+      "description": "A simple spear, throwable and versatile",
+      "damage": "1d6",
+      "value": 1,
+      "properties": [
+        "thrown",
+        "versatile-1d8",
         "melee"
       ]
     },
@@ -51,6 +118,32 @@
       "properties": [
         "ranged",
         "two-handed"
+      ]
+    },
+    {
+      "id": "dart",
+      "name": "Dart",
+      "type": "weapon",
+      "subtype": "Simple Ranged",
+      "description": "A small throwing dart",
+      "damage": "1d4",
+      "value": 0.05,
+      "properties": [
+        "finesse",
+        "thrown",
+        "ranged"
+      ]
+    },
+    {
+      "id": "sling",
+      "name": "Sling",
+      "type": "weapon",
+      "subtype": "Simple Ranged",
+      "description": "A simple strap for hurling stones",
+      "damage": "1d4",
+      "value": 0.1,
+      "properties": [
+        "ranged"
       ]
     },
     {
@@ -150,6 +243,33 @@
       ]
     },
     {
+      "id": "lance",
+      "name": "Lance",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A very long weapon designed for mounted combat",
+      "damage": "1d12",
+      "value": 10,
+      "properties": [
+        "reach",
+        "melee"
+      ]
+    },
+    {
+      "id": "maul",
+      "name": "Maul",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A massive hammer",
+      "damage": "2d6",
+      "value": 10,
+      "properties": [
+        "heavy",
+        "two-handed",
+        "melee"
+      ]
+    },
+    {
       "id": "battleaxe",
       "name": "Battleaxe",
       "type": "weapon",
@@ -172,6 +292,18 @@
       "value": 15,
       "properties": [
         "versatile-1d10",
+        "melee"
+      ]
+    },
+    {
+      "id": "war-pick",
+      "name": "War Pick",
+      "type": "weapon",
+      "subtype": "Martial Melee",
+      "description": "A pickaxe modified for war",
+      "damage": "1d8",
+      "value": 5,
+      "properties": [
         "melee"
       ]
     },
@@ -312,6 +444,33 @@
         "ranged",
         "loading",
         "light"
+      ]
+    },
+    {
+      "id": "blowgun",
+      "name": "Blowgun",
+      "type": "weapon",
+      "subtype": "Martial Ranged",
+      "description": "A tube for firing needles",
+      "damage": "1",
+      "value": 10,
+      "properties": [
+        "ranged",
+        "loading"
+      ]
+    },
+    {
+      "id": "net",
+      "name": "Net",
+      "type": "weapon",
+      "subtype": "Martial Ranged",
+      "description": "A net for restraining enemies",
+      "damage": "0",
+      "value": 1,
+      "properties": [
+        "thrown",
+        "ranged",
+        "special"
       ]
     },
     {
@@ -606,19 +765,6 @@
       "armorType": "heavy"
     },
     {
-      "id": "shield",
-      "name": "Shield",
-      "type": "armor",
-      "subtype": "Shield",
-      "description": "A wooden or metal shield strapped to the arm",
-      "armorClass": 2,
-      "value": 10,
-      "properties": [
-        "shield"
-      ],
-      "armorType": "shield"
-    },
-    {
       "id": "adamantine-armor",
       "name": "Adamantine Armor",
       "type": "armor",
@@ -627,6 +773,7 @@
       "armorClass": 18,
       "value": 5000,
       "rarity": "uncommon",
+      "armorType": "heavy",
       "properties": [
         "magic"
       ]
@@ -640,6 +787,7 @@
       "armorClass": 13,
       "value": 800,
       "rarity": "uncommon",
+      "armorType": "medium",
       "properties": [
         "magic"
       ]
@@ -653,6 +801,7 @@
       "armorClass": 16,
       "value": 6000,
       "rarity": "rare",
+      "armorType": "heavy",
       "properties": [
         "magic",
         "attunement"
@@ -667,6 +816,7 @@
       "armorClass": 18,
       "value": 50000,
       "rarity": "legendary",
+      "armorType": "heavy",
       "properties": [
         "magic",
         "attunement"
@@ -681,6 +831,7 @@
       "armorClass": 14,
       "value": 15000,
       "rarity": "very rare",
+      "armorType": "medium",
       "properties": [
         "magic",
         "attunement"
@@ -1318,6 +1469,478 @@
       "rarity": "legendary",
       "properties": [
         "attunement"
+      ]
+    }
+  ],
+  "helmets": [
+    {
+      "id": "leather-cap",
+      "name": "Leather Cap",
+      "type": "helmet",
+      "description": "A simple leather cap offering minimal protection.",
+      "armorClass": 0,
+      "value": 5
+    },
+    {
+      "id": "iron-helm",
+      "name": "Iron Helm",
+      "type": "helmet",
+      "description": "A sturdy iron helmet protecting the head.",
+      "armorClass": 1,
+      "value": 15
+    },
+    {
+      "id": "steel-helm",
+      "name": "Steel Helm",
+      "type": "helmet",
+      "description": "A well-crafted steel helmet with a nose guard.",
+      "armorClass": 1,
+      "value": 30
+    },
+    {
+      "id": "great-helm",
+      "name": "Great Helm",
+      "type": "helmet",
+      "description": "A full-face helm offering excellent protection.",
+      "armorClass": 2,
+      "value": 75
+    },
+    {
+      "id": "helm-of-telepathy",
+      "name": "Helm of Telepathy",
+      "type": "helmet",
+      "description": "While wearing this helm, you can cast detect thoughts at will. You can also telepathically speak to creatures within 30 feet.",
+      "armorClass": 0,
+      "value": 2000,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "helm-of-brilliance",
+      "name": "Helm of Brilliance",
+      "type": "helmet",
+      "description": "This dazzling helm is set with diamonds, rubies, and opals. It grants resistance to fire damage and allows the casting of various fire spells.",
+      "armorClass": 1,
+      "value": 15000,
+      "rarity": "very rare",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    }
+  ],
+  "gloves": [
+    {
+      "id": "leather-gloves",
+      "name": "Leather Gloves",
+      "type": "gloves",
+      "description": "Simple leather gloves for protection and grip.",
+      "armorClass": 0,
+      "value": 2
+    },
+    {
+      "id": "studded-gauntlets",
+      "name": "Studded Gauntlets",
+      "type": "gloves",
+      "description": "Leather gloves reinforced with metal studs.",
+      "armorClass": 0,
+      "value": 10
+    },
+    {
+      "id": "iron-gauntlets",
+      "name": "Iron Gauntlets",
+      "type": "gloves",
+      "description": "Heavy iron gauntlets offering protection in melee.",
+      "armorClass": 1,
+      "value": 25
+    },
+    {
+      "id": "plate-gauntlets",
+      "name": "Plate Gauntlets",
+      "type": "gloves",
+      "description": "Articulated steel gauntlets for heavy armor.",
+      "armorClass": 1,
+      "value": 50
+    },
+    {
+      "id": "gauntlets-of-ogre-power",
+      "name": "Gauntlets of Ogre Power",
+      "type": "gloves",
+      "description": "Your Strength score is 19 while you wear these gauntlets.",
+      "armorClass": 0,
+      "value": 5000,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "gloves-of-thievery",
+      "name": "Gloves of Thievery",
+      "type": "gloves",
+      "description": "Invisible while worn. You gain a +5 bonus to Sleight of Hand checks and Thieves' Tools checks.",
+      "armorClass": 0,
+      "value": 2000,
+      "rarity": "uncommon",
+      "properties": [
+        "magic"
+      ]
+    },
+    {
+      "id": "gloves-of-missile-snaring",
+      "name": "Gloves of Missile Snaring",
+      "type": "gloves",
+      "description": "When a ranged weapon attack hits you, you can reduce the damage by 1d10 + your Dexterity modifier.",
+      "armorClass": 0,
+      "value": 3000,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    }
+  ],
+  "boots": [
+    {
+      "id": "leather-boots",
+      "name": "Leather Boots",
+      "type": "boots",
+      "description": "Sturdy leather boots for travel.",
+      "armorClass": 0,
+      "value": 2
+    },
+    {
+      "id": "riding-boots",
+      "name": "Riding Boots",
+      "type": "boots",
+      "description": "Tall boots designed for horseback riding.",
+      "armorClass": 0,
+      "value": 5
+    },
+    {
+      "id": "iron-greaves",
+      "name": "Iron Greaves",
+      "type": "boots",
+      "description": "Heavy iron boots for protection.",
+      "armorClass": 1,
+      "value": 20
+    },
+    {
+      "id": "plate-greaves",
+      "name": "Plate Greaves",
+      "type": "boots",
+      "description": "Articulated steel boots for heavy armor.",
+      "armorClass": 1,
+      "value": 50
+    },
+    {
+      "id": "boots-of-elvenkind",
+      "name": "Boots of Elvenkind",
+      "type": "boots",
+      "description": "While you wear these boots, your steps make no sound. You have advantage on Stealth checks that rely on moving silently.",
+      "armorClass": 0,
+      "value": 2000,
+      "rarity": "uncommon",
+      "properties": [
+        "magic"
+      ]
+    },
+    {
+      "id": "boots-of-speed",
+      "name": "Boots of Speed",
+      "type": "boots",
+      "description": "As a bonus action, you can click the boots' heels together to double your walking speed for 10 minutes.",
+      "armorClass": 0,
+      "value": 5000,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "winged-boots",
+      "name": "Winged Boots",
+      "type": "boots",
+      "description": "These boots grant you a flying speed equal to your walking speed for up to 4 hours.",
+      "armorClass": 0,
+      "value": 8000,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "boots-of-striding-and-springing",
+      "name": "Boots of Striding and Springing",
+      "type": "boots",
+      "description": "Your walking speed becomes 30 feet, and your jump distance is tripled.",
+      "armorClass": 0,
+      "value": 2500,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    }
+  ],
+  "amulets": [
+    {
+      "id": "wooden-pendant",
+      "name": "Wooden Pendant",
+      "type": "amulet",
+      "description": "A simple carved wooden pendant on a cord.",
+      "value": 1
+    },
+    {
+      "id": "silver-medallion",
+      "name": "Silver Medallion",
+      "type": "amulet",
+      "description": "A polished silver medallion with intricate designs.",
+      "value": 25
+    },
+    {
+      "id": "gold-holy-symbol",
+      "name": "Gold Holy Symbol",
+      "type": "amulet",
+      "description": "A radiant gold holy symbol, sacred to its bearer.",
+      "value": 100
+    },
+    {
+      "id": "amulet-of-health",
+      "name": "Amulet of Health",
+      "type": "amulet",
+      "description": "Your Constitution score is 19 while you wear this amulet.",
+      "value": 8000,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "amulet-of-proof-against-detection",
+      "name": "Amulet of Proof Against Detection",
+      "type": "amulet",
+      "description": "You are hidden from divination magic and cannot be targeted by such magic or perceived through magical scrying sensors.",
+      "value": 3500,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "periapt-of-wound-closure",
+      "name": "Periapt of Wound Closure",
+      "type": "amulet",
+      "description": "You stabilize whenever you start your turn with 0 hit points. When you roll Hit Dice, double the number of HP you regain.",
+      "value": 5000,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "necklace-of-fireballs",
+      "name": "Necklace of Fireballs",
+      "type": "amulet",
+      "description": "This necklace has 1d6 + 3 beads hanging from it. You can detach a bead and throw it up to 60 feet, causing it to explode as a fireball spell.",
+      "value": 6500,
+      "rarity": "rare",
+      "properties": [
+        "magic"
+      ]
+    },
+    {
+      "id": "talisman-of-pure-good",
+      "name": "Talisman of Pure Good",
+      "type": "amulet",
+      "description": "Used to banish evil creatures to their home planes and destroy them permanently. Has 7 charges.",
+      "value": 50000,
+      "rarity": "legendary",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    }
+  ],
+  "rings": [
+    {
+      "id": "copper-ring",
+      "name": "Copper Ring",
+      "type": "ring",
+      "description": "A simple copper band.",
+      "value": 1
+    },
+    {
+      "id": "silver-ring",
+      "name": "Silver Ring",
+      "type": "ring",
+      "description": "An elegant silver ring with fine engravings.",
+      "value": 10
+    },
+    {
+      "id": "gold-signet-ring",
+      "name": "Gold Signet Ring",
+      "type": "ring",
+      "description": "A gold ring bearing a noble family's crest.",
+      "value": 50
+    },
+    {
+      "id": "ring-of-protection",
+      "name": "Ring of Protection",
+      "type": "ring",
+      "description": "You have a +1 bonus to AC and saving throws while wearing this ring.",
+      "value": 3500,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "ring-of-resistance",
+      "name": "Ring of Resistance",
+      "type": "ring",
+      "description": "You have resistance to one damage type while wearing this ring. The gem determines the type.",
+      "value": 6000,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "ring-of-evasion",
+      "name": "Ring of Evasion",
+      "type": "ring",
+      "description": "When you fail a Dexterity saving throw, you can use your reaction to succeed instead. Has 3 charges.",
+      "value": 5000,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "ring-of-spell-storing",
+      "name": "Ring of Spell Storing",
+      "type": "ring",
+      "description": "This ring stores up to 5 levels worth of spells. Any creature can cast a stored spell from the ring.",
+      "value": 8000,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "ring-of-invisibility",
+      "name": "Ring of Invisibility",
+      "type": "ring",
+      "description": "You can turn invisible as an action. You remain invisible until you attack, cast a spell, or remove the ring.",
+      "value": 15000,
+      "rarity": "legendary",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "ring-of-regeneration",
+      "name": "Ring of Regeneration",
+      "type": "ring",
+      "description": "You regain 1d6 hit points every 10 minutes. If you lose a body part, it regrows after 1d6+1 days.",
+      "value": 25000,
+      "rarity": "very rare",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "ring-of-three-wishes",
+      "name": "Ring of Three Wishes",
+      "type": "ring",
+      "description": "This ring has 3 charges. You can expend a charge to cast the wish spell from it.",
+      "value": 100000,
+      "rarity": "legendary",
+      "properties": [
+        "magic"
+      ]
+    }
+  ],
+  "shields": [
+    {
+      "id": "wooden-shield",
+      "name": "Wooden Shield",
+      "type": "shield",
+      "description": "A simple wooden shield bound with iron.",
+      "armorClass": 2,
+      "value": 10,
+      "armorType": "shield"
+    },
+    {
+      "id": "iron-shield",
+      "name": "Iron Shield",
+      "type": "shield",
+      "description": "A sturdy iron shield for reliable defense.",
+      "armorClass": 2,
+      "value": 25,
+      "armorType": "shield"
+    },
+    {
+      "id": "steel-kite-shield",
+      "name": "Steel Kite Shield",
+      "type": "shield",
+      "description": "A tall, kite-shaped steel shield.",
+      "armorClass": 2,
+      "value": 50,
+      "armorType": "shield"
+    },
+    {
+      "id": "tower-shield",
+      "name": "Tower Shield",
+      "type": "shield",
+      "description": "A massive shield providing excellent cover.",
+      "armorClass": 3,
+      "value": 100,
+      "armorType": "shield",
+      "properties": [
+        "heavy"
+      ]
+    },
+    {
+      "id": "shield-plus-1",
+      "name": "+1 Shield",
+      "type": "shield",
+      "description": "A magic shield providing +3 total AC bonus.",
+      "armorClass": 3,
+      "value": 1500,
+      "rarity": "uncommon",
+      "armorType": "shield",
+      "properties": [
+        "magic"
+      ]
+    },
+    {
+      "id": "sentinel-shield",
+      "name": "Sentinel Shield",
+      "type": "shield",
+      "description": "You have advantage on initiative rolls and Perception checks while holding this shield.",
+      "armorClass": 2,
+      "value": 3000,
+      "rarity": "uncommon",
+      "armorType": "shield",
+      "properties": [
+        "magic"
       ]
     }
   ]

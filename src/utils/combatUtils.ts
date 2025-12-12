@@ -5,10 +5,11 @@ interface Combatant {
     conditions: Condition[];
     traits?: string[];
     feats?: string[];
+    features?: string[];
 }
 
 export function hasCondition(entity: Combatant, type: ConditionType): boolean {
-    return entity.conditions.some(c => c.type === type);
+    return entity.conditions?.some(c => c.type === type) || false;
 }
 
 export function canAct(entity: Combatant): boolean {
@@ -20,7 +21,7 @@ export function canAct(entity: Combatant): boolean {
         'petrified'
     ];
 
-    return !entity.conditions.some(c => incapacitatingConditions.includes(c.type));
+    return !(entity.conditions?.some(c => incapacitatingConditions.includes(c.type)) || false);
 }
 
 export type RollType = 'normal' | 'advantage' | 'disadvantage';
@@ -38,6 +39,7 @@ export function getCombatAdvantage(
     if (hasCondition(attacker, 'frightened')) advantage--;
     if (hasCondition(attacker, 'restrained')) advantage--;
     if (hasCondition(attacker, 'prone')) advantage--; // Prone gives disadvantage on attacks
+    if (hasCondition(attacker, 'armor-not-proficient')) advantage--; // Armor non-proficiency penalty
 
     if (hasCondition(attacker, 'invisible')) advantage++;
     if (hasCondition(attacker, 'reckless')) advantage++; // Reckless Attack (Attacker)
@@ -73,8 +75,9 @@ export function getSavingThrowAdvantage(
     effectType?: 'poison' | 'charm' | 'fear' | 'magic' | 'concentration'
 ): RollType {
     let advantage = 0;
-    const traits = (actor as Combatant & { traits?: string[] }).traits || [];
+    const traits = actor.traits || [];
     const feats = actor.feats || [];
+    const features = actor.features || [];
 
     // Brave
     if (effectType === 'fear' && traits.includes('Brave')) advantage++;
@@ -87,6 +90,16 @@ export function getSavingThrowAdvantage(
 
     // Gnome Cunning
     if (effectType === 'magic' && ['intelligence', 'wisdom', 'charisma'].includes(saveType) && traits.includes('Gnome Cunning')) advantage++;
+
+    // Danger Sense (Barbarian)
+    // "Advantage on Dexterity saving throws against effects that you can see"
+    // Assuming for now that most Dex saves in combat (fireball, traps) are visible
+    if (saveType === 'dexterity' && features.includes('Danger Sense')) {
+        // Danger Sense doesn't work if blinded/deafened/incapacitated
+        if (!hasCondition(actor, 'blinded') && !hasCondition(actor, 'deafened') && canAct(actor)) {
+            advantage++;
+        }
+    }
 
     // War Caster feat: advantage on concentration saves
     if (effectType === 'concentration' && saveType === 'constitution' && feats.includes('war-caster')) {
