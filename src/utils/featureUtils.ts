@@ -70,7 +70,7 @@ export const restoreShortRestUses = (character: PlayerCharacter, current?: Featu
   const defaults = getDefaultFeatureUses(character);
   const existing = current || defaults;
   const level = character.level || 1;
-  const subclassId = character.subclass?.id || '';
+
 
   return {
     ...existing,

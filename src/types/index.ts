@@ -330,7 +330,7 @@ export interface SubclassFeature {
   level: number;
   description: string;
   type: 'passive' | 'action' | 'bonus_action' | 'reaction';
-  metadata?: Record<string, any>; // For improved Crit range, bonus healing stats, etc.
+  metadata?: Record<string, unknown>; // For improved Crit range, bonus healing stats, etc.
 }
 
 
@@ -394,7 +394,7 @@ export interface Item {
   attackBonus?: number;
   pinned?: boolean;
   // Armor-specific properties
-  armorType?: 'light' | 'medium' | 'heavy' | 'shield';
+
   stealthDisadvantage?: boolean;
   strengthRequirement?: number;
   // Stat bonuses for equipment

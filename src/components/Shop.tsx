@@ -40,6 +40,81 @@ const getItemIcon = (type: Item['type']) => {
     }
 };
 
+interface ShopCategoryProps {
+    title: string;
+    icon: React.ReactNode;
+    items: Item[];
+    categoryKey: string;
+    expandedCategories: Set<string>;
+    onToggleCategory: (category: string) => void;
+    selectedShopItem: Item | null;
+    onSelectShopItem: (item: Item) => void;
+    currentGold: number;
+}
+
+const ShopCategory = ({
+    title,
+    icon,
+    items,
+    categoryKey,
+    expandedCategories,
+    onToggleCategory,
+    selectedShopItem,
+    onSelectShopItem,
+    currentGold
+}: ShopCategoryProps) => {
+    const isExpanded = expandedCategories.has(categoryKey);
+
+    if (items.length === 0) return null;
+
+    return (
+        <div className="border-b border-fantasy-purple/20 last:border-0">
+            <button
+                className="w-full flex items-center gap-2 p-3 hover:bg-fantasy-purple/10 transition-colors"
+                onClick={() => onToggleCategory(categoryKey)}
+            >
+                {icon}
+                <span className="font-semibold flex-1 text-left">{title}</span>
+                <Badge variant="outline" className="text-xs">{items.length}</Badge>
+                {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </button>
+
+            {isExpanded && (
+                <div className="pb-2 space-y-1">
+                    {items.map(item => {
+                        const isSelected = selectedShopItem?.id === item.id;
+                        const canAfford = currentGold >= (item.value || 0);
+
+                        return (
+                            <div
+                                key={item.id}
+                                className={cn(
+                                    "mx-2 px-3 py-2 rounded-md cursor-pointer transition-all",
+                                    "flex items-center gap-2",
+                                    isSelected
+                                        ? "bg-fantasy-gold/20 ring-1 ring-fantasy-gold"
+                                        : "hover:bg-fantasy-purple/10",
+                                    !canAfford && "opacity-50"
+                                )}
+                                onClick={() => onSelectShopItem(item)}
+                            >
+                                {getItemIcon(item.type)}
+                                <span className="flex-1 text-sm truncate">{item.name}</span>
+                                <span className={cn(
+                                    "text-sm font-medium",
+                                    canAfford ? "text-fantasy-gold" : "text-red-400"
+                                )}>
+                                    {item.value}g
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+};
+
 export function Shop({ onClose }: ShopProps) {
     const { character, updateCharacter, addItem } = useGame();
     const [selectedShopItem, setSelectedShopItem] = useState<Item | null>(null);
@@ -119,69 +194,7 @@ export function Shop({ onClose }: ShopProps) {
         setTimeout(() => setNotification(null), 2000);
     };
 
-    // Category Section for shop items
-    const ShopCategory = ({
-        title,
-        icon,
-        items,
-        categoryKey
-    }: {
-        title: string;
-        icon: React.ReactNode;
-        items: Item[];
-        categoryKey: string;
-    }) => {
-        const isExpanded = expandedCategories.has(categoryKey);
 
-        if (items.length === 0) return null;
-
-        return (
-            <div className="border-b border-fantasy-purple/20 last:border-0">
-                <button
-                    className="w-full flex items-center gap-2 p-3 hover:bg-fantasy-purple/10 transition-colors"
-                    onClick={() => toggleCategory(categoryKey)}
-                >
-                    {icon}
-                    <span className="font-semibold flex-1 text-left">{title}</span>
-                    <Badge variant="outline" className="text-xs">{items.length}</Badge>
-                    {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </button>
-
-                {isExpanded && (
-                    <div className="pb-2 space-y-1">
-                        {items.map(item => {
-                            const isSelected = selectedShopItem?.id === item.id;
-                            const canAfford = currentGold >= (item.value || 0);
-
-                            return (
-                                <div
-                                    key={item.id}
-                                    className={cn(
-                                        "mx-2 px-3 py-2 rounded-md cursor-pointer transition-all",
-                                        "flex items-center gap-2",
-                                        isSelected
-                                            ? "bg-fantasy-gold/20 ring-1 ring-fantasy-gold"
-                                            : "hover:bg-fantasy-purple/10",
-                                        !canAfford && "opacity-50"
-                                    )}
-                                    onClick={() => setSelectedShopItem(item)}
-                                >
-                                    {getItemIcon(item.type)}
-                                    <span className="flex-1 text-sm truncate">{item.name}</span>
-                                    <span className={cn(
-                                        "text-sm font-medium",
-                                        canAfford ? "text-fantasy-gold" : "text-red-400"
-                                    )}>
-                                        {item.value}g
-                                    </span>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
-        );
-    };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 fade-in">
@@ -454,54 +467,99 @@ export function Shop({ onClose }: ShopProps) {
                                     icon={<Heart className="h-4 w-4 text-red-400" />}
                                     items={shopPotions}
                                     categoryKey="potions"
+                                    expandedCategories={expandedCategories}
+                                    onToggleCategory={toggleCategory}
+                                    selectedShopItem={selectedShopItem}
+                                    onSelectShopItem={setSelectedShopItem}
+                                    currentGold={currentGold}
                                 />
                                 <ShopCategory
                                     title="Weapons"
                                     icon={<Sword className="h-4 w-4 text-orange-400" />}
                                     items={shopWeapons}
                                     categoryKey="weapons"
+                                    expandedCategories={expandedCategories}
+                                    onToggleCategory={toggleCategory}
+                                    selectedShopItem={selectedShopItem}
+                                    onSelectShopItem={setSelectedShopItem}
+                                    currentGold={currentGold}
                                 />
                                 <ShopCategory
                                     title="Armor"
                                     icon={<Shield className="h-4 w-4 text-blue-400" />}
                                     items={shopArmor}
                                     categoryKey="armor"
+                                    expandedCategories={expandedCategories}
+                                    onToggleCategory={toggleCategory}
+                                    selectedShopItem={selectedShopItem}
+                                    onSelectShopItem={setSelectedShopItem}
+                                    currentGold={currentGold}
                                 />
                                 <ShopCategory
                                     title="Helmets"
                                     icon={<Crown className="h-4 w-4 text-amber-400" />}
                                     items={shopHelmets}
                                     categoryKey="helmets"
+                                    expandedCategories={expandedCategories}
+                                    onToggleCategory={toggleCategory}
+                                    selectedShopItem={selectedShopItem}
+                                    onSelectShopItem={setSelectedShopItem}
+                                    currentGold={currentGold}
                                 />
                                 <ShopCategory
                                     title="Gloves"
                                     icon={<Hand className="h-4 w-4 text-gray-400" />}
                                     items={shopGloves}
                                     categoryKey="gloves"
+                                    expandedCategories={expandedCategories}
+                                    onToggleCategory={toggleCategory}
+                                    selectedShopItem={selectedShopItem}
+                                    onSelectShopItem={setSelectedShopItem}
+                                    currentGold={currentGold}
                                 />
                                 <ShopCategory
                                     title="Boots"
                                     icon={<Footprints className="h-4 w-4 text-amber-600" />}
                                     items={shopBoots}
                                     categoryKey="boots"
+                                    expandedCategories={expandedCategories}
+                                    onToggleCategory={toggleCategory}
+                                    selectedShopItem={selectedShopItem}
+                                    onSelectShopItem={setSelectedShopItem}
+                                    currentGold={currentGold}
                                 />
                                 <ShopCategory
                                     title="Amulets"
                                     icon={<CircleDot className="h-4 w-4 text-purple-400" />}
                                     items={shopAmulets}
                                     categoryKey="amulets"
+                                    expandedCategories={expandedCategories}
+                                    onToggleCategory={toggleCategory}
+                                    selectedShopItem={selectedShopItem}
+                                    onSelectShopItem={setSelectedShopItem}
+                                    currentGold={currentGold}
                                 />
                                 <ShopCategory
                                     title="Rings"
                                     icon={<CircleDot className="h-4 w-4 text-yellow-400" />}
                                     items={shopRings}
                                     categoryKey="rings"
+                                    expandedCategories={expandedCategories}
+                                    onToggleCategory={toggleCategory}
+                                    selectedShopItem={selectedShopItem}
+                                    onSelectShopItem={setSelectedShopItem}
+                                    currentGold={currentGold}
                                 />
                                 <ShopCategory
                                     title="Shields"
                                     icon={<Shield className="h-4 w-4 text-slate-400" />}
                                     items={shopShields}
                                     categoryKey="shields"
+                                    expandedCategories={expandedCategories}
+                                    onToggleCategory={toggleCategory}
+                                    selectedShopItem={selectedShopItem}
+                                    onSelectShopItem={setSelectedShopItem}
+                                    currentGold={currentGold}
                                 />
                             </div>
                         </div>

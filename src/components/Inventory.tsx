@@ -74,6 +74,117 @@ const getSlotName = (slot: EquipmentSlot) => {
 //   }
 // };
 
+// Equipment Slot Component - moved outside to avoid recreation on render
+interface EquipmentSlotBoxProps {
+  slot: EquipmentSlot;
+  equipped: Item | undefined;
+  isSelected: boolean;
+  onSelect: (item: Item) => void;
+}
+
+const EquipmentSlotBox = ({ slot, equipped, isSelected, onSelect }: EquipmentSlotBoxProps) => {
+  return (
+    <div
+      className={cn(
+        "p-2 rounded-lg border-2 border-dashed cursor-pointer transition-all",
+        "flex flex-col items-center justify-center min-h-[70px]",
+        equipped
+          ? "border-fantasy-gold/50 bg-fantasy-gold/10 hover:bg-fantasy-gold/20"
+          : "border-fantasy-purple/30 bg-fantasy-dark-surface hover:border-fantasy-purple/50",
+        isSelected && "ring-2 ring-fantasy-gold"
+      )}
+      onClick={() => equipped && onSelect(equipped)}
+    >
+      <div className="text-muted-foreground mb-1">
+        {getSlotIcon(slot)}
+      </div>
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        {getSlotName(slot)}
+      </p>
+      {equipped && (
+        <p className="text-xs font-medium text-center truncate max-w-full mt-1">
+          {equipped.name}
+        </p>
+      )}
+    </div>
+  );
+};
+
+// Category Section Component - moved outside to avoid recreation on render
+interface CategorySectionProps {
+  title: string;
+  icon: React.ReactNode;
+  items: Item[];
+  categoryKey: string;
+  isExpanded: boolean;
+  onToggleCategory: (category: string) => void;
+  selectedItemId: string | null;
+  onItemClick: (item: Item) => void;
+  isItemEquipped: (item: Item) => boolean;
+  isAttuned: (item: Item) => boolean;
+  getItemIcon: (item: Item) => React.ReactNode;
+}
+
+const CategorySection = ({
+  title,
+  icon,
+  items,
+  categoryKey,
+  isExpanded,
+  onToggleCategory,
+  selectedItemId,
+  onItemClick,
+  isItemEquipped,
+  isAttuned,
+  getItemIcon
+}: CategorySectionProps) => {
+  if (items.length === 0) return null;
+
+  return (
+    <div className="border-b border-fantasy-purple/20 last:border-0">
+      <button
+        className="w-full flex items-center gap-2 p-3 hover:bg-fantasy-purple/10 transition-colors"
+        onClick={() => onToggleCategory(categoryKey)}
+      >
+        {icon}
+        <span className="font-semibold flex-1 text-left">{title}</span>
+        <Badge variant="outline" className="text-xs">{items.length}</Badge>
+        {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+      </button>
+
+      {isExpanded && (
+        <div className="pb-2 space-y-1">
+          {items.map(item => {
+            const equipped = isItemEquipped(item);
+            const attuned = isAttuned(item);
+            const isSelected = selectedItemId === item.id;
+
+            return (
+              <div
+                key={item.id}
+                className={cn(
+                  "mx-2 px-3 py-2 rounded-md cursor-pointer transition-all",
+                  "flex items-center gap-2",
+                  isSelected
+                    ? "bg-fantasy-purple/30 ring-1 ring-fantasy-purple"
+                    : "hover:bg-fantasy-purple/10",
+                  equipped && "border-l-2 border-fantasy-gold"
+                )}
+                onClick={() => onItemClick(item)}
+              >
+                {getItemIcon(item)}
+                <span className="flex-1 text-sm truncate">{item.name}</span>
+                {equipped && <Check className="h-3 w-3 text-fantasy-gold" />}
+                {attuned && <Sparkles className="h-3 w-3 text-blue-400" />}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export function Inventory({
   character,
   onEquipItem,
@@ -222,98 +333,7 @@ export function Inventory({
     }
   };
 
-  // Equipment Slot Component
-  const EquipmentSlotBox = ({ slot }: { slot: EquipmentSlot }) => {
-    const equipped = getEquippedItem(slot);
-    const isSelected = selectedItem?.id === equipped?.id;
 
-    return (
-      <div
-        className={cn(
-          "p-2 rounded-lg border-2 border-dashed cursor-pointer transition-all",
-          "flex flex-col items-center justify-center min-h-[70px]",
-          equipped
-            ? "border-fantasy-gold/50 bg-fantasy-gold/10 hover:bg-fantasy-gold/20"
-            : "border-fantasy-purple/30 bg-fantasy-dark-surface hover:border-fantasy-purple/50",
-          isSelected && "ring-2 ring-fantasy-gold"
-        )}
-        onClick={() => equipped && setSelectedItem(equipped)}
-      >
-        <div className="text-muted-foreground mb-1">
-          {getSlotIcon(slot)}
-        </div>
-        <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
-          {getSlotName(slot)}
-        </p>
-        {equipped && (
-          <p className="text-xs font-medium text-center truncate max-w-full mt-1">
-            {equipped.name}
-          </p>
-        )}
-      </div>
-    );
-  };
-
-  // Category Section Component
-  const CategorySection = ({
-    title,
-    icon,
-    items,
-    categoryKey
-  }: {
-    title: string;
-    icon: React.ReactNode;
-    items: Item[];
-    categoryKey: string;
-  }) => {
-    const isExpanded = expandedCategories.has(categoryKey);
-
-    if (items.length === 0) return null;
-
-    return (
-      <div className="border-b border-fantasy-purple/20 last:border-0">
-        <button
-          className="w-full flex items-center gap-2 p-3 hover:bg-fantasy-purple/10 transition-colors"
-          onClick={() => toggleCategory(categoryKey)}
-        >
-          {icon}
-          <span className="font-semibold flex-1 text-left">{title}</span>
-          <Badge variant="outline" className="text-xs">{items.length}</Badge>
-          {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-        </button>
-
-        {isExpanded && (
-          <div className="pb-2 space-y-1">
-            {items.map(item => {
-              const equipped = isItemEquipped(item);
-              const attuned = isAttuned(character, item);
-              const isSelected = selectedItem?.id === item.id;
-
-              return (
-                <div
-                  key={item.id}
-                  className={cn(
-                    "mx-2 px-3 py-2 rounded-md cursor-pointer transition-all",
-                    "flex items-center gap-2",
-                    isSelected
-                      ? "bg-fantasy-purple/30 ring-1 ring-fantasy-purple"
-                      : "hover:bg-fantasy-purple/10",
-                    equipped && "border-l-2 border-fantasy-gold"
-                  )}
-                  onClick={() => handleItemClick(item)}
-                >
-                  {getItemIcon(item)}
-                  <span className="flex-1 text-sm truncate">{item.name}</span>
-                  {equipped && <Check className="h-3 w-3 text-fantasy-gold" />}
-                  {attuned && <Sparkles className="h-3 w-3 text-blue-400" />}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
-  };
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
@@ -355,30 +375,75 @@ export function Inventory({
               {/* Equipment Grid */}
               <div className="space-y-3">
                 {/* Head */}
-                <EquipmentSlotBox slot="helmet" />
+                <EquipmentSlotBox
+                  slot="helmet"
+                  equipped={getEquippedItem('helmet')}
+                  isSelected={selectedItem?.id === getEquippedItem('helmet')?.id}
+                  onSelect={setSelectedItem}
+                />
 
                 {/* Body Row */}
                 <div className="grid grid-cols-2 gap-2">
-                  <EquipmentSlotBox slot="armor" />
-                  <EquipmentSlotBox slot="amulet" />
+                  <EquipmentSlotBox
+                    slot="armor"
+                    equipped={getEquippedItem('armor')}
+                    isSelected={selectedItem?.id === getEquippedItem('armor')?.id}
+                    onSelect={setSelectedItem}
+                  />
+                  <EquipmentSlotBox
+                    slot="amulet"
+                    equipped={getEquippedItem('amulet')}
+                    isSelected={selectedItem?.id === getEquippedItem('amulet')?.id}
+                    onSelect={setSelectedItem}
+                  />
                 </div>
 
                 {/* Hands Row */}
                 <div className="grid grid-cols-2 gap-2">
-                  <EquipmentSlotBox slot="gloves" />
-                  <EquipmentSlotBox slot="boots" />
+                  <EquipmentSlotBox
+                    slot="gloves"
+                    equipped={getEquippedItem('gloves')}
+                    isSelected={selectedItem?.id === getEquippedItem('gloves')?.id}
+                    onSelect={setSelectedItem}
+                  />
+                  <EquipmentSlotBox
+                    slot="boots"
+                    equipped={getEquippedItem('boots')}
+                    isSelected={selectedItem?.id === getEquippedItem('boots')?.id}
+                    onSelect={setSelectedItem}
+                  />
                 </div>
 
                 {/* Weapons Row */}
                 <div className="grid grid-cols-2 gap-2">
-                  <EquipmentSlotBox slot="mainHand" />
-                  <EquipmentSlotBox slot="offHand" />
+                  <EquipmentSlotBox
+                    slot="mainHand"
+                    equipped={getEquippedItem('mainHand')}
+                    isSelected={selectedItem?.id === getEquippedItem('mainHand')?.id}
+                    onSelect={setSelectedItem}
+                  />
+                  <EquipmentSlotBox
+                    slot="offHand"
+                    equipped={getEquippedItem('offHand')}
+                    isSelected={selectedItem?.id === getEquippedItem('offHand')?.id}
+                    onSelect={setSelectedItem}
+                  />
                 </div>
 
                 {/* Rings Row */}
                 <div className="grid grid-cols-2 gap-2">
-                  <EquipmentSlotBox slot="ring1" />
-                  <EquipmentSlotBox slot="ring2" />
+                  <EquipmentSlotBox
+                    slot="ring1"
+                    equipped={getEquippedItem('ring1')}
+                    isSelected={selectedItem?.id === getEquippedItem('ring1')?.id}
+                    onSelect={setSelectedItem}
+                  />
+                  <EquipmentSlotBox
+                    slot="ring2"
+                    equipped={getEquippedItem('ring2')}
+                    isSelected={selectedItem?.id === getEquippedItem('ring2')?.id}
+                    onSelect={setSelectedItem}
+                  />
                 </div>
               </div>
             </div>
@@ -397,36 +462,78 @@ export function Inventory({
                   icon={<Sword className="h-4 w-4 text-red-400" />}
                   items={weapons}
                   categoryKey="weapons"
+                  isExpanded={expandedCategories.has('weapons')}
+                  onToggleCategory={toggleCategory}
+                  selectedItemId={selectedItem?.id || null}
+                  onItemClick={handleItemClick}
+                  isItemEquipped={isItemEquipped}
+                  isAttuned={(item) => isAttuned(character, item)}
+                  getItemIcon={getItemIcon}
                 />
                 <CategorySection
                   title="Armor & Equipment"
                   icon={<Shield className="h-4 w-4 text-blue-400" />}
                   items={armor}
                   categoryKey="armor"
+                  isExpanded={expandedCategories.has('armor')}
+                  onToggleCategory={toggleCategory}
+                  selectedItemId={selectedItem?.id || null}
+                  onItemClick={handleItemClick}
+                  isItemEquipped={isItemEquipped}
+                  isAttuned={(item) => isAttuned(character, item)}
+                  getItemIcon={getItemIcon}
                 />
                 <CategorySection
                   title="Accessories"
                   icon={<CircleDot className="h-4 w-4 text-purple-400" />}
                   items={accessories}
                   categoryKey="accessories"
+                  isExpanded={expandedCategories.has('accessories')}
+                  onToggleCategory={toggleCategory}
+                  selectedItemId={selectedItem?.id || null}
+                  onItemClick={handleItemClick}
+                  isItemEquipped={isItemEquipped}
+                  isAttuned={(item) => isAttuned(character, item)}
+                  getItemIcon={getItemIcon}
                 />
                 <CategorySection
                   title="Potions"
                   icon={<Heart className="h-4 w-4 text-red-400" />}
                   items={potions}
                   categoryKey="potions"
+                  isExpanded={expandedCategories.has('potions')}
+                  onToggleCategory={toggleCategory}
+                  selectedItemId={selectedItem?.id || null}
+                  onItemClick={handleItemClick}
+                  isItemEquipped={isItemEquipped}
+                  isAttuned={(item) => isAttuned(character, item)}
+                  getItemIcon={getItemIcon}
                 />
                 <CategorySection
                   title="Scrolls"
                   icon={<Scroll className="h-4 w-4 text-amber-300" />}
                   items={scrolls}
                   categoryKey="scrolls"
+                  isExpanded={expandedCategories.has('scrolls')}
+                  onToggleCategory={toggleCategory}
+                  selectedItemId={selectedItem?.id || null}
+                  onItemClick={handleItemClick}
+                  isItemEquipped={isItemEquipped}
+                  isAttuned={(item) => isAttuned(character, item)}
+                  getItemIcon={getItemIcon}
                 />
                 <CategorySection
                   title="Treasure"
                   icon={<Gem className="h-4 w-4 text-fantasy-gold" />}
                   items={treasure}
                   categoryKey="treasure"
+                  isExpanded={expandedCategories.has('treasure')}
+                  onToggleCategory={toggleCategory}
+                  selectedItemId={selectedItem?.id || null}
+                  onItemClick={handleItemClick}
+                  isItemEquipped={isItemEquipped}
+                  isAttuned={(item) => isAttuned(character, item)}
+                  getItemIcon={getItemIcon}
                 />
               </div>
 

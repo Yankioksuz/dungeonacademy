@@ -32,10 +32,7 @@ import {
   getSpellHealing,
 } from '@/lib/spells';
 import {
-  getProficiencyBonus,
-  getInitiativeBonus,
-  getSavingThrowBonus,
-  getArmorClass
+  getProficiencyBonus
 } from '@/utils/skillUtils';
 import { calculateMaxHitPoints } from '@/utils/characterUtils';
 import { checkFeatPrerequisites } from '@/utils/featUtils';

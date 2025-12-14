@@ -3,7 +3,7 @@
  * This file provides helper functions to check and apply subclass features during combat.
  */
 
-import type { PlayerCharacter, Condition, ConditionType } from '@/types';
+import type { PlayerCharacter, ConditionType } from '@/types';
 
 // Types for subclass feature effects
 export interface SubclassFeatureResult {
@@ -130,14 +130,16 @@ export function getStormAuraEffect(character: PlayerCharacter, auraType: 'desert
     const level = character.level || 1;
 
     switch (auraType) {
-        case 'desert':
+        case 'desert': {
             const fireDamage = level >= 15 ? 4 : level >= 10 ? 3 : 2;
             return { applies: true, damage: fireDamage, damageType: 'fire', description: 'Storm Aura (Desert)' };
+        }
         case 'sea':
             return { applies: true, damage: Math.floor(Math.random() * 6) + 1, damageType: 'lightning', description: 'Storm Aura (Sea)' };
-        case 'tundra':
+        case 'tundra': {
             const tempHp = level >= 15 ? 4 : level >= 10 ? 3 : 2;
             return { applies: true, tempHp, description: 'Storm Aura (Tundra)' };
+        }
         default:
             return { applies: false };
     }

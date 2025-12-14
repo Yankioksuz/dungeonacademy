@@ -813,7 +813,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       newEquipment[slot] = item;
 
       // Also update legacy fields for backward compatibility
-      let updates: Partial<PlayerCharacter> = { equipment: newEquipment };
+      const updates: Partial<PlayerCharacter> = { equipment: newEquipment };
       if (slot === 'mainHand') {
         updates.equippedWeapon = item;
       } else if (slot === 'armor') {
@@ -873,7 +873,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       delete newEquipment[slot];
 
       // Also update legacy fields for backward compatibility
-      let updates: Partial<PlayerCharacter> = { equipment: newEquipment };
+      const updates: Partial<PlayerCharacter> = { equipment: newEquipment };
       if (slot === 'mainHand') {
         updates.equippedWeapon = undefined;
       } else if (slot === 'armor') {
@@ -1095,7 +1095,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         // Unlock new class features
         const className = prev.class.name.toLowerCase();
         const progression = CLASS_PROGRESSION[className];
-        let newFeatures: string[] = [];
+        const newFeatures: string[] = [];
 
         if (progression) {
           // Get features for the new level

@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
-import { Badge } from './ui/badge';
 import { FeatSelectionModal } from './FeatSelectionModal';
-import { Sword, BookOpen, Dice6, DoorOpen, CheckCircle2, Backpack, X, Tent, ShoppingBag, Brain, Wand2, Sparkles, ArrowUpCircle } from 'lucide-react';
+import { Sparkles, ArrowUpCircle } from 'lucide-react';
 import type { TalentOption, Subclass, Feat } from '@/types';
 
 interface LevelUpModalProps {
@@ -47,12 +46,7 @@ export function LevelUpModal({
   onSelectAsi,
 }: LevelUpModalProps) {
   const { t } = useTranslation();
-  const [mode, setMode] = useState<'feat' | 'asi'>('asi');
-
-  // Auto-switch to feat mode if asi is not available or if user has already selected a feat
-  useEffect(() => {
-    if (selectedFeatId) setMode('feat');
-  }, [selectedFeatId]);
+  const [mode, setMode] = useState<'feat' | 'asi'>(selectedFeatId ? 'feat' : 'asi');
 
   if (!isOpen) return null;
 

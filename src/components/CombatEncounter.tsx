@@ -18,10 +18,8 @@ import {
   isEnemyConditionImmune,
   adjustDamageForDefenses,
 } from '@/utils/combatUtils';
-import { getInitiativeBonus } from '@/utils/skillUtils';
 import { determineEnemyAction } from '@/utils/enemyAI';
 
-import { createLogEntry } from '@/utils/combatLogger';
 import { CombatLogPanel } from './CombatLogPanel';
 import { ConditionList } from './ConditionList';
 import { DiceRollModal } from './DiceRollModal';
@@ -366,13 +364,13 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   // Fighter Subclass States
   const [fightingSpiritUses, setFightingSpiritUses] = useState(defaultUses.fightingSpirit || 0); // Samurai
   const [fightingSpiritActive, setFightingSpiritActive] = useState(false);
-  const [superiorityDiceLeft, setSuperiorityDiceLeft] = useState(defaultUses.superiorityDice || 0); // Battle Master
+  // TODO: Add superiorityDiceLeft for Battle Master maneuvers when implemented
 
   // Rogue Subclass States
   const [psychicBladesUsedThisTurn, setPsychicBladesUsedThisTurn] = useState(false); // Whispers
 
   // Wizard Subclass States
-  const [portentDiceRolls, setPortentDiceRolls] = useState<number[]>(() => {
+  const [portentDiceRolls] = useState<number[]>(() => {
     // Roll portent dice at combat start for Divination wizards
     if (character.subclass?.id === 'divination') {
       const count = (character.level || 1) >= 14 ? 3 : 2;
@@ -380,23 +378,19 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     }
     return [];
   });
-  const [arcaneWardCurrentHp, setArcaneWardCurrentHp] = useState(defaultUses.arcaneWardHp || 0);
+  // TODO: Add arcaneWardCurrentHp for Abjuration wizards when implemented
 
-  // Cleric Subclass States
-  const [wardingFlareUses, setWardingFlareUses] = useState(defaultUses.wardingFlare || 0);
-  const [wrathOfTheStormUses, setWrathOfTheStormUses] = useState(defaultUses.wrathOfTheStorm || 0);
+  // TODO: Add wardingFlareUses and wrathOfTheStormUses for Cleric subclasses when implemented
 
   // Warlock Subclass States  
   const [hexbladesCurseTarget, setHexbladesCurseTarget] = useState<string | null>(null);
   const [hexbladesCurseAvailable, setHexbladesCurseAvailable] = useState(defaultUses.hexbladesCurse || 0);
   const [healingLightDicePool, setHealingLightDicePool] = useState(defaultUses.healingLightDice || 0);
 
-  // Sorcerer Subclass States
-  const [tidesOfChaosAvailable, setTidesOfChaosAvailable] = useState(defaultUses.tidesOfChaos || 0);
-  const [favoredByTheGodsAvailable, setFavoredByTheGodsAvailable] = useState(defaultUses.favoredByTheGods || 0);
+  // TODO: Add tidesOfChaosAvailable and favoredByTheGodsAvailable for Sorcerer subclasses when implemented
 
   // Bard Subclass States  
-  const [cuttingWordsUsedThisTurn, setCuttingWordsUsedThisTurn] = useState(false);
+  const [, setCuttingWordsUsedThisTurn] = useState(false);
 
   // Paladin Subclass States
   const [vowOfEnmityTarget, setVowOfEnmityTarget] = useState<string | null>(null);
@@ -574,7 +568,8 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     // Uncanny Dodge
     const hasUncannyDodge = activeBuffs.some(b => b.id === 'uncanny-dodge');
     if (hasUncannyDodge) {
-      remainingDamage = Math.ceil(remainingDamage / 2);
+      const halvedDamage = Math.ceil(remainingDamage / 2);
+      remainingDamage = halvedDamage;
       addLog('Uncanny Dodge! Damage halved.', 'info');
       setActiveBuffs(prev => prev.filter(b => b.id !== 'uncanny-dodge'));
     }
@@ -1177,7 +1172,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
     const isMonk = character.class.name.toLowerCase() === 'monk';
     const isSimpleWeapon = character.equippedWeapon?.type.includes('Simple');
-    let useDex = isFinesse || isRanged || (isMonk && (isSimpleWeapon || !character.equippedWeapon));
+    const useDex = isFinesse || isRanged || (isMonk && (isSimpleWeapon || !character.equippedWeapon));
     const isUsingStrength = !useDex;
 
     // ==========================================
@@ -1231,7 +1226,6 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     let damageDice = character.equippedWeapon?.damage || '1d4';
     let damageBonus = useCharisma ? chaMod : useDex ? dexMod : abilityMod;
     const weaponDamageType = detectDamageType(character.equippedWeapon?.damage || damageDice || '');
-    const weaponIsAttuned = character.equippedWeapon ? isAttuned(character, character.equippedWeapon) : false;
     const isMagicalWeapon = isMagicWeapon(character.equippedWeapon);
 
     // ==========================================
@@ -1245,7 +1239,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     }
 
     // Get extra damage dice from magic weapons (Flame Tongue, Frost Brand, etc.)
-    const extraDamageFromWeapon = getWeaponExtraDamage(character.equippedWeapon, weaponIsAttuned);
+    // Extra damage is calculated in the attack resolution callback below
 
     // Fighting Styles
     if (character.fightingStyle === 'Archery' && isRanged) {
