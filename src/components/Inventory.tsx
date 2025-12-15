@@ -671,16 +671,16 @@ export function Inventory({
 
                   {/* Action Buttons */}
                   <div className="pt-4 space-y-2">
-                    {/* Equip/Unequip */}
-                    {(selectedItem.type === 'weapon' || selectedItem.type === 'armor') && (
+                    {/* Equip/Unequip - now supports all equipment types */}
+                    {['weapon', 'armor', 'shield', 'helmet', 'gloves', 'boots', 'amulet', 'ring'].includes(selectedItem.type) && (
                       <>
                         {isItemEquipped(selectedItem) ? (
                           <Button
                             variant="outline"
                             className="w-full"
                             onClick={() => {
-                              const slot = selectedItem.type === 'weapon' ? 'mainHand' : 'armor';
-                              handleUnequip(slot);
+                              const slot = getSlotForItemType(selectedItem.type);
+                              if (slot) handleUnequip(slot);
                             }}
                           >
                             Unequip
@@ -691,7 +691,7 @@ export function Inventory({
                             className="w-full"
                             onClick={() => handleEquip(selectedItem)}
                           >
-                            Equip
+                            Equip {selectedItem.type === 'ring' ? '(Ring 1)' : ''}
                           </Button>
                         )}
                       </>

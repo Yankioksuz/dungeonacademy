@@ -153,6 +153,7 @@ export function Adventure() {
   const [currentSkillCheck, setCurrentSkillCheck] = useState<SkillCheckState | null>(null);
   const [showTutorial, setShowTutorial] = useState(tutorialsEnabled);
   const [inCombat, setInCombat] = useState(false);
+  const [combatTransitioning, setCombatTransitioning] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
   const [showQuestJournal, setShowQuestJournal] = useState(false);
   const [showRestMenu, setShowRestMenu] = useState(false);
@@ -761,6 +762,7 @@ export function Adventure() {
   const handleCombatVictory = () => {
     if (!currentEncounter) return;
     setInCombat(false);
+    setCombatTransitioning(true); // Prevent showing encounter during transition
     completeEncounter(currentEncounter.id);
 
     // Award random item as reward
@@ -777,6 +779,7 @@ export function Adventure() {
       if (combatOption?.nextEncounterId) {
         advanceToNextEncounter(combatOption.nextEncounterId);
       }
+      setCombatTransitioning(false); // Allow rendering after transition
     }, 2000);
   };
 
@@ -948,6 +951,21 @@ export function Adventure() {
           onDefeat={handleCombatDefeat}
           playerAdvantage={currentEncounter.playerAdvantage}
         />
+      </div>
+    );
+  }
+
+  // Show victory transition screen while waiting to advance
+  if (combatTransitioning) {
+    return (
+      <div className="container mx-auto px-4 py-8 fade-in">
+        <Card className="scroll-parchment max-w-2xl mx-auto">
+          <CardContent className="p-8 text-center">
+            <div className="text-4xl mb-4">⚔️</div>
+            <h2 className="font-fantasy text-2xl text-fantasy-gold mb-2">Victory!</h2>
+            <p className="text-muted-foreground">Preparing next encounter...</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }

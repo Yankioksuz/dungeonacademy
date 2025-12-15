@@ -25,11 +25,16 @@ interface CombatLogPanelProps {
 
 export function CombatLogPanel({ logs, className }: CombatLogPanelProps) {
     const bottomRef = useRef<HTMLDivElement>(null);
+    const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-    // Auto-scroll to bottom when logs change
+    // Auto-scroll to bottom when logs change (within ScrollArea only)
     useEffect(() => {
-        if (bottomRef.current) {
-            bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+        if (bottomRef.current && scrollAreaRef.current) {
+            // Find the scrollable viewport within ScrollArea
+            const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+            if (viewport) {
+                viewport.scrollTop = viewport.scrollHeight;
+            }
         }
     }, [logs]);
 
@@ -83,43 +88,45 @@ export function CombatLogPanel({ logs, className }: CombatLogPanelProps) {
                     <Download className="h-3 w-3" />
                 </Button>
             </CardHeader>
-            <CardContent className="pt-0">
-                <ScrollArea className="flex-1 max-h-64 pr-2">
-                    <div className="space-y-2 text-sm">
-                        {logs.length === 0 && (
-                            <div className="text-center text-muted-foreground text-xs italic py-4">
-                                Combat started...
-                            </div>
-                        )}
+            <CardContent className="pt-0 flex-1 overflow-hidden">
+                <div ref={scrollAreaRef}>
+                    <ScrollArea className="max-h-[60vh] pr-2">
+                        <div className="space-y-2 text-sm">
+                            {logs.length === 0 && (
+                                <div className="text-center text-muted-foreground text-xs italic py-4">
+                                    Combat started...
+                                </div>
+                            )}
 
-                        {logs.map((log) => (
-                            <div
-                                key={log.id}
-                                className={`rounded-xl border px-3 py-2 text-sm ${getBgColor(log.type)} animate-in fade-in slide-in-from-left-1 duration-200`}
-                            >
-                                <div className="flex items-start gap-3">
-                                    <div className="mt-0.5 shrink-0 opacity-80">
-                                        {getIcon(log.type)}
-                                    </div>
-                                    <div className="flex-1 min-w-0 space-y-1">
-                                        <div className="flex items-baseline justify-between gap-2">
-                                            <span className="text-white font-semibold leading-tight">{log.message}</span>
-                                            <span className="text-[10px] text-stone-500 whitespace-nowrap">
-                                                {new Date(log.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                                            </span>
+                            {logs.map((log) => (
+                                <div
+                                    key={log.id}
+                                    className={`rounded-xl border px-3 py-2 text-sm ${getBgColor(log.type)} animate-in fade-in slide-in-from-left-1 duration-200`}
+                                >
+                                    <div className="flex items-start gap-3">
+                                        <div className="mt-0.5 shrink-0 opacity-80">
+                                            {getIcon(log.type)}
                                         </div>
-                                        {log.details && (
-                                            <div className="text-[11px] font-mono text-stone-300 bg-black/30 rounded px-2 py-1 inline-block">
-                                                {log.details}
+                                        <div className="flex-1 min-w-0 space-y-1">
+                                            <div className="flex items-baseline justify-between gap-2">
+                                                <span className="text-white font-semibold leading-tight">{log.message}</span>
+                                                <span className="text-[10px] text-stone-500 whitespace-nowrap">
+                                                    {new Date(log.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                                </span>
                                             </div>
-                                        )}
+                                            {log.details && (
+                                                <div className="text-[11px] font-mono text-stone-300 bg-black/30 rounded px-2 py-1 inline-block">
+                                                    {log.details}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                        <div ref={bottomRef} />
-                    </div>
-                </ScrollArea>
+                            ))}
+                            <div ref={bottomRef} />
+                        </div>
+                    </ScrollArea>
+                </div>
             </CardContent>
         </Card>
     );

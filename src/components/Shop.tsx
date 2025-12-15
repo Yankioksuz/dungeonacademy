@@ -11,6 +11,7 @@ import type { Item } from '@/types';
 import itemsData from '@/content/items.json';
 import { cn } from '@/lib/utils';
 import { isArmorProficient, isWeaponProficient } from '@/utils/characterStats';
+import { getItemIconSrc, hasItemIcon } from '@/data/itemIcons';
 
 const createShopItemInstance = (item: Item): Item => {
     const uniqueSuffix =
@@ -28,11 +29,31 @@ interface ShopProps {
     onClose: () => void;
 }
 
-// Helper to get item icon
-const getItemIcon = (type: Item['type']) => {
-    switch (type) {
+// Helper to get item icon - uses custom image if available, otherwise fallback to Lucide icon
+const getItemIcon = (item: Item) => {
+    // Check for template ID first (shop items have templateId as the original ID)
+    const itemIdToCheck = item.templateId || item.id;
+
+    // Check if this item has a custom icon
+    if (hasItemIcon(itemIdToCheck)) {
+        const iconSrc = getItemIconSrc(itemIdToCheck);
+        return (
+            <img
+                src={iconSrc}
+                alt={item.name}
+                className="h-8 w-8 rounded object-cover"
+            />
+        );
+    }
+
+    // Fallback to type-based Lucide icons
+    switch (item.type) {
         case 'weapon': return <Sword className="h-4 w-4" />;
         case 'armor': case 'shield': return <Shield className="h-4 w-4" />;
+        case 'helmet': return <Crown className="h-4 w-4" />;
+        case 'gloves': return <Hand className="h-4 w-4" />;
+        case 'boots': return <Footprints className="h-4 w-4" />;
+        case 'amulet': case 'ring': return <CircleDot className="h-4 w-4" />;
         case 'potion': return <Heart className="h-4 w-4 text-red-400" />;
         case 'scroll': return <Scroll className="h-4 w-4 text-amber-300" />;
         case 'treasure': return <Gem className="h-4 w-4" />;
@@ -98,7 +119,7 @@ const ShopCategory = ({
                                 )}
                                 onClick={() => onSelectShopItem(item)}
                             >
-                                {getItemIcon(item.type)}
+                                {getItemIcon(item)}
                                 <span className="flex-1 text-sm truncate">{item.name}</span>
                                 <span className={cn(
                                     "text-sm font-medium",
@@ -274,7 +295,7 @@ export function Shop({ onClose }: ShopProps) {
                                                     setSelectedShopItem(null);
                                                 }}
                                             >
-                                                {getItemIcon(item.type)}
+                                                {getItemIcon(item)}
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm truncate">{item.name}</p>
                                                     {isEquipped && (
@@ -304,7 +325,7 @@ export function Shop({ onClose }: ShopProps) {
                                     <div className="p-4 rounded-lg border border-fantasy-gold/30 bg-fantasy-gold/5">
                                         <div className="text-center pb-4 border-b border-fantasy-gold/20">
                                             <div className="w-14 h-14 mx-auto mb-3 rounded-lg bg-fantasy-dark-card border border-fantasy-gold/30 flex items-center justify-center">
-                                                {getItemIcon(selectedShopItem.type)}
+                                                {getItemIcon(selectedShopItem)}
                                             </div>
                                             <h4 className="text-lg font-semibold text-fantasy-gold">
                                                 {selectedShopItem.name}
@@ -399,7 +420,7 @@ export function Shop({ onClose }: ShopProps) {
                                     <div className="p-4 rounded-lg border border-red-400/30 bg-red-400/5">
                                         <div className="text-center pb-4 border-b border-red-400/20">
                                             <div className="w-14 h-14 mx-auto mb-3 rounded-lg bg-fantasy-dark-card border border-red-400/30 flex items-center justify-center">
-                                                {getItemIcon(selectedSellItem.type)}
+                                                {getItemIcon(selectedSellItem)}
                                             </div>
                                             <h4 className="text-lg font-semibold text-red-400">
                                                 {selectedSellItem.name}

@@ -26,6 +26,73 @@ const CHARACTER_CREATION_STEPS = [
   { id: 'review', label: 'Review' },
 ];
 
+// Tooltip explanations for character creation options
+const FIGHTING_STYLE_TOOLTIPS: Record<string, string> = {
+  'Archery': '+2 bonus to attack rolls with ranged weapons. Great for bow-focused fighters.',
+  'Defense': '+1 bonus to AC while wearing armor. Increases survivability in melee.',
+  'Dueling': '+2 damage when wielding a one-handed weapon with no other weapons. Pairs well with a shield.',
+  'Great Weapon Fighting': 'Reroll 1s and 2s on damage dice for two-handed weapons. Maximizes damage output.',
+  'Two-Weapon Fighting': 'Add ability modifier to off-hand attack damage. Essential for dual-wielders.',
+};
+
+const PACT_BOON_TOOLTIPS: Record<string, string> = {
+  'Pact of the Blade': 'Create a magical weapon that can take any form. Your patron\'s power manifests as a deadly weapon bent to your will.',
+  'Pact of the Chain': 'Gain an improved familiar (imp, pseudodragon, quasit, or sprite). A loyal servant for scouting and assistance.',
+  'Pact of the Tome': 'Receive a Book of Shadows with 3 cantrips from any class. Expands your magical versatility.',
+};
+
+const SORCEROUS_ORIGIN_TOOLTIPS: Record<string, string> = {
+  'Draconic Bloodline': 'Dragon blood flows through you, granting extra HP, natural armor, and eventually elemental resistance and wings.',
+  'Wild Magic': 'Your magic is unpredictable. Wild Magic Surge can cause random magical effects - chaotic but powerful.',
+  'Divine Soul': 'Divine power infuses your soul. Access cleric spells and gain celestial benefits like Favored by the Gods.',
+};
+
+const LANGUAGE_TOOLTIPS: Record<string, string> = {
+  'Elvish': 'The flowing language of elves, often used in poetry, song, and magical inscriptions.',
+  'Dwarvish': 'A harsh, consonant-heavy language with deep roots in mining and smithing terminology.',
+  'Giant': 'The thunderous tongue of giants, ogres, and other massive humanoids.',
+  'Gnomish': 'A quick, technical language with many words for invention and illusion.',
+  'Goblin': 'The crude but efficient language of goblins, hobgoblins, and bugbears.',
+  'Halfling': 'A subtle language with many words borrowed from Common and Elvish.',
+  'Orc': 'A guttural language full of harsh sounds and battle cries.',
+  'Abyssal': 'The dark tongue of demons, filled with harsh sounds that hurt mortal ears.',
+  'Celestial': 'The melodious language of angels and other celestial beings.',
+  'Draconic': 'The ancient language of dragons, used in many magical writings.',
+  'Deep Speech': 'The alien language of aberrations from the Far Realm.',
+  'Infernal': 'The precise, legalistic language of devils and Baator.',
+  'Primordial': 'The elemental tongue spoken by creatures of fire, water, earth, and air.',
+  'Sylvan': 'The fey language of nature spirits, pixies, and dryads.',
+  'Undercommon': 'The trade language of the Underdark, used by drow, duergar, and others.',
+};
+
+const SKILL_TOOLTIPS: Record<string, string> = {
+  'acrobatics': 'Dexterity-based. Used for balance, tumbling, and aerial maneuvers.',
+  'animal-handling': 'Wisdom-based. Calm, train, or control animals.',
+  'arcana': 'Intelligence-based. Knowledge of magic, spells, and magical creatures.',
+  'athletics': 'Strength-based. Climbing, jumping, swimming, and physical feats.',
+  'deception': 'Charisma-based. Lying, disguises, and misdirection.',
+  'history': 'Intelligence-based. Knowledge of historical events and civilizations.',
+  'insight': 'Wisdom-based. Reading people\'s true intentions and emotions.',
+  'intimidation': 'Charisma-based. Threatening others to get what you want.',
+  'investigation': 'Intelligence-based. Finding clues, searching, and deduction.',
+  'medicine': 'Wisdom-based. Stabilizing the dying and diagnosing illness.',
+  'nature': 'Intelligence-based. Knowledge of plants, animals, and natural terrain.',
+  'perception': 'Wisdom-based. Noticing hidden things using your senses.',
+  'performance': 'Charisma-based. Entertainment through music, dance, or acting.',
+  'persuasion': 'Charisma-based. Convincing others through diplomacy and charm.',
+  'religion': 'Intelligence-based. Knowledge of deities, rituals, and religious history.',
+  'sleight-of-hand': 'Dexterity-based. Pickpocketing, lockpicking, and manual trickery.',
+  'stealth': 'Dexterity-based. Moving silently and hiding from detection.',
+  'survival': 'Wisdom-based. Tracking, foraging, and navigating the wilderness.',
+};
+
+const HIT_DIE_TOOLTIP = 'The die you roll to gain HP when leveling up. Larger die = more HP potential. You also add your Constitution modifier each level.';
+const PRIMARY_ABILITY_TOOLTIP = 'The ability score most important for this class. Focus your highest stats here for the best results.';
+
+const DRACONIC_ANCESTRY_TOOLTIP = (type: string, damageType: string, breathType: string) =>
+  `${type} Dragon ancestry grants you a ${breathType} breath weapon dealing ${damageType} damage, and resistance to ${damageType} damage.`;
+
+
 export function CharacterCreation() {
   const { t } = useTranslation();
   const {
@@ -349,19 +416,23 @@ export function CharacterCreation() {
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {DRACONIC_ANCESTRIES.map((ancestry) => (
-                    <Button
+                    <Tooltip
                       key={ancestry.type}
-                      type="button"
-                      variant={draconicAncestry?.type === ancestry.type ? 'default' : 'outline'}
-                      className={cn(
-                        "justify-start text-xs",
-                        draconicAncestry?.type === ancestry.type && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
-                      )}
-                      onClick={() => setDraconicAncestry(ancestry)}
+                      content={DRACONIC_ANCESTRY_TOOLTIP(ancestry.type, ancestry.damageType, ancestry.breathCone ? '15ft cone' : '30ft line')}
                     >
-                      <span className="font-bold mr-1">{ancestry.type}</span>
-                      <span className="text-[10px] opacity-80">({ancestry.damageType})</span>
-                    </Button>
+                      <Button
+                        type="button"
+                        variant={draconicAncestry?.type === ancestry.type ? 'default' : 'outline'}
+                        className={cn(
+                          "justify-start text-xs cursor-help",
+                          draconicAncestry?.type === ancestry.type && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                        )}
+                        onClick={() => setDraconicAncestry(ancestry)}
+                      >
+                        <span className="font-bold mr-1">{ancestry.type}</span>
+                        <span className="text-[10px] opacity-80">({ancestry.damageType})</span>
+                      </Button>
+                    </Tooltip>
                   ))}
                 </div>
               </div>
@@ -375,18 +446,19 @@ export function CharacterCreation() {
                 </p>
                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                   {EXTRA_LANGUAGES.filter(l => l !== 'Common').map((lang) => (
-                    <Button
-                      key={lang}
-                      type="button"
-                      variant={extraLanguage === lang ? 'default' : 'outline'}
-                      className={cn(
-                        "text-xs",
-                        extraLanguage === lang && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
-                      )}
-                      onClick={() => setExtraLanguage(lang)}
-                    >
-                      {lang}
-                    </Button>
+                    <Tooltip key={lang} content={LANGUAGE_TOOLTIPS[lang] || `Learn to speak, read, and write ${lang}.`}>
+                      <Button
+                        type="button"
+                        variant={extraLanguage === lang ? 'default' : 'outline'}
+                        className={cn(
+                          "text-xs cursor-help w-full",
+                          extraLanguage === lang && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                        )}
+                        onClick={() => setExtraLanguage(lang)}
+                      >
+                        {lang}
+                      </Button>
+                    </Tooltip>
                   ))}
                 </div>
               </div>
@@ -400,18 +472,19 @@ export function CharacterCreation() {
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {(Object.keys(SKILL_ABILITY_MAP) as SkillName[]).map((skill) => (
-                    <Button
-                      key={skill}
-                      type="button"
-                      variant={humanBonusSkill === skill ? 'default' : 'outline'}
-                      className={cn(
-                        "text-xs capitalize",
-                        humanBonusSkill === skill && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
-                      )}
-                      onClick={() => setHumanBonusSkill(skill)}
-                    >
-                      {skill.replace(/-/g, ' ')}
-                    </Button>
+                    <Tooltip key={skill} content={SKILL_TOOLTIPS[skill] || `Proficiency in ${skill}.`}>
+                      <Button
+                        type="button"
+                        variant={humanBonusSkill === skill ? 'default' : 'outline'}
+                        className={cn(
+                          "text-xs capitalize cursor-help w-full",
+                          humanBonusSkill === skill && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                        )}
+                        onClick={() => setHumanBonusSkill(skill)}
+                      >
+                        {skill.replace(/-/g, ' ')}
+                      </Button>
+                    </Tooltip>
                   ))}
                 </div>
               </div>
@@ -518,8 +591,16 @@ export function CharacterCreation() {
                     <CardContent>
                       <p className="text-sm text-muted-foreground mb-3">{classOption.description}</p>
                       <div className="space-y-2">
-                        <p className="text-xs"><strong>Hit Die:</strong> {classOption.hitDie}</p>
-                        <p className="text-xs"><strong>Primary Ability:</strong> {classOption.primaryAbility}</p>
+                        <Tooltip content={HIT_DIE_TOOLTIP}>
+                          <p className="text-xs cursor-help hover:text-fantasy-purple transition-colors inline-block">
+                            <strong>Hit Die:</strong> {classOption.hitDie}
+                          </p>
+                        </Tooltip>
+                        <Tooltip content={PRIMARY_ABILITY_TOOLTIP}>
+                          <p className="text-xs cursor-help hover:text-fantasy-purple transition-colors inline-block">
+                            <strong>Primary Ability:</strong> {classOption.primaryAbility}
+                          </p>
+                        </Tooltip>
                         <div className="mt-2 pt-2 border-t border-fantasy-purple/20">
                           <p className="text-xs font-semibold text-fantasy-gold mb-1">Class Features:</p>
                           <div className="flex flex-wrap gap-1">
@@ -556,25 +637,26 @@ export function CharacterCreation() {
                     const isPicked = rogueExpertise.includes(skill);
                     const limitReached = rogueExpertise.length >= 2 && !isPicked;
                     return (
-                      <Button
-                        key={skill}
-                        type="button"
-                        variant={isPicked ? 'default' : 'outline'}
-                        disabled={limitReached}
-                        className={cn(
-                          "text-xs capitalize",
-                          isPicked && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
-                        )}
-                        onClick={() => {
-                          setRogueExpertise((prev) => {
-                            if (isPicked) return prev.filter((s) => s !== skill);
-                            if (prev.length >= 2) return prev;
-                            return [...prev, skill];
-                          });
-                        }}
-                      >
-                        {skill.replace(/-/g, ' ')}
-                      </Button>
+                      <Tooltip key={skill} content={`${SKILL_TOOLTIPS[skill] || skill} Expertise doubles your proficiency bonus.`}>
+                        <Button
+                          type="button"
+                          variant={isPicked ? 'default' : 'outline'}
+                          disabled={limitReached}
+                          className={cn(
+                            "text-xs capitalize cursor-help",
+                            isPicked && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                          )}
+                          onClick={() => {
+                            setRogueExpertise((prev) => {
+                              if (isPicked) return prev.filter((s) => s !== skill);
+                              if (prev.length >= 2) return prev;
+                              return [...prev, skill];
+                            });
+                          }}
+                        >
+                          {skill.replace(/-/g, ' ')}
+                        </Button>
+                      </Tooltip>
                     );
                   })}
                 </div>
@@ -587,18 +669,19 @@ export function CharacterCreation() {
                 <p className="text-xs text-muted-foreground mb-3">Choose one fighting style.</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {['Archery', 'Defense', 'Dueling', 'Great Weapon Fighting', 'Two-Weapon Fighting'].map((style) => (
-                    <Button
-                      key={style}
-                      type="button"
-                      variant={fightingStyle === style ? 'default' : 'outline'}
-                      className={cn(
-                        "text-xs",
-                        fightingStyle === style && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
-                      )}
-                      onClick={() => setFightingStyle(style)}
-                    >
-                      {style}
-                    </Button>
+                    <Tooltip key={style} content={FIGHTING_STYLE_TOOLTIPS[style] || style}>
+                      <Button
+                        type="button"
+                        variant={fightingStyle === style ? 'default' : 'outline'}
+                        className={cn(
+                          "text-xs cursor-help",
+                          fightingStyle === style && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                        )}
+                        onClick={() => setFightingStyle(style)}
+                      >
+                        {style}
+                      </Button>
+                    </Tooltip>
                   ))}
                 </div>
               </div>
@@ -610,18 +693,19 @@ export function CharacterCreation() {
                 <p className="text-xs text-muted-foreground mb-3">Choose your pact boon.</p>
                 <div className="grid grid-cols-3 gap-2">
                   {['Pact of the Blade', 'Pact of the Chain', 'Pact of the Tome'].map((pact) => (
-                    <Button
-                      key={pact}
-                      type="button"
-                      variant={pactBoon === pact ? 'default' : 'outline'}
-                      className={cn(
-                        "text-xs",
-                        pactBoon === pact && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
-                      )}
-                      onClick={() => setPactBoon(pact)}
-                    >
-                      {pact}
-                    </Button>
+                    <Tooltip key={pact} content={PACT_BOON_TOOLTIPS[pact] || pact}>
+                      <Button
+                        type="button"
+                        variant={pactBoon === pact ? 'default' : 'outline'}
+                        className={cn(
+                          "text-xs cursor-help",
+                          pactBoon === pact && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                        )}
+                        onClick={() => setPactBoon(pact)}
+                      >
+                        {pact}
+                      </Button>
+                    </Tooltip>
                   ))}
                 </div>
               </div>
@@ -633,18 +717,19 @@ export function CharacterCreation() {
                 <p className="text-xs text-muted-foreground mb-3">Choose your origin.</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {['Draconic Bloodline', 'Wild Magic', 'Divine Soul'].map((origin) => (
-                    <Button
-                      key={origin}
-                      type="button"
-                      variant={sorcerousOrigin === origin ? 'default' : 'outline'}
-                      className={cn(
-                        "text-xs",
-                        sorcerousOrigin === origin && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
-                      )}
-                      onClick={() => setSorcerousOrigin(origin)}
-                    >
-                      {origin}
-                    </Button>
+                    <Tooltip key={origin} content={SORCEROUS_ORIGIN_TOOLTIPS[origin] || origin}>
+                      <Button
+                        type="button"
+                        variant={sorcerousOrigin === origin ? 'default' : 'outline'}
+                        className={cn(
+                          "text-xs cursor-help",
+                          sorcerousOrigin === origin && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                        )}
+                        onClick={() => setSorcerousOrigin(origin)}
+                      >
+                        {origin}
+                      </Button>
+                    </Tooltip>
                   ))}
                 </div>
               </div>
