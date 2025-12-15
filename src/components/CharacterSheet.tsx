@@ -9,6 +9,7 @@ import {
     calculateSpeed,
     getSavingThrowModifier,
 } from '@/utils/characterStats';
+import { getClassDisplayString } from '@/data/multiclass';
 import { SkillList } from './SkillList';
 import { ConditionList } from './ConditionList';
 import { portraits } from '@/data/portraits';
@@ -103,14 +104,12 @@ export function CharacterSheet({ character, onClose }: CharacterSheetProps) {
                             <p className="text-sm uppercase tracking-[0.3em] text-fantasy-gold/70">{character.background.name}</p>
                         </div>
                         <div className="flex flex-wrap justify-center gap-2 text-xs sm:justify-start">
-                            {[character.race.name, character.class.name].map((label) => (
-                                <span
-                                    key={label}
-                                    className="rounded-full border border-fantasy-gold/30 bg-black/40 px-3 py-1 text-fantasy-gold tracking-wide"
-                                >
-                                    {label}
-                                </span>
-                            ))}
+                            <span className="rounded-full border border-fantasy-gold/30 bg-black/40 px-3 py-1 text-fantasy-gold tracking-wide">
+                                {character.race.name}
+                            </span>
+                            <span className="rounded-full border border-fantasy-gold/30 bg-black/40 px-3 py-1 text-fantasy-gold tracking-wide">
+                                {getClassDisplayString(character)}
+                            </span>
                         </div>
                         <div className="space-y-1">
                             <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">

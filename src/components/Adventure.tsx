@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/
 import { Badge } from './ui/badge';
 import { useTranslation } from 'react-i18next';
 import { Sword, BookOpen, Dice6, DoorOpen, CheckCircle2, Backpack, X, Tent, ShoppingBag, Brain, Wand2 } from 'lucide-react';
-import type { Item, TalentOption, Encounter, SkillName, SpellContent, Subclass, Feat } from '@/types';
+import type { Item, TalentOption, Encounter, SkillName, SpellContent, Subclass, Feat, PlayerCharacter } from '@/types';
 import { cn } from '@/lib/utils';
 import { CombatEncounter } from './CombatEncounter';
 import { Inventory } from './Inventory';
@@ -37,6 +37,13 @@ import {
 import { calculateMaxHitPoints } from '@/utils/characterUtils';
 import { checkFeatPrerequisites } from '@/utils/featUtils';
 import { getNPCPortraitSrc } from '@/data/npcPortraits';
+import {
+  meetsMulticlassPrereqs,
+  canLeaveCurrentClass,
+  MULTICLASS_PREREQUISITES,
+  MULTICLASS_PROFICIENCIES
+} from '@/data/multiclass';
+import characterCreationContent from '@/content/characterCreation.json';
 
 // Force update check
 
@@ -180,6 +187,10 @@ export function Adventure() {
   const [asiScore2, setAsiScore2] = useState<string | undefined>();
   const [availableSubclasses, setAvailableSubclasses] = useState<Subclass[]>([]);
   const [selectedSubclassId, setSelectedSubclassId] = useState<string | null>(null);
+
+  // Multiclass state
+  const [selectedMulticlassId, setSelectedMulticlassId] = useState<string | null>(null);
+  const allClasses = characterCreationContent.classes;
 
   const visitedEncounters = adventure?.visitedEncounterIds || [];
   const slotBadges = useMemo(() => {
@@ -504,6 +515,9 @@ export function Adventure() {
       } else {
         setAvailableSubclasses([]);
       }
+
+      // Reset multiclass selection
+      setSelectedMulticlassId(null);
     }
     prevLevelRef.current = character?.level || 1;
   }, [character?.level, allTalents, allFeats, character]);
@@ -655,6 +669,72 @@ export function Adventure() {
   };
 
   const handleTalentConfirm = () => {
+    // Handle Multiclass Selection
+    if (selectedMulticlassId) {
+      const selectedClass = allClasses.find(c => c.id === selectedMulticlassId);
+      if (selectedClass && character) {
+        updateCharacter((prev) => {
+          if (!prev) return prev;
+
+          // Create or update classes array
+          const currentClasses = prev.classes || [{
+            class: prev.class,
+            level: prev.level,
+            subclass: prev.subclass
+          }];
+
+          // Check if already has a level in this class
+          const existingClassIndex = currentClasses.findIndex(cl => cl.class.id === selectedMulticlassId);
+
+          let updatedClasses;
+          if (existingClassIndex >= 0) {
+            // Add level to existing class
+            updatedClasses = currentClasses.map((cl, i) =>
+              i === existingClassIndex ? { ...cl, level: cl.level + 1 } : cl
+            );
+          } else {
+            // Add new class at level 1
+            updatedClasses = [...currentClasses, {
+              class: selectedClass as any,
+              level: 1,
+              subclass: undefined
+            }];
+          }
+
+          let updatedArmorProfs = [...(prev.armorProficiencies || [])];
+          let updatedWeaponProfs = [...(prev.weaponProficiencies || [])];
+
+          // Apply multiclass proficiencies only when taking FIRST level in a new class
+          if (existingClassIndex < 0) {
+            const classId = selectedMulticlassId.toLowerCase();
+            const mcProfs = MULTICLASS_PROFICIENCIES[classId];
+            if (mcProfs) {
+              mcProfs.armor.forEach(prof => {
+                if (!updatedArmorProfs.includes(prof)) {
+                  updatedArmorProfs.push(prof);
+                }
+              });
+              mcProfs.weapons.forEach(prof => {
+                if (!updatedWeaponProfs.includes(prof)) {
+                  updatedWeaponProfs.push(prof);
+                }
+              });
+            }
+          }
+
+          return {
+            ...prev,
+            classes: updatedClasses,
+            armorProficiencies: updatedArmorProfs,
+            weaponProficiencies: updatedWeaponProfs,
+            // Update primary class display for backward compatibility
+            class: updatedClasses[0].class,
+          };
+        });
+        addJournalEntry(`Took a level in ${selectedClass.name}. Now multiclassing!`, 'Multiclass');
+      }
+    }
+
     // Handle Subclass Selection
     if (selectedSubclassId && availableSubclasses.length > 0) {
       const selectedSubclass = availableSubclasses.find(s => s.id === selectedSubclassId);
@@ -679,18 +759,75 @@ export function Adventure() {
           const currentFeats = prev.feats || [];
           const newFeats = [...currentFeats, selectedFeatId];
 
+          // Apply proficiencies from feat effects
+          let updatedArmorProfs = [...(prev.armorProficiencies || [])];
+          let updatedWeaponProfs = [...(prev.weaponProficiencies || [])];
+          const newAbilityScores = { ...prev.abilityScores };
+
+          if (selectedFeat.effects) {
+            for (const effect of selectedFeat.effects) {
+              // Handle proficiency grants
+              if (effect.type === 'proficiency' && effect.key) {
+                if (effect.key === 'heavy-armor' && !updatedArmorProfs.includes('Heavy Armor')) {
+                  updatedArmorProfs.push('Heavy Armor');
+                }
+                if (effect.key === 'medium-armor' && !updatedArmorProfs.includes('Medium Armor')) {
+                  updatedArmorProfs.push('Medium Armor');
+                }
+                if (effect.key === 'light-armor' && !updatedArmorProfs.includes('Light Armor')) {
+                  updatedArmorProfs.push('Light Armor');
+                }
+              }
+              // Handle ability score bonuses (fixed)
+              if (effect.type === 'abilityScore' && effect.ability && effect.value) {
+                const ability = effect.ability as keyof typeof newAbilityScores;
+                if (ability in newAbilityScores) {
+                  newAbilityScores[ability] = (newAbilityScores[ability] || 10) + effect.value;
+                }
+              }
+              // Handle ability score bonuses (choice - default to first option)
+              if (effect.type === 'abilityScore' && effect.choice && Array.isArray(effect.choice) && effect.value) {
+                const ability = effect.choice[0] as keyof typeof newAbilityScores;
+                if (ability && ability in newAbilityScores) {
+                  newAbilityScores[ability] = (newAbilityScores[ability] || 10) + effect.value;
+                  addJournalEntry(`Feat bonus: Increased ${ability} by ${effect.value}`, 'Ability Improvement');
+                }
+              }
+            }
+          }
+
+          // Special handling for Resilient (default to Constitution for now as UI is limited)
+          if (selectedFeat.id === 'resilient' && !prev.resilientAbility) {
+            // Default to Constitution
+            const ability = 'constitution';
+            newAbilityScores[ability] = (newAbilityScores[ability] || 10) + 1;
+            // We need to return resilientAbility in the state update, but it's not in the variable scope here
+            // We'll add it to the return object below
+          }
+
           // Use utility to calculate new Max HP (handles Tough feat etc)
           const newMaxHp = calculateMaxHitPoints({ ...prev, feats: newFeats });
           const hpDiff = newMaxHp - prev.maxHitPoints;
 
-          return {
+          const update: Partial<PlayerCharacter> = {
             ...prev,
             maxHitPoints: newMaxHp,
-            hitPoints: prev.hitPoints + hpDiff, // Heal for the gained amount
-            feats: newFeats
+            hitPoints: prev.hitPoints + hpDiff,
+            feats: newFeats,
+            armorProficiencies: updatedArmorProfs,
+            weaponProficiencies: updatedWeaponProfs,
+            abilityScores: newAbilityScores
           };
+
+          if (selectedFeat?.id === 'resilient') {
+            if (update) update.resilientAbility = 'constitution';
+          }
+
+          return update as PlayerCharacter;
         });
-        addJournalEntry(`Gained the feat: ${selectedFeat.name}.`, 'Feat Gained');
+        if (selectedFeat) {
+          addJournalEntry(`Gained the feat: ${selectedFeat.name}.`, 'Feat Gained');
+        }
       }
     } else if (asiScore1) {
       // Handle ASI Selection
@@ -756,6 +893,7 @@ export function Adventure() {
     setAsiScore2(undefined);
     setAvailableSubclasses([]);
     setSelectedSubclassId(null);
+    setSelectedMulticlassId(null);
     setShowLevelUp(false);
   };
 
@@ -926,6 +1064,21 @@ export function Adventure() {
     );
   }
 
+  // Show victory transition screen while waiting to advance
+  if (combatTransitioning) {
+    return (
+      <div className="container mx-auto px-4 py-8 fade-in">
+        <Card className="scroll-parchment max-w-2xl mx-auto">
+          <CardContent className="p-8 text-center">
+            <div className="text-4xl mb-4">⚔️</div>
+            <h2 className="font-fantasy text-2xl text-fantasy-gold mb-2">Victory!</h2>
+            <p className="text-muted-foreground">Preparing next encounter...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (!character) {
     return (
       <div className="container mx-auto px-4 py-8 fade-in">
@@ -951,21 +1104,6 @@ export function Adventure() {
           onDefeat={handleCombatDefeat}
           playerAdvantage={currentEncounter.playerAdvantage}
         />
-      </div>
-    );
-  }
-
-  // Show victory transition screen while waiting to advance
-  if (combatTransitioning) {
-    return (
-      <div className="container mx-auto px-4 py-8 fade-in">
-        <Card className="scroll-parchment max-w-2xl mx-auto">
-          <CardContent className="p-8 text-center">
-            <div className="text-4xl mb-4">⚔️</div>
-            <h2 className="font-fantasy text-2xl text-fantasy-gold mb-2">Victory!</h2>
-            <p className="text-muted-foreground">Preparing next encounter...</p>
-          </CardContent>
-        </Card>
       </div>
     );
   }
@@ -1009,6 +1147,25 @@ export function Adventure() {
         selectedSubclassId={selectedSubclassId}
         onSelectSubclass={setSelectedSubclassId}
         onConfirm={handleTalentConfirm}
+        // Multiclass props
+        currentClassName={character?.class.name}
+        multiclassOptions={character ? allClasses
+          .filter(c => c.id !== character.class.id)
+          .map(c => ({
+            class: c as any,
+            meetsPrereqs: meetsMulticlassPrereqs(character, c.id) && canLeaveCurrentClass(character),
+            prereqReason: !canLeaveCurrentClass(character)
+              ? `Need ${character.class.name} prereqs`
+              : MULTICLASS_PREREQUISITES[c.id.toLowerCase()]
+                ? Object.entries(MULTICLASS_PREREQUISITES[c.id.toLowerCase()]!)
+                  .filter(([k]) => k !== 'orCondition')
+                  .map(([k, v]) => `${k.substring(0, 3).toUpperCase()} ${v}`)
+                  .join(', ')
+                : undefined
+          })) : []}
+        selectedMulticlassId={selectedMulticlassId}
+        onSelectMulticlass={setSelectedMulticlassId}
+        canLeaveCurrentClass={character ? canLeaveCurrentClass(character) : false}
       />
       {showExitConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">

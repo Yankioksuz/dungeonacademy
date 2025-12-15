@@ -2,34 +2,34 @@
 // Maps item IDs to their icon imports
 
 // Legendary Weapons
-import flameTongueSword from '@/assets/items/flame_tongue_sword_1765543018028.png';
-import frostBrandSword from '@/assets/items/frost_brand_sword_1765543032751.png';
-import holyAvengerSword from '@/assets/items/holy_avenger_sword_1765543047648.png';
-import vorpalSword from '@/assets/items/vorpal_sword_1765543062709.png';
-import oathbow from '@/assets/items/oathbow_1765543240403.png';
+import flameTongueSword from '@/assets/items/flame_tongue_sword_1765780954303.png';
+import frostBrandSword from '@/assets/items/frost_brand_sword_1765780968428.png';
+import holyAvengerSword from '@/assets/items/holy_avenger_sword_v2_1765781011850.png';
+import vorpalSword from '@/assets/items/vorpal_sword_1765781026899.png';
+import oathbow from '@/assets/items/oathbow_1765781040621.png';
 
 // Common Weapons
-import commonLongsword from '@/assets/items/common_longsword_1765721672716.png';
-import commonShortsword from '@/assets/items/common_shortsword_1765721702245.png';
-import commonDagger from '@/assets/items/common_dagger_1765721720048.png';
-import commonGreataxe from '@/assets/items/common_greataxe_1765721739899.png';
-import commonShortbow from '@/assets/items/common_shortbow_1765721762418.png';
-import commonLongbow from '@/assets/items/common_longbow_1765721789332.png';
-import commonQuarterstaff from '@/assets/items/common_quarterstaff_1765721807153.png';
+import commonLongsword from '@/assets/items/common_longsword_1765781063691.png';
+import commonShortsword from '@/assets/items/common_shortsword_1765781079894.png';
+import commonDagger from '@/assets/items/common_dagger_1765781093475.png';
+import commonGreataxe from '@/assets/items/common_greataxe_1765781117441.png';
+import commonShortbow from '@/assets/items/common_shortbow_1765781132061.png';
+import commonLongbow from '@/assets/items/common_longbow_1765781146025.png';
+import commonQuarterstaff from '@/assets/items/common_quarterstaff_1765781167051.png';
 
 // Legendary Staves
-import staffOfTheMagi from '@/assets/items/staff_of_the_magi_1765543077659.png';
-import staffOfFire from '@/assets/items/staff_of_fire_1765543282500.png';
-import staffOfPower from '@/assets/items/staff_of_power_1765543298789.png';
+import staffOfTheMagi from '@/assets/items/staff_of_the_magi_1765781180830.png';
+import staffOfFire from '@/assets/items/staff_of_fire_1765781202338.png';
+import staffOfPower from '@/assets/items/staff_of_power_1765781230902.png';
 
 // Legendary Cloaks
-import cloakOfInvisibility from '@/assets/items/cloak_of_invisibility_1765543101504.png';
-import cloakOfDisplacement from '@/assets/items/cloak_of_displacement_1765543332086.png';
+import cloakOfInvisibility from '@/assets/items/cloak_of_invisibility_1765781246623.png';
+import cloakOfDisplacement from '@/assets/items/cloak_of_displacement_1765781260420.png';
 
 // Legendary Rings
-import ringOfInvisibility from '@/assets/items/ring_of_invisibility_1765543116691.png';
-import ringThreeWishes from '@/assets/items/ring_three_wishes_1765543191516.png';
-import ringOfProtection from '@/assets/items/ring_of_protection_1765543348073.png';
+import ringOfInvisibility from '@/assets/items/ring_of_invisibility_1765781285890.png';
+import ringThreeWishes from '@/assets/items/ring_three_wishes_1765781304029.png';
+import ringOfProtection from '@/assets/items/ring_of_protection_1765781320414.png';
 import ringOfRegeneration from '@/assets/items/ring_of_regeneration_1765543255187.png';
 
 // Legendary Misc
@@ -64,6 +64,35 @@ import rodPactKeeper from '@/assets/items/rod_pact_keeper_1765720746530.png';
 // Quest/Other
 import heartShard from '@/assets/items/heart_shard_1765720761124.png';
 import rimeguardMedallion from '@/assets/items/rimeguard_medallion_1765720779909.png';
+
+// Common Armor - Light
+import paddedArmor from '@/assets/items/padded_armor_1765799907529.png';
+import leatherArmor from '@/assets/items/leather_armor_1765799924178.png';
+import studdedLeatherArmor from '@/assets/items/studded_leather_armor_1765799942158.png';
+
+// Common Armor - Medium
+import hideArmor from '@/assets/items/hide_armor_1765800007889.png';
+import chainShirtArmor from '@/assets/items/chain_shirt_armor_1765800021770.png';
+import scaleMailArmor from '@/assets/items/scale_mail_armor_1765800037603.png';
+
+// Common Armor - Medium/Heavy
+import breastplateArmor from '@/assets/items/breastplate_armor_1765800088147.png';
+import halfPlateArmor from '@/assets/items/half_plate_armor_1765800104542.png';
+import ringMailArmor from '@/assets/items/ring_mail_armor_1765800119190.png';
+
+// Common Armor - Heavy
+import chainMailArmor from '@/assets/items/chain_mail_armor_1765800170072.png';
+import splintArmor from '@/assets/items/splint_armor_1765800187558.png';
+import plateArmor from '@/assets/items/plate_armor_1765800206247.png';
+
+// Shield & Common Weapons
+import shieldItem from '@/assets/items/shield_item_1765800248970.png';
+import rapierWeapon from '@/assets/items/rapier_weapon_1765800267356.png';
+import battleaxeWeapon from '@/assets/items/battleaxe_weapon_1765800283409.png';
+import warhammerWeapon from '@/assets/items/warhammer_weapon_1765800340894.png';
+import scimitarWeapon from '@/assets/items/scimitar_weapon_1765800359316.png';
+import morningstarWeapon from '@/assets/items/morningstar_weapon_1765800376119.png';
+import flailWeapon from '@/assets/items/flail_weapon_1765800471850.png';
 
 // Item ID to Icon mapping
 export const ITEM_ICONS: Record<string, string> = {
@@ -138,6 +167,31 @@ export const ITEM_ICONS: Record<string, string> = {
     // Quest Items (New)
     'heart-shard': heartShard,
     'rimeguard-medallion': rimeguardMedallion,
+    // Common Armor (Light)
+    'padded': paddedArmor,
+    'leather': leatherArmor,
+    'studded-leather': studdedLeatherArmor,
+    // Common Armor (Medium)
+    'hide': hideArmor,
+    'chain-shirt': chainShirtArmor,
+    'scale-mail': scaleMailArmor,
+    // Common Armor (Medium/Heavy)
+    'breastplate': breastplateArmor,
+    'half-plate': halfPlateArmor,
+    'ring-mail': ringMailArmor,
+    // Common Armor (Heavy)
+    'chain': chainMailArmor,
+    'splint': splintArmor,
+    'plate': plateArmor,
+    // Shield
+    'shield': shieldItem,
+    // Common Weapons (Remaining)
+    'rapier': rapierWeapon,
+    'battleaxe': battleaxeWeapon,
+    'warhammer': warhammerWeapon,
+    'scimitar': scimitarWeapon,
+    'morningstar': morningstarWeapon,
+    'flail': flailWeapon,
 };
 
 /**

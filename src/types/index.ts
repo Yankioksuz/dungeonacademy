@@ -123,6 +123,13 @@ export interface Class {
   features: string[];
 }
 
+// NEW: Multiclassing support - tracks levels in each class
+export interface ClassLevel {
+  class: Class;
+  level: number;
+  subclass?: Subclass;
+}
+
 export interface Background {
   id: string;
   name: string;
@@ -186,7 +193,8 @@ export interface PlayerCharacter {
   name: string;
   gender?: 'male' | 'female' | 'non-binary' | 'other';
   race: Race;
-  class: Class;
+  class: Class; // Primary class (first in classes array) - kept for backward compatibility
+  classes?: ClassLevel[]; // NEW: All class levels for multiclassing
   background: Background;
   portraitId?: string;
   abilityScores: {
@@ -269,7 +277,7 @@ export interface PlayerCharacter {
 }
 
 export interface FeatEffect {
-  type: 'initiative' | 'passive' | 'hpPerLevel' | 'resource' | 'action' | 'toggle' | 'speed';
+  type: 'initiative' | 'passive' | 'hpPerLevel' | 'resource' | 'action' | 'toggle' | 'speed' | 'proficiency' | 'abilityScore' | 'acBonus' | 'damageReduction' | 'reaction' | 'bonusAction' | 'passiveBonus' | 'savingThrowProficiency' | 'cantrip' | 'spell';
   description?: string; // Human readable description of effect
   key?: string;
   value?: number;
@@ -279,6 +287,8 @@ export interface FeatEffect {
   damageBonus?: number;
   weaponProp?: string;
   weaponType?: string;
+  ability?: string; // For abilityScore effects
+  choice?: string | string[]; // For choice-based effects
 }
 
 export interface Feat {

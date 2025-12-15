@@ -355,11 +355,9 @@ export function isWeaponProficient(character: PlayerCharacter, weapon: Item | un
 
 /**
  * Calculate available spell slots based on class and level (D&D 5e Standard)
+ * Supports both single-class and multiclass characters
  */
 export function calculateSpellSlots(character: PlayerCharacter): Record<number, { current: number; max: number }> {
-    const level = character.level;
-    const className = character.class.name.toLowerCase();
-
     // Slot progression table for Full Casters (Bard, Cleric, Druid, Sorcerer, Wizard)
     // Row = Level (1-20), Col = Slot Level (1-9)
     const fullCasterSlots = [
@@ -385,6 +383,15 @@ export function calculateSpellSlots(character: PlayerCharacter): Record<number, 
         [4, 3, 3, 3, 3, 2, 2, 1, 1], // Lvl 20
     ];
 
+    // Check if multiclassed
+    if (character.classes && character.classes.length > 1) {
+        return calculateMulticlassSpellSlots(character, fullCasterSlots);
+    }
+
+    // Single class calculation (existing logic)
+    const level = character.level;
+    const className = character.class.name.toLowerCase();
+
     // Half Casters (Paladin, Ranger) - Start at Level 2, effectively Level/2 rounded up
     const isHalfCaster = ['paladin', 'ranger'].includes(className);
 
@@ -406,11 +413,15 @@ export function calculateSpellSlots(character: PlayerCharacter): Record<number, 
         slotCounts = fullCasterSlots[Math.min(level, 20) - 1] || slotCounts;
     } else if (isHalfCaster && level >= 2) {
         // Effective caster level is roughly level / 2
-        // Just approximation mapping to full caster table for now
         const effectiveLevel = Math.ceil(level / 2);
         slotCounts = fullCasterSlots[Math.min(effectiveLevel, 20) - 1] || slotCounts;
     }
-    // Arcane Trickster / Eldritch Knight check could go here (1/3 caster)
+    // Arcane Trickster / Eldritch Knight - 1/3 caster
+    const subclassId = character.subclass?.id || '';
+    if ((subclassId === 'eldritch-knight' || subclassId === 'arcane-trickster') && level >= 3) {
+        const effectiveLevel = Math.floor(level / 3);
+        slotCounts = fullCasterSlots[Math.min(effectiveLevel, 20) - 1] || slotCounts;
+    }
 
     // Construct spellSlots object
     const spellSlots: Record<number, { current: number; max: number }> = {};
@@ -419,6 +430,72 @@ export function calculateSpellSlots(character: PlayerCharacter): Record<number, 
             spellSlots[index + 1] = { current: count, max: count };
         }
     });
+
+    return spellSlots;
+}
+
+/**
+ * Calculate spell slots for a multiclass character
+ * Uses combined caster level from D&D 5e PHB multiclassing rules
+ */
+function calculateMulticlassSpellSlots(
+    character: PlayerCharacter,
+    fullCasterSlots: number[][]
+): Record<number, { current: number; max: number }> {
+    let combinedCasterLevel = 0;
+    let warlockLevel = 0;
+
+    // Calculate combined caster level
+    for (const cl of character.classes!) {
+        const classId = cl.class.id.toLowerCase();
+        const subclassId = cl.subclass?.id || '';
+
+        // Full casters: 1:1
+        if (['bard', 'cleric', 'druid', 'sorcerer', 'wizard'].includes(classId)) {
+            combinedCasterLevel += cl.level;
+        }
+        // Half casters: 1:2 (minimum level 2)
+        else if (['paladin', 'ranger'].includes(classId) && cl.level >= 2) {
+            combinedCasterLevel += Math.floor(cl.level / 2);
+        }
+        // Third casters (Eldritch Knight, Arcane Trickster): 1:3 (minimum level 3)
+        else if ((subclassId === 'eldritch-knight' || subclassId === 'arcane-trickster') && cl.level >= 3) {
+            combinedCasterLevel += Math.floor(cl.level / 3);
+        }
+        // Warlock: Pact Magic is separate
+        else if (classId === 'warlock') {
+            warlockLevel = cl.level;
+        }
+    }
+
+    // Get base spell slots from combined caster level
+    let slotCounts: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    if (combinedCasterLevel > 0) {
+        slotCounts = fullCasterSlots[Math.min(combinedCasterLevel, 20) - 1] || slotCounts;
+    }
+
+    // Construct spellSlots object
+    const spellSlots: Record<number, { current: number; max: number }> = {};
+    slotCounts.forEach((count, index) => {
+        if (count > 0) {
+            spellSlots[index + 1] = { current: count, max: count };
+        }
+    });
+
+    // Add Warlock Pact Magic slots separately (they're tracked independently)
+    if (warlockLevel > 0) {
+        const pactSlots = warlockLevel >= 17 ? 4 : warlockLevel >= 11 ? 3 : warlockLevel >= 2 ? 2 : 1;
+        const pactSlotLevel = warlockLevel >= 9 ? 5 : warlockLevel >= 7 ? 4 : warlockLevel >= 5 ? 3 : warlockLevel >= 3 ? 2 : 1;
+
+        // Note: In a full implementation, Pact Magic slots should be tracked separately
+        // For simplicity, we add them to the same pool (technically they recharge on short rest)
+        if (spellSlots[pactSlotLevel]) {
+            spellSlots[pactSlotLevel].current += pactSlots;
+            spellSlots[pactSlotLevel].max += pactSlots;
+        } else {
+            spellSlots[pactSlotLevel] = { current: pactSlots, max: pactSlots };
+        }
+    }
 
     return spellSlots;
 }
