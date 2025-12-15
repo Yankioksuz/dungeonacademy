@@ -83,6 +83,10 @@ interface EquipmentSlotBoxProps {
 }
 
 const EquipmentSlotBox = ({ slot, equipped, isSelected, onSelect }: EquipmentSlotBoxProps) => {
+  const iconId = equipped ? (equipped.templateId || equipped.id) : null;
+  const hasIcon = iconId ? hasItemIcon(iconId) : false;
+  const iconSrc = hasIcon && iconId ? getItemIconSrc(iconId) : null;
+
   return (
     <div
       className={cn(
@@ -95,14 +99,23 @@ const EquipmentSlotBox = ({ slot, equipped, isSelected, onSelect }: EquipmentSlo
       )}
       onClick={() => equipped && onSelect(equipped)}
     >
-      <div className="text-muted-foreground mb-1">
-        {getSlotIcon(slot)}
-      </div>
-      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
-        {getSlotName(slot)}
-      </p>
+      {equipped && hasIcon && iconSrc ? (
+        <div className="w-10 h-10 mb-1 rounded bg-black/20 overflow-hidden shadow-sm">
+          <img src={iconSrc} alt={equipped.name} className="w-full h-full object-cover" />
+        </div>
+      ) : (
+        <>
+          <div className="text-muted-foreground mb-1">
+            {getSlotIcon(slot)}
+          </div>
+          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            {getSlotName(slot)}
+          </p>
+        </>
+      )}
+
       {equipped && (
-        <p className="text-xs font-medium text-center truncate max-w-full mt-1">
+        <p className="text-xs font-medium text-center truncate max-w-full mt-1 text-fantasy-gold/90">
           {equipped.name}
         </p>
       )}
