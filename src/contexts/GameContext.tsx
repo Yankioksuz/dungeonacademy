@@ -706,6 +706,44 @@ export function GameProvider({ children }: { children: ReactNode }) {
             'quill': { type: 'misc', value: 1, description: 'A feather quill for writing.' },
             'small knife': { type: 'weapon', value: 2, damage: '1d4', description: 'A small utility knife. Can be used as an improvised weapon.', properties: ['Light', 'Finesse'] },
             'letter from a dead colleague': { type: 'trinket', value: 0, description: 'A mysterious letter from a colleague who has passed. Its contents may hold secrets.' },
+
+            // Charlatan items
+            'disguise kit': { type: 'tools', value: 25, description: 'A kit with cosmetics, hair dye, and props. Grants proficiency bonus to Disguise checks.' },
+            'tools of the con': { type: 'tools', value: 10, description: 'Weighted dice, marked cards, and other props for running cons.' },
+
+            // Entertainer items
+            'musical instrument': { type: 'tools', value: 25, description: 'A musical instrument you are proficient with. Can be used for Performance checks.' },
+            'favor of an admirer': { type: 'trinket', value: 5, description: 'A love letter, lock of hair, or trinket from an admirer.' },
+            'costume': { type: 'clothing', value: 5, description: 'A flashy costume for performances.' },
+
+            // Guild Artisan items
+            'letter of introduction from guild': { type: 'trinket', value: 1, description: 'An official letter proving your guild membership. Can help secure lodging and work.' },
+            "traveler's clothes": { type: 'clothing', value: 2, description: 'Sturdy clothes suitable for travel.' },
+
+            // Hermit items
+            'scroll case with notes': { type: 'trinket', value: 5, description: 'A case containing your personal notes and discoveries from seclusion.' },
+            'winter blanket': { type: 'misc', value: 1, description: 'A thick wool blanket for cold nights.' },
+            'herbalism kit': { type: 'tools', value: 5, description: 'A kit for creating herbal remedies. Allows you to create healing potions during downtime.' },
+
+            // Outlander items
+            'staff': { type: 'weapon', value: 2, damage: '1d6', description: 'A sturdy wooden staff. Versatile (1d8 two-handed).', properties: ['Versatile'] },
+            'hunting trap': { type: 'tools', value: 5, description: 'A metal trap for catching game. Can be set as a trap dealing 1d4 damage.' },
+            'trophy from animal': { type: 'trinket', value: 2, description: 'A claw, tooth, or pelt from an animal you hunted.' },
+
+            // Sailor items
+            'belaying pin (club)': { type: 'weapon', value: 1, damage: '1d4', description: 'A wooden pin used on ships. Functions as a club.' },
+            '50 feet of silk rope': { type: 'misc', value: 10, description: 'Strong, lightweight silk rope. Useful for climbing and binding.' },
+            'lucky charm': { type: 'trinket', value: 1, description: 'A small trinket you believe brings good fortune at sea.' },
+
+            // Soldier items
+            'insignia of rank': { type: 'trinket', value: 5, description: 'A badge or medal showing your military rank. May command respect from soldiers.' },
+            'trophy from fallen enemy': { type: 'trinket', value: 2, description: 'A dagger, broken blade, or piece of a banner taken from a defeated foe.' },
+            'bone dice': { type: 'misc', value: 1, description: 'A set of dice carved from bone. Used for gambling.' },
+
+            // Urchin items
+            'map of your home city': { type: 'trinket', value: 1, description: 'A hand-drawn map showing secret passages and hideouts in your home city.' },
+            'pet mouse': { type: 'misc', value: 0, description: 'A small, trained mouse. Your loyal companion from the streets.' },
+            'token from parents': { type: 'trinket', value: 0, description: 'A small memento from your parents. Your only connection to them.' },
           };
 
           bgEquipment.forEach((equipName, index) => {

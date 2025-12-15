@@ -444,6 +444,146 @@
         "Common clothes",
         "10 gp"
       ]
+    },
+    {
+      "id": "charlatan",
+      "name": "Charlatan",
+      "description": "You have always had a way with people. You know what makes them tick.",
+      "skillProficiencies": [
+        "Deception",
+        "Sleight of Hand"
+      ],
+      "languages": [],
+      "equipment": [
+        "Fine clothes",
+        "Disguise kit",
+        "Tools of the con",
+        "15 gp"
+      ]
+    },
+    {
+      "id": "entertainer",
+      "name": "Entertainer",
+      "description": "You thrive in front of an audience. You know how to entrance them.",
+      "skillProficiencies": [
+        "Acrobatics",
+        "Performance"
+      ],
+      "languages": [],
+      "equipment": [
+        "Musical instrument",
+        "Favor of an admirer",
+        "Costume",
+        "15 gp"
+      ]
+    },
+    {
+      "id": "guild-artisan",
+      "name": "Guild Artisan",
+      "description": "You are a member of an artisan's guild, skilled in a particular craft.",
+      "skillProficiencies": [
+        "Insight",
+        "Persuasion"
+      ],
+      "languages": [
+        "One of your choice"
+      ],
+      "equipment": [
+        "Artisan's tools",
+        "Letter of introduction from guild",
+        "Traveler's clothes",
+        "15 gp"
+      ]
+    },
+    {
+      "id": "hermit",
+      "name": "Hermit",
+      "description": "You lived in seclusion for a formative part of your life.",
+      "skillProficiencies": [
+        "Medicine",
+        "Religion"
+      ],
+      "languages": [
+        "One of your choice"
+      ],
+      "equipment": [
+        "Scroll case with notes",
+        "Winter blanket",
+        "Common clothes",
+        "Herbalism kit",
+        "5 gp"
+      ]
+    },
+    {
+      "id": "outlander",
+      "name": "Outlander",
+      "description": "You grew up in the wilds, far from civilization.",
+      "skillProficiencies": [
+        "Athletics",
+        "Survival"
+      ],
+      "languages": [
+        "One of your choice"
+      ],
+      "equipment": [
+        "Staff",
+        "Hunting trap",
+        "Trophy from animal",
+        "Traveler's clothes",
+        "10 gp"
+      ]
+    },
+    {
+      "id": "sailor",
+      "name": "Sailor",
+      "description": "You sailed on a seagoing vessel for years.",
+      "skillProficiencies": [
+        "Athletics",
+        "Perception"
+      ],
+      "languages": [],
+      "equipment": [
+        "Belaying pin (club)",
+        "50 feet of silk rope",
+        "Lucky charm",
+        "Common clothes",
+        "10 gp"
+      ]
+    },
+    {
+      "id": "soldier",
+      "name": "Soldier",
+      "description": "War has been your life for as long as you care to remember.",
+      "skillProficiencies": [
+        "Athletics",
+        "Intimidation"
+      ],
+      "languages": [],
+      "equipment": [
+        "Insignia of rank",
+        "Trophy from fallen enemy",
+        "Bone dice",
+        "Common clothes",
+        "10 gp"
+      ]
+    },
+    {
+      "id": "urchin",
+      "name": "Urchin",
+      "description": "You grew up on the streets alone, orphaned, and poor.",
+      "skillProficiencies": [
+        "Sleight of Hand",
+        "Stealth"
+      ],
+      "languages": [],
+      "equipment": [
+        "Small knife",
+        "Map of your home city",
+        "Pet mouse",
+        "Token from parents",
+        "Common clothes",
+        "10 gp"
+      ]
     }
   ]
 }
