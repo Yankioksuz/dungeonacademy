@@ -1284,7 +1284,7 @@ export function Adventure() {
             <Tent className="h-4 w-4" />
             {t('adventure.rest', 'Rest')}
           </Button>
-          {(character.knownSpells?.length > 0 || Object.keys(character.spellSlots || {}).length > 0) && (
+          {((character.knownSpells && character.knownSpells.length > 0) || Object.keys(character.spellSlots || {}).length > 0) && (
             <Button
               variant="outline"
               size="sm"
