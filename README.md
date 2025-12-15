@@ -45,9 +45,9 @@ The mastermind behind the goblin raids and the Azure Spire conspiracy has fled n
 
 ### Feats System
 Choose from 20+ D&D 5e feats including:
-- **Combat Feats**: Great Weapon Master, Sharpshooter, Sentinel, Polearm Master, Crossbow Expert
-- **Defense Feats**: Shield Master, Heavy Armor Master, Medium Armor Master, Tough
-- **Skill Feats**: Alert, Observant, Skilled, Lucky
+- **Combat Feats**: Great Weapon Master, Sharpshooter, Sentinel, Polearm Master, Crossbow Expert, Savage Attacker, Charger
+- **Defense Feats**: Shield Master, Heavy Armor Master, Medium Armor Master, Tough, Resilient
+- **Skill/Utility Feats**: Alert, Observant, Skilled, Lucky, Skulker, Athlete, Healer, Inspiring Leader
 - **Spellcasting Feats**: War Caster, Ritual Caster, Magic Initiate
 - **Racial Feats**: Fey Touched, Shadow Touched
 
@@ -72,7 +72,8 @@ Choose from 20+ D&D 5e feats including:
 - Level-up modal with XP carryover, subclass unlocking, and feat selection.
 
 ### Combat System
-- Turn-based initiative with proper turn management.
+- Turn-based initiative with proper turn management and **Alert** bonuses.
+- **Action Economy**: Full support for Standard Actions, Bonus Actions (Two-weapon fighting, Cunning Action, etc.), and Reactions (Attacks of Opportunity, Shield, Uncanny Dodge).
 - Class features: Rage, Divine Smite, Ki Points, Channel Divinity, Wild Shape, Bardic Inspiration, and more.
 - Subclass abilities: Divine Fury, Psychic Blades, Cutting Words, and specialized features.
 - Condition system: Prone, Grappled, Frightened, Charmed, Poisoned, Stunned, and more.

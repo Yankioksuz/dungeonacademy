@@ -246,6 +246,12 @@ const migrateCharacter = (char: Partial<PlayerCharacter> | null): PlayerCharacte
       ...characterCreationContent.classes[0],
       savingThrowProficiencies: characterCreationContent.classes[0].savingThrowProficiencies as AbilityName[]
     },
+    // NEW: Migrate to multiclass format - create classes array if missing
+    classes: char.classes || (char.class ? [{
+      class: char.class,
+      level: char.level || 1,
+      subclass: char.subclass
+    }] : undefined),
     background: char.background || characterCreationContent.backgrounds[0] || {
       id: 'soldier',
       name: 'Soldier',

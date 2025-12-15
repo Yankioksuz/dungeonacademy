@@ -65,6 +65,35 @@ import rodPactKeeper from '@/assets/items/rod_pact_keeper_1765720746530.png';
 import heartShard from '@/assets/items/heart_shard_1765720761124.png';
 import rimeguardMedallion from '@/assets/items/rimeguard_medallion_1765720779909.png';
 
+// Common Armor - Light
+import paddedArmor from '@/assets/items/padded_armor_1765799907529.png';
+import leatherArmor from '@/assets/items/leather_armor_1765799924178.png';
+import studdedLeatherArmor from '@/assets/items/studded_leather_armor_1765799942158.png';
+
+// Common Armor - Medium
+import hideArmor from '@/assets/items/hide_armor_1765800007889.png';
+import chainShirtArmor from '@/assets/items/chain_shirt_armor_1765800021770.png';
+import scaleMailArmor from '@/assets/items/scale_mail_armor_1765800037603.png';
+
+// Common Armor - Medium/Heavy
+import breastplateArmor from '@/assets/items/breastplate_armor_1765800088147.png';
+import halfPlateArmor from '@/assets/items/half_plate_armor_1765800104542.png';
+import ringMailArmor from '@/assets/items/ring_mail_armor_1765800119190.png';
+
+// Common Armor - Heavy
+import chainMailArmor from '@/assets/items/chain_mail_armor_1765800170072.png';
+import splintArmor from '@/assets/items/splint_armor_1765800187558.png';
+import plateArmor from '@/assets/items/plate_armor_1765800206247.png';
+
+// Shield & Common Weapons
+import shieldItem from '@/assets/items/shield_item_1765800248970.png';
+import rapierWeapon from '@/assets/items/rapier_weapon_1765800267356.png';
+import battleaxeWeapon from '@/assets/items/battleaxe_weapon_1765800283409.png';
+import warhammerWeapon from '@/assets/items/warhammer_weapon_1765800340894.png';
+import scimitarWeapon from '@/assets/items/scimitar_weapon_1765800359316.png';
+import morningstarWeapon from '@/assets/items/morningstar_weapon_1765800376119.png';
+import flailWeapon from '@/assets/items/flail_weapon_1765800471850.png';
+
 // Item ID to Icon mapping
 export const ITEM_ICONS: Record<string, string> = {
     // Weapons
@@ -138,6 +167,31 @@ export const ITEM_ICONS: Record<string, string> = {
     // Quest Items (New)
     'heart-shard': heartShard,
     'rimeguard-medallion': rimeguardMedallion,
+    // Common Armor (Light)
+    'padded': paddedArmor,
+    'leather': leatherArmor,
+    'studded-leather': studdedLeatherArmor,
+    // Common Armor (Medium)
+    'hide': hideArmor,
+    'chain-shirt': chainShirtArmor,
+    'scale-mail': scaleMailArmor,
+    // Common Armor (Medium/Heavy)
+    'breastplate': breastplateArmor,
+    'half-plate': halfPlateArmor,
+    'ring-mail': ringMailArmor,
+    // Common Armor (Heavy)
+    'chain': chainMailArmor,
+    'splint': splintArmor,
+    'plate': plateArmor,
+    // Shield
+    'shield': shieldItem,
+    // Common Weapons (Remaining)
+    'rapier': rapierWeapon,
+    'battleaxe': battleaxeWeapon,
+    'warhammer': warhammerWeapon,
+    'scimitar': scimitarWeapon,
+    'morningstar': morningstarWeapon,
+    'flail': flailWeapon,
 };
 
 /**

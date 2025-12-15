@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
 import { FeatSelectionModal } from './FeatSelectionModal';
-import { Sparkles, ArrowUpCircle } from 'lucide-react';
-import type { TalentOption, Subclass, Feat } from '@/types';
+import { Sparkles, ArrowUpCircle, ChevronDown, ChevronUp, Lock } from 'lucide-react';
+import type { TalentOption, Subclass, Feat, Class } from '@/types';
 
 interface LevelUpModalProps {
   isOpen: boolean;
@@ -24,6 +24,13 @@ interface LevelUpModalProps {
   asiScore1?: string; // AbilityName
   asiScore2?: string; // AbilityName
   onSelectAsi?: (score1: string, score2?: string) => void; // score2 is optional if putting +2 in one
+
+  // Multiclass Props (NEW)
+  currentClassName?: string;
+  multiclassOptions?: Array<{ class: Class; meetsPrereqs: boolean; prereqReason?: string }>;
+  selectedMulticlassId?: string | null;
+  onSelectMulticlass?: (classId: string | null) => void;
+  canLeaveCurrentClass?: boolean;
 }
 
 export function LevelUpModal({
@@ -44,15 +51,23 @@ export function LevelUpModal({
   asiScore1,
   asiScore2,
   onSelectAsi,
+  // Multiclass Props
+  currentClassName,
+  multiclassOptions = [],
+  selectedMulticlassId,
+  onSelectMulticlass,
+  canLeaveCurrentClass = true,
 }: LevelUpModalProps) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<'feat' | 'asi'>(selectedFeatId ? 'feat' : 'asi');
+  const [showMulticlassOptions, setShowMulticlassOptions] = useState(false);
 
   if (!isOpen) return null;
 
   const hasTalents = talents.length > 0;
   const hasSubclasses = subclasses && subclasses.length > 0;
   const hasFeats = feats && feats.length > 0;
+  const hasMulticlassOptions = multiclassOptions.length > 0;
 
   const abilities: string[] = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
 
@@ -82,6 +97,83 @@ export function LevelUpModal({
           </div>
 
           <div className="mt-6 text-left max-h-[60vh] overflow-y-auto pr-2">
+            {/* Multiclass Selection */}
+            {hasMulticlassOptions && (
+              <div className="mb-6 space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  {t('levelUp.continueOrMulticlass', 'Continue your current class or take a level in a new class:')}
+                </p>
+
+                {/* Continue Current Class Button */}
+                <button
+                  className={`w-full p-4 rounded-lg border transition-all text-left ${!selectedMulticlassId
+                      ? 'border-fantasy-gold bg-fantasy-gold/10'
+                      : 'border-white/10 hover:border-fantasy-gold/50'
+                    }`}
+                  onClick={() => onSelectMulticlass?.(null)}
+                >
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-lg">Continue as {currentClassName}</h3>
+                    {!selectedMulticlassId && (
+                      <span className="text-xs bg-fantasy-gold text-black px-2 py-1 rounded">Selected</span>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Gain more features and abilities in your current class
+                  </p>
+                </button>
+
+                {/* Multiclass Options */}
+                <button
+                  className="w-full flex items-center justify-between p-3 rounded-lg border border-white/10 hover:border-fantasy-gold/50 transition-all text-sm"
+                  onClick={() => setShowMulticlassOptions(!showMulticlassOptions)}
+                  disabled={!canLeaveCurrentClass}
+                >
+                  <span className="flex items-center gap-2">
+                    {!canLeaveCurrentClass && <Lock className="w-4 h-4 text-red-400" />}
+                    <span>Multiclass into a new class</span>
+                  </span>
+                  {canLeaveCurrentClass ? (
+                    showMulticlassOptions ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <span className="text-xs text-red-400">Doesn't meet prereqs</span>
+                  )}
+                </button>
+
+                {showMulticlassOptions && canLeaveCurrentClass && (
+                  <div className="grid gap-2 pl-4 border-l-2 border-fantasy-gold/30">
+                    {multiclassOptions.map((option) => (
+                      <button
+                        key={option.class.id}
+                        className={`p-3 rounded-lg border transition-all text-left ${selectedMulticlassId === option.class.id
+                            ? 'border-fantasy-gold bg-fantasy-gold/10'
+                            : option.meetsPrereqs
+                              ? 'border-white/10 hover:border-fantasy-gold/50'
+                              : 'border-red-500/30 opacity-50 cursor-not-allowed'
+                          }`}
+                        onClick={() => option.meetsPrereqs && onSelectMulticlass?.(option.class.id)}
+                        disabled={!option.meetsPrereqs}
+                      >
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-semibold">{option.class.name}</h4>
+                          {!option.meetsPrereqs && (
+                            <span className="text-xs text-red-400 flex items-center gap-1">
+                              <Lock className="w-3 h-3" />
+                              {option.prereqReason || 'Missing prerequisites'}
+                            </span>
+                          )}
+                          {selectedMulticlassId === option.class.id && (
+                            <span className="text-xs bg-fantasy-gold text-black px-2 py-1 rounded">Selected</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{option.class.description}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {hasSubclasses && (
               <>
                 <p className="text-sm text-muted-foreground mb-2">{t('levelUp.chooseSubclass', 'Choose a Subclass:')}</p>

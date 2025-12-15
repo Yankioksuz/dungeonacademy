@@ -407,6 +407,8 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   }, [character, hexbladesCurseTarget]);
 
   const [offhandAvailable, setOffhandAvailable] = useState(true);
+  const [bonusActionUsed, setBonusActionUsed] = useState(false);
+  const [reactionUsed, setReactionUsed] = useState(false);
   const [offhandWeaponId, setOffhandWeaponId] = useState<string | null>(null);
   const selectedEnemyData = useMemo(
     () => enemies.find((enemy) => enemy.id === selectedEnemy) || null,
@@ -565,13 +567,14 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   ) => {
     let remainingDamage = damageRoll;
 
-    // Uncanny Dodge
+    // Uncanny Dodge (uses reaction)
     const hasUncannyDodge = activeBuffs.some(b => b.id === 'uncanny-dodge');
-    if (hasUncannyDodge) {
+    if (hasUncannyDodge && !reactionUsed) {
       const halvedDamage = Math.ceil(remainingDamage / 2);
       remainingDamage = halvedDamage;
-      addLog('Uncanny Dodge! Damage halved.', 'info');
+      addLog('Uncanny Dodge! Damage halved. (Reaction)', 'info');
       setActiveBuffs(prev => prev.filter(b => b.id !== 'uncanny-dodge'));
+      setReactionUsed(true);
     }
 
     // Heavy Armor Master
@@ -840,8 +843,10 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           setPsychicBladesUsedThisTurn(false);
           setCuttingWordsUsedThisTurn(false);
 
-          // Reset offhand attack availability
+          // Reset offhand attack availability, bonus action, and reaction
           setOffhandAvailable(true);
+          setBonusActionUsed(false);
+          setReactionUsed(false);
 
           // First turn only lasts for the first round
           if (isNewRound) {
@@ -1003,7 +1008,25 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         // Let's check getPlayerDefenseBonus implementation.
         const effectiveAC = wildShapeActive ? WOLF_STATS.ac : playerAC;
 
-        if (totalAttack >= effectiveAC || isCriticalHit) { // Nat 20 always hits
+        // Defensive Duelist feat (uses reaction)
+        // When wielding a finesse weapon you're proficient with and hit by melee attack,
+        // add proficiency bonus to AC for that attack
+        let defensiveDuelistBonus = 0;
+        const isMeleeAttack = action.type === 'melee' || !action.type;
+        const hasDefensiveDuelist = character.feats?.includes('defensive-duelist');
+        const hasFinesseWeapon = (character.equippedWeapon?.properties || []).includes('finesse');
+
+        if (hasDefensiveDuelist && hasFinesseWeapon && isMeleeAttack && !reactionUsed) {
+          // Check if this would turn a hit into a miss
+          const boostedAC = effectiveAC + character.proficiencyBonus;
+          if (totalAttack >= effectiveAC && totalAttack < boostedAC && !isCriticalHit) {
+            defensiveDuelistBonus = character.proficiencyBonus;
+            setReactionUsed(true);
+            addLog(`Defensive Duelist! AC boosted by +${defensiveDuelistBonus} (Reaction)`, 'info');
+          }
+        }
+
+        if (totalAttack >= effectiveAC + defensiveDuelistBonus || isCriticalHit) { // Nat 20 always hits
           // Break Cloak of Displacement on hit
           if (hasCloakActive) {
             applyPlayerCondition({
@@ -1566,11 +1589,19 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
       // Remove Hidden Condition if present
       if (isHidden) {
-        updateCharacter(prev => ({
-          ...prev,
-          conditions: prev.conditions.filter(c => c.type !== 'hidden')
-        }));
-        addLog(`${character.name} reveals their position!`, 'info');
+        // Skulker: Missed attack doesn't reveal position
+        const isMiss = total < targetAC && !isCritical;
+        const hasSkulker = character.feats?.includes('skulker');
+
+        if (hasSkulker && isMiss) {
+          addLog(`${character.name} misses, but remains hidden (Skulker)!`, 'info');
+        } else {
+          updateCharacter(prev => ({
+            ...prev,
+            conditions: prev.conditions.filter(c => c.type !== 'hidden')
+          }));
+          addLog(`${character.name} reveals their position!`, 'info');
+        }
       }
 
       setAttacksLeft(prev => {
@@ -1586,7 +1617,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   };
 
   const handleOffhandAttack = () => {
-    if (!offhandAvailable || !selectedEnemy || isRolling) return;
+    if (!offhandAvailable || bonusActionUsed || !selectedEnemy || isRolling) return;
     const enemy = enemies.find(e => e.id === selectedEnemy);
     if (!enemy || enemy.isDefeated) return;
 
@@ -1662,8 +1693,213 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         addLog(`${character.name} misses ${enemy.name} with the off - hand attack.`, 'miss');
       }
       setOffhandAvailable(false);
+      setBonusActionUsed(true);
       nextTurn();
     });
+  };
+
+  // Polearm Master: Bonus action 1d4 bludgeoning attack with polearm butt end
+  const handlePolearmBonusAttack = () => {
+    if (bonusActionUsed || !selectedEnemy || isRolling) return;
+    if (!character.feats?.includes('polearm-master')) return;
+
+    const weapon = character.equippedWeapon;
+    const polearmWeapons = ['glaive', 'halberd', 'quarterstaff', 'spear', 'pike'];
+    const isPolearm = weapon && polearmWeapons.some(p =>
+      weapon.name?.toLowerCase().includes(p) || weapon.id?.toLowerCase().includes(p)
+    );
+
+    if (!isPolearm) {
+      addLog('Polearm Master requires a glaive, halberd, quarterstaff, spear, or pike.', 'miss');
+      return;
+    }
+
+    const enemy = enemies.find(e => e.id === selectedEnemy);
+    if (!enemy || enemy.isDefeated) return;
+
+    const strMod = Math.floor((character.abilityScores.strength - 10) / 2);
+    const attackBonus = strMod + character.proficiencyBonus;
+    const targetAC = getEnemyEffectiveAC(enemy);
+
+    setIsRolling(true);
+    const roll = rollDice(20);
+    const total = roll + attackBonus;
+    const isCritical = roll === 20;
+    const isCriticalFailure = roll === 1;
+
+    setDiceResult(roll);
+    setRollResult({ roll, total, isCritical, isCriticalFailure });
+
+    setPendingCombatAction(() => () => {
+      if (total >= targetAC || isCritical) {
+        let damageRoll = rollDice(4) + strMod;
+        if (isCritical) damageRoll += rollDice(4);
+
+        const { adjustedDamage, note } = adjustDamageForDefenses(enemy, damageRoll, 'bludgeoning', { isMagical: false });
+        addLog(`${character.name} hits ${enemy.name} with a polearm butt attack for ${adjustedDamage} bludgeoning damage!`, 'damage');
+        if (note) addLog(`${enemy.name} ${note}.`, 'info');
+        applyDamageToEnemy(enemy.id, adjustedDamage, 'bludgeoning', { preAdjusted: true });
+      } else {
+        addLog(`${character.name} misses ${enemy.name} with the polearm butt attack.`, 'miss');
+      }
+      setBonusActionUsed(true);
+    });
+  };
+
+  // Crossbow Expert: Bonus action hand crossbow attack when attacking with one-handed weapon
+  const handleCrossbowBonusAttack = () => {
+    if (bonusActionUsed || !selectedEnemy || isRolling) return;
+    if (!character.feats?.includes('crossbow-expert')) return;
+
+    // Check for hand crossbow in inventory
+    const handCrossbow = (character.inventory || []).find(item =>
+      item.type === 'weapon' && (item.name?.toLowerCase().includes('hand crossbow') || item.id?.includes('hand-crossbow'))
+    );
+
+    if (!handCrossbow) {
+      addLog('Crossbow Expert bonus attack requires a hand crossbow.', 'miss');
+      return;
+    }
+
+    const enemy = enemies.find(e => e.id === selectedEnemy);
+    if (!enemy || enemy.isDefeated) return;
+
+    const dexMod = Math.floor((character.abilityScores.dexterity - 10) / 2);
+    const attackBonus = dexMod + character.proficiencyBonus;
+    const targetAC = getEnemyEffectiveAC(enemy);
+
+    setIsRolling(true);
+    const roll = rollDice(20);
+    const total = roll + attackBonus;
+    const isCritical = roll === 20;
+    const isCriticalFailure = roll === 1;
+
+    setDiceResult(roll);
+    setRollResult({ roll, total, isCritical, isCriticalFailure });
+
+    setPendingCombatAction(() => () => {
+      if (total >= targetAC || isCritical) {
+        let damageRoll = rollDice(6) + dexMod; // Hand crossbow is 1d6
+        if (isCritical) damageRoll += rollDice(6);
+
+        const { adjustedDamage, note } = adjustDamageForDefenses(enemy, damageRoll, 'piercing', { isMagical: false });
+        addLog(`${character.name} hits ${enemy.name} with a hand crossbow for ${adjustedDamage} piercing damage!`, 'damage');
+        if (note) addLog(`${enemy.name} ${note}.`, 'info');
+        applyDamageToEnemy(enemy.id, adjustedDamage, 'piercing', { preAdjusted: true });
+      } else {
+        addLog(`${character.name} misses ${enemy.name} with the hand crossbow.`, 'miss');
+      }
+      setBonusActionUsed(true);
+    });
+  };
+
+  // Healer feat: Use an action to heal 1d6 + 4 + target's hit dice (once per creature per short rest)
+  const [healerUsedThisRest, setHealerUsedThisRest] = useState(false);
+  const handleHealerAction = () => {
+    if (!character.feats?.includes('healer')) return;
+    if (healerUsedThisRest) {
+      addLog('Healer feat already used this rest!', 'miss');
+      return;
+    }
+    if (!isPlayerTurn || isRolling) return;
+
+    // Heal the player (self-heal as simplified version)
+    const hitDice = character.hitDice?.max || character.level;
+    const healing = rollDice(6) + 4 + hitDice;
+
+    updateCharacter(prev => {
+      if (!prev) return prev;
+      const newHp = Math.min(prev.maxHitPoints, prev.hitPoints + healing);
+      return { ...prev, hitPoints: newHp };
+    });
+
+    addLog(`${character.name} uses Healer's Kit mastery to heal for ${healing} HP!`, 'info');
+    setHealerUsedThisRest(true);
+    nextTurn();
+  };
+
+  // Charger feat: Bonus action for +5 damage melee attack
+  const handleChargerAttack = () => {
+    if (!character.feats?.includes('charger')) return;
+    if (bonusActionUsed || !selectedEnemy || isRolling) return;
+
+    const enemy = enemies.find(e => e.id === selectedEnemy);
+    if (!enemy || enemy.isDefeated) return;
+
+    const weapon = character.equippedWeapon;
+    if (!weapon) {
+      addLog('No weapon equipped for Charger attack!', 'miss');
+      return;
+    }
+
+    const strMod = Math.floor((character.abilityScores.strength - 10) / 2);
+    const dexMod = Math.floor((character.abilityScores.dexterity - 10) / 2);
+    const weaponProps = weapon.properties || [];
+    const isFinesse = weaponProps.includes('finesse');
+    const attackMod = isFinesse ? Math.max(strMod, dexMod) : strMod;
+    const attackBonus = attackMod + character.proficiencyBonus;
+    const targetAC = getEnemyEffectiveAC(enemy);
+
+    setIsRolling(true);
+    const roll = rollDice(20);
+    const total = roll + attackBonus;
+    const isCritical = roll === 20;
+    const isCriticalFailure = roll === 1;
+
+    setDiceResult(roll);
+    setRollResult({ roll, total, isCritical, isCriticalFailure });
+
+    setPendingCombatAction(() => () => {
+      if (total >= targetAC || isCritical) {
+        // Parse weapon damage
+        const damageParts = (weapon.damage || '1d6').split('d');
+        const diceCount = parseInt(damageParts[0] || '1');
+        const diceSides = parseInt(damageParts[1]?.replace(/\+.*/, '') || '6');
+
+        let damageRoll = attackMod + 5; // +5 from Charger
+        for (let i = 0; i < diceCount; i++) {
+          damageRoll += rollDice(diceSides);
+        }
+        if (isCritical) {
+          for (let i = 0; i < diceCount; i++) {
+            damageRoll += rollDice(diceSides);
+          }
+        }
+
+        const damageType = 'slashing';
+        const { adjustedDamage, note } = adjustDamageForDefenses(enemy, damageRoll, damageType, { isMagical: false });
+        addLog(`${character.name} CHARGES into ${enemy.name} for ${adjustedDamage} damage (+5 from Charger)!`, 'damage');
+        if (note) addLog(`${enemy.name} ${note}.`, 'info');
+        applyDamageToEnemy(enemy.id, adjustedDamage, damageType, { preAdjusted: true });
+      } else {
+        addLog(`${character.name}'s charge attack misses ${enemy.name}!`, 'miss');
+      }
+      setBonusActionUsed(true);
+    });
+  };
+
+  // Inspiring Leader feat: Grant self temp HP = level + CHA mod (once per short rest, simplified)
+  const [inspiringLeaderUsed, setInspiringLeaderUsed] = useState(false);
+  const handleInspiringLeader = () => {
+    if (!character.feats?.includes('inspiring-leader')) return;
+    if (inspiringLeaderUsed) {
+      addLog('Inspiring Leader already used this rest!', 'miss');
+      return;
+    }
+    if (!isPlayerTurn || isRolling) return;
+
+    const chaMod = Math.floor((character.abilityScores.charisma - 10) / 2);
+    const tempHp = character.level + chaMod;
+
+    updateCharacter(prev => {
+      if (!prev) return prev;
+      const currentTemp = prev.temporaryHitPoints || 0;
+      // Temp HP doesn't stack, take higher
+      return { ...prev, temporaryHitPoints: Math.max(currentTemp, tempHp) };
+    });
+
+    addLog(`${character.name} delivers an inspiring speech! Gained ${tempHp} temporary HP!`, 'info');
+    setInspiringLeaderUsed(true);
   };
 
   const handleCastSpell = (
@@ -1677,6 +1913,13 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   ) => {
     const spell = spellsData.find(s => s.id === spellId) as SpellContent | undefined;
     if (!spell) return;
+
+    // Check if this is a bonus action spell
+    const isBonusActionSpell = spell.castingTime?.toLowerCase().includes('bonus action');
+    if (isBonusActionSpell && bonusActionUsed) {
+      addLog('Bonus action already used this turn!', 'miss');
+      return;
+    }
 
     const castAsRitual = options?.castAsRitual ?? false;
     const fromScroll = options?.fromScroll ?? false;
@@ -1712,6 +1955,11 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         addLog(`Unable to spend a level ${computedSlotLevel} slot.`, 'miss');
         return;
       }
+    }
+
+    // Consume bonus action for bonus action spells
+    if (isBonusActionSpell) {
+      setBonusActionUsed(true);
     }
 
     // Wild Magic Surge (Sorcerer)
@@ -1926,6 +2174,11 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       playerInitiative += 5; // Simplified advantage/bonus
     }
 
+    // Alert Feat (+5 Initiative)
+    if (character.feats?.includes('alert')) {
+      playerInitiative += 5;
+    }
+
     const order = [
       { id: 'player', name: character.name, initiative: playerInitiative },
       ...enemies.map(e => ({ id: e.id, name: e.name, initiative: e.initiative }))
@@ -2052,12 +2305,13 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   };
 
   const handleSecondWind = () => {
-    if (!secondWindAvailable) return;
+    if (!secondWindAvailable || bonusActionUsed) return;
     const healRoll = rollDice(10);
     const totalHeal = healRoll + character.level;
     setPlayerHp(prev => Math.min(character.maxHitPoints, prev + totalHeal));
     setSecondWindAvailable(false);
     persistFeatureUses({ secondWind: false });
+    setBonusActionUsed(true);
     addLog(`${character.name} uses Second Wind and regains ${totalHeal} HP.`, 'heal');
   };
 
@@ -2070,11 +2324,12 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   };
 
   const handleRage = () => {
-    if (!rageAvailable || rageActive) return;
+    if (!rageAvailable || rageActive || bonusActionUsed) return;
     setRageAvailable(prev => prev - 1);
     persistFeatureUses({ rage: Math.max(0, rageAvailable - 1) });
     setRageActive(true);
     setRageRoundsLeft(10); // 1 minute
+    setBonusActionUsed(true);
     addLog(`${character.name} enters a Rage!`, 'info');
     // Visual effect could be added here
   };
@@ -2128,10 +2383,11 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   };
 
   const handleBardicInspiration = () => {
-    if (!inspirationAvailable || hasInspirationDie) return;
+    if (!inspirationAvailable || hasInspirationDie || bonusActionUsed) return;
     setInspirationAvailable(prev => prev - 1);
     persistFeatureUses({ bardicInspiration: Math.max(0, inspirationAvailable - 1) });
     setHasInspirationDie(true);
+    setBonusActionUsed(true);
     addLog(`${character.name} uses Bardic Inspiration! You gain a d6 inspiration die.`, 'info');
   };
 
@@ -2274,9 +2530,10 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   };
 
   const handleKiAction = (action: 'flurry' | 'defense' | 'step') => {
-    if (kiPoints <= 0) return;
+    if (kiPoints <= 0 || bonusActionUsed) return;
     setKiPoints(prev => prev - 1);
     persistFeatureUses({ kiPoints: Math.max(0, kiPoints - 1) });
+    setBonusActionUsed(true);
 
     if (action === 'defense') {
       setActiveBuffs(prev => [...prev, { id: 'patient-defense', name: 'Patient Defense', bonus: 2, duration: 1 }]); // Simulating Dodge with AC bonus
@@ -2393,6 +2650,11 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   };
 
   const handleCunningAction = (actionType: 'dash' | 'disengage' | 'hide') => {
+    if (bonusActionUsed) {
+      addLog('Bonus action already used this turn!', 'miss');
+      return;
+    }
+    setBonusActionUsed(true);
     addLog(`${character.name} uses Cunning Action to ${actionType}!`, 'info');
     // Implement specific logic if needed, e.g., Disengage prevents opportunity attacks (not implemented yet)
     // Hide could require a stealth check.
@@ -3300,6 +3562,56 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                           disabled={!isPlayerTurn || isRolling || (character.featureUses?.luckPoints ?? 0) <= 0}
                         >
                           <Sparkles className="mr-2 h-3 w-3" /> Use Luck Point ({character.featureUses?.luckPoints ?? 0})
+                        </Button>
+                      )}
+                      {character.feats?.includes('polearm-master') && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={handlePolearmBonusAttack}
+                          disabled={!isPlayerTurn || isRolling || bonusActionUsed || !selectedEnemy}
+                        >
+                          <Sword className="mr-2 h-3 w-3" /> Polearm Butt (1d4)
+                        </Button>
+                      )}
+                      {character.feats?.includes('crossbow-expert') && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={handleCrossbowBonusAttack}
+                          disabled={!isPlayerTurn || isRolling || bonusActionUsed || !selectedEnemy}
+                        >
+                          <Crosshair className="mr-2 h-3 w-3" /> Hand Crossbow (1d6)
+                        </Button>
+                      )}
+                      {character.feats?.includes('healer') && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={handleHealerAction}
+                          disabled={!isPlayerTurn || isRolling || healerUsedThisRest}
+                        >
+                          <Heart className="mr-2 h-3 w-3" /> Healer's Kit (1d6+4+lvl)
+                        </Button>
+                      )}
+                      {character.feats?.includes('charger') && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={handleChargerAttack}
+                          disabled={!isPlayerTurn || isRolling || bonusActionUsed || !selectedEnemy}
+                        >
+                          <Sword className="mr-2 h-3 w-3" /> Charge Attack (+5 dmg)
+                        </Button>
+                      )}
+                      {character.feats?.includes('inspiring-leader') && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={handleInspiringLeader}
+                          disabled={!isPlayerTurn || isRolling || inspiringLeaderUsed}
+                        >
+                          <Sparkles className="mr-2 h-3 w-3" /> Inspiring Speech (Temp HP)
                         </Button>
                       )}
 
