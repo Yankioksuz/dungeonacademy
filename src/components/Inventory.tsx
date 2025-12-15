@@ -307,8 +307,10 @@ export function Inventory({
   // Get icon for item - uses custom image if available, otherwise fallback to Lucide icon
   const getItemIcon = (item: Item) => {
     // Check if this item has a custom icon
-    if (hasItemIcon(item.id)) {
-      const iconSrc = getItemIconSrc(item.id);
+    // Use templateId if available (for instantiated items), otherwise fallback to id
+    const iconId = item.templateId || item.id;
+    if (hasItemIcon(iconId)) {
+      const iconSrc = getItemIconSrc(iconId);
       return (
         <img
           src={iconSrc}
