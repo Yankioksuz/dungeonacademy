@@ -659,6 +659,116 @@ export function GameProvider({ children }: { children: ReactNode }) {
           return [...preparedNonCantrips];
         })(),
         featureUses: getDefaultFeatureUses(updatedCharacter as PlayerCharacter),
+        // NEW: Add background equipment to starting inventory and gold
+        gold: (() => {
+          let startingGold = 0; // No base gold - only from background
+          const bgEquipment = updatedCharacter.background?.equipment || [];
+
+          // Parse gold from background equipment (e.g., "15 gp", "Purse with 25 gp")
+          bgEquipment.forEach(item => {
+            const goldMatch = item.match(/(\d+)\s*gp/i);
+            if (goldMatch) {
+              startingGold += parseInt(goldMatch[1], 10);
+            }
+          });
+
+          return startingGold;
+        })(),
+        inventory: (() => {
+          const bgEquipment = updatedCharacter.background?.equipment || [];
+          const items: Item[] = [];
+
+          // Detailed item definitions for background equipment
+          const itemDefinitions: Record<string, Partial<Item>> = {
+            // Acolyte items
+            'holy symbol': { type: 'trinket', value: 5, description: 'A holy symbol of your faith. Can be used as a spellcasting focus for divine magic.' },
+            'prayer book': { type: 'trinket', value: 5, description: 'A leather-bound book containing prayers and religious texts.' },
+            '5 sticks of incense': { type: 'consumable', value: 1, description: 'Fragrant incense sticks used in religious ceremonies.' },
+            'vestments': { type: 'clothing', value: 5, description: 'Ceremonial religious garments worn during services.' },
+            'common clothes': { type: 'clothing', value: 1, description: 'Simple, practical clothing worn by commoners.' },
+
+            // Criminal items
+            'crowbar': { type: 'tools', value: 2, description: 'A metal bar useful for prying. Grants advantage on Strength checks to force open doors or containers.' },
+            'dark common clothes with hood': { type: 'clothing', value: 2, description: 'Dark clothing with a hood, useful for blending into shadows.' },
+
+            // Folk Hero items
+            "artisan's tools": { type: 'tools', value: 15, description: 'A set of specialized tools for a particular craft. Grants proficiency bonus to related checks.' },
+            'shovel': { type: 'tools', value: 2, description: 'A sturdy digging implement.' },
+            'iron pot': { type: 'misc', value: 2, description: 'A heavy iron cooking pot.' },
+
+            // Noble items
+            'fine clothes': { type: 'clothing', value: 15, description: 'Elegant, expensive clothing suitable for high society. May grant advantage on Persuasion checks with nobility.' },
+            'signet ring': { type: 'trinket', value: 25, description: 'A ring bearing your family crest. Can be used to seal documents and prove identity.' },
+            'scroll of pedigree': { type: 'trinket', value: 1, description: 'A document detailing your noble lineage and family history.' },
+
+            // Sage items
+            'bottle of black ink': { type: 'misc', value: 10, description: 'High-quality ink for writing.' },
+            'quill': { type: 'misc', value: 1, description: 'A feather quill for writing.' },
+            'small knife': { type: 'weapon', value: 2, damage: '1d4', description: 'A small utility knife. Can be used as an improvised weapon.', properties: ['Light', 'Finesse'] },
+            'letter from a dead colleague': { type: 'trinket', value: 0, description: 'A mysterious letter from a colleague who has passed. Its contents may hold secrets.' },
+          };
+
+          bgEquipment.forEach((equipName, index) => {
+            // Skip pure gold entries (e.g., "15 gp")
+            if (/^\d+\s*gp$/i.test(equipName.trim())) {
+              return;
+            }
+            // Skip "Purse with X gp" type entries (gold already counted)
+            if (/purse.*\d+\s*gp/i.test(equipName)) {
+              return;
+            }
+
+            // Look for a matching item definition
+            const lowerName = equipName.toLowerCase();
+            const matchedDef = itemDefinitions[lowerName];
+
+            if (matchedDef) {
+              items.push({
+                id: `bg-item-${index}-${Date.now()}`,
+                name: equipName,
+                type: matchedDef.type || 'misc',
+                description: matchedDef.description || `Starting equipment from ${updatedCharacter.background?.name || 'background'}.`,
+                value: matchedDef.value || 0,
+                damage: matchedDef.damage,
+                properties: matchedDef.properties,
+              });
+            } else {
+              // Fallback for unrecognized items
+              let itemType = 'misc';
+              let itemValue = 1;
+
+              if (lowerName.includes('sword') || lowerName.includes('dagger') || lowerName.includes('axe') ||
+                lowerName.includes('bow') || lowerName.includes('crossbow') || lowerName.includes('club') ||
+                lowerName.includes('mace') || lowerName.includes('hammer') || lowerName.includes('staff')) {
+                itemType = 'weapon';
+                itemValue = 10;
+              } else if (lowerName.includes('armor') || lowerName.includes('shield')) {
+                itemType = 'armor';
+                itemValue = 25;
+              } else if (lowerName.includes('clothes') || lowerName.includes('vestments') || lowerName.includes('robes')) {
+                itemType = 'clothing';
+                itemValue = 2;
+              } else if (lowerName.includes('tools') || lowerName.includes('kit')) {
+                itemType = 'tools';
+                itemValue = 15;
+              } else if (lowerName.includes('symbol') || lowerName.includes('book') || lowerName.includes('scroll') ||
+                lowerName.includes('letter') || lowerName.includes('quill') || lowerName.includes('ink')) {
+                itemType = 'trinket';
+                itemValue = 5;
+              }
+
+              items.push({
+                id: `bg-item-${index}-${Date.now()}`,
+                name: equipName,
+                type: itemType,
+                description: `Starting equipment from ${updatedCharacter.background?.name || 'background'}.`,
+                value: itemValue,
+              });
+            }
+          });
+
+          return items;
+        })(),
       };
     });
     // Don't reset characterCreationStep here - let the Game component handle the flow

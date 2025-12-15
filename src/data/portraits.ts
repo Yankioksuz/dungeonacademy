@@ -29,7 +29,20 @@ const normalizeGender = (genderSegment: string): PortraitDefinition['gender'] =>
 
 export const portraits: PortraitDefinition[] = Object.entries(portraitModules).map(([path, module]) => {
   const filename = path.split('/').pop() || 'unknown.png';
-  const [race = 'unknown', genderSegment = 'other', idSegment = '01'] = filename.toLowerCase().replace(/\.(png|jpg|jpeg|webp)$/i, '').split('-');
+  const parts = filename.toLowerCase().replace(/\.(png|jpg|jpeg|webp)$/i, '').split('-');
+
+  let race = 'unknown';
+  let genderSegment = 'other';
+  let idSegment = '01';
+
+  if (parts[0] === 'half' && parts[1] === 'orc') {
+    race = 'half-orc';
+    genderSegment = parts[2] || 'other';
+    idSegment = parts[3] || '01';
+  } else {
+    [race = 'unknown', genderSegment = 'other', idSegment = '01'] = parts;
+  }
+
   const gender = normalizeGender(genderSegment);
 
   return {
