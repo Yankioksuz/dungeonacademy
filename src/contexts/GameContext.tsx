@@ -226,7 +226,20 @@ const migrateCharacter = (char: Partial<PlayerCharacter> | null): PlayerCharacte
       }
     }
 
-    // 2. Effects Sync from Template
+    // 2. Effects Sync & Icon Fix
+    // Try to recover templateId from ID if missing (for background items)
+    if (!migratedItem.templateId && migratedItem.id?.startsWith('bg-')) {
+      // Format: bg-{itemId}-{index}-{timestamp}
+      // We need to extract {itemId}. It might contain hyphens, so we be careful.
+      // It always ends with -{number}-{number}
+      const parts = migratedItem.id.split('-');
+      if (parts.length >= 4) {
+        // Remove 'bg-' (first part) and last two parts (index, timestamp)
+        const originalId = parts.slice(1, -2).join('-');
+        migratedItem.templateId = originalId;
+      }
+    }
+
     // Find matching template in items.json
     // We check specific categories we know were updated
     const templateId = migratedItem.templateId || migratedItem.id;

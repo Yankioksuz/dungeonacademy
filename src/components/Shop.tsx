@@ -43,7 +43,7 @@ const getItemIcon = (item: Item) => {
             <img
                 src={iconSrc}
                 alt={item.name}
-                className="h-8 w-8 rounded object-cover"
+                className="w-full h-full rounded object-cover"
             />
         );
     }
@@ -121,7 +121,9 @@ const ShopCategory = ({
                                 )}
                                 onClick={() => onSelectShopItem(item)}
                             >
-                                {getItemIcon(item)}
+                                <div className="w-8 h-8 flex-shrink-0 rounded overflow-hidden flex items-center justify-center">
+                                    {getItemIcon(item)}
+                                </div>
                                 <span className="flex-1 text-sm truncate">{item.name}</span>
                                 <span className={cn(
                                     "text-sm font-medium",
@@ -297,7 +299,9 @@ export function Shop({ onClose }: ShopProps) {
                                                     setSelectedShopItem(null);
                                                 }}
                                             >
-                                                {getItemIcon(item)}
+                                                <div className="w-8 h-8 flex-shrink-0 rounded overflow-hidden flex items-center justify-center">
+                                                    {getItemIcon(item)}
+                                                </div>
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm truncate">{item.name}</p>
                                                     {isEquipped && (

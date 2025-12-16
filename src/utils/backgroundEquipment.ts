@@ -77,7 +77,7 @@ if (itemsData.weapons) addItemsFromCategory(itemsData.weapons);
 if (itemsData.armor) addItemsFromCategory(itemsData.armor);
 if (itemsData.shields) addItemsFromCategory(itemsData.shields);
 if (itemsData.magicItems) addItemsFromCategory(itemsData.magicItems);
-if (itemsData.consumables) addItemsFromCategory(itemsData.consumables);
+if ((itemsData as any).consumables) addItemsFromCategory((itemsData as any).consumables);
 if (itemsData.clothing) addItemsFromCategory(itemsData.clothing);
 if (itemsData.tools) addItemsFromCategory(itemsData.tools);
 if (itemsData.accessories) addItemsFromCategory(itemsData.accessories);
@@ -112,6 +112,7 @@ export function getBackgroundItem(equipmentName: string, index: number): Item | 
             return {
                 ...baseItem,
                 id: `bg-${itemId}-${index}-${Date.now()}`,
+                templateId: baseItem.id,
             };
         }
     }

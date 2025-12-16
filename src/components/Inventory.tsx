@@ -61,19 +61,19 @@ const getSlotName = (slot: EquipmentSlot) => {
 };
 
 // Helper to map item type to slot (for future use)
-// const getSlotForItemType = (type: Item['type']): EquipmentSlot | null => {
-//   switch (type) {
-//     case 'weapon': return 'mainHand';
-//     case 'armor': return 'armor';
-//     case 'shield': return 'offHand';
-//     case 'helmet': return 'helmet';
-//     case 'gloves': return 'gloves';
-//     case 'boots': return 'boots';
-//     case 'amulet': return 'amulet';
-//     case 'ring': return 'ring1';
-//     default: return null;
-//   }
-// };
+const getSlotForItemType = (type: Item['type']): EquipmentSlot | null => {
+  switch (type) {
+    case 'weapon': return 'mainHand';
+    case 'armor': return 'armor';
+    case 'shield': return 'offHand';
+    case 'helmet': return 'helmet';
+    case 'gloves': return 'gloves';
+    case 'boots': return 'boots';
+    case 'amulet': return 'amulet';
+    case 'ring': return 'ring1';
+    default: return null;
+  }
+};
 
 // Equipment Slot Component - moved outside to avoid recreation on render
 interface EquipmentSlotBoxProps {
@@ -186,7 +186,9 @@ const CategorySection = ({
                 )}
                 onClick={() => onItemClick(item)}
               >
-                {getItemIcon(item)}
+                <div className="w-8 h-8 flex-shrink-0 rounded overflow-hidden flex items-center justify-center">
+                  {getItemIcon(item)}
+                </div>
                 <span className="flex-1 text-sm truncate">{item.name}</span>
                 {equipped && <Check className="h-3 w-3 text-fantasy-gold" />}
                 {attuned && <Sparkles className="h-3 w-3 text-blue-400" />}
@@ -328,14 +330,30 @@ export function Inventory({
   const getItemIcon = (item: Item) => {
     // Check if this item has a custom icon
     // Use templateId if available (for instantiated items), otherwise fallback to id
-    const iconId = item.templateId || item.id;
+    let iconId = item.templateId || item.id;
+
+    // Fallback: If no icon found and it's a background item ID (bg-ID-index-ts), try to extract the base ID
+    if (!hasItemIcon(iconId) && (iconId.startsWith('bg-') || iconId.includes('-'))) {
+      // Attempt to parse bg-ID-index-timestamp format
+      if (iconId.startsWith('bg-')) {
+        const parts = iconId.split('-');
+        if (parts.length >= 4) {
+          // Remove 'bg-' and last two parts
+          const potentialId = parts.slice(1, -2).join('-');
+          if (hasItemIcon(potentialId)) {
+            iconId = potentialId;
+          }
+        }
+      }
+    }
+
     if (hasItemIcon(iconId)) {
       const iconSrc = getItemIconSrc(iconId);
       return (
         <img
           src={iconSrc}
           alt={item.name}
-          className="h-8 w-8 rounded object-cover"
+          className="w-full h-full rounded object-cover"
         />
       );
     }
