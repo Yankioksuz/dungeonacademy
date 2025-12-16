@@ -98,6 +98,25 @@ import flailWeapon from '@/assets/items/flail_weapon_1765800471850.png';
 import fineClothesItem from '@/assets/items/fine_clothes_1765881349260.png';
 import darkClothesHoodItem from '@/assets/items/dark_clothes_hood_1765881365691.png';
 import commonClothesItem from '@/assets/items/common_clothes_1765881380666.png';
+import travelersClothesItem from '@/assets/items/travelers_clothes_1765886707604.png';
+import vestmentsItem from '@/assets/items/vestments_1765886727611.png';
+import costumeItem from '@/assets/items/costume_1765886753087.png';
+
+// Background Equipment - Tools
+import artisansToolsItem from '@/assets/items/artisans_tools_1765886861020.png';
+import disguiseKitItem from '@/assets/items/disguise_kit_1765886880467.png';
+import herbalismKitItem from '@/assets/items/herbalism_kit_1765886908884.png';
+import thievesToolsItem from '@/assets/items/thieves_tools_1765886982158.png';
+import crowbarItem from '@/assets/items/crowbar_1765887002393.png';
+import shovelItem from '@/assets/items/shovel_1765887022289.png';
+import huntingTrapItem from '@/assets/items/hunting_trap_1765887064786.png';
+import musicalInstrumentItem from '@/assets/items/musical_instrument_1765887082320.png';
+
+// Background Equipment - Accessories
+import signetRingItem from '@/assets/items/signet_ring_1765887114293.png';
+import holySymbolItem from '@/assets/items/holy_symbol_1765887153452.png';
+import luckyCharmItem from '@/assets/items/lucky_charm_1765887171845.png';
+import insigniaOfRankItem from '@/assets/items/insignia_of_rank_1765887197489.png';
 
 // Item ID to Icon mapping
 export const ITEM_ICONS: Record<string, string> = {
@@ -201,6 +220,23 @@ export const ITEM_ICONS: Record<string, string> = {
     'fine-clothes': fineClothesItem,
     'dark-clothes-hood': darkClothesHoodItem,
     'common-clothes': commonClothesItem,
+    'travelers-clothes': travelersClothesItem,
+    'vestments': vestmentsItem,
+    'costume': costumeItem,
+    // Background Equipment - Tools
+    'artisans-tools': artisansToolsItem,
+    'disguise-kit': disguiseKitItem,
+    'herbalism-kit': herbalismKitItem,
+    'thieves-tools': thievesToolsItem,
+    'crowbar': crowbarItem,
+    'shovel': shovelItem,
+    'hunting-trap': huntingTrapItem,
+    'musical-instrument': musicalInstrumentItem,
+    // Background Equipment - Accessories
+    'signet-ring': signetRingItem,
+    'holy-symbol': holySymbolItem,
+    'lucky-charm': luckyCharmItem,
+    'insignia-of-rank': insigniaOfRankItem,
 };
 
 /**
