@@ -28,6 +28,7 @@ import {
 } from '@/utils/characterStats';
 import { calculateMaxHitPoints } from '@/utils/characterUtils';
 import { getDefaultFeatureUses } from '@/utils/featureUtils';
+import { processBackgroundEquipment } from '@/utils/backgroundEquipment';
 import { CLASS_PROGRESSION } from '@/data/classProgression';
 
 type CharacterUpdater =
@@ -659,153 +660,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
           return [...preparedNonCantrips];
         })(),
         featureUses: getDefaultFeatureUses(updatedCharacter as PlayerCharacter),
-        // NEW: Add background equipment to starting inventory and gold
-        gold: (() => {
-          let startingGold = 0; // No base gold - only from background
+        // Background equipment (gold and items) from centralized items catalog
+        ...(() => {
           const bgEquipment = updatedCharacter.background?.equipment || [];
-
-          // Parse gold from background equipment (e.g., "15 gp", "Purse with 25 gp")
-          bgEquipment.forEach(item => {
-            const goldMatch = item.match(/(\d+)\s*gp/i);
-            if (goldMatch) {
-              startingGold += parseInt(goldMatch[1], 10);
-            }
-          });
-
-          return startingGold;
-        })(),
-        inventory: (() => {
-          const bgEquipment = updatedCharacter.background?.equipment || [];
-          const items: Item[] = [];
-
-          // Detailed item definitions for background equipment
-          const itemDefinitions: Record<string, Partial<Item>> = {
-            // Acolyte items
-            'holy symbol': { type: 'trinket', value: 5, description: 'A holy symbol of your faith. Can be used as a spellcasting focus for divine magic.' },
-            'prayer book': { type: 'trinket', value: 5, description: 'A leather-bound book containing prayers and religious texts.' },
-            '5 sticks of incense': { type: 'consumable', value: 1, description: 'Fragrant incense sticks used in religious ceremonies.' },
-            'vestments': { type: 'clothing', value: 5, description: 'Ceremonial religious garments worn during services.' },
-            'common clothes': { type: 'clothing', value: 1, description: 'Simple, practical clothing worn by commoners.' },
-
-            // Criminal items
-            'crowbar': { type: 'tools', value: 2, description: 'A metal bar useful for prying. Grants advantage on Strength checks to force open doors or containers.' },
-            'dark common clothes with hood': { type: 'clothing', value: 2, description: 'Dark clothing with a hood, useful for blending into shadows.' },
-
-            // Folk Hero items
-            "artisan's tools": { type: 'tools', value: 15, description: 'A set of specialized tools for a particular craft. Grants proficiency bonus to related checks.' },
-            'shovel': { type: 'tools', value: 2, description: 'A sturdy digging implement.' },
-            'iron pot': { type: 'misc', value: 2, description: 'A heavy iron cooking pot.' },
-
-            // Noble items
-            'fine clothes': { type: 'clothing', value: 15, description: 'Elegant, expensive clothing suitable for high society. May grant advantage on Persuasion checks with nobility.' },
-            'signet ring': { type: 'trinket', value: 25, description: 'A ring bearing your family crest. Can be used to seal documents and prove identity.' },
-            'scroll of pedigree': { type: 'trinket', value: 1, description: 'A document detailing your noble lineage and family history.' },
-
-            // Sage items
-            'bottle of black ink': { type: 'misc', value: 10, description: 'High-quality ink for writing.' },
-            'quill': { type: 'misc', value: 1, description: 'A feather quill for writing.' },
-            'small knife': { type: 'weapon', value: 2, damage: '1d4', description: 'A small utility knife. Can be used as an improvised weapon.', properties: ['Light', 'Finesse'] },
-            'letter from a dead colleague': { type: 'trinket', value: 0, description: 'A mysterious letter from a colleague who has passed. Its contents may hold secrets.' },
-
-            // Charlatan items
-            'disguise kit': { type: 'tools', value: 25, description: 'A kit with cosmetics, hair dye, and props. Grants proficiency bonus to Disguise checks.' },
-            'tools of the con': { type: 'tools', value: 10, description: 'Weighted dice, marked cards, and other props for running cons.' },
-
-            // Entertainer items
-            'musical instrument': { type: 'tools', value: 25, description: 'A musical instrument you are proficient with. Can be used for Performance checks.' },
-            'favor of an admirer': { type: 'trinket', value: 5, description: 'A love letter, lock of hair, or trinket from an admirer.' },
-            'costume': { type: 'clothing', value: 5, description: 'A flashy costume for performances.' },
-
-            // Guild Artisan items
-            'letter of introduction from guild': { type: 'trinket', value: 1, description: 'An official letter proving your guild membership. Can help secure lodging and work.' },
-            "traveler's clothes": { type: 'clothing', value: 2, description: 'Sturdy clothes suitable for travel.' },
-
-            // Hermit items
-            'scroll case with notes': { type: 'trinket', value: 5, description: 'A case containing your personal notes and discoveries from seclusion.' },
-            'winter blanket': { type: 'misc', value: 1, description: 'A thick wool blanket for cold nights.' },
-            'herbalism kit': { type: 'tools', value: 5, description: 'A kit for creating herbal remedies. Allows you to create healing potions during downtime.' },
-
-            // Outlander items
-            'staff': { type: 'weapon', value: 2, damage: '1d6', description: 'A sturdy wooden staff. Versatile (1d8 two-handed).', properties: ['Versatile'] },
-            'hunting trap': { type: 'tools', value: 5, description: 'A metal trap for catching game. Can be set as a trap dealing 1d4 damage.' },
-            'trophy from animal': { type: 'trinket', value: 2, description: 'A claw, tooth, or pelt from an animal you hunted.' },
-
-            // Sailor items
-            'belaying pin (club)': { type: 'weapon', value: 1, damage: '1d4', description: 'A wooden pin used on ships. Functions as a club.' },
-            '50 feet of silk rope': { type: 'misc', value: 10, description: 'Strong, lightweight silk rope. Useful for climbing and binding.' },
-            'lucky charm': { type: 'trinket', value: 1, description: 'A small trinket you believe brings good fortune at sea.' },
-
-            // Soldier items
-            'insignia of rank': { type: 'trinket', value: 5, description: 'A badge or medal showing your military rank. May command respect from soldiers.' },
-            'trophy from fallen enemy': { type: 'trinket', value: 2, description: 'A dagger, broken blade, or piece of a banner taken from a defeated foe.' },
-            'bone dice': { type: 'misc', value: 1, description: 'A set of dice carved from bone. Used for gambling.' },
-
-            // Urchin items
-            'map of your home city': { type: 'trinket', value: 1, description: 'A hand-drawn map showing secret passages and hideouts in your home city.' },
-            'pet mouse': { type: 'misc', value: 0, description: 'A small, trained mouse. Your loyal companion from the streets.' },
-            'token from parents': { type: 'trinket', value: 0, description: 'A small memento from your parents. Your only connection to them.' },
-          };
-
-          bgEquipment.forEach((equipName, index) => {
-            // Skip pure gold entries (e.g., "15 gp")
-            if (/^\d+\s*gp$/i.test(equipName.trim())) {
-              return;
-            }
-            // Skip "Purse with X gp" type entries (gold already counted)
-            if (/purse.*\d+\s*gp/i.test(equipName)) {
-              return;
-            }
-
-            // Look for a matching item definition
-            const lowerName = equipName.toLowerCase();
-            const matchedDef = itemDefinitions[lowerName];
-
-            if (matchedDef) {
-              items.push({
-                id: `bg-item-${index}-${Date.now()}`,
-                name: equipName,
-                type: matchedDef.type || 'misc',
-                description: matchedDef.description || `Starting equipment from ${updatedCharacter.background?.name || 'background'}.`,
-                value: matchedDef.value || 0,
-                damage: matchedDef.damage,
-                properties: matchedDef.properties,
-              });
-            } else {
-              // Fallback for unrecognized items
-              let itemType = 'misc';
-              let itemValue = 1;
-
-              if (lowerName.includes('sword') || lowerName.includes('dagger') || lowerName.includes('axe') ||
-                lowerName.includes('bow') || lowerName.includes('crossbow') || lowerName.includes('club') ||
-                lowerName.includes('mace') || lowerName.includes('hammer') || lowerName.includes('staff')) {
-                itemType = 'weapon';
-                itemValue = 10;
-              } else if (lowerName.includes('armor') || lowerName.includes('shield')) {
-                itemType = 'armor';
-                itemValue = 25;
-              } else if (lowerName.includes('clothes') || lowerName.includes('vestments') || lowerName.includes('robes')) {
-                itemType = 'clothing';
-                itemValue = 2;
-              } else if (lowerName.includes('tools') || lowerName.includes('kit')) {
-                itemType = 'tools';
-                itemValue = 15;
-              } else if (lowerName.includes('symbol') || lowerName.includes('book') || lowerName.includes('scroll') ||
-                lowerName.includes('letter') || lowerName.includes('quill') || lowerName.includes('ink')) {
-                itemType = 'trinket';
-                itemValue = 5;
-              }
-
-              items.push({
-                id: `bg-item-${index}-${Date.now()}`,
-                name: equipName,
-                type: itemType,
-                description: `Starting equipment from ${updatedCharacter.background?.name || 'background'}.`,
-                value: itemValue,
-              });
-            }
-          });
-
-          return items;
+          const { items, gold } = processBackgroundEquipment(bgEquipment);
+          return { gold, inventory: items };
         })(),
       };
     });
