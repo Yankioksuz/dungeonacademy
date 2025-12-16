@@ -2283,16 +2283,24 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
   const torchOilAvailable = Boolean(findTorchOilItem());
 
+  // For prepared casters (Wizard, Cleric, Druid, Paladin), use preparedSpells; otherwise use knownSpells
+  const availableSpells = useMemo(() => {
+    if (isPreparedCaster(character.class.name)) {
+      return character.preparedSpells ?? [];
+    }
+    return character.knownSpells ?? [];
+  }, [character.knownSpells, character.preparedSpells, character.class.name]);
+
   const canCastAnySpell = useMemo(() => {
-    if (!character.knownSpells) return false;
-    return character.knownSpells.some((spellId) => {
+    if (availableSpells.length === 0) return false;
+    return availableSpells.some((spellId) => {
       const spell = spellsData.find((s) => s.id === spellId);
       if (!spell) return false;
       if (spell.level === 0) return true;
       const pool = character.spellSlots?.[spell.level];
       return Boolean(pool && pool.current > 0);
     });
-  }, [character.knownSpells, character.spellSlots]);
+  }, [availableSpells, character.spellSlots]);
 
   const slotSummary = useMemo(() => {
     if (!character.spellSlots) return '';
@@ -2989,916 +2997,916 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                     )}
                   </div>
 
-  {/* Info Section */ }
-  <div className="flex-1 p-3">
-    <div className="flex justify-between items-start mb-2">
-      <div>
-        <h4 className="font-bold text-sm">{character.name}</h4>
-        <div className="text-xs text-muted-foreground">
-          {character.race.name} {character.class.name}
+                  {/* Info Section */}
+                  <div className="flex-1 p-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="font-bold text-sm">{character.name}</h4>
+                        <div className="text-xs text-muted-foreground">
+                          {character.race.name} {character.class.name}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Shield className="h-3 w-3" /> AC {calculateArmorClass(character)}
                         </div>
                       </div>
-              {isPlayerTurn && (
-                <Badge variant="gold" className="animate-pulse text-[10px]">{t('combat.yourTurn')}</Badge>
-              )}
-            </div>
+                      {isPlayerTurn && (
+                        <Badge variant="gold" className="animate-pulse text-[10px]">{t('combat.yourTurn')}</Badge>
+                      )}
+                    </div>
 
                     {/* HP Bar */}
-          <div className="space-y-1">
-            <Progress
-              value={(wildShapeActive ? (wildShapeHp / WOLF_STATS.maxHp) : (playerHp / character.maxHitPoints)) * 100}
-              className={cn("h-2", wildShapeActive && "bg-amber-900/20 [&>div]:bg-amber-700")}
-            />
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>
-                {wildShapeActive ? `${wildShapeHp} / ${WOLF_STATS.maxHp} (Wolf)` : `${playerHp} / ${character.maxHitPoints}`}
-              </span>
-              {(character.temporaryHitPoints || 0) > 0 && (
-                <Badge variant="secondary" className="text-[10px] px-1 py-0 bg-blue-900/50 text-blue-200">
-                  +{character.temporaryHitPoints} THP
-                </Badge>
-              )}
-            </div>
-          </div>
+                    <div className="space-y-1">
+                      <Progress
+                        value={(wildShapeActive ? (wildShapeHp / WOLF_STATS.maxHp) : (playerHp / character.maxHitPoints)) * 100}
+                        className={cn("h-2", wildShapeActive && "bg-amber-900/20 [&>div]:bg-amber-700")}
+                      />
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>
+                          {wildShapeActive ? `${wildShapeHp} / ${WOLF_STATS.maxHp} (Wolf)` : `${playerHp} / ${character.maxHitPoints}`}
+                        </span>
+                        {(character.temporaryHitPoints || 0) > 0 && (
+                          <Badge variant="secondary" className="text-[10px] px-1 py-0 bg-blue-900/50 text-blue-200">
+                            +{character.temporaryHitPoints} THP
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
 
-          {/* Status Badges */}
-          {(character.concentratingOn || isFighter || isRogue || hasInspirationDie || (isBarbarian && rageActive) || activeBuffs.length > 0) && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {character.concentratingOn && (
-                <Badge variant="outline" className="text-[10px] px-1 py-0">
-                  <Brain className="h-2 w-2 mr-1" /> {character.concentratingOn.spellName}
-                </Badge>
-              )}
-              {isFighter && (
-                <>
-                  <Badge variant={actionSurgeAvailable ? 'fantasy' : 'outline'} className="text-[10px] px-1 py-0">
-                    Action Surge
-                  </Badge>
-                  <Badge variant={secondWindAvailable ? 'fantasy' : 'outline'} className="text-[10px] px-1 py-0">
-                    Second Wind
-                  </Badge>
-                </>
-              )}
-              {isRogue && (
-                <Badge variant={!sneakAttackUsedThisTurn ? 'fantasy' : 'outline'} className="text-[10px] px-1 py-0">
-                  Sneak Attack
-                </Badge>
-              )}
-              {hasInspirationDie && (
-                <Badge variant="fantasy" className="text-[10px] px-1 py-0 animate-pulse">
-                  Inspiration
-                </Badge>
-              )}
-              {isBarbarian && rageActive && (
-                <Badge variant="destructive" className="text-[10px] px-1 py-0 animate-pulse">
-                  RAGE
-                </Badge>
-              )}
-              {activeBuffs.map(buff => (
-                <Badge key={buff.id} variant="secondary" className="text-[10px] px-1 py-0">
-                  {buff.name}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* Conditions */}
-          {character.conditions && character.conditions.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {character.conditions.map((condition, idx) => (
-                <Badge
-                  key={`${condition.type}-${idx}`}
-                  variant="destructive"
-                  className="text-[10px] px-1 py-0"
-                >
-                  {condition.type} {condition.duration && `(${condition.duration})`}
-                </Badge>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Death Saves - shown when HP <= 0 */}
-      {playerHp <= 0 && (
-        <div className="px-3 pb-3 pt-1 border-t border-red-900/30 bg-red-950/20">
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1">
-              <span className="text-muted-foreground mr-1">Saves:</span>
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={`success-${i}`}
-                  className={cn(
-                    "w-3 h-3 rounded-full border border-green-600",
-                    i < (character.deathSaves?.successes || 0) ? "bg-green-600" : "bg-transparent"
-                  )}
-                />
-              ))}
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-muted-foreground mr-1">Fails:</span>
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={`failure-${i}`}
-                  className={cn(
-                    "w-3 h-3 rounded-full border border-red-600",
-                    i < (character.deathSaves?.failures || 0) ? "bg-red-600" : "bg-transparent"
-                  )}
-                />
-              ))}
-            </div>
-            {isPlayerTurn && (
-              <Button
-                onClick={handleDeathSave}
-                disabled={isRolling}
-                size="sm"
-                variant="destructive"
-                className="h-6 text-xs px-2"
-              >
-                Roll
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
-    </CardContent>
-  </Card>
-
-  {/* Actions Section - Same column as Player */ }
-  <div className="space-y-3">
-    <h3 className="font-fantasy text-lg flex items-center gap-2">
-      <Activity className="h-4 w-4" /> {t('combat.actions')}
-    </h3>
-
-    {playerHp > 0 ? (
-      <Card>
-        <CardContent className="p-4 space-y-3">
-          {/* Feat Toggles */}
-          {character.feats?.includes('great-weapon-master') && (
-            <div className="flex items-center space-x-2 pb-2">
-              <input
-                type="checkbox"
-                id="gwm-toggle"
-                checked={gwmActive}
-                onChange={(e) => setGwmActive(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-fantasy-gold focus:ring-fantasy-gold bg-black/20"
-              />
-              <label htmlFor="gwm-toggle" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-red-400">
-                Great Weapon Master (-5 Hit / +10 Dmg)
-              </label>
-            </div>
-          )}
-          {character.feats?.includes('sharpshooter') && (
-            <div className="flex items-center space-x-2 pb-2">
-              <input
-                type="checkbox"
-                id="sharpshooter-toggle"
-                checked={sharpshooterActive}
-                onChange={(e) => setSharpshooterActive(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-fantasy-gold focus:ring-fantasy-gold bg-black/20"
-              />
-              <label htmlFor="sharpshooter-toggle" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-emerald-400">
-                Sharpshooter (-5 Hit / +10 Dmg)
-              </label>
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="default"
-              className="w-full justify-start"
-              onClick={handlePlayerAttack}
-              disabled={!isPlayerTurn || isRolling || !selectedEnemy || attacksLeft <= 0}
-            >
-              <Sword className="mr-2 h-4 w-4" /> {t('combat.attack')} {attacksLeft > 1 && `(${attacksLeft})`}
-            </Button>
-            {hasInspirationDie && (
-              <Button
-                variant={useInspiration ? "fantasy" : "outline"}
-                className="w-full justify-start"
-                onClick={() => setUseInspiration(!useInspiration)}
-                disabled={!isPlayerTurn || isRolling}
-              >
-                <Sparkles className="mr-2 h-4 w-4" /> {useInspiration ? 'Using Inspiration!' : 'Use Inspiration'}
-              </Button>
-            )}
-            {character.featureUses?.luckPoints !== undefined && character.featureUses.luckPoints > 0 && (
-              <Button
-                variant="outline"
-                className="w-full justify-start text-amber-500 border-amber-500/50 hover:bg-amber-500/10"
-                onClick={() => {
-                  addLog('Used a Luck Point! Reroll the d20.', 'info');
-                  // Logic to decrement luck points would go here, needing an updateCharacter call
-                  updateCharacter((prev) => {
-                    if (!prev || !prev.featureUses) return prev;
-                    return {
-                      ...prev,
-                      featureUses: {
-                        ...prev.featureUses,
-                        luckPoints: (prev.featureUses.luckPoints ?? 0) - 1
-                      }
-                    };
-                  });
-                }}
-                disabled={!isPlayerTurn || isRolling}
-              >
-                <Sparkles className="mr-2 h-4 w-4" /> Use Luck Point ({character.featureUses.luckPoints})
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={handleDefend}
-              disabled={!isPlayerTurn || isRolling}
-            >
-              <Shield className="mr-2 h-4 w-4" /> {t('combat.defend')}
-            </Button>
-            {isBarbarian && character.level >= 2 && (
-              <Button
-                variant={recklessAttackActive ? "destructive" : "outline"}
-                className="w-full justify-start"
-                onClick={() => {
-                  const newState = !recklessAttackActive;
-                  setRecklessAttackActive(newState);
-                  if (newState) {
-                    addLog('You throw aside all concern for defense to attack with fierce desperation! (Reckless Attack)', 'info');
-                    updateCharacter(prev => {
-                      if (!prev) return prev;
-                      return {
-                        ...prev,
-                        conditions: [...prev.conditions.filter(c => c.type !== 'reckless'), { type: 'reckless', name: 'Reckless', description: 'Advantage on attacks, enemies have advantage on attacks against you.', duration: 1 }]
-                      };
-                    });
-                  } else {
-                    addLog('You regain your defensive composure.', 'info');
-                    updateCharacter(prev => {
-                      if (!prev) return prev;
-                      return {
-                        ...prev,
-                        conditions: prev.conditions.filter(c => c.type !== 'reckless')
-                      };
-                    });
-                  }
-                }}
-                disabled={!isPlayerTurn || isRolling}
-              >
-                <Sword className="mr-2 h-4 w-4" /> {recklessAttackActive ? 'Reckless (Active)' : 'Reckless Attack'}
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => setShowSpellMenu(!showSpellMenu)}
-              disabled={!isPlayerTurn || isRolling || !canCastAnySpell}
-            >
-              <Wand className="mr-2 h-4 w-4" /> {t('combat.castSpell')}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => setShowInventory(!showInventory)}
-              disabled={!isPlayerTurn || isRolling}
-            >
-              <Backpack className="mr-2 h-4 w-4" /> {t('combat.item')}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={handleAnalyzeEnemy}
-              disabled={!isPlayerTurn || isRolling || !selectedEnemy || analyzedEnemies.has(selectedEnemy || '')}
-            >
-              <Search className="mr-2 h-4 w-4" /> {analyzedEnemies.has(selectedEnemy || '') ? 'Analyzed' : 'Analyze'}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={handleSpeak}
-              disabled={!isPlayerTurn || isRolling || !selectedEnemy}
-            >
-              <MessageCircle className="mr-2 h-4 w-4" /> Speak
-            </Button>
-          </div>
-
-          {/* Class Specific Actions */}
-          {(isFighter || isRogue || isBarbarian || isBard || isPaladin || isMonk || isDruid || isSorcerer || isCleric || isRanger || isWizard) && (
-            <div className="pt-2 border-t">
-              <p className="text-xs text-muted-foreground mb-2 font-bold uppercase">Class Actions</p>
-              <div className="grid grid-cols-2 gap-2">
-                {isFighter && (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={handleSecondWind}
-                      disabled={!isPlayerTurn || !secondWindAvailable || isRolling}
-                    >
-                      <HeartPulse className="mr-2 h-3 w-3" /> Second Wind
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={handleActionSurge}
-                      disabled={!isPlayerTurn || !actionSurgeAvailable || isRolling}
-                    >
-                      <Zap className="mr-2 h-3 w-3" /> Action Surge
-                    </Button>
-                  </>
-                )}
-                {isRogue && (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleCunningAction('dash')}
-                      disabled={!isPlayerTurn || isRolling}
-                    >
-                      <Activity className="mr-2 h-3 w-3" /> Dash
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleCunningAction('disengage')}
-                      disabled={!isPlayerTurn || isRolling}
-                    >
-                      <Activity className="mr-2 h-3 w-3" /> Disengage
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleCunningAction('hide')}
-                      disabled={!isPlayerTurn || isRolling}
-                    >
-                      <Activity className="mr-2 h-3 w-3" /> Hide
-                    </Button>
-                    {character.level >= 5 && (
-                      <Button
-                        variant={activeBuffs.some(b => b.id === 'uncanny-dodge') ? "fantasy" : "secondary"}
-                        size="sm"
-                        onClick={() => {
-                          if (activeBuffs.some(b => b.id === 'uncanny-dodge')) {
-                            setActiveBuffs(prev => prev.filter(b => b.id !== 'uncanny-dodge'));
-                          } else {
-                            setActiveBuffs(prev => [...prev, { id: 'uncanny-dodge', name: 'Uncanny Dodge', duration: 1, bonus: 0 }]);
-                            addLog(`${character.name} prepares to use Uncanny Dodge (Will halve next attack damage).`, 'info');
-                          }
-                        }}
-                        disabled={!isPlayerTurn && false /* Allow toggling off turn? No, isPlayerTurn handles Reacts? */}
-                      >
-                        <Shield className="mr-2 h-3 w-3" /> Uncanny Dodge
-                      </Button>
+                    {/* Status Badges */}
+                    {(character.concentratingOn || isFighter || isRogue || hasInspirationDie || (isBarbarian && rageActive) || activeBuffs.length > 0) && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {character.concentratingOn && (
+                          <Badge variant="outline" className="text-[10px] px-1 py-0">
+                            <Brain className="h-2 w-2 mr-1" /> {character.concentratingOn.spellName}
+                          </Badge>
+                        )}
+                        {isFighter && (
+                          <>
+                            <Badge variant={actionSurgeAvailable ? 'fantasy' : 'outline'} className="text-[10px] px-1 py-0">
+                              Action Surge
+                            </Badge>
+                            <Badge variant={secondWindAvailable ? 'fantasy' : 'outline'} className="text-[10px] px-1 py-0">
+                              Second Wind
+                            </Badge>
+                          </>
+                        )}
+                        {isRogue && (
+                          <Badge variant={!sneakAttackUsedThisTurn ? 'fantasy' : 'outline'} className="text-[10px] px-1 py-0">
+                            Sneak Attack
+                          </Badge>
+                        )}
+                        {hasInspirationDie && (
+                          <Badge variant="fantasy" className="text-[10px] px-1 py-0 animate-pulse">
+                            Inspiration
+                          </Badge>
+                        )}
+                        {isBarbarian && rageActive && (
+                          <Badge variant="destructive" className="text-[10px] px-1 py-0 animate-pulse">
+                            RAGE
+                          </Badge>
+                        )}
+                        {activeBuffs.map(buff => (
+                          <Badge key={buff.id} variant="secondary" className="text-[10px] px-1 py-0">
+                            {buff.name}
+                          </Badge>
+                        ))}
+                      </div>
                     )}
-                  </>
+
+                    {/* Conditions */}
+                    {character.conditions && character.conditions.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {character.conditions.map((condition, idx) => (
+                          <Badge
+                            key={`${condition.type}-${idx}`}
+                            variant="destructive"
+                            className="text-[10px] px-1 py-0"
+                          >
+                            {condition.type} {condition.duration && `(${condition.duration})`}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Death Saves - shown when HP <= 0 */}
+                {playerHp <= 0 && (
+                  <div className="px-3 pb-3 pt-1 border-t border-red-900/30 bg-red-950/20">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1">
+                        <span className="text-muted-foreground mr-1">Saves:</span>
+                        {[...Array(3)].map((_, i) => (
+                          <div
+                            key={`success-${i}`}
+                            className={cn(
+                              "w-3 h-3 rounded-full border border-green-600",
+                              i < (character.deathSaves?.successes || 0) ? "bg-green-600" : "bg-transparent"
+                            )}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-muted-foreground mr-1">Fails:</span>
+                        {[...Array(3)].map((_, i) => (
+                          <div
+                            key={`failure-${i}`}
+                            className={cn(
+                              "w-3 h-3 rounded-full border border-red-600",
+                              i < (character.deathSaves?.failures || 0) ? "bg-red-600" : "bg-transparent"
+                            )}
+                          />
+                        ))}
+                      </div>
+                      {isPlayerTurn && (
+                        <Button
+                          onClick={handleDeathSave}
+                          disabled={isRolling}
+                          size="sm"
+                          variant="destructive"
+                          className="h-6 text-xs px-2"
+                        >
+                          Roll
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 )}
-                {isBarbarian && (
-                  <>
-                    <Button
-                      variant={rageActive ? "destructive" : "secondary"}
-                      size="sm"
-                      onClick={handleRage}
-                      disabled={!isPlayerTurn || rageAvailable <= 0 || rageActive || isRolling}
-                      className={cn(rageActive && "animate-pulse ring-2 ring-red-500")}
-                    >
-                      <Flame className="mr-2 h-3 w-3" /> {rageActive ? 'Raging!' : `Rage (${rageAvailable})`}
-                    </Button>
-                    {character.subclass?.id === 'berserker' && rageActive && (
+              </CardContent>
+            </Card>
+
+            {/* Actions Section - Same column as Player */}
+            <div className="space-y-3">
+              <h3 className="font-fantasy text-lg flex items-center gap-2">
+                <Activity className="h-4 w-4" /> {t('combat.actions')}
+              </h3>
+
+              {playerHp > 0 ? (
+                <Card>
+                  <CardContent className="p-4 space-y-3">
+                    {/* Feat Toggles */}
+                    {character.feats?.includes('great-weapon-master') && (
+                      <div className="flex items-center space-x-2 pb-2">
+                        <input
+                          type="checkbox"
+                          id="gwm-toggle"
+                          checked={gwmActive}
+                          onChange={(e) => setGwmActive(e.target.checked)}
+                          className="h-4 w-4 rounded border-gray-300 text-fantasy-gold focus:ring-fantasy-gold bg-black/20"
+                        />
+                        <label htmlFor="gwm-toggle" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-red-400">
+                          Great Weapon Master (-5 Hit / +10 Dmg)
+                        </label>
+                      </div>
+                    )}
+                    {character.feats?.includes('sharpshooter') && (
+                      <div className="flex items-center space-x-2 pb-2">
+                        <input
+                          type="checkbox"
+                          id="sharpshooter-toggle"
+                          checked={sharpshooterActive}
+                          onChange={(e) => setSharpshooterActive(e.target.checked)}
+                          className="h-4 w-4 rounded border-gray-300 text-fantasy-gold focus:ring-fantasy-gold bg-black/20"
+                        />
+                        <label htmlFor="sharpshooter-toggle" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-emerald-400">
+                          Sharpshooter (-5 Hit / +10 Dmg)
+                        </label>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-2">
                       <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={handleFrenziedStrike}
+                        variant="default"
+                        className="w-full justify-start"
+                        onClick={handlePlayerAttack}
+                        disabled={!isPlayerTurn || isRolling || !selectedEnemy || attacksLeft <= 0}
+                      >
+                        <Sword className="mr-2 h-4 w-4" /> {t('combat.attack')} {attacksLeft > 1 && `(${attacksLeft})`}
+                      </Button>
+                      {hasInspirationDie && (
+                        <Button
+                          variant={useInspiration ? "fantasy" : "outline"}
+                          className="w-full justify-start"
+                          onClick={() => setUseInspiration(!useInspiration)}
+                          disabled={!isPlayerTurn || isRolling}
+                        >
+                          <Sparkles className="mr-2 h-4 w-4" /> {useInspiration ? 'Using Inspiration!' : 'Use Inspiration'}
+                        </Button>
+                      )}
+                      {character.featureUses?.luckPoints !== undefined && character.featureUses.luckPoints > 0 && (
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-amber-500 border-amber-500/50 hover:bg-amber-500/10"
+                          onClick={() => {
+                            addLog('Used a Luck Point! Reroll the d20.', 'info');
+                            // Logic to decrement luck points would go here, needing an updateCharacter call
+                            updateCharacter((prev) => {
+                              if (!prev || !prev.featureUses) return prev;
+                              return {
+                                ...prev,
+                                featureUses: {
+                                  ...prev.featureUses,
+                                  luckPoints: (prev.featureUses.luckPoints ?? 0) - 1
+                                }
+                              };
+                            });
+                          }}
+                          disabled={!isPlayerTurn || isRolling}
+                        >
+                          <Sparkles className="mr-2 h-4 w-4" /> Use Luck Point ({character.featureUses.luckPoints})
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={handleDefend}
+                        disabled={!isPlayerTurn || isRolling}
+                      >
+                        <Shield className="mr-2 h-4 w-4" /> {t('combat.defend')}
+                      </Button>
+                      {isBarbarian && character.level >= 2 && (
+                        <Button
+                          variant={recklessAttackActive ? "destructive" : "outline"}
+                          className="w-full justify-start"
+                          onClick={() => {
+                            const newState = !recklessAttackActive;
+                            setRecklessAttackActive(newState);
+                            if (newState) {
+                              addLog('You throw aside all concern for defense to attack with fierce desperation! (Reckless Attack)', 'info');
+                              updateCharacter(prev => {
+                                if (!prev) return prev;
+                                return {
+                                  ...prev,
+                                  conditions: [...prev.conditions.filter(c => c.type !== 'reckless'), { type: 'reckless', name: 'Reckless', description: 'Advantage on attacks, enemies have advantage on attacks against you.', duration: 1 }]
+                                };
+                              });
+                            } else {
+                              addLog('You regain your defensive composure.', 'info');
+                              updateCharacter(prev => {
+                                if (!prev) return prev;
+                                return {
+                                  ...prev,
+                                  conditions: prev.conditions.filter(c => c.type !== 'reckless')
+                                };
+                              });
+                            }
+                          }}
+                          disabled={!isPlayerTurn || isRolling}
+                        >
+                          <Sword className="mr-2 h-4 w-4" /> {recklessAttackActive ? 'Reckless (Active)' : 'Reckless Attack'}
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => setShowSpellMenu(!showSpellMenu)}
+                        disabled={!isPlayerTurn || isRolling || !canCastAnySpell}
+                      >
+                        <Wand className="mr-2 h-4 w-4" /> {t('combat.castSpell')}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => setShowInventory(!showInventory)}
+                        disabled={!isPlayerTurn || isRolling}
+                      >
+                        <Backpack className="mr-2 h-4 w-4" /> {t('combat.item')}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={handleAnalyzeEnemy}
+                        disabled={!isPlayerTurn || isRolling || !selectedEnemy || analyzedEnemies.has(selectedEnemy || '')}
+                      >
+                        <Search className="mr-2 h-4 w-4" /> {analyzedEnemies.has(selectedEnemy || '') ? 'Analyzed' : 'Analyze'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={handleSpeak}
                         disabled={!isPlayerTurn || isRolling || !selectedEnemy}
-                        className="border-red-500 bg-red-500/10 text-red-700 hover:bg-red-500/20"
                       >
-                        <Sword className="mr-2 h-3 w-3" /> Frenzied Strike
+                        <MessageCircle className="mr-2 h-4 w-4" /> Speak
                       </Button>
-                    )}
-                  </>
-                )}
-                {isBard && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleBardicInspiration}
-                    disabled={!isPlayerTurn || inspirationAvailable <= 0 || hasInspirationDie || isRolling}
-                  >
-                    <Sparkles className="mr-2 h-3 w-3" /> Inspire ({inspirationAvailable})
-                  </Button>
-                )}
-                {isPaladin && (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={handleLayOnHands}
-                      disabled={!isPlayerTurn || layOnHandsPool <= 0 || playerHp >= character.maxHitPoints || isRolling}
-                    >
-                      <HeartPulse className="mr-2 h-3 w-3" /> Lay on Hands ({layOnHandsPool})
-                    </Button>
-                    <Button
-                      variant={divineSmiteActive ? "fantasy" : "secondary"}
-                      size="sm"
-                      onClick={() => setDivineSmiteActive(!divineSmiteActive)}
-                      disabled={!isPlayerTurn || (character.spellSlots?.[1]?.current || 0) <= 0 || isRolling}
-                      className={cn(divineSmiteActive && "ring-2 ring-yellow-400")}
-                    >
-                      <Zap className="mr-2 h-3 w-3" /> {divineSmiteActive ? 'Smite Ready!' : 'Divine Smite'}
-                    </Button>
-                  </>
-                )}
-                {isMonk && (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleKiAction('flurry')}
-                      disabled={!isPlayerTurn || kiPoints <= 0 || !selectedEnemy || isRolling}
-                    >
-                      <Activity className="mr-2 h-3 w-3" /> Flurry of Blows ({kiPoints})
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleKiAction('defense')}
-                      disabled={!isPlayerTurn || kiPoints <= 0 || isRolling}
-                    >
-                      <Shield className="mr-2 h-3 w-3" /> Patient Defense ({kiPoints})
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleKiAction('step')}
-                      disabled={!isPlayerTurn || kiPoints <= 0 || isRolling}
-                    >
-                      <Activity className="mr-2 h-3 w-3" /> Step of Wind ({kiPoints})
-                    </Button>
-                  </>
-                )}
-                {isDruid && (
-                  <Button
-                    variant={wildShapeActive ? "destructive" : "secondary"}
-                    size="sm"
-                    onClick={handleWildShape}
-                    disabled={!isPlayerTurn || wildShapeAvailable <= 0 || wildShapeActive || isRolling}
-                  >
-                    <Activity className="mr-2 h-3 w-3" /> {wildShapeActive ? 'Beast Form' : `Wild Shape (${wildShapeAvailable})`}
-                  </Button>
-                )}
-                {isSorcerer && (
-                  <>
-                    <Button
-                      variant={empoweredSpellUsed ? "fantasy" : "secondary"}
-                      size="sm"
-                      onClick={() => handleMetamagic('empowered')}
-                      disabled={!isPlayerTurn || sorceryPoints < 1 || empoweredSpellUsed || isRolling}
-                    >
-                      <Zap className="mr-2 h-3 w-3" /> Empowered (1 SP)
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleMetamagic('quickened')}
-                      disabled={!isPlayerTurn || sorceryPoints < 2 || isRolling}
-                    >
-                      <Activity className="mr-2 h-3 w-3" /> Quickened (2 SP)
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleMetamagic('create_slot')}
-                      disabled={!isPlayerTurn || sorceryPoints < 2 || isRolling}
-                    >
-                      <Sparkles className="mr-2 h-3 w-3" /> Create Slot (2 SP)
-                    </Button>
-                    <div className="col-span-2 text-xs text-center text-muted-foreground">
-                      Sorcery Points: {sorceryPoints}
                     </div>
-                  </>
-                )}
-                {isCleric && (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => handleChannelDivinity('turn-undead')}
-                      disabled={!isPlayerTurn || channelDivinityUses <= 0 || isRolling || !selectedEnemy}
-                    >
-                      <Sparkles className="mr-2 h-3 w-3" /> Turn Undead
-                    </Button>
-                    {character.subclass?.id === 'life' && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleChannelDivinity('preserve-life')}
-                        disabled={!isPlayerTurn || channelDivinityUses <= 0 || isRolling}
-                      >
-                        <HeartPulse className="mr-2 h-3 w-3" /> Preserve Life
-                      </Button>
-                    )}
-                    <div className="col-span-2 text-xs text-center text-muted-foreground">
-                      Channel Divinity: {channelDivinityUses}
-                    </div>
-                  </>
-                )}
-                {isRanger && (
-                  <Button
-                    variant={favoredEnemyActive ? "default" : "secondary"}
-                    size="sm"
-                    onClick={() => setFavoredEnemyActive(!favoredEnemyActive)}
-                    disabled={!isPlayerTurn || isRolling}
-                  >
-                    <Crosshair className="mr-2 h-3 w-3" /> {favoredEnemyActive ? 'Favored Enemy Active' : 'Favored Enemy'}
-                  </Button>
-                )}
-                {isWizard && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleArcaneRecovery}
-                    disabled={!isPlayerTurn || arcaneRecoveryUsed || isRolling}
-                  >
-                    <Sparkles className="mr-2 h-3 w-3" /> Arcane Recovery
-                  </Button>
-                )}
 
-                {/* ==========================================
+                    {/* Class Specific Actions */}
+                    {(isFighter || isRogue || isBarbarian || isBard || isPaladin || isMonk || isDruid || isSorcerer || isCleric || isRanger || isWizard) && (
+                      <div className="pt-2 border-t">
+                        <p className="text-xs text-muted-foreground mb-2 font-bold uppercase">Class Actions</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {isFighter && (
+                            <>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={handleSecondWind}
+                                disabled={!isPlayerTurn || !secondWindAvailable || isRolling}
+                              >
+                                <HeartPulse className="mr-2 h-3 w-3" /> Second Wind
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={handleActionSurge}
+                                disabled={!isPlayerTurn || !actionSurgeAvailable || isRolling}
+                              >
+                                <Zap className="mr-2 h-3 w-3" /> Action Surge
+                              </Button>
+                            </>
+                          )}
+                          {isRogue && (
+                            <>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleCunningAction('dash')}
+                                disabled={!isPlayerTurn || isRolling}
+                              >
+                                <Activity className="mr-2 h-3 w-3" /> Dash
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleCunningAction('disengage')}
+                                disabled={!isPlayerTurn || isRolling}
+                              >
+                                <Activity className="mr-2 h-3 w-3" /> Disengage
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleCunningAction('hide')}
+                                disabled={!isPlayerTurn || isRolling}
+                              >
+                                <Activity className="mr-2 h-3 w-3" /> Hide
+                              </Button>
+                              {character.level >= 5 && (
+                                <Button
+                                  variant={activeBuffs.some(b => b.id === 'uncanny-dodge') ? "fantasy" : "secondary"}
+                                  size="sm"
+                                  onClick={() => {
+                                    if (activeBuffs.some(b => b.id === 'uncanny-dodge')) {
+                                      setActiveBuffs(prev => prev.filter(b => b.id !== 'uncanny-dodge'));
+                                    } else {
+                                      setActiveBuffs(prev => [...prev, { id: 'uncanny-dodge', name: 'Uncanny Dodge', duration: 1, bonus: 0 }]);
+                                      addLog(`${character.name} prepares to use Uncanny Dodge (Will halve next attack damage).`, 'info');
+                                    }
+                                  }}
+                                  disabled={!isPlayerTurn && false /* Allow toggling off turn? No, isPlayerTurn handles Reacts? */}
+                                >
+                                  <Shield className="mr-2 h-3 w-3" /> Uncanny Dodge
+                                </Button>
+                              )}
+                            </>
+                          )}
+                          {isBarbarian && (
+                            <>
+                              <Button
+                                variant={rageActive ? "destructive" : "secondary"}
+                                size="sm"
+                                onClick={handleRage}
+                                disabled={!isPlayerTurn || rageAvailable <= 0 || rageActive || isRolling}
+                                className={cn(rageActive && "animate-pulse ring-2 ring-red-500")}
+                              >
+                                <Flame className="mr-2 h-3 w-3" /> {rageActive ? 'Raging!' : `Rage (${rageAvailable})`}
+                              </Button>
+                              {character.subclass?.id === 'berserker' && rageActive && (
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={handleFrenziedStrike}
+                                  disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                                  className="border-red-500 bg-red-500/10 text-red-700 hover:bg-red-500/20"
+                                >
+                                  <Sword className="mr-2 h-3 w-3" /> Frenzied Strike
+                                </Button>
+                              )}
+                            </>
+                          )}
+                          {isBard && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={handleBardicInspiration}
+                              disabled={!isPlayerTurn || inspirationAvailable <= 0 || hasInspirationDie || isRolling}
+                            >
+                              <Sparkles className="mr-2 h-3 w-3" /> Inspire ({inspirationAvailable})
+                            </Button>
+                          )}
+                          {isPaladin && (
+                            <>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={handleLayOnHands}
+                                disabled={!isPlayerTurn || layOnHandsPool <= 0 || playerHp >= character.maxHitPoints || isRolling}
+                              >
+                                <HeartPulse className="mr-2 h-3 w-3" /> Lay on Hands ({layOnHandsPool})
+                              </Button>
+                              <Button
+                                variant={divineSmiteActive ? "fantasy" : "secondary"}
+                                size="sm"
+                                onClick={() => setDivineSmiteActive(!divineSmiteActive)}
+                                disabled={!isPlayerTurn || (character.spellSlots?.[1]?.current || 0) <= 0 || isRolling}
+                                className={cn(divineSmiteActive && "ring-2 ring-yellow-400")}
+                              >
+                                <Zap className="mr-2 h-3 w-3" /> {divineSmiteActive ? 'Smite Ready!' : 'Divine Smite'}
+                              </Button>
+                            </>
+                          )}
+                          {isMonk && (
+                            <>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleKiAction('flurry')}
+                                disabled={!isPlayerTurn || kiPoints <= 0 || !selectedEnemy || isRolling}
+                              >
+                                <Activity className="mr-2 h-3 w-3" /> Flurry of Blows ({kiPoints})
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleKiAction('defense')}
+                                disabled={!isPlayerTurn || kiPoints <= 0 || isRolling}
+                              >
+                                <Shield className="mr-2 h-3 w-3" /> Patient Defense ({kiPoints})
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleKiAction('step')}
+                                disabled={!isPlayerTurn || kiPoints <= 0 || isRolling}
+                              >
+                                <Activity className="mr-2 h-3 w-3" /> Step of Wind ({kiPoints})
+                              </Button>
+                            </>
+                          )}
+                          {isDruid && (
+                            <Button
+                              variant={wildShapeActive ? "destructive" : "secondary"}
+                              size="sm"
+                              onClick={handleWildShape}
+                              disabled={!isPlayerTurn || wildShapeAvailable <= 0 || wildShapeActive || isRolling}
+                            >
+                              <Activity className="mr-2 h-3 w-3" /> {wildShapeActive ? 'Beast Form' : `Wild Shape (${wildShapeAvailable})`}
+                            </Button>
+                          )}
+                          {isSorcerer && (
+                            <>
+                              <Button
+                                variant={empoweredSpellUsed ? "fantasy" : "secondary"}
+                                size="sm"
+                                onClick={() => handleMetamagic('empowered')}
+                                disabled={!isPlayerTurn || sorceryPoints < 1 || empoweredSpellUsed || isRolling}
+                              >
+                                <Zap className="mr-2 h-3 w-3" /> Empowered (1 SP)
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleMetamagic('quickened')}
+                                disabled={!isPlayerTurn || sorceryPoints < 2 || isRolling}
+                              >
+                                <Activity className="mr-2 h-3 w-3" /> Quickened (2 SP)
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleMetamagic('create_slot')}
+                                disabled={!isPlayerTurn || sorceryPoints < 2 || isRolling}
+                              >
+                                <Sparkles className="mr-2 h-3 w-3" /> Create Slot (2 SP)
+                              </Button>
+                              <div className="col-span-2 text-xs text-center text-muted-foreground">
+                                Sorcery Points: {sorceryPoints}
+                              </div>
+                            </>
+                          )}
+                          {isCleric && (
+                            <>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleChannelDivinity('turn-undead')}
+                                disabled={!isPlayerTurn || channelDivinityUses <= 0 || isRolling || !selectedEnemy}
+                              >
+                                <Sparkles className="mr-2 h-3 w-3" /> Turn Undead
+                              </Button>
+                              {character.subclass?.id === 'life' && (
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => handleChannelDivinity('preserve-life')}
+                                  disabled={!isPlayerTurn || channelDivinityUses <= 0 || isRolling}
+                                >
+                                  <HeartPulse className="mr-2 h-3 w-3" /> Preserve Life
+                                </Button>
+                              )}
+                              <div className="col-span-2 text-xs text-center text-muted-foreground">
+                                Channel Divinity: {channelDivinityUses}
+                              </div>
+                            </>
+                          )}
+                          {isRanger && (
+                            <Button
+                              variant={favoredEnemyActive ? "default" : "secondary"}
+                              size="sm"
+                              onClick={() => setFavoredEnemyActive(!favoredEnemyActive)}
+                              disabled={!isPlayerTurn || isRolling}
+                            >
+                              <Crosshair className="mr-2 h-3 w-3" /> {favoredEnemyActive ? 'Favored Enemy Active' : 'Favored Enemy'}
+                            </Button>
+                          )}
+                          {isWizard && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={handleArcaneRecovery}
+                              disabled={!isPlayerTurn || arcaneRecoveryUsed || isRolling}
+                            >
+                              <Sparkles className="mr-2 h-3 w-3" /> Arcane Recovery
+                            </Button>
+                          )}
+
+                          {/* ==========================================
                           FEAT ABILITIES
                           ========================================== */}
-                {character.feats?.includes('great-weapon-master') && (
-                  <Button
-                    variant={gwmActive ? "fantasy" : "secondary"}
-                    size="sm"
-                    onClick={() => setGwmActive(!gwmActive)}
-                    disabled={!isPlayerTurn || isRolling}
-                  >
-                    <Sword className="mr-2 h-3 w-3" /> {gwmActive ? 'GWM Active (-5/+10)' : 'Great Weapon Master'}
-                  </Button>
-                )}
-                {character.feats?.includes('sharpshooter') && (
-                  <Button
-                    variant={sharpshooterActive ? "fantasy" : "secondary"}
-                    size="sm"
-                    onClick={() => setSharpshooterActive(!sharpshooterActive)}
-                    disabled={!isPlayerTurn || isRolling}
-                  >
-                    <Crosshair className="mr-2 h-3 w-3" /> {sharpshooterActive ? 'Sharpshooter Active (-5/+10)' : 'Sharpshooter'}
-                  </Button>
-                )}
-                {character.feats?.includes('lucky') && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => {
-                      const current = character.featureUses?.luckPoints ?? 0;
-                      if (current > 0) {
-                        updateCharacter(prev => {
-                          if (!prev) return prev;
-                          return { ...prev, featureUses: { ...prev.featureUses, luckPoints: current - 1 } as FeatureUses };
-                        });
-                        addLog(`${character.name} uses a Luck point!`, 'info');
-                      }
-                    }}
-                    disabled={!isPlayerTurn || isRolling || (character.featureUses?.luckPoints ?? 0) <= 0}
-                  >
-                    <Sparkles className="mr-2 h-3 w-3" /> Use Luck Point ({character.featureUses?.luckPoints ?? 0})
-                  </Button>
-                )}
+                          {character.feats?.includes('great-weapon-master') && (
+                            <Button
+                              variant={gwmActive ? "fantasy" : "secondary"}
+                              size="sm"
+                              onClick={() => setGwmActive(!gwmActive)}
+                              disabled={!isPlayerTurn || isRolling}
+                            >
+                              <Sword className="mr-2 h-3 w-3" /> {gwmActive ? 'GWM Active (-5/+10)' : 'Great Weapon Master'}
+                            </Button>
+                          )}
+                          {character.feats?.includes('sharpshooter') && (
+                            <Button
+                              variant={sharpshooterActive ? "fantasy" : "secondary"}
+                              size="sm"
+                              onClick={() => setSharpshooterActive(!sharpshooterActive)}
+                              disabled={!isPlayerTurn || isRolling}
+                            >
+                              <Crosshair className="mr-2 h-3 w-3" /> {sharpshooterActive ? 'Sharpshooter Active (-5/+10)' : 'Sharpshooter'}
+                            </Button>
+                          )}
+                          {character.feats?.includes('lucky') && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => {
+                                const current = character.featureUses?.luckPoints ?? 0;
+                                if (current > 0) {
+                                  updateCharacter(prev => {
+                                    if (!prev) return prev;
+                                    return { ...prev, featureUses: { ...prev.featureUses, luckPoints: current - 1 } as FeatureUses };
+                                  });
+                                  addLog(`${character.name} uses a Luck point!`, 'info');
+                                }
+                              }}
+                              disabled={!isPlayerTurn || isRolling || (character.featureUses?.luckPoints ?? 0) <= 0}
+                            >
+                              <Sparkles className="mr-2 h-3 w-3" /> Use Luck Point ({character.featureUses?.luckPoints ?? 0})
+                            </Button>
+                          )}
 
-                {/* ==========================================
+                          {/* ==========================================
                           SUBCLASS-SPECIFIC ABILITIES
                           ========================================== */}
 
-                {/* Fighter: Samurai - Fighting Spirit */}
-                {subclassId === 'samurai' && fightingSpiritUses > 0 && (
-                  <Button
-                    variant={fightingSpiritActive ? "fantasy" : "secondary"}
-                    size="sm"
-                    onClick={() => {
-                      if (!fightingSpiritActive) {
-                        setFightingSpiritActive(true);
-                        setFightingSpiritUses(prev => prev - 1);
-                        // Gain temp HP
-                        const tempHp = (character.level || 1) >= 15 ? 15 : (character.level || 1) >= 10 ? 10 : 5;
-                        updateCharacter(prev => {
-                          if (!prev) return prev;
-                          const currentTemp = prev.temporaryHitPoints || 0;
-                          return { ...prev, temporaryHitPoints: Math.max(currentTemp, tempHp) };
-                        });
-                        addLog(`Fighting Spirit! ${character.name} gains advantage on attacks and ${tempHp} temporary HP!`, 'info');
-                      }
-                    }}
-                    disabled={!isPlayerTurn || fightingSpiritUses <= 0 || fightingSpiritActive || isRolling}
-                    className={cn(fightingSpiritActive && "ring-2 ring-yellow-400")}
-                  >
-                    <Sword className="mr-2 h-3 w-3" /> {fightingSpiritActive ? 'Spirit Active!' : `Fighting Spirit (${fightingSpiritUses})`}
-                  </Button>
-                )}
-
-                {/* Paladin: Vengeance - Vow of Enmity */}
-                {isPaladin && subclassId === 'vengeance' && channelDivinityUses > 0 && (
-                  <Button
-                    variant={vowOfEnmityTarget ? "fantasy" : "secondary"}
-                    size="sm"
-                    onClick={() => {
-                      if (!vowOfEnmityTarget && selectedEnemy) {
-                        setVowOfEnmityTarget(selectedEnemy);
-                        setChannelDivinityUses(prev => prev - 1);
-                        const targetEnemy = enemies.find(e => e.id === selectedEnemy);
-                        addLog(`Vow of Enmity! ${character.name} swears vengeance against ${targetEnemy?.name || 'the enemy'}! Advantage on attacks for 1 minute.`, 'info');
-                      }
-                    }}
-                    disabled={!isPlayerTurn || !selectedEnemy || vowOfEnmityTarget !== null || channelDivinityUses <= 0 || isRolling}
-                    className={cn(vowOfEnmityTarget && "ring-2 ring-purple-500")}
-                  >
-                    <Crosshair className="mr-2 h-3 w-3" /> {vowOfEnmityTarget ? 'Vow Active!' : 'Vow of Enmity'}
-                  </Button>
-                )}
-
-                {/* Warlock: Hexblade - Hexblade's Curse */}
-                {isWarlock && subclassId === 'hexblade' && hexbladesCurseAvailable > 0 && (
-                  <Button
-                    variant={hexbladesCurseTarget ? "destructive" : "secondary"}
-                    size="sm"
-                    onClick={() => {
-                      if (!hexbladesCurseTarget && selectedEnemy) {
-                        setHexbladesCurseTarget(selectedEnemy);
-                        setHexbladesCurseAvailable(prev => prev - 1);
-                        const targetEnemy = enemies.find(e => e.id === selectedEnemy);
-                        addLog(`Hexblade's Curse! ${targetEnemy?.name || 'The enemy'} is cursed! (+${character.proficiencyBonus} damage, crit on 19-20, heal on kill)`, 'info');
-                      }
-                    }}
-                    disabled={!isPlayerTurn || !selectedEnemy || hexbladesCurseTarget !== null || isRolling}
-                    className={cn(hexbladesCurseTarget && "ring-2 ring-purple-700 animate-pulse")}
-                  >
-                    <Skull className="mr-2 h-3 w-3" /> {hexbladesCurseTarget ? 'Curse Active!' : `Hexblade's Curse`}
-                  </Button>
-                )}
-
-                {/* Warlock: Celestial - Healing Light */}
-                {isWarlock && subclassId === 'celestial' && healingLightDicePool > 0 && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => {
-                      const chaMod = Math.max(1, Math.floor((character.abilityScores.charisma - 10) / 2));
-                      const diceToUse = Math.min(chaMod, healingLightDicePool);
-                      let healing = 0;
-                      for (let i = 0; i < diceToUse; i++) {
-                        healing += Math.floor(Math.random() * 6) + 1;
-                      }
-                      setHealingLightDicePool(prev => prev - diceToUse);
-                      setPlayerHp(prev => Math.min(character.maxHitPoints || 99, prev + healing));
-                      addLog(`Healing Light! ${character.name} heals for ${healing} HP (used ${diceToUse}d6)!`, 'heal');
-                    }}
-                    disabled={!isPlayerTurn || healingLightDicePool <= 0 || playerHp >= (character.maxHitPoints || 99) || isRolling}
-                  >
-                    <HeartPulse className="mr-2 h-3 w-3" /> Healing Light ({healingLightDicePool}d6)
-                  </Button>
-                )}
-
-                {/* Wizard: Divination - Portent Dice */}
-                {isWizard && subclassId === 'divination' && portentDiceRolls.length > 0 && (
-                  <div className="col-span-2 p-2 bg-purple-500/10 rounded border border-purple-500/30">
-                    <p className="text-xs font-bold text-purple-300 mb-1">Portent Dice</p>
-                    <div className="flex gap-2 flex-wrap">
-                      {portentDiceRolls.map((roll, index) => (
-                        <Badge key={index} variant="fantasy" className="text-sm font-bold">
-                          {roll}
-                        </Badge>
-                      ))}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">Replace any d20 roll with these!</p>
-                  </div>
-                )}
-
-                {/* Bard: Lore - Cutting Words display */}
-                {isBard && subclassId === 'lore' && inspirationAvailable > 0 && (
-                  <Badge variant="secondary" className="text-xs col-span-2 justify-center py-1">
-                    <Brain className="mr-1 h-3 w-3" /> Cutting Words Ready (use as reaction)
-                  </Badge>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Racial Actions */}
-          {(character.race?.traits || []).includes('Breath Weapon') && (
-            <div className="pt-2 border-t">
-              <p className="text-xs text-muted-foreground mb-2 font-bold uppercase">Racial Actions</p>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleBreathWeapon}
-                disabled={!isPlayerTurn || isRolling}
-                className="w-full justify-start"
-              >
-                <Zap className="mr-2 h-3 w-3" /> Breath Weapon
-              </Button>
-              {offhandAvailable && getOffhandWeapon() && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleOffhandAttack}
-                  disabled={!isPlayerTurn || isRolling || !selectedEnemy}
-                  className="w-full justify-start"
-                >
-                  <Sword className="mr-2 h-3 w-3" /> Off-Hand Attack
-                </Button>
-              )}
-              {getLightWeapons().length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {getLightWeapons().map((w) => (
-                    <Button
-                      key={w.id}
-                      variant={offhandWeaponId === w.id ? 'default' : 'outline'}
-                      size="sm"
-                      className="text-[11px]"
-                      onClick={() => setOffhandWeaponId(w.id)}
-                    >
-                      {w.name}
-                    </Button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Combat Maneuvers */}
-          <div className="pt-2 border-t">
-            <p className="text-xs text-muted-foreground mb-2 font-bold uppercase">Maneuvers</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleShove}
-                disabled={!isPlayerTurn || isRolling || !selectedEnemy}
-              >
-                <Activity className="mr-2 h-3 w-3" /> Shove
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleGrapple}
-                disabled={!isPlayerTurn || isRolling || !selectedEnemy}
-              >
-                <Activity className="mr-2 h-3 w-3" /> Grapple
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleHide}
-                disabled={!isPlayerTurn || isRolling || !selectedEnemy}
-              >
-                <Activity className="mr-2 h-3 w-3" /> Hide
-              </Button>
-            </div>
-          </div>
-
-          {legendaryCreatures.length > 0 && (
-            <div className="pt-2 border-t">
-              <p className="text-xs text-muted-foreground mb-2 font-bold uppercase">Legendary Actions</p>
-              <div className="space-y-2">
-                {legendaryCreatures.map((enemy) => {
-                  const remaining = legendaryPoints[enemy.id] ?? 0;
-                  if (remaining <= 0) return null;
-                  return (
-                    <div key={enemy.id} className="border rounded-md p-2 bg-muted/40">
-                      <div className="flex justify-between items-center text-sm mb-1">
-                        <span className="font-semibold">{enemy.name}</span>
-                        <Badge variant="outline" className="text-[10px]">Points: {remaining}</Badge>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {(enemy.legendaryActions || []).map((action) => {
-                          const cost = action.cost || 1;
-                          const disabled = cost > remaining;
-                          return (
+                          {/* Fighter: Samurai - Fighting Spirit */}
+                          {subclassId === 'samurai' && fightingSpiritUses > 0 && (
                             <Button
-                              key={`${enemy.id}-${action.name}`}
+                              variant={fightingSpiritActive ? "fantasy" : "secondary"}
+                              size="sm"
+                              onClick={() => {
+                                if (!fightingSpiritActive) {
+                                  setFightingSpiritActive(true);
+                                  setFightingSpiritUses(prev => prev - 1);
+                                  // Gain temp HP
+                                  const tempHp = (character.level || 1) >= 15 ? 15 : (character.level || 1) >= 10 ? 10 : 5;
+                                  updateCharacter(prev => {
+                                    if (!prev) return prev;
+                                    const currentTemp = prev.temporaryHitPoints || 0;
+                                    return { ...prev, temporaryHitPoints: Math.max(currentTemp, tempHp) };
+                                  });
+                                  addLog(`Fighting Spirit! ${character.name} gains advantage on attacks and ${tempHp} temporary HP!`, 'info');
+                                }
+                              }}
+                              disabled={!isPlayerTurn || fightingSpiritUses <= 0 || fightingSpiritActive || isRolling}
+                              className={cn(fightingSpiritActive && "ring-2 ring-yellow-400")}
+                            >
+                              <Sword className="mr-2 h-3 w-3" /> {fightingSpiritActive ? 'Spirit Active!' : `Fighting Spirit (${fightingSpiritUses})`}
+                            </Button>
+                          )}
+
+                          {/* Paladin: Vengeance - Vow of Enmity */}
+                          {isPaladin && subclassId === 'vengeance' && channelDivinityUses > 0 && (
+                            <Button
+                              variant={vowOfEnmityTarget ? "fantasy" : "secondary"}
+                              size="sm"
+                              onClick={() => {
+                                if (!vowOfEnmityTarget && selectedEnemy) {
+                                  setVowOfEnmityTarget(selectedEnemy);
+                                  setChannelDivinityUses(prev => prev - 1);
+                                  const targetEnemy = enemies.find(e => e.id === selectedEnemy);
+                                  addLog(`Vow of Enmity! ${character.name} swears vengeance against ${targetEnemy?.name || 'the enemy'}! Advantage on attacks for 1 minute.`, 'info');
+                                }
+                              }}
+                              disabled={!isPlayerTurn || !selectedEnemy || vowOfEnmityTarget !== null || channelDivinityUses <= 0 || isRolling}
+                              className={cn(vowOfEnmityTarget && "ring-2 ring-purple-500")}
+                            >
+                              <Crosshair className="mr-2 h-3 w-3" /> {vowOfEnmityTarget ? 'Vow Active!' : 'Vow of Enmity'}
+                            </Button>
+                          )}
+
+                          {/* Warlock: Hexblade - Hexblade's Curse */}
+                          {isWarlock && subclassId === 'hexblade' && hexbladesCurseAvailable > 0 && (
+                            <Button
+                              variant={hexbladesCurseTarget ? "destructive" : "secondary"}
+                              size="sm"
+                              onClick={() => {
+                                if (!hexbladesCurseTarget && selectedEnemy) {
+                                  setHexbladesCurseTarget(selectedEnemy);
+                                  setHexbladesCurseAvailable(prev => prev - 1);
+                                  const targetEnemy = enemies.find(e => e.id === selectedEnemy);
+                                  addLog(`Hexblade's Curse! ${targetEnemy?.name || 'The enemy'} is cursed! (+${character.proficiencyBonus} damage, crit on 19-20, heal on kill)`, 'info');
+                                }
+                              }}
+                              disabled={!isPlayerTurn || !selectedEnemy || hexbladesCurseTarget !== null || isRolling}
+                              className={cn(hexbladesCurseTarget && "ring-2 ring-purple-700 animate-pulse")}
+                            >
+                              <Skull className="mr-2 h-3 w-3" /> {hexbladesCurseTarget ? 'Curse Active!' : `Hexblade's Curse`}
+                            </Button>
+                          )}
+
+                          {/* Warlock: Celestial - Healing Light */}
+                          {isWarlock && subclassId === 'celestial' && healingLightDicePool > 0 && (
+                            <Button
                               variant="secondary"
                               size="sm"
-                              disabled={disabled}
-                              onClick={() => spendLegendaryAction(enemy.id, action)}
-                              className="justify-start text-xs"
+                              onClick={() => {
+                                const chaMod = Math.max(1, Math.floor((character.abilityScores.charisma - 10) / 2));
+                                const diceToUse = Math.min(chaMod, healingLightDicePool);
+                                let healing = 0;
+                                for (let i = 0; i < diceToUse; i++) {
+                                  healing += Math.floor(Math.random() * 6) + 1;
+                                }
+                                setHealingLightDicePool(prev => prev - diceToUse);
+                                setPlayerHp(prev => Math.min(character.maxHitPoints || 99, prev + healing));
+                                addLog(`Healing Light! ${character.name} heals for ${healing} HP (used ${diceToUse}d6)!`, 'heal');
+                              }}
+                              disabled={!isPlayerTurn || healingLightDicePool <= 0 || playerHp >= (character.maxHitPoints || 99) || isRolling}
                             >
-                              {action.name} {cost > 1 ? `(Cost ${cost})` : ''}
+                              <HeartPulse className="mr-2 h-3 w-3" /> Healing Light ({healingLightDicePool}d6)
                             </Button>
-                          );
-                        })}
+                          )}
+
+                          {/* Wizard: Divination - Portent Dice */}
+                          {isWizard && subclassId === 'divination' && portentDiceRolls.length > 0 && (
+                            <div className="col-span-2 p-2 bg-purple-500/10 rounded border border-purple-500/30">
+                              <p className="text-xs font-bold text-purple-300 mb-1">Portent Dice</p>
+                              <div className="flex gap-2 flex-wrap">
+                                {portentDiceRolls.map((roll, index) => (
+                                  <Badge key={index} variant="fantasy" className="text-sm font-bold">
+                                    {roll}
+                                  </Badge>
+                                ))}
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">Replace any d20 roll with these!</p>
+                            </div>
+                          )}
+
+                          {/* Bard: Lore - Cutting Words display */}
+                          {isBard && subclassId === 'lore' && inspirationAvailable > 0 && (
+                            <Badge variant="secondary" className="text-xs col-span-2 justify-center py-1">
+                              <Brain className="mr-1 h-3 w-3" /> Cutting Words Ready (use as reaction)
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Racial Actions */}
+                    {(character.race?.traits || []).includes('Breath Weapon') && (
+                      <div className="pt-2 border-t">
+                        <p className="text-xs text-muted-foreground mb-2 font-bold uppercase">Racial Actions</p>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={handleBreathWeapon}
+                          disabled={!isPlayerTurn || isRolling}
+                          className="w-full justify-start"
+                        >
+                          <Zap className="mr-2 h-3 w-3" /> Breath Weapon
+                        </Button>
+                        {offhandAvailable && getOffhandWeapon() && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleOffhandAttack}
+                            disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                            className="w-full justify-start"
+                          >
+                            <Sword className="mr-2 h-3 w-3" /> Off-Hand Attack
+                          </Button>
+                        )}
+                        {getLightWeapons().length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {getLightWeapons().map((w) => (
+                              <Button
+                                key={w.id}
+                                variant={offhandWeaponId === w.id ? 'default' : 'outline'}
+                                size="sm"
+                                className="text-[11px]"
+                                onClick={() => setOffhandWeaponId(w.id)}
+                              >
+                                {w.name}
+                              </Button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Combat Maneuvers */}
+                    <div className="pt-2 border-t">
+                      <p className="text-xs text-muted-foreground mb-2 font-bold uppercase">Maneuvers</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleShove}
+                          disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                        >
+                          <Activity className="mr-2 h-3 w-3" /> Shove
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleGrapple}
+                          disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                        >
+                          <Activity className="mr-2 h-3 w-3" /> Grapple
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleHide}
+                          disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                        >
+                          <Activity className="mr-2 h-3 w-3" /> Hide
+                        </Button>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+
+                    {legendaryCreatures.length > 0 && (
+                      <div className="pt-2 border-t">
+                        <p className="text-xs text-muted-foreground mb-2 font-bold uppercase">Legendary Actions</p>
+                        <div className="space-y-2">
+                          {legendaryCreatures.map((enemy) => {
+                            const remaining = legendaryPoints[enemy.id] ?? 0;
+                            if (remaining <= 0) return null;
+                            return (
+                              <div key={enemy.id} className="border rounded-md p-2 bg-muted/40">
+                                <div className="flex justify-between items-center text-sm mb-1">
+                                  <span className="font-semibold">{enemy.name}</span>
+                                  <Badge variant="outline" className="text-[10px]">Points: {remaining}</Badge>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  {(enemy.legendaryActions || []).map((action) => {
+                                    const cost = action.cost || 1;
+                                    const disabled = cost > remaining;
+                                    return (
+                                      <Button
+                                        key={`${enemy.id}-${action.name}`}
+                                        variant="secondary"
+                                        size="sm"
+                                        disabled={disabled}
+                                        onClick={() => spendLegendaryAction(enemy.id, action)}
+                                        className="justify-start text-xs"
+                                      >
+                                        {action.name} {cost > 1 ? `(Cost ${cost})` : ''}
+                                      </Button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Inventory Modal is rendered outside this section */}
+
+                    {showSpellMenu && (
+                      <div className="mt-4 border rounded-md p-2 bg-background">
+                        <div className="flex justify-between items-center mb-2">
+                          <h4 className="font-bold text-sm">Cast Spell ({slotSummary})</h4>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowSpellMenu(false)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div className="max-h-40 overflow-y-auto space-y-1">
+                          {availableSpells.map(spellId => {
+                            const spell = spellsData.find(s => s.id === spellId);
+                            if (!spell) return null;
+                            const isCantrip = spell.level === 0;
+                            const hasSlot = isCantrip || (character.spellSlots?.[spell.level]?.current || 0) > 0;
+
+                            return (
+                              <Button
+                                key={spellId}
+                                variant="ghost"
+                                size="sm"
+                                className="w-full justify-start text-xs"
+                                disabled={!hasSlot}
+                                onClick={() => handleCastSpell(spellId)}
+                              >
+                                <Sparkles className="mr-2 h-3 w-3 text-blue-400" />
+                                {spell.name} {isCantrip ? '(Cantrip)' : `(L${spell.level})`}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="bg-red-950/20 border-red-900/50">
+                  <CardContent className="p-4 text-center">
+                    <h3 className="text-xl font-bold text-red-600 mb-2">Unconscious!</h3>
+                    <p className="text-muted-foreground">Make death saves to survive.</p>
+                  </CardContent>
+                </Card>
+              )}
             </div>
-          )}
-
-          {/* Inventory Modal is rendered outside this section */}
-
-          {showSpellMenu && (
-            <div className="mt-4 border rounded-md p-2 bg-background">
-              <div className="flex justify-between items-center mb-2">
-                <h4 className="font-bold text-sm">Cast Spell ({slotSummary})</h4>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowSpellMenu(false)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="max-h-40 overflow-y-auto space-y-1">
-                {character.knownSpells?.map(spellId => {
-                  const spell = spellsData.find(s => s.id === spellId);
-                  if (!spell) return null;
-                  const isCantrip = spell.level === 0;
-                  const hasSlot = isCantrip || (character.spellSlots?.[spell.level]?.current || 0) > 0;
-
-                  return (
-                    <Button
-                      key={spellId}
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-xs"
-                      disabled={!hasSlot}
-                      onClick={() => handleCastSpell(spellId)}
-                    >
-                      <Sparkles className="mr-2 h-3 w-3 text-blue-400" />
-                      {spell.name} {isCantrip ? '(Cantrip)' : `(L${spell.level})`}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-        </CardContent>
-      </Card>
-    ) : (
-      <Card className="bg-red-950/20 border-red-900/50">
-        <CardContent className="p-4 text-center">
-          <h3 className="text-xl font-bold text-red-600 mb-2">Unconscious!</h3>
-          <p className="text-muted-foreground">Make death saves to survive.</p>
-        </CardContent>
-      </Card>
-    )}
-  </div>
-  {/* End Player Column */ }
+            {/* End Player Column */}
           </div >
 
-    {/* Enemies Column */ }
-    < div className = "space-y-4" >
-      <div className="grid gap-3">
-        {enemies.map((enemy) => (
-          <CombatEnemyCard
-            key={enemy.id}
-            enemy={enemy}
-            isSelected={selectedEnemy === enemy.id}
-            effectiveAC={getEnemyEffectiveAC(enemy)}
-            onSelect={() => setSelectedEnemy(enemy.id)}
-          />
-        ))}
-      </div>
-  {
-    selectedEnemyData && (
-      <EnemyStatBlock
-        enemy={selectedEnemyData}
-        isAnalyzed={analyzedEnemies.has(selectedEnemyData.id)}
-      />
-    )
-  }
+          {/* Enemies Column */}
+          < div className="space-y-4" >
+            <div className="grid gap-3">
+              {enemies.map((enemy) => (
+                <CombatEnemyCard
+                  key={enemy.id}
+                  enemy={enemy}
+                  isSelected={selectedEnemy === enemy.id}
+                  effectiveAC={getEnemyEffectiveAC(enemy)}
+                  onSelect={() => setSelectedEnemy(enemy.id)}
+                />
+              ))}
+            </div>
+            {
+              selectedEnemyData && (
+                <EnemyStatBlock
+                  enemy={selectedEnemyData}
+                  isAnalyzed={analyzedEnemies.has(selectedEnemyData.id)}
+                />
+              )
+            }
           </div >
         </div >
 
-    {/* Dice Roll Modal */ }
-    < DiceRollModal
-  isOpen = { showDiceModal }
-  isRolling = { isRolling }
-  diceRoll = { diceResult }
-  rollResult = { rollResult }
-  onRollComplete = {() => setIsRolling(false)
-}
-onClose = {() => {
-  setShowDiceModal(false);
-  setIsRolling(false);
-  setDiceResult(null);
-  setRollResult(null);
-  if (pendingCombatAction) {
-    pendingCombatAction();
-    setPendingCombatAction(null);
-  }
-}}
-skillName = { attackDetails?.name || 'Attack Roll'}
-difficultyClass = { attackDetails?.dc }
-modifier = { attackDetails?.modifier }
-  />
+        {/* Dice Roll Modal */}
+        < DiceRollModal
+          isOpen={showDiceModal}
+          isRolling={isRolling}
+          diceRoll={diceResult}
+          rollResult={rollResult}
+          onRollComplete={() => setIsRolling(false)
+          }
+          onClose={() => {
+            setShowDiceModal(false);
+            setIsRolling(false);
+            setDiceResult(null);
+            setRollResult(null);
+            if (pendingCombatAction) {
+              pendingCombatAction();
+              setPendingCombatAction(null);
+            }
+          }}
+          skillName={attackDetails?.name || 'Attack Roll'}
+          difficultyClass={attackDetails?.dc}
+          modifier={attackDetails?.modifier}
+        />
 
-  {/* Combat Inventory Modal */ }
-  < CombatInventoryModal
-isOpen = { showInventory }
-onClose = {() => setShowInventory(false)}
-inventory = { character.inventory || [] }
-torchOilAvailable = { torchOilAvailable }
-onUseTorchOil = { handleUseTorchOil }
-onUsePotion = { handleUsePotion }
-onUseScroll = { handleUseScroll }
-  />
+        {/* Combat Inventory Modal */}
+        < CombatInventoryModal
+          isOpen={showInventory}
+          onClose={() => setShowInventory(false)}
+          inventory={character.inventory || []}
+          torchOilAvailable={torchOilAvailable}
+          onUseTorchOil={handleUseTorchOil}
+          onUsePotion={handleUsePotion}
+          onUseScroll={handleUseScroll}
+        />
       </div >
     </div >
   );
