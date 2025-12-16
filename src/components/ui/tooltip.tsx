@@ -82,7 +82,7 @@ export function Tooltip({ content, children, className, position = 'top' }: Tool
     <>
       <div
         ref={triggerRef}
-        className="relative inline-block w-full"
+        className="relative inline-block"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >

@@ -89,6 +89,15 @@ const SKILL_TOOLTIPS: Record<string, string> = {
 const HIT_DIE_TOOLTIP = 'The die you roll to gain HP when leveling up. Larger die = more HP potential. You also add your Constitution modifier each level.';
 const PRIMARY_ABILITY_TOOLTIP = 'The ability score most important for this class. Focus your highest stats here for the best results.';
 
+const SAVING_THROW_TOOLTIPS: Record<string, string> = {
+  'Strength': 'Used to resist being pushed, grappled, or physically overpowered. Common for effects like being knocked prone.',
+  'Dexterity': 'Used to dodge area effects like fireballs, traps, and breath weapons. Also for avoiding some spells.',
+  'Constitution': 'Used to resist poison, disease, exhaustion, and maintaining concentration on spells when damaged.',
+  'Intelligence': 'Used to resist mental intrusion, illusions, and some psionic effects. Rare but important.',
+  'Wisdom': 'Used to resist charm, fear, and other mind-affecting magic. One of the most common saving throws.',
+  'Charisma': 'Used to resist banishment, possession, and effects that target your sense of self.',
+};
+
 const DRACONIC_ANCESTRY_TOOLTIP = (type: string, damageType: string, breathType: string) =>
   `${type} Dragon ancestry grants you a ${breathType} breath weapon dealing ${damageType} damage, and resistance to ${damageType} damage.`;
 
@@ -351,15 +360,15 @@ export function CharacterCreation() {
             {/* Name Input - Moved to Top */}
             <div className="space-y-3">
               <h3 className="font-semibold text-fantasy-gold uppercase tracking-wider">{t('characterCreation.nameLabel')}</h3>
-              <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30">
+              <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30 w-full">
                 <p className="text-xs text-muted-foreground mb-3">{t('characterCreation.nameTutorial')}</p>
-                <div className="flex gap-2">
+                <div className="grid grid-cols-[1fr_auto] gap-2">
                   <Input
                     type="text"
                     value={characterName}
                     onChange={(e) => setCharacterName(e.target.value)}
                     placeholder={t('characterCreation.namePlaceholder')}
-                    className="flex-1 bg-fantasy-dark-surface border-fantasy-purple/30"
+                    className="w-full bg-fantasy-dark-surface border-fantasy-purple/50 text-foreground placeholder:text-muted-foreground focus:border-fantasy-purple focus:ring-1 focus:ring-fantasy-purple"
                   />
                   <Tooltip content={t('characterCreation.generateRandomName')} position="top">
                     <Button
@@ -403,7 +412,7 @@ export function CharacterCreation() {
                       <Card
                         key={race.id}
                         className={cn(
-                          'cursor-pointer transition-all hover:scale-[1.02] relative group h-48',
+                          'cursor-pointer transition-all hover:scale-[1.02] relative group min-h-48',
                           isSelected && [
                             'ring-2 ring-fantasy-purple',
                             'bg-fantasy-purple/20',
@@ -507,7 +516,7 @@ export function CharacterCreation() {
                     <p className="text-xs text-muted-foreground mb-3">
                       Choose your draconic ancestry. This determines your breath weapon and damage resistance.
                     </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {DRACONIC_ANCESTRIES.map((ancestry) => (
                         <Tooltip
                           key={ancestry.type}
@@ -537,14 +546,14 @@ export function CharacterCreation() {
                     <p className="text-xs text-muted-foreground mb-3">
                       Humans learn one extra language of their choice.
                     </p>
-                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {EXTRA_LANGUAGES.filter(l => l !== 'Common').map((lang) => (
                         <Tooltip key={lang} content={LANGUAGE_TOOLTIPS[lang] || `Learn to speak, read, and write ${lang}.`}>
                           <Button
                             type="button"
                             variant={extraLanguage === lang ? 'default' : 'outline'}
                             className={cn(
-                              "text-xs cursor-help w-full",
+                              "text-xs cursor-help",
                               extraLanguage === lang && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
                             )}
                             onClick={() => setExtraLanguage(lang)}
@@ -563,14 +572,14 @@ export function CharacterCreation() {
                     <p className="text-xs text-muted-foreground mb-3">
                       Choose one skill to gain proficiency in.
                     </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {(Object.keys(SKILL_ABILITY_MAP) as SkillName[]).map((skill) => (
                         <Tooltip key={skill} content={SKILL_TOOLTIPS[skill] || `Proficiency in ${skill}.`}>
                           <Button
                             type="button"
                             variant={humanBonusSkill === skill ? 'default' : 'outline'}
                             className={cn(
-                              "text-xs capitalize cursor-help w-full",
+                              "text-xs capitalize cursor-help",
                               humanBonusSkill === skill && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
                             )}
                             onClick={() => setHumanBonusSkill(skill)}
@@ -662,33 +671,31 @@ export function CharacterCreation() {
                     <p className="text-xs text-muted-foreground mb-3">
                       Choose up to two skills to gain expertise (double proficiency).
                     </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {(Object.keys(SKILL_ABILITY_MAP) as SkillName[]).map((skill) => {
                         const isPicked = rogueExpertise.includes(skill);
                         const limitReached = rogueExpertise.length >= 2 && !isPicked;
                         return (
-                          <div key={skill} className="w-full">
-                            <Tooltip content={`${SKILL_TOOLTIPS[skill] || skill} Expertise doubles your proficiency bonus.`}>
-                              <Button
-                                type="button"
-                                variant={isPicked ? 'default' : 'outline'}
-                                disabled={limitReached}
-                                className={cn(
-                                  "text-xs capitalize cursor-help w-full",
-                                  isPicked && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
-                                )}
-                                onClick={() => {
-                                  setRogueExpertise((prev) => {
-                                    if (isPicked) return prev.filter((s) => s !== skill);
-                                    if (prev.length >= 2) return prev;
-                                    return [...prev, skill];
-                                  });
-                                }}
-                              >
-                                {skill.replace(/-/g, ' ')}
-                              </Button>
-                            </Tooltip>
-                          </div>
+                          <Tooltip key={skill} content={`${SKILL_TOOLTIPS[skill] || skill} Expertise doubles your proficiency bonus.`}>
+                            <Button
+                              type="button"
+                              variant={isPicked ? 'default' : 'outline'}
+                              disabled={limitReached}
+                              className={cn(
+                                "text-xs capitalize cursor-help",
+                                isPicked && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                              )}
+                              onClick={() => {
+                                setRogueExpertise((prev) => {
+                                  if (isPicked) return prev.filter((s) => s !== skill);
+                                  if (prev.length >= 2) return prev;
+                                  return [...prev, skill];
+                                });
+                              }}
+                            >
+                              {skill.replace(/-/g, ' ')}
+                            </Button>
+                          </Tooltip>
                         );
                       })}
                     </div>
@@ -699,7 +706,7 @@ export function CharacterCreation() {
                   <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30 mt-4">
                     <p className="text-sm font-semibold mb-2">Fighting Style</p>
                     <p className="text-xs text-muted-foreground mb-3">Choose one fighting style.</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {['Archery', 'Defense', 'Dueling', 'Great Weapon Fighting', 'Two-Weapon Fighting'].map((style) => (
                         <Tooltip key={style} content={FIGHTING_STYLE_TOOLTIPS[style] || style}>
                           <Button
@@ -723,7 +730,7 @@ export function CharacterCreation() {
                   <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30 mt-4">
                     <p className="text-sm font-semibold mb-2">Pact Boon</p>
                     <p className="text-xs text-muted-foreground mb-3">Choose your pact boon.</p>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {['Pact of the Blade', 'Pact of the Chain', 'Pact of the Tome'].map((pact) => (
                         <Tooltip key={pact} content={PACT_BOON_TOOLTIPS[pact] || pact}>
                           <Button
@@ -747,7 +754,7 @@ export function CharacterCreation() {
                   <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30 mt-4">
                     <p className="text-sm font-semibold mb-2">Sorcerous Origin</p>
                     <p className="text-xs text-muted-foreground mb-3">Choose your origin.</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {['Draconic Bloodline', 'Wild Magic', 'Divine Soul'].map((origin) => (
                         <Tooltip key={origin} content={SORCEROUS_ORIGIN_TOOLTIPS[origin] || origin}>
                           <Button
@@ -780,19 +787,21 @@ export function CharacterCreation() {
                       </p>
 
                       <div className="space-y-3 pt-3 border-t border-fantasy-purple/20">
-                        <Tooltip content={PRIMARY_ABILITY_TOOLTIP}>
-                          <div className="cursor-help">
-                            <p className="text-[10px] font-semibold text-fantasy-gold uppercase tracking-wide opacity-80">Primary Abilities</p>
-                            <p className="text-sm">{selectedClass.primaryAbility}</p>
-                          </div>
-                        </Tooltip>
+                        <div className="grid grid-cols-2 gap-4">
+                          <Tooltip content={PRIMARY_ABILITY_TOOLTIP}>
+                            <div className="cursor-help">
+                              <p className="text-[10px] font-semibold text-fantasy-gold uppercase tracking-wide opacity-80">Primary Abilities</p>
+                              <p className="text-sm">{selectedClass.primaryAbility}</p>
+                            </div>
+                          </Tooltip>
 
-                        <Tooltip content={HIT_DIE_TOOLTIP}>
-                          <div className="cursor-help">
-                            <p className="text-[10px] font-semibold text-fantasy-gold uppercase tracking-wide opacity-80">Hit Dice</p>
-                            <p className="text-sm">{selectedClass.hitDie}</p>
-                          </div>
-                        </Tooltip>
+                          <Tooltip content={HIT_DIE_TOOLTIP}>
+                            <div className="cursor-help">
+                              <p className="text-[10px] font-semibold text-fantasy-gold uppercase tracking-wide opacity-80">Hit Dice</p>
+                              <p className="text-sm">{selectedClass.hitDie}</p>
+                            </div>
+                          </Tooltip>
+                        </div>
 
                         <div>
                           <p className="text-[10px] font-semibold text-fantasy-gold uppercase tracking-wide opacity-80 mb-2">Class Features</p>
@@ -813,11 +822,13 @@ export function CharacterCreation() {
 
                         <div>
                           <p className="text-[10px] font-semibold text-fantasy-gold uppercase tracking-wide opacity-80 mb-2">Saving Throws</p>
-                          <div className="flex flex-wrap gap-1">
+                          <div className="inline-flex gap-2">
                             {selectedClass.savingThrows?.map((save) => (
-                              <Badge key={save} variant="fantasy" className="text-xs">
-                                {save}
-                              </Badge>
+                              <Tooltip key={save} content={SAVING_THROW_TOOLTIPS[save] || `Proficiency in ${save} saving throws.`}>
+                                <Badge variant="fantasy" className="text-xs cursor-help">
+                                  {save}
+                                </Badge>
+                              </Tooltip>
                             ))}
                           </div>
                         </div>

@@ -1943,5 +1943,284 @@
         "magic"
       ]
     }
-  ]
-}
+  ],
+  "clothing": [
+      {
+        "id": "common-clothes",
+        "name": "Common Clothes",
+        "type": "clothing",
+        "description": "Simple, practical garments worn by common folk.",
+        "armorClass": 10,
+        "value": 0.5,
+        "armorType": "clothing"
+      },
+      {
+        "id": "fine-clothes",
+        "name": "Fine Clothes",
+        "type": "clothing",
+        "description": "Elegant attire befitting nobility. Grants +2 to Persuasion checks.",
+        "armorClass": 10,
+        "value": 15,
+        "armorType": "clothing"
+      },
+      {
+        "id": "travelers-clothes",
+        "name": "Traveler's Clothes",
+        "type": "clothing",
+        "description": "Sturdy, comfortable clothes designed for long journeys.",
+        "armorClass": 10,
+        "value": 2,
+        "armorType": "clothing"
+      },
+      {
+        "id": "dark-clothes-hood",
+        "name": "Dark Clothes with Hood",
+        "type": "clothing",
+        "description": "Dark, hooded garments ideal for blending into shadows. Grants +2 to Stealth checks.",
+        "armorClass": 10,
+        "value": 5,
+        "armorType": "clothing"
+      },
+      {
+        "id": "vestments",
+        "name": "Vestments",
+        "type": "clothing",
+        "description": "Ceremonial robes worn by clergy during religious services.",
+        "armorClass": 10,
+        "value": 5,
+        "armorType": "clothing"
+      },
+      {
+        "id": "costume",
+        "name": "Costume",
+        "type": "clothing",
+        "description": "A theatrical costume for performances and disguises.",
+        "armorClass": 10,
+        "value": 5,
+        "armorType": "clothing"
+      }
+    ],
+    "tools": [
+      {
+        "id": "artisans-tools",
+        "name": "Artisan's Tools",
+        "type": "tool",
+        "description": "A set of tools for crafting goods in your chosen trade.",
+        "value": 25
+      },
+      {
+        "id": "disguise-kit",
+        "name": "Disguise Kit",
+        "type": "tool",
+        "description": "Contains cosmetics, hair dye, and small props. Grants +5 to disguise attempts.",
+        "value": 25
+      },
+      {
+        "id": "herbalism-kit",
+        "name": "Herbalism Kit",
+        "type": "tool",
+        "description": "Contains clippers, pouches, and vials for creating herbal remedies and potions.",
+        "value": 5
+      },
+      {
+        "id": "thieves-tools",
+        "name": "Thieves' Tools",
+        "type": "tool",
+        "description": "Includes lockpicks, a small mirror, scissors, and pliers for bypassing locks and traps.",
+        "value": 25
+      },
+      {
+        "id": "crowbar",
+        "name": "Crowbar",
+        "type": "tool",
+        "description": "An iron bar for prying things open. Grants +2 to Strength checks to force open doors.",
+        "value": 2
+      },
+      {
+        "id": "shovel",
+        "name": "Shovel",
+        "type": "tool",
+        "description": "A sturdy shovel for digging.",
+        "value": 2
+      },
+      {
+        "id": "hunting-trap",
+        "name": "Hunting Trap",
+        "type": "tool",
+        "description": "A metal trap that snaps shut when a creature steps on it.",
+        "value": 5
+      },
+      {
+        "id": "musical-instrument",
+        "name": "Musical Instrument",
+        "type": "tool",
+        "description": "A portable instrument for performing music. Can be used as a bardic focus.",
+        "value": 25
+      }
+    ],
+    "accessories": [
+      {
+        "id": "signet-ring",
+        "name": "Signet Ring",
+        "type": "accessory",
+        "description": "A ring bearing your family crest or personal symbol.",
+        "value": 5
+      },
+      {
+        "id": "holy-symbol",
+        "name": "Holy Symbol",
+        "type": "accessory",
+        "description": "A sacred symbol of your deity. Required as a focus for divine spellcasting.",
+        "value": 5
+      },
+      {
+        "id": "lucky-charm",
+        "name": "Lucky Charm",
+        "type": "accessory",
+        "description": "A small trinket believed to bring good fortune. Grants +1 to saving throws vs fear.",
+        "value": 1
+      },
+      {
+        "id": "insignia-of-rank",
+        "name": "Insignia of Rank",
+        "type": "accessory",
+        "description": "A badge or medal indicating your military rank.",
+        "value": 5
+      }
+    ],
+    "miscItems": [
+      {
+        "id": "silk-rope-50ft",
+        "name": "Silk Rope (50 ft)",
+        "type": "misc",
+        "description": "Strong, lightweight rope useful for climbing and binding.",
+        "value": 10
+      },
+      {
+        "id": "iron-pot",
+        "name": "Iron Pot",
+        "type": "misc",
+        "description": "A sturdy iron cooking pot.",
+        "value": 2
+      },
+      {
+        "id": "prayer-book",
+        "name": "Prayer Book",
+        "type": "misc",
+        "description": "A book containing prayers and religious texts.",
+        "value": 5
+      },
+      {
+        "id": "incense-5",
+        "name": "Incense (5 sticks)",
+        "type": "misc",
+        "description": "Fragrant sticks burned during religious ceremonies.",
+        "value": 1
+      },
+      {
+        "id": "ink-bottle",
+        "name": "Bottle of Black Ink",
+        "type": "misc",
+        "description": "A small bottle of writing ink.",
+        "value": 1
+      },
+      {
+        "id": "quill",
+        "name": "Quill",
+        "type": "misc",
+        "description": "A feather quill for writing.",
+        "value": 0.1
+      },
+      {
+        "id": "scroll-case",
+        "name": "Scroll Case with Notes",
+        "type": "misc",
+        "description": "A leather case containing your research notes and writings.",
+        "value": 1
+      },
+      {
+        "id": "bone-dice",
+        "name": "Bone Dice",
+        "type": "misc",
+        "description": "A set of dice carved from bone.",
+        "value": 0.5
+      },
+      {
+        "id": "city-map",
+        "name": "Map of City",
+        "type": "misc",
+        "description": "A detailed map of a city you know well.",
+        "value": 1
+      },
+      {
+        "id": "winter-blanket",
+        "name": "Winter Blanket",
+        "type": "misc",
+        "description": "A thick wool blanket for warmth in cold weather.",
+        "value": 1
+      },
+      {
+        "id": "letter-dead-colleague",
+        "name": "Letter from Dead Colleague",
+        "type": "misc",
+        "description": "A letter from someone who has passed, containing unanswered questions.",
+        "value": 0
+      },
+      {
+        "id": "scroll-pedigree",
+        "name": "Scroll of Pedigree",
+        "type": "misc",
+        "description": "A document tracing your noble lineage.",
+        "value": 1
+      },
+      {
+        "id": "tools-of-con",
+        "name": "Tools of the Con",
+        "type": "misc",
+        "description": "Weighted dice, marked cards, and other implements of deception.",
+        "value": 5
+      },
+      {
+        "id": "favor-admirer",
+        "name": "Favor of an Admirer",
+        "type": "misc",
+        "description": "A love letter, lock of hair, or trinket from someone who admires you.",
+        "value": 0
+      },
+      {
+        "id": "guild-letter",
+        "name": "Letter of Introduction from Guild",
+        "type": "misc",
+        "description": "A letter vouching for your skills and good standing with your guild.",
+        "value": 0
+      },
+      {
+        "id": "trophy-animal",
+        "name": "Trophy from Animal",
+        "type": "misc",
+        "description": "A claw, tusk, or pelt from an animal you killed.",
+        "value": 1
+      },
+      {
+        "id": "trophy-enemy",
+        "name": "Trophy from Fallen Enemy",
+        "type": "misc",
+        "description": "A memento taken from someone you defeated in battle.",
+        "value": 1
+      },
+      {
+        "id": "token-parents",
+        "name": "Token from Parents",
+        "type": "misc",
+        "description": "A small keepsake that reminds you of your origins.",
+        "value": 0
+      },
+      {
+        "id": "pet-mouse",
+        "name": "Pet Mouse",
+        "type": "misc",
+        "description": "A small mouse that follows you around.",
+        "value": 0
+      }
+    ]
+  }
