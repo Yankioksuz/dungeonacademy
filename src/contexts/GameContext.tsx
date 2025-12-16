@@ -29,6 +29,7 @@ import {
 import { calculateMaxHitPoints } from '@/utils/characterUtils';
 import { getDefaultFeatureUses } from '@/utils/featureUtils';
 import { processBackgroundEquipment } from '@/utils/backgroundEquipment';
+import itemsData from '@/content/items.json';
 import { CLASS_PROGRESSION } from '@/data/classProgression';
 
 type CharacterUpdater =
@@ -210,6 +211,47 @@ const migrateCharacter = (char: Partial<PlayerCharacter> | null): PlayerCharacte
   const passiveInvestigation = char.passiveInvestigation || getPassiveScore({ ...char, skills, proficiencyBonus } as PlayerCharacter, 'investigation');
   const passiveInsight = char.passiveInsight || getPassiveScore({ ...char, skills, proficiencyBonus } as PlayerCharacter, 'insight');
 
+  // Process item migration and effects sync
+  const processItemMigration = (item: any) => {
+    // 1. Type Migration
+    let migratedItem = { ...item };
+    if (migratedItem.type === 'clothing') {
+      migratedItem.type = 'armor';
+      migratedItem.armorType = migratedItem.armorType || 'clothing';
+    } else if (migratedItem.type === 'accessory') {
+      if (migratedItem.name?.toLowerCase().includes('ring')) {
+        migratedItem.type = 'ring';
+      } else {
+        migratedItem.type = 'amulet';
+      }
+    }
+
+    // 2. Effects Sync from Template
+    // Find matching template in items.json
+    // We check specific categories we know were updated
+    const templateId = migratedItem.templateId || migratedItem.id;
+
+    const armorTemplate = (itemsData.armor as any[])?.find(t => t.id === templateId);
+    const miscTemplate = (itemsData.miscItems as any[])?.find(t => t.id === templateId);
+
+    const template = armorTemplate || miscTemplate;
+
+    // If the item doesn't have effects but the template does, apply them
+    if (template && template.effects && (!migratedItem.effects || migratedItem.effects.length === 0)) {
+      migratedItem.effects = template.effects;
+    }
+
+    return migratedItem;
+  };
+
+  // Migrate inventory item types (clothing/accessory) and sync effects
+  const migratedInventory = (char.inventory || []).map(processItemMigration);
+
+  // Also migrate equipped items if they exist
+  let equippedArmor = char.equippedArmor ? processItemMigration(char.equippedArmor) : char.equippedArmor;
+  let equippedWeapon = char.equippedWeapon ? processItemMigration(char.equippedWeapon) : char.equippedWeapon;
+  let equippedShield = char.equippedShield ? processItemMigration(char.equippedShield) : char.equippedShield;
+
   return {
     ...char,
     proficiencyBonus,
@@ -260,6 +302,11 @@ const migrateCharacter = (char: Partial<PlayerCharacter> | null): PlayerCharacte
       skillProficiencies: ['Athletics', 'Intimidation'],
       equipment: []
     },
+    // Apply migrated inventory with fixed item types and synced effects
+    inventory: migratedInventory.length > 0 ? migratedInventory : char.inventory,
+    equippedArmor,
+    equippedWeapon,
+    equippedShield,
   } as PlayerCharacter;
 };
 

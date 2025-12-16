@@ -11,6 +11,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { PlayerCharacter, Item, EquipmentSlot } from '@/types';
 import { requiresAttunement, isAttuned, MAX_ATTUNED_ITEMS } from '@/utils/magicItemEffects';
+import { formatItemEffect } from '@/utils/itemEffects';
 import { isArmorProficient, isWeaponProficient } from '@/utils/characterStats';
 import { getItemIconSrc, hasItemIcon } from '@/data/itemIcons';
 
@@ -226,6 +227,12 @@ export function Inventory({
   const potions = inventory.filter(item => item.type === 'potion');
   const scrolls = inventory.filter(item => item.type === 'scroll');
   const treasure = inventory.filter(item => item.type === 'treasure');
+  // Categories for background equipment
+  const tools = inventory.filter(item => item.type === 'tools' || item.type === 'tool');
+  const miscItems = inventory.filter(item =>
+    ['misc', 'trinket', 'consumable'].includes(item.type) ||
+    !['weapon', 'armor', 'shield', 'helmet', 'gloves', 'boots', 'amulet', 'ring', 'potion', 'scroll', 'treasure', 'tools', 'tool'].includes(item.type)
+  );
 
   // Get equipped items (using legacy fields for now)
   const getEquippedItem = (slot: EquipmentSlot): Item | undefined => {
@@ -550,6 +557,32 @@ export function Inventory({
                   isAttuned={(item) => isAttuned(character, item)}
                   getItemIcon={getItemIcon}
                 />
+                <CategorySection
+                  title="Tools"
+                  icon={<Backpack className="h-4 w-4 text-orange-400" />}
+                  items={tools}
+                  categoryKey="tools"
+                  isExpanded={expandedCategories.has('tools')}
+                  onToggleCategory={toggleCategory}
+                  selectedItemId={selectedItem?.id || null}
+                  onItemClick={handleItemClick}
+                  isItemEquipped={isItemEquipped}
+                  isAttuned={(item) => isAttuned(character, item)}
+                  getItemIcon={getItemIcon}
+                />
+                <CategorySection
+                  title="Miscellaneous"
+                  icon={<Backpack className="h-4 w-4 text-gray-400" />}
+                  items={miscItems}
+                  categoryKey="misc"
+                  isExpanded={expandedCategories.has('misc')}
+                  onToggleCategory={toggleCategory}
+                  selectedItemId={selectedItem?.id || null}
+                  onItemClick={handleItemClick}
+                  isItemEquipped={isItemEquipped}
+                  isAttuned={(item) => isAttuned(character, item)}
+                  getItemIcon={getItemIcon}
+                />
               </div>
 
               {inventory.length === 0 && (
@@ -602,6 +635,18 @@ export function Inventory({
                         <span className="text-cyan-400 font-medium capitalize">
                           {selectedItem.subtype || (selectedItem.armorType === 'shield' ? 'Shield' : `${selectedItem.armorType} Armor`)}
                         </span>
+                      </div>
+                    )}
+                    {selectedItem.effects && selectedItem.effects.length > 0 && (
+                      <div className="flex justify-between text-sm items-center">
+                        <span className="text-muted-foreground mr-2">Effects</span>
+                        <div className="flex flex-wrap gap-1 justify-end">
+                          {selectedItem.effects.map((effect, idx) => (
+                            <Badge key={idx} variant="outline" className="text-sm py-0.5 px-2 border-fantasy-gold text-fantasy-gold">
+                              {formatItemEffect(effect)}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
                     )}
                     {selectedItem.healing && (

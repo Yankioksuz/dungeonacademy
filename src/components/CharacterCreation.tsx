@@ -180,6 +180,29 @@ export function CharacterCreation() {
   const [pactBoon, setPactBoon] = useState<string | null>(null);
   const [sorcerousOrigin, setSorcerousOrigin] = useState<string | null>(null);
 
+  // Background language selection
+  const [backgroundLanguages, setBackgroundLanguages] = useState<string[]>([]);
+
+  // Helper to parse language count from text like "Two of your choice"
+  const parseLanguageCount = (langText: string): number => {
+    const lowerText = langText.toLowerCase();
+    if (lowerText.includes('two')) return 2;
+    if (lowerText.includes('one')) return 1;
+    if (lowerText.includes('three')) return 3;
+    return 0;
+  };
+
+  // Get total background language slots needed
+  const getBackgroundLanguageSlots = (): number => {
+    if (!selectedBackground?.languages) return 0;
+    return selectedBackground.languages.reduce((total, lang) => {
+      if (lang.toLowerCase().includes('of your choice')) {
+        return total + parseLanguageCount(lang);
+      }
+      return total;
+    }, 0);
+  };
+
   // Update local state when character changes (e.g., when going back or starting fresh)
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -241,11 +264,17 @@ export function CharacterCreation() {
         setFightingStyle(null);
         setPactBoon(null);
         setSorcerousOrigin(null);
+        setBackgroundLanguages([]);
       }
     }, 0);
 
     return () => clearTimeout(timeoutId);
   }, [character]);
+
+  // Reset background languages when background changes
+  useEffect(() => {
+    setBackgroundLanguages([]);
+  }, [selectedBackground]);
 
   // Don't render if character is complete (finalized with HP calculated)
   // This check must come AFTER all hooks are called (Rules of Hooks)
@@ -283,7 +312,7 @@ export function CharacterCreation() {
           // Pass racial options
           draconicAncestry: draconicAncestry || undefined,
           // Pass extra language if selected (will be merged with others in GameContext)
-          languages: extraLanguage ? [extraLanguage] : [],
+          languages: [...(extraLanguage ? [extraLanguage] : []), ...backgroundLanguages],
           bonusSkills: humanBonusSkill ? [humanBonusSkill] : [],
           expertiseSkills: rogueExpertise,
           fightingStyle: fightingStyle || undefined,
@@ -330,8 +359,13 @@ export function CharacterCreation() {
         if (selectedClass.id === 'warlock' && !pactBoon) return false;
         if (selectedClass.id === 'sorcerer' && !sorcerousOrigin) return false;
         return true;
-      case 2:
-        return selectedBackground !== null;
+      case 2: {
+        // Background step - check if languages need selection
+        if (!selectedBackground) return false;
+        const requiredLanguages = getBackgroundLanguageSlots();
+        if (requiredLanguages > 0 && backgroundLanguages.length < requiredLanguages) return false;
+        return true;
+      }
       case 3:
         return true; // Ability scores always valid
       case 4:
@@ -339,7 +373,8 @@ export function CharacterCreation() {
       case 5: {
         // Review step - ensure all required fields are present
         const hasHumanSkill = selectedRace?.id === 'human' ? Boolean(humanBonusSkill) : true;
-        return selectedRace !== null && selectedClass !== null && selectedBackground !== null && characterName.trim().length > 0 && hasHumanSkill;
+        const hasRequiredLanguages = getBackgroundLanguageSlots() === 0 || backgroundLanguages.length >= getBackgroundLanguageSlots();
+        return selectedRace !== null && selectedClass !== null && selectedBackground !== null && characterName.trim().length > 0 && hasHumanSkill && hasRequiredLanguages;
       }
       default:
         return false;
@@ -922,13 +957,59 @@ export function CharacterCreation() {
                         {selectedBackground.languages && selectedBackground.languages.length > 0 && (
                           <div>
                             <p className="text-[10px] font-semibold text-fantasy-gold uppercase tracking-wide opacity-80 mb-2">Languages</p>
-                            <div className="flex flex-wrap gap-1">
-                              {selectedBackground.languages.map((lang, idx) => (
-                                <Badge key={idx} variant="fantasy" className="text-xs">
-                                  {lang}
-                                </Badge>
-                              ))}
-                            </div>
+                            {(() => {
+                              const slots = getBackgroundLanguageSlots();
+                              if (slots > 0) {
+                                // Languages require selection
+                                return (
+                                  <div className="space-y-2">
+                                    <p className="text-xs text-muted-foreground">
+                                      Choose {slots} language{slots > 1 ? 's' : ''} ({backgroundLanguages.length}/{slots} selected)
+                                    </p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {EXTRA_LANGUAGES.filter(l => l !== 'Common').map((lang) => {
+                                        const isSelected = backgroundLanguages.includes(lang);
+                                        const canSelect = backgroundLanguages.length < slots || isSelected;
+                                        return (
+                                          <Tooltip key={lang} content={LANGUAGE_TOOLTIPS[lang] || `Learn to speak, read, and write ${lang}.`}>
+                                            <Button
+                                              type="button"
+                                              variant={isSelected ? 'default' : 'outline'}
+                                              size="sm"
+                                              disabled={!canSelect}
+                                              className={cn(
+                                                "text-xs h-7 cursor-help",
+                                                isSelected && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90"
+                                              )}
+                                              onClick={() => {
+                                                if (isSelected) {
+                                                  setBackgroundLanguages(backgroundLanguages.filter(l => l !== lang));
+                                                } else if (canSelect) {
+                                                  setBackgroundLanguages([...backgroundLanguages, lang]);
+                                                }
+                                              }}
+                                            >
+                                              {lang}
+                                            </Button>
+                                          </Tooltip>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                );
+                              } else {
+                                // Fixed languages (no selection needed)
+                                return (
+                                  <div className="flex flex-wrap gap-1">
+                                    {selectedBackground.languages.map((lang, idx) => (
+                                      <Badge key={idx} variant="fantasy" className="text-xs">
+                                        {lang}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                );
+                              }
+                            })()}
                           </div>
                         )}
 

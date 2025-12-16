@@ -1,4 +1,5 @@
 import type { PlayerCharacter, SkillName, Skills, AbilityName } from '@/types';
+import { getItemSkillBonus } from './itemEffects';
 
 /**
  * Skill to ability mapping for D&D 5e
@@ -46,7 +47,7 @@ export function getAbilityModifier(abilityScore: number): number {
 
 /**
  * Get skill modifier for a character
- * Includes ability modifier + proficiency bonus (if proficient) + expertise (if applicable)
+ * Includes ability modifier + proficiency bonus (if proficient) + expertise (if applicable) + item bonuses
  */
 export function getSkillModifier(
     character: PlayerCharacter,
@@ -57,14 +58,13 @@ export function getSkillModifier(
     const abilityMod = getAbilityModifier(abilityScore);
 
     const skillProf = character.skills[skill];
-    if (!skillProf.proficient) {
-        return abilityMod;
-    }
+    const profBonus = skillProf?.proficient ? character.proficiencyBonus : 0;
+    const multiplier = skillProf?.expertise ? 2 : 1;
 
-    const profBonus = character.proficiencyBonus;
-    const multiplier = skillProf.expertise ? 2 : 1;
+    // Item effects (e.g., Fine Clothes +2 Persuasion)
+    const itemBonus = getItemSkillBonus(character, skill);
 
-    return abilityMod + (profBonus * multiplier);
+    return abilityMod + (profBonus * multiplier) + itemBonus;
 }
 
 /**

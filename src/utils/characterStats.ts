@@ -242,8 +242,8 @@ export function getSavingThrowModifier(character: PlayerCharacter, ability: keyo
  * Check if character is proficient with the given armor type
  * @returns true if proficient, false otherwise
  */
-export function isArmorProficient(character: PlayerCharacter, armorType: 'light' | 'medium' | 'heavy' | 'shield' | undefined): boolean {
-    if (!armorType) return true; // No armor = no proficiency needed
+export function isArmorProficient(character: PlayerCharacter, armorType: 'light' | 'medium' | 'heavy' | 'shield' | 'clothing' | undefined): boolean {
+    if (!armorType || armorType === 'clothing') return true; // No armor or clothing = no proficiency needed
 
     const profs = character.armorProficiencies || [];
 

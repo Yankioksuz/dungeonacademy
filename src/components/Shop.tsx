@@ -11,7 +11,9 @@ import type { Item } from '@/types';
 import itemsData from '@/content/items.json';
 import { cn } from '@/lib/utils';
 import { isArmorProficient, isWeaponProficient } from '@/utils/characterStats';
+
 import { getItemIconSrc, hasItemIcon } from '@/data/itemIcons';
+import { formatItemEffect } from '@/utils/itemEffects';
 
 const createShopItemInstance = (item: Item): Item => {
     const uniqueSuffix =
@@ -356,6 +358,18 @@ export function Shop({ onClose }: ShopProps) {
                                                     </span>
                                                 </div>
                                             )}
+                                            {selectedShopItem.effects && selectedShopItem.effects.length > 0 && (
+                                                <div className="flex justify-between text-sm items-center">
+                                                    <span className="text-muted-foreground mr-2">Effects</span>
+                                                    <div className="flex flex-wrap gap-1 justify-end">
+                                                        {selectedShopItem.effects.map((effect, idx) => (
+                                                            <Badge key={idx} variant="outline" className="text-sm py-0.5 px-2 border-fantasy-gold text-fantasy-gold">
+                                                                {formatItemEffect(effect)}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                             {selectedShopItem.healing && selectedShopItem.healing > 0 && (
                                                 <div className="flex justify-between text-sm">
                                                     <span className="text-muted-foreground">Healing</span>
@@ -441,6 +455,18 @@ export function Shop({ onClose }: ShopProps) {
                                                 <div className="flex justify-between text-sm">
                                                     <span className="text-muted-foreground">Armor Class</span>
                                                     <span className="text-blue-400 font-medium">+{selectedSellItem.armorClass}</span>
+                                                </div>
+                                            )}
+                                            {selectedSellItem.effects && selectedSellItem.effects.length > 0 && (
+                                                <div className="flex justify-between text-sm items-center">
+                                                    <span className="text-muted-foreground mr-2">Effects</span>
+                                                    <div className="flex flex-wrap gap-1 justify-end">
+                                                        {selectedSellItem.effects.map((effect, idx) => (
+                                                            <Badge key={idx} variant="outline" className="text-sm py-0.5 px-2 border-red-400 text-red-400">
+                                                                {formatItemEffect(effect)}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>

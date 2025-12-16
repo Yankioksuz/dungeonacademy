@@ -384,13 +384,26 @@ export interface Equipment {
   ring2?: Item;       // Ring slot 2
 }
 
+// Item Effect System
+export type ItemEffectType = 'skillBonus' | 'abilityCheckBonus' | 'saveBonus' | 'advantage';
+
+export interface ItemEffect {
+  type: ItemEffectType;
+  skill?: SkillName; // For skillBonus
+  ability?: AbilityName; // For abilityCheckBonus
+  save?: AbilityName | 'all'; // For saveBonus
+  condition?: string; // For conditional effects (e.g., "fear" for saves vs fear)
+  value: number; // Bonus amount
+  when?: 'equipped' | 'attuned' | 'always'; // When the effect applies
+}
+
 export interface Item {
   id: string;
   templateId?: string;
   name: string;
   type: string; // broadened from strict union to string to allow flexibility, or keep union if preferred
   subtype?: string; // e.g., "Simple Melee", "Martial Ranged"
-  armorType?: 'light' | 'medium' | 'heavy' | 'shield';
+  armorType?: 'light' | 'medium' | 'heavy' | 'shield' | 'clothing';
   rarity?: 'common' | 'uncommon' | 'rare' | 'very rare' | 'legendary' | 'artifact';
   description: string;
   damage?: string;
@@ -411,6 +424,8 @@ export interface Item {
   acBonus?: number;  // Bonus to AC (rings, amulets)
   savingThrowBonus?: number;
   abilityBonus?: { ability: string; value: number };
+  // Item effects (skill bonuses, etc.)
+  effects?: ItemEffect[];
 }
 
 export interface CombatEnemy {

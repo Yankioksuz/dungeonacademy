@@ -94,6 +94,11 @@ import scimitarWeapon from '@/assets/items/scimitar_weapon_1765800359316.png';
 import morningstarWeapon from '@/assets/items/morningstar_weapon_1765800376119.png';
 import flailWeapon from '@/assets/items/flail_weapon_1765800471850.png';
 
+// Background Equipment - Clothing
+import fineClothesItem from '@/assets/items/fine_clothes_1765881349260.png';
+import darkClothesHoodItem from '@/assets/items/dark_clothes_hood_1765881365691.png';
+import commonClothesItem from '@/assets/items/common_clothes_1765881380666.png';
+
 // Item ID to Icon mapping
 export const ITEM_ICONS: Record<string, string> = {
     // Weapons
@@ -192,6 +197,10 @@ export const ITEM_ICONS: Record<string, string> = {
     'scimitar': scimitarWeapon,
     'morningstar': morningstarWeapon,
     'flail': flailWeapon,
+    // Background Equipment - Clothing
+    'fine-clothes': fineClothesItem,
+    'dark-clothes-hood': darkClothesHoodItem,
+    'common-clothes': commonClothesItem,
 };
 
 /**
