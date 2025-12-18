@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Moon, Sun, X } from 'lucide-react';
+import { Heart, Moon, Sun, X, Clock } from 'lucide-react';
 
 interface RestModalProps {
     isOpen: boolean;
@@ -16,7 +16,15 @@ interface RestModalProps {
 }
 
 export function RestModal({ isOpen, onClose }: RestModalProps) {
-    const { character, updateCharacter, addJournalEntry } = useGame();
+    const {
+        character,
+        updateCharacter,
+        addJournalEntry,
+        advanceTime,
+        inGameTime,
+        canTakeLongRest,
+        timeSinceLastLongRest
+    } = useGame();
     const [activeTab, setActiveTab] = useState<string>('short');
     const [healingRoll, setHealingRoll] = useState<string | null>(null);
 
@@ -49,14 +57,25 @@ export function RestModal({ isOpen, onClose }: RestModalProps) {
             featureUses: restoreShortRestUses(prev, prev.featureUses)
         }));
 
+        // NEW: Advance time by 1 hour (60 mins)
+        advanceTime(60);
+
         addJournalEntry(`Took a short rest. Spent 1 Hit Die and recovered ${healing} HP.`);
     };
 
     const handleLongRest = () => {
         const recovered = calculateLongRestRecovery(character);
+        // NEW: Advance time by 8 hours (480 mins)
+        // Trance is 4 hours (240 mins)
+        const restDuration = hasTrance ? 240 : 480;
+
+        // We advance time FIRST so the 'lastLongRest' timestamp is the time AFTER the rest
+        advanceTime(restDuration);
+
         updateCharacter({
             ...recovered,
-            featureUses: restoreLongRestUses(character)
+            featureUses: restoreLongRestUses(character),
+            lastLongRest: inGameTime + restDuration // Mark the time rest finished
         });
         addJournalEntry('Took a long rest. HP, Hit Dice, and Spell Slots restored.');
         onClose();
@@ -160,15 +179,44 @@ export function RestModal({ isOpen, onClose }: RestModalProps) {
 
                                 <Button
                                     onClick={handleLongRest}
-                                    className="w-full py-6 text-lg bg-fantasy-gold text-black hover:bg-fantasy-gold/90"
+                                    disabled={!canTakeLongRest()}
+                                    className="w-full py-6 text-lg bg-fantasy-gold text-black hover:bg-fantasy-gold/90 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <Moon className="mr-2 h-5 w-5" />
                                     {hasTrance ? 'Rest for 4 Hours (Trance)' : 'Rest for 8 Hours'}
                                 </Button>
 
-                                <p className="text-xs text-muted-foreground text-center italic">
-                                    You can only take one Long Rest per 24-hour period.
-                                </p>
+                                {!canTakeLongRest() ? (
+                                    <div className="text-center space-y-3">
+                                        <div className="space-y-1">
+                                            <p className="text-xs text-red-400 font-medium">
+                                                You cannot take another Long Rest yet.
+                                            </p>
+                                            <p className="text-[10px] text-muted-foreground">
+                                                Time remaining: {Math.ceil((1440 - timeSinceLastLongRest()) / 60)} hours
+                                            </p>
+                                        </div>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => {
+                                                const remaining = 1440 - timeSinceLastLongRest();
+                                                if (remaining > 0) {
+                                                    advanceTime(remaining + 10); // Wait until ready + small buffer
+                                                    addJournalEntry(`Waited for ${Math.ceil(remaining / 60)} hours.`, 'Time Passed');
+                                                }
+                                            }}
+                                            className="w-full border-fantasy-purple/40 hover:bg-fantasy-purple/20"
+                                        >
+                                            <Clock className="mr-2 h-4 w-4" />
+                                            Wait until available
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <p className="text-xs text-muted-foreground text-center italic">
+                                        You can only take one Long Rest per 24-hour period.
+                                    </p>
+                                )}
                             </TabsContent>
                         </Tabs>
                     </CardContent>

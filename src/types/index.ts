@@ -224,6 +224,7 @@ export interface PlayerCharacter {
   savingThrowProficiencies: SavingThrowProficiencies; // NEW: Saving throw proficiencies from class
   conditions: Condition[]; // NEW: Active conditions
   deathSaves: DeathSaves; // NEW: Death saving throws (when at 0 HP)
+  lastLongRest?: number; // Timestamp (in-game time) of last long rest
 
   // NEW: Racial & Class Details
   languages: string[];
@@ -312,7 +313,7 @@ export interface Feat {
   };
 
   // Benefits
-  benefits: {
+  benefits?: {
     abilityScoreIncrease?: {
       ability: AbilityName | 'choice' | 'chosen';
       amount: number;

@@ -138,7 +138,8 @@ export function Adventure() {
     attuneItem,
     unattuneItem,
     equipToSlot,
-    unequipSlot
+    unequipSlot,
+    advanceTime // NEW: Time Cost
   } = useGame();
   const currentEncounter = useMemo<Encounter | null>(() => {
     if (!adventure || !adventure.encounters || adventure.encounters.length === 0) {
@@ -178,7 +179,7 @@ export function Adventure() {
   const questEvents = useRef<Set<string>>(new Set());
   const PRIMARY_QUEST_ID = 'stop-goblin-raids';
   const allTalents = talentsContent as TalentOption[];
-  const allFeats = featsData;
+  const allFeats = featsData as unknown as Feat[];
   const [availableTalents, setAvailableTalents] = useState<TalentOption[]>([]);
   const [selectedTalentId, setSelectedTalentId] = useState<string | null>(null);
   const [availableFeats, setAvailableFeats] = useState<Feat[]>([]);
@@ -599,6 +600,7 @@ export function Adventure() {
             const finalDelay = option.outcome ? 3000 : 1500;
             completeEncounter(currentEncounter.id);
             setTimeout(() => {
+              advanceTime(10); // Final step time
               setShowTutorial(tutorialsEnabled);
               endAdventure('success', option.outcome || t('adventure.completed'));
             }, finalDelay);
@@ -662,6 +664,9 @@ export function Adventure() {
     // Navigate to next encounter by ID
     if (targetEncounterId) {
       setTimeout(() => {
+        // Time passes as you move to next encounter
+        advanceTime(10);
+
         advanceToNextEncounter(targetEncounterId);
         setShowTutorial(tutorialsEnabled);
       }, delay);

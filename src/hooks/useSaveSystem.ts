@@ -8,6 +8,7 @@ interface SaveData {
   isInAdventure: boolean;
   quests: QuestEntry[];
   journal: JournalEntry[];
+  inGameTime: number; // NEW
   timestamp: number;
   version: string;
 }
@@ -24,7 +25,8 @@ export function useSaveSystem() {
     isInAdventure: boolean,
     quests: QuestEntry[],
     journal: JournalEntry[],
-    isAutoSave: boolean = false
+    isAutoSave: boolean = false,
+    inGameTime: number = 0 // NEW
   ) => {
     const saveData: SaveData = {
       character,
@@ -33,6 +35,7 @@ export function useSaveSystem() {
       isInAdventure,
       quests,
       journal,
+      inGameTime,
       timestamp: Date.now(),
       version: SAVE_VERSION,
     };

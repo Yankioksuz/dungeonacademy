@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip } from '@/components/ui/tooltip';
 import {
     Shield,
     Zap,
@@ -457,12 +458,23 @@ export function CharacterSheet({ character, onClose, onPrepareSpell, onUnprepare
                                     <h3 className="text-xs font-semibold uppercase tracking-[0.3em] text-fantasy-gold">
                                         Cantrips (Always Available)
                                     </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    <div className="flex flex-wrap gap-2">
                                         {knownCantrips.map((spell) => (
-                                            <div key={spell.id} className="rounded-xl border border-fantasy-gold/30 bg-fantasy-gold/5 px-3 py-2 text-sm text-white">
-                                                <span className="font-semibold">{spell.name}</span>
-                                                <p className="text-xs text-muted-foreground line-clamp-1 mt-1">{spell.description}</p>
-                                            </div>
+                                            <Tooltip
+                                                key={spell.id}
+                                                content={
+                                                    <div className="space-y-1">
+                                                        <div className="font-semibold text-fantasy-gold">{spell.name}</div>
+                                                        <div className="text-[11px] text-muted-foreground">{spell.school} cantrip</div>
+                                                        <p className="text-xs">{spell.description}</p>
+                                                    </div>
+                                                }
+                                                position="top"
+                                            >
+                                                <div className="rounded-lg border border-fantasy-gold/30 bg-fantasy-gold/5 px-3 py-1.5 text-sm text-white cursor-default">
+                                                    {spell.name}
+                                                </div>
+                                            </Tooltip>
                                         ))}
                                     </div>
                                 </div>
@@ -483,54 +495,56 @@ export function CharacterSheet({ character, onClose, onPrepareSpell, onUnprepare
                                         </Badge>
                                     </div>
                                     <p className="text-xs text-muted-foreground">
-                                        Click spells to prepare or unprepare them. Prepared spells can be cast in combat.
+                                        Click to toggle preparation. Hover for details.
                                     </p>
                                     {knownLeveledSpells.length > 0 ? (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                        <div className="flex flex-wrap gap-2">
                                             {knownLeveledSpells.map((spell) => {
                                                 const isPrepared = (character.preparedSpells || []).includes(spell.id);
                                                 const canToggle = isPrepared || canPrepareMore;
 
                                                 return (
-                                                    <button
+                                                    <Tooltip
                                                         key={spell.id}
-                                                        onClick={() => {
-                                                            if (isPrepared) {
-                                                                onUnprepareSpell(spell.id);
-                                                            } else if (canPrepareMore) {
-                                                                onPrepareSpell(spell.id);
-                                                            }
-                                                        }}
-                                                        disabled={!canToggle}
-                                                        className={`text-left rounded-xl border px-3 py-2 text-sm transition-all overflow-hidden ${isPrepared
-                                                            ? 'border-fantasy-purple/50 bg-fantasy-purple/20 text-white ring-1 ring-fantasy-purple/30'
-                                                            : canToggle
-                                                                ? 'border-white/10 bg-black/40 text-muted-foreground hover:border-fantasy-purple/30 hover:bg-fantasy-purple/10'
-                                                                : 'border-white/5 bg-black/20 text-muted-foreground/50 cursor-not-allowed'
-                                                            }`}
-                                                    >
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="flex-shrink-0">
-                                                                {isPrepared ? (
-                                                                    <Check className="h-4 w-4 text-fantasy-gold" />
-                                                                ) : (
-                                                                    <Circle className="h-4 w-4 text-muted-foreground/50" />
+                                                        content={
+                                                            <div className="space-y-2">
+                                                                <div className="font-semibold text-fantasy-gold">{spell.name}</div>
+                                                                <div className="text-[11px] text-muted-foreground">Level {spell.level} {spell.school}</div>
+                                                                {(spell.concentration || spell.ritual) && (
+                                                                    <div className="flex gap-1">
+                                                                        {spell.concentration && <Badge variant="outline" className="text-[9px]">Concentration</Badge>}
+                                                                        {spell.ritual && <Badge variant="outline" className="text-[9px]">Ritual</Badge>}
+                                                                    </div>
                                                                 )}
-                                                            </span>
-                                                            <span className={`flex-1 min-w-0 truncate ${isPrepared ? 'font-semibold text-white' : ''}`}>
-                                                                {spell.name}
-                                                            </span>
-                                                            <span className="flex-shrink-0 text-[10px] text-muted-foreground">
-                                                                L{spell.level}
-                                                            </span>
-                                                        </div>
-                                                        {(spell.concentration || spell.ritual) && (
-                                                            <div className="mt-1 flex flex-wrap gap-1 text-[10px]">
-                                                                {spell.concentration && <Badge variant="outline" className="text-[9px]">Concentration</Badge>}
-                                                                {spell.ritual && <Badge variant="outline" className="text-[9px]">Ritual</Badge>}
+                                                                <p className="text-xs">{spell.description}</p>
                                                             </div>
-                                                        )}
-                                                    </button>
+                                                        }
+                                                        position="top"
+                                                    >
+                                                        <button
+                                                            onClick={() => {
+                                                                if (isPrepared) {
+                                                                    onUnprepareSpell(spell.id);
+                                                                } else if (canPrepareMore) {
+                                                                    onPrepareSpell(spell.id);
+                                                                }
+                                                            }}
+                                                            disabled={!canToggle}
+                                                            className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm transition-all ${isPrepared
+                                                                ? 'border-fantasy-purple/50 bg-fantasy-purple/20 text-white'
+                                                                : canToggle
+                                                                    ? 'border-white/10 bg-black/40 text-muted-foreground hover:border-fantasy-purple/30 hover:bg-fantasy-purple/10'
+                                                                    : 'border-white/5 bg-black/20 text-muted-foreground/50 cursor-not-allowed'
+                                                                }`}
+                                                        >
+                                                            {isPrepared ? (
+                                                                <Check className="h-3.5 w-3.5 text-fantasy-gold" />
+                                                            ) : (
+                                                                <Circle className="h-3.5 w-3.5 text-muted-foreground/50" />
+                                                            )}
+                                                            <span className={isPrepared ? 'font-medium' : ''}>{spell.name}</span>
+                                                        </button>
+                                                    </Tooltip>
                                                 );
                                             })}
                                         </div>

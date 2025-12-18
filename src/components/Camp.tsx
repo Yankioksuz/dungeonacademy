@@ -20,6 +20,7 @@ import { AdventureHistory } from './AdventureHistory';
 import { CharacterSheet } from './CharacterSheet';
 import { RestModal } from './RestModal';
 import { Moon } from 'lucide-react';
+import { formatInGameTime, getTimeUntilNextLongRest } from '@/utils/timeUtils';
 
 const AVAILABLE_ADVENTURES = [
   {
@@ -53,7 +54,19 @@ const AVAILABLE_ADVENTURES = [
 
 export function Camp() {
   const { t } = useTranslation();
-  const { character, startAdventure, reset, updateCharacter, tutorialsEnabled, setTutorialsEnabled, prepareSpell, unprepareSpell } = useGame();
+  const {
+    character,
+    startAdventure,
+    reset,
+    updateCharacter,
+    tutorialsEnabled,
+    setTutorialsEnabled,
+    prepareSpell,
+    unprepareSpell,
+    inGameTime,
+    canTakeLongRest,
+    timeSinceLastLongRest
+  } = useGame();
   const [selectedAdventureId, setSelectedAdventureId] = useState(AVAILABLE_ADVENTURES[0]?.id);
   const [isStarting, setIsStarting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -156,7 +169,11 @@ export function Camp() {
                 <Button variant="fantasy" className="w-full text-lg tracking-wide" onClick={handleStartAdventure} disabled={!selectedAdventure || isStarting}>
                   {isStarting ? t('game.starting') : t('camp.embark', 'Embark on Adventure')}
                 </Button>
-                <Button variant="secondary" className="w-full" onClick={() => setShowRestModal(true)}>
+                <Button
+                  variant="outline"
+                  className="w-full bg-gradient-to-r from-indigo-900/80 via-purple-800/60 to-indigo-900/80 border-2 border-indigo-500/50 text-white hover:border-indigo-400 hover:from-indigo-800/90 hover:via-purple-700/70 hover:to-indigo-800/90 shadow-lg shadow-indigo-900/50"
+                  onClick={() => setShowRestModal(true)}
+                >
                   <Moon className="h-4 w-4 mr-2" />
                   {t('camp.rest', 'Rest')}
                 </Button>
@@ -188,6 +205,18 @@ export function Camp() {
               </TabsList>
 
               <div className="flex items-center gap-3 text-xs text-muted-foreground bg-black/40 px-3 py-2 rounded-md border border-fantasy-purple/30">
+                <div className="flex flex-col items-end mr-2 text-right border-r border-fantasy-purple/30 pr-3">
+                  <span className="text-fantasy-gold font-mono font-bold">
+                    {formatInGameTime(inGameTime)}
+                  </span>
+                  {canTakeLongRest() ? (
+                    <span className="text-[10px] text-green-400">Rest Available</span>
+                  ) : (
+                    <span className="text-[10px] text-muted-foreground">
+                      Rest in {getTimeUntilNextLongRest(timeSinceLastLongRest())}
+                    </span>
+                  )}
+                </div>
                 <span>
                   {tutorialsEnabled
                     ? t('camp.tutorialsOn', 'Tutorials on')

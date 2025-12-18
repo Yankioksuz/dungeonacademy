@@ -59,6 +59,11 @@ interface GameContextType {
   unequipItem: (slot: 'weapon' | 'armor') => void;
   useItem: (item: Item) => void;
   updateCharacter: (updates: CharacterUpdater) => void;
+  // NEW: Time and Rest System
+  inGameTime: number; // in minutes from start of campaign
+  advanceTime: (minutes: number) => void;
+  canTakeLongRest: () => boolean;
+  timeSinceLastLongRest: () => number; // in minutes
   startConcentration: (spellId: string, spellName: string) => void;
   endConcentration: () => void;
   prepareSpell: (spellId: string) => void;
@@ -271,6 +276,7 @@ const migrateCharacter = (char: Partial<PlayerCharacter> | null): PlayerCharacte
     skills,
     conditions,
     deathSaves,
+    lastLongRest: char.lastLongRest, // NEW: Preserve lastLongRest
     savingThrowProficiencies: savingThrowProficiencies || {
       strength: false, dexterity: false, constitution: false,
       intelligence: false, wisdom: false, charisma: false
@@ -328,6 +334,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [character, setCharacter] = useState<PlayerCharacter | null>(null);
   const [adventure, setAdventure] = useState<Adventure | null>(null);
   const [characterCreationStep, setCharacterCreationStep] = useState<number>(0);
+  // NEW: Time State (persisted in saved game via character/adventure or separate field - for now separate but saved)
+  const [inGameTime, setInGameTime] = useState<number>(0); // 0 = Campaign Start
+
   const [isInAdventure, setIsInAdventure] = useState(false);
   const [tutorialsEnabled, setTutorialsEnabled] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -351,6 +360,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       }
       : null;
     setAdventure(savedAdventure);
+
+    // Restore time
+    setInGameTime(savedGame.inGameTime || 0);
+
     setCharacterCreationStep(savedGame.characterCreationStep);
     setIsInAdventure(savedGame.isInAdventure);
 
@@ -396,10 +409,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
         isInAdventure,
         quests,
         journal,
-        true
+        true,
+        inGameTime // Save time
       );
     }
-  }, [character, adventure, characterCreationStep, isInAdventure, quests, journal, isLoaded, saveGame]);
+  }, [character, adventure, characterCreationStep, isInAdventure, quests, journal, isLoaded, saveGame, inGameTime]);
 
   const startCharacterCreation = useCallback(() => {
     // Only clear character if we're resetting (have adventure or complete character)
@@ -1300,6 +1314,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       if (!prev) return null;
       const currentAttuned = prev.attunedItems || [];
 
+
       // Check if already attuned
       if (currentAttuned.some(i => i.id === item.id)) {
         return prev;
@@ -1329,6 +1344,28 @@ export function GameProvider({ children }: { children: ReactNode }) {
       };
     });
   }, []);
+
+  // NEW: Time Management
+  const advanceTime = useCallback((minutes: number) => {
+    setInGameTime(prev => prev + minutes);
+  }, []);
+
+  const timeSinceLastLongRest = useCallback(() => {
+    if (!character) return 999999;
+    // Assuming lastLongRest is stored in character (or we can add it)
+    // For now, let's treat 0 as "never rested", effectively infinite time passed
+    if (character.lastLongRest === undefined) return 999999;
+    return inGameTime - character.lastLongRest;
+  }, [character, inGameTime]);
+
+  const canTakeLongRest = useCallback(() => {
+    if (!character) return false;
+    // Rule: Must be at least 24 hours (1440 minutes) since last long rest
+    // Valid if never rested or > 24 hours
+    return timeSinceLastLongRest() >= 1440;
+  }, [timeSinceLastLongRest, character]);
+
+
 
   return (
     <GameContext.Provider
@@ -1377,6 +1414,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
         unattuneItem,
         equipToSlot,
         unequipSlot,
+        inGameTime,
+        advanceTime,
+        canTakeLongRest,
+        timeSinceLastLongRest,
       }}
     >
       {children}
