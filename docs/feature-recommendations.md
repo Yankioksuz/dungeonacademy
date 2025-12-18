@@ -1,8 +1,8 @@
 # Feature Recommendations for Dungeon Academy
 
-**Document Version:** 1.0  
-**Last Updated:** 2025-11-21  
-**Status:** Planning & Prioritization
+**Document Version:** 1.1  
+**Last Updated:** 2025-12-18  
+**Status:** In Progress (Phase 2)
 
 ---
 
@@ -23,16 +23,16 @@
 ## 🎯 Recommended Implementation Order
 
 ### Phase 1: Core Mechanics Enhancement (Weeks 1-3)
-1. Rest System
-2. Character Sheet View
-3. Conditions & Status Effects
-4. Combat Log
+1. ✅ [COMPLETE] Rest System
+2. ✅ [COMPLETE] Character Sheet View
+3. ✅ [COMPLETE] Conditions & Status Effects
+4. ✅ [COMPLETE] Combat Log
 
 ### Phase 2: Progression & Engagement (Weeks 4-6)
-5. Achievement System
-6. Talent Trees
-7. Feats System
-8. Expanded Spell System
+5. ✅ [COMPLETE] Achievement System
+6. ✅ [COMPLETE] Multiclassing
+7. ✅ [COMPLETE] Feats System
+8. ✅ [COMPLETE] Expanded Spell System
 
 ### Phase 3: Content & Exploration (Weeks 7-9)
 9. Map/Location Tracker
@@ -50,11 +50,12 @@
 
 ## 📋 Feature Details
 
-### 1. Rest System 🏕️
+### 1. Rest System 🏕️ ✅ COMPLETE
 **Priority:** 🔴 Critical  
 **Complexity:** ⭐⭐ Moderate  
 **Estimated Time:** 3-4 days  
-**Impact:** High - Core D&D mechanic
+**Impact:** High - Core D&D mechanic  
+**Status:** ✅ Fully Implemented
 
 #### Description
 Implement short and long rest mechanics to manage character resources throughout adventures.
@@ -88,11 +89,12 @@ Implement short and long rest mechanics to manage character resources throughout
 
 ---
 
-### 2. Character Sheet View 📜
+### 2. Character Sheet View 📜 ✅ COMPLETE
 **Priority:** 🔴 Critical  
 **Complexity:** ⭐⭐ Moderate  
 **Estimated Time:** 4-5 days  
-**Impact:** High - Essential for player understanding
+**Impact:** High - Essential for player understanding  
+**Status:** ✅ Fully Implemented
 
 #### Description
 Create a comprehensive character sheet displaying all character statistics, abilities, and features.
@@ -153,61 +155,63 @@ Create a comprehensive character sheet displaying all character statistics, abil
 
 ---
 
-### 3. Conditions & Status Effects 🌟
+### 3. Conditions & Status Effects 🌟 ✅ COMPLETE
 **Priority:** 🔴 Critical  
 **Complexity:** ⭐⭐⭐ Complex  
 **Estimated Time:** 5-7 days  
-**Impact:** Very High - Dramatically expands tactical options
+**Impact:** Very High - Dramatically expands tactical options  
+**Status:** ✅ Fully Implemented (Dec 2025)
 
 #### Description
 Implement the full D&D 5e condition system with visual indicators and mechanical effects.
 
-#### Core Conditions to Implement
-1. **Blinded** - Can't see, auto-fail sight checks, attacks have disadvantage
-2. **Charmed** - Can't attack charmer, charmer has advantage on social checks
-3. **Deafened** - Can't hear, auto-fail hearing checks
-4. **Frightened** - Disadvantage on checks while source is in sight, can't move closer
-5. **Grappled** - Speed becomes 0
-6. **Incapacitated** - Can't take actions or reactions
-7. **Invisible** - Impossible to see without special sense, attacks have advantage
-8. **Paralyzed** - Incapacitated, auto-fail STR/DEX saves, attacks have advantage
-9. **Petrified** - Transformed to stone, incapacitated, resistant to all damage
-10. **Poisoned** - Disadvantage on attack rolls and ability checks
-11. **Prone** - Disadvantage on attacks, attacks against have advantage (if close)
-12. **Restrained** - Speed 0, disadvantage on DEX saves, attacks against have advantage
-13. **Stunned** - Incapacitated, auto-fail STR/DEX saves, attacks have advantage
-14. **Unconscious** - Incapacitated, prone, auto-fail STR/DEX saves, critical hits
+#### ✅ Implemented Conditions (All 14 Official 5e Conditions)
+1. **Blinded** - Can't see, auto-fail sight checks, attacks have disadvantage ✅
+2. **Charmed** - Can't attack charmer, charmer has advantage on social checks ✅
+3. **Deafened** - Can't hear, auto-fail hearing checks ✅
+4. **Frightened** - Disadvantage on checks while source is in sight, can't move closer ✅
+5. **Grappled** - Speed becomes 0, ends if grappler incapacitated ✅
+6. **Incapacitated** - Can't take actions or reactions ✅
+7. **Invisible** - Impossible to see without special sense, attacks have advantage ✅
+8. **Paralyzed** - Incapacitated, auto-fail STR/DEX saves, attacks have advantage, auto-crit ✅
+9. **Petrified** - Transformed to stone, incapacitated, resistant to all damage ✅
+10. **Poisoned** - Disadvantage on attack rolls and ability checks + ongoing damage ✅
+11. **Prone** - Disadvantage on attacks, attacks against have advantage (if close) ✅
+12. **Restrained** - Speed 0, disadvantage on DEX saves, attacks against have advantage ✅
+13. **Stunned** - Incapacitated, auto-fail STR/DEX saves, attacks have advantage ✅
+14. **Unconscious** - Incapacitated, prone, auto-fail STR/DEX saves, critical hits ✅
 
-#### Requirements
-- Add `conditions` array to PlayerCharacter and CombatEnemy
-- Create Condition type with duration tracking
-- Visual indicators (icons/badges on portraits)
-- Automatic application of mechanical effects
-- Condition tooltips explaining effects
-- Duration tracking (rounds, minutes, hours, until rest)
-- Condition removal mechanics (save at end of turn, etc.)
+#### ✅ Exhaustion System (6 Levels)
+- Level 1: Disadvantage on ability checks
+- Level 2: + Speed halved
+- Level 3: + Disadvantage on attack rolls and saving throws
+- Level 4: + Hit point maximum halved
+- Level 5: Speed reduced to 0
+- Level 6: Death
 
-#### Technical Considerations
-- Modify attack/check roll logic to apply advantage/disadvantage
-- Update CombatEncounter to process conditions each turn
-- Add condition icons/images
-- Create ConditionBadge component
-- Modify damage calculation for resistances
-- Add spells/abilities that inflict conditions
+#### ✅ Custom/Game-Specific Conditions
+- Hidden, Hexed, Turned, Pacified, Reckless, Haste, Flying, Displacement-Broken, Armor-Not-Proficient
 
-#### Benefits
-- Massively expands tactical combat depth
-- Makes spells like Hold Person, Entangle meaningful
-- Adds challenge and variety to encounters
-- Authentic D&D combat experience
+#### ✅ Mechanical Implementation
+- Enemies attack with disadvantage when Poisoned/Blinded/etc.
+- Paralyzed/Stunned enemies auto-fail STR/DEX saves vs player spells
+- Melee attacks vs Paralyzed/Unconscious are automatic critical hits
+- Ongoing poison damage (1d4/turn) from poison sources
+- Condition badges on player and enemy portraits with tooltips
+- Duration tracking with turn-based countdown
+
+#### ✅ Item Integration
+- Dagger of Venom: DC 15 CON save or Poisoned + 2d10 poison damage
+- Net: Applies Restrained on hit
 
 ---
 
-### 4. Combat Log 📋
+### 4. Combat Log 📋 ✅ COMPLETE
 **Priority:** 🟠 High  
 **Complexity:** ⭐ Simple  
 **Estimated Time:** 2-3 days  
-**Impact:** Medium - Improves combat clarity
+**Impact:** Medium - Improves combat clarity  
+**Status:** ✅ Fully Implemented
 
 #### Description
 Enhanced scrollable combat history with color-coding and detailed breakdowns.
@@ -241,11 +245,12 @@ Enhanced scrollable combat history with color-coding and detailed breakdowns.
 
 ---
 
-### 5. Achievement System 🏆
+### 5. Achievement System 🏆 ✅ COMPLETE
 **Priority:** 🟠 High  
 **Complexity:** ⭐⭐ Moderate  
 **Estimated Time:** 4-5 days  
-**Impact:** High - Increases replayability
+**Impact:** High - Increases replayability  
+**Status:** ✅ Fully Implemented
 
 #### Description
 Track player accomplishments across all adventures with rewards and progression.
@@ -350,61 +355,56 @@ Visual node-based map showing adventure progress and branching paths.
 
 ---
 
-### 7. Talent Trees 🌳
+### 7. Multiclassing 🔀
 **Priority:** 🟠 High  
-**Complexity:** ⭐⭐⭐ Complex  
-**Estimated Time:** 6-8 days  
-**Impact:** High - Deepens character customization
+**Complexity:** ⭐⭐ Moderate  
+**Estimated Time:** 3-4 days  
+**Impact:** High - Official D&D 5e feature for build diversity
 
 #### Description
-Expand the talent system with visual trees, prerequisites, and branching paths.
+Enable players to take levels in multiple classes, following official D&D 5e multiclassing rules.
 
 #### Requirements
-- Visual tree interface showing talent connections
-- Talent categories:
-  - Class-specific trees
-  - Universal trees (available to all)
-  - Combat trees
-  - Magic trees
-  - Skill trees
-- Talent prerequisites (level, other talents, class)
-- Talent points gained per level
-- Respec option (costs gold)
-- Talent tooltips with full descriptions
-- Preview mode (see what you can unlock)
+- **Level Up UI**
+  - Show LevelUpModal when XP threshold reached
+  - Option to continue current class or multiclass
+  - Display prerequisite requirements
+  - Lock classes player doesn't qualify for
 
-#### Example Talents
-**Fighter Tree:**
-- Tier 1: Weapon Specialization (+1 damage with chosen weapon)
-- Tier 2: Improved Critical (crit on 19-20)
-- Tier 3: Extra Attack (attack twice per turn)
+- **Multiclass Prerequisites**
+  - Check ability score requirements (e.g., DEX 13 for Rogue)
+  - Must also meet prereqs to leave current class
 
-**Wizard Tree:**
-- Tier 1: Spell Focus (+1 spell save DC)
-- Tier 2: Arcane Recovery (regain spell slot on short rest)
-- Tier 3: Empowered Evocation (add INT to evocation damage)
+- **Proficiency Gain**
+  - Only gain subset of proficiencies when multiclassing
+  - Different from starting class proficiencies
+
+- **Spell Slot Calculation**
+  - Combine caster levels for multiclass spell slots
+  - Warlock Pact Magic handled separately
 
 #### Technical Considerations
-- Create TalentTree component
-- Define talent data structure with prerequisites
-- Add talent validation logic
-- Create talent tree layouts (positions)
-- Add talent point tracking
-- Update character stats when talents are selected
+- Stop auto-leveling in `gainXp`
+- Add `pendingLevelUp` flag to GameContext
+- Show `LevelUpModal` when pending
+- Pass multiclass options with prerequisite checks
+- Update character's `classes` array on confirmation
+- Already have: `multiclass.ts`, `LevelUpModal` with multiclass UI
 
 #### Benefits
-- Meaningful character progression
-- Build diversity and experimentation
-- Long-term planning and strategy
-- Increases replayability
+- Official 5e feature
+- Enables Fighter/Wizard, Paladin/Warlock, etc.
+- Deep character customization
+- Authentic D&D experience
 
 ---
 
-### 8. Expanded Spell System ✨
+### 8. Expanded Spell System ✨ ✅ COMPLETE
 **Priority:** 🟠 High  
 **Complexity:** ⭐⭐⭐ Complex  
 **Estimated Time:** 6-8 days  
-**Impact:** High - Essential for spellcasters
+**Impact:** High - Essential for spellcasters  
+**Status:** ✅ Fully Implemented
 
 #### Description
 Implement advanced spell mechanics including concentration, ritual casting, and spell preparation.
@@ -623,11 +623,12 @@ Allow players to gather materials and craft items.
 
 ---
 
-### 12. Feats System 💪
+### 12. Feats System 💪 ✅ COMPLETE
 **Priority:** 🟡 Medium  
 **Complexity:** ⭐⭐ Moderate  
 **Estimated Time:** 4-5 days  
-**Impact:** Medium - Adds build variety
+**Impact:** Medium - Adds build variety  
+**Status:** ✅ Fully Implemented
 
 #### Description
 Implement D&D 5e feats as alternatives to ability score improvements.

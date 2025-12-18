@@ -15,6 +15,8 @@ import type {
   SkillName,
   EquipmentSlot,
   Equipment,
+  Class,
+  ClassLevel,
 } from '@/types';
 import characterCreationContent from '@/content/characterCreation.json';
 import { useSaveSystem } from '@/hooks/useSaveSystem';
@@ -91,6 +93,9 @@ interface GameContextType {
   // NEW: Equipment slots
   equipToSlot: (item: Item, slot: EquipmentSlot) => void;
   unequipSlot: (slot: EquipmentSlot) => void;
+  // NEW: Multiclassing
+  pendingLevelUp: boolean;
+  confirmLevelUp: (multiclassId: string | null) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -342,6 +347,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [quests, setQuests] = useState<QuestEntry[]>([]);
   const [journal, setJournal] = useState<JournalEntry[]>([]);
+  const [pendingLevelUp, setPendingLevelUp] = useState(false);
 
   const hydrateFromSave = useCallback((savedGame: ReturnType<typeof loadGame> | null) => {
     if (!savedGame) return false;
@@ -1163,60 +1169,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setCharacter((prev) => {
       if (!prev) return null;
       const newXp = prev.xp + amount;
-      // Use maxXp as the current threshold for leveling up (progress bar + logic)
       const xpForNextLevel = prev.maxXp;
 
       if (newXp >= xpForNextLevel) {
-        // Level Up!
-        const newLevel = prev.level + 1;
-        addJournalEntry(`Congratulations! You reached Level ${newLevel} !`, 'Level Up');
-
-        // Draconic Bloodline Sorcerer: +1 HP per level
-        const draconicBonus = prev.class.id === 'sorcerer' && prev.sorcerousOrigin === 'Draconic Bloodline' ? 1 : 0;
-
-        // Calculate new spell slots
-        const newSpellSlots = calculateSpellSlots({ ...prev, level: newLevel });
-        const hasNewSlots = Object.keys(newSpellSlots).length > 0;
-        const slotsToUpdate = hasNewSlots ? newSpellSlots : prev.spellSlots;
-
-        // Unlock new class features
-        const className = prev.class.name.toLowerCase();
-        const progression = CLASS_PROGRESSION[className];
-        const newFeatures: string[] = [];
-
-        if (progression) {
-          // Get features for the new level
-          const featuresForLevel = progression[newLevel] || [];
-          featuresForLevel.forEach(feat => {
-            addJournalEntry(`You gained a new feature: ${feat}`, 'Level Up Feature');
-            newFeatures.push(feat);
-          });
-        }
-
-        // Merge with existing features (assumes features are strings in class definition)
-        const currentFeatures = prev.class.features || [];
-        const uniqueFeatures = [...new Set([...currentFeatures, ...newFeatures])];
-        const toughBonus = prev.feats?.includes('tough') ? 2 : 0;
-
-        const leveledCharacter = {
-          ...prev,
-          // Carry over surplus XP beyond the threshold and raise the next requirement
-          xp: newXp - xpForNextLevel,
-          maxXp: prev.maxXp + 1000, // Increase requirement
-          level: newLevel,
-          maxHitPoints: prev.maxHitPoints + 10 + draconicBonus + toughBonus, // Simple HP boost + Draconic bonus + Tough
-          hitPoints: prev.maxHitPoints + 10 + draconicBonus + toughBonus, // Heal on level up
-          spellSlots: slotsToUpdate,
-          class: {
-            ...prev.class,
-            features: uniqueFeatures
-          }
-        };
-
+        // Set pending level up - don't auto-level anymore
+        setPendingLevelUp(true);
         return {
-          ...leveledCharacter,
-          proficiencyBonus: getProficiencyBonus(newLevel),
-          featureUses: getDefaultFeatureUses(leveledCharacter)
+          ...prev,
+          xp: newXp
         };
       }
 
@@ -1224,6 +1184,126 @@ export function GameProvider({ children }: { children: ReactNode }) {
         ...prev,
         xp: newXp
       };
+    });
+  }, []);
+
+  // Confirm level up - called when player chooses class in LevelUpModal
+  // multiclassId: null = continue current class, string = take level in new class
+  const confirmLevelUp = useCallback((multiclassId: string | null) => {
+    setCharacter((prev) => {
+      if (!prev) return null;
+
+      const xpForNextLevel = prev.maxXp;
+      const newLevel = prev.level + 1;
+
+      // Determine which class is gaining a level
+      const levelingClass = multiclassId
+        ? (characterCreationContent.classes as Class[]).find(c => c.id === multiclassId)
+        : prev.class;
+
+      if (!levelingClass) return prev;
+
+      addJournalEntry(`Congratulations! You reached Level ${newLevel}!`, 'Level Up');
+      if (multiclassId) {
+        addJournalEntry(`You took a level in ${levelingClass.name}!`, 'Multiclass');
+      }
+
+      // Calculate HP increase based on the class gaining the level
+      const hitDieValue = parseInt(levelingClass.hitDie?.replace('d', '') || '8');
+      const conModifier = Math.floor((prev.abilityScores.constitution - 10) / 2);
+      const hpIncrease = Math.floor(hitDieValue / 2) + 1 + conModifier; // Average roll + 1 + CON mod
+
+      // Draconic Bloodline Sorcerer: +1 HP per level
+      const draconicBonus = levelingClass.id === 'sorcerer' && prev.sorcerousOrigin === 'Draconic Bloodline' ? 1 : 0;
+      const toughBonus = prev.feats?.includes('tough') ? 2 : 0;
+      const totalHpIncrease = hpIncrease + draconicBonus + toughBonus;
+
+      // Calculate new spell slots
+      const newSpellSlots = calculateSpellSlots({ ...prev, level: newLevel });
+      const hasNewSlots = Object.keys(newSpellSlots).length > 0;
+      const slotsToUpdate = hasNewSlots ? newSpellSlots : prev.spellSlots;
+
+      // Unlock new class features for the leveling class
+      const className = levelingClass.name.toLowerCase();
+      const progression = CLASS_PROGRESSION[className];
+      const newFeatures: string[] = [];
+
+      // Get what level this character is in the leveling class
+      const classLevel = multiclassId
+        ? 1 // First level in new class
+        : (prev.classes?.find(c => c.class.id === prev.class.id)?.level || prev.level) + 1;
+
+      if (progression) {
+        const featuresForLevel = progression[classLevel] || [];
+        featuresForLevel.forEach(feat => {
+          addJournalEntry(`You gained a new feature: ${feat}`, 'Level Up Feature');
+          newFeatures.push(feat);
+        });
+      }
+
+      // Update classes array for multiclass tracking
+      let updatedClasses: ClassLevel[] = prev.classes || [{
+        class: prev.class,
+        level: prev.level,
+        subclass: prev.subclass
+      }];
+
+      if (multiclassId) {
+        // Adding a new class
+        updatedClasses = [
+          ...updatedClasses,
+          { class: levelingClass, level: 1 }
+        ];
+      } else {
+        // Incrementing existing class
+        updatedClasses = updatedClasses.map(cl =>
+          cl.class.id === prev.class.id
+            ? { ...cl, level: cl.level + 1 }
+            : cl
+        );
+      }
+
+      // Merge features
+      const currentFeatures = prev.class.features || [];
+      const uniqueFeatures = [...new Set([...currentFeatures, ...newFeatures])];
+
+      const leveledCharacter: PlayerCharacter = {
+        ...prev,
+        xp: prev.xp - xpForNextLevel,
+        maxXp: prev.maxXp + 1000,
+        level: newLevel,
+        maxHitPoints: prev.maxHitPoints + totalHpIncrease,
+        hitPoints: prev.maxHitPoints + totalHpIncrease, // Full heal on level up
+        hitDice: {
+          current: (prev.hitDice?.current || 0) + 1,
+          max: newLevel,
+          die: prev.class.hitDie || 'd8'
+        },
+        spellSlots: slotsToUpdate,
+        classes: updatedClasses,
+        class: multiclassId ? prev.class : {
+          ...prev.class,
+          features: uniqueFeatures
+        },
+        proficiencyBonus: getProficiencyBonus(newLevel),
+      };
+
+      return {
+        ...leveledCharacter,
+        featureUses: getDefaultFeatureUses(leveledCharacter)
+      };
+    });
+
+    // Check if XP still exceeds threshold for cascading level-ups
+    setCharacter(prev => {
+      if (!prev) return null;
+      if (prev.xp >= prev.maxXp) {
+        // Still have enough XP for another level!
+        setPendingLevelUp(true);
+      } else {
+        setPendingLevelUp(false);
+      }
+      return prev;
     });
   }, [addJournalEntry]);
 
@@ -1418,6 +1498,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         advanceTime,
         canTakeLongRest,
         timeSinceLastLongRest,
+        pendingLevelUp,
+        confirmLevelUp,
       }}
     >
       {children}

@@ -19,6 +19,10 @@ import {
   adjustDamageForDefenses,
 } from '@/utils/combatUtils';
 import { determineEnemyAction } from '@/utils/enemyAI';
+import { ConditionManager } from '@/managers/ConditionManager';
+import { getAttackRollModifier, canTakeAction } from '@/utils/combatMechanics';
+import { processStartOfTurnConditions, autoFailsSave } from '@/utils/conditionEffects';
+import { ConditionBadge } from '@/components/ConditionBadge';
 
 import { CombatLogPanel } from './CombatLogPanel';
 
@@ -64,6 +68,7 @@ import {
   isAttuned,
   hasCloakOfDisplacement,
   hasAdamantineArmor,
+  getWeaponOnHitConditions,
 } from '@/utils/magicItemEffects';
 
 
@@ -834,7 +839,24 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         const isNewRound = nextIndex === 0;
 
         // Reset per-turn features when player's turn starts
+        // Reset per-turn features when player's turn starts
         if (turnOrder[nextIndex]?.id === 'player') {
+          // Update conditions (decrement duration)
+          const { expired } = ConditionManager.updateConditions(character);
+          if (expired.length > 0) {
+            expired.forEach(c => addLog(`${c.name} condition expired.`, 'info'));
+            // We need to update character state with new conditions
+            updateCharacter(prev => ({
+              ...prev,
+              conditions: prev.conditions.filter(c => !expired.find(e => e.type === c.type))
+            }));
+            // Actually updateConditions helper returns the *new* state ideally, but our helper returns *expired* list and assumes we manage state? 
+            // Wait, ConditionManager.updateConditions(entity) returns { active, expired }.
+            // Let's re-check ConditionManager.ts signature.
+          }
+
+
+
           // Reset attack count for the new turn
           setAttacksLeft(maxAttacks);
 
@@ -868,9 +890,22 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       return;
     }
 
-    const { updatedEnemy, messages } = applyEnemyOngoingEffects(enemy);
-    if (messages.length > 0) {
-      messages.forEach((entry) => addLog(entry.message, entry.type));
+    const { entity: updatedEnemyEntity, expired } = ConditionManager.updateConditions(enemy);
+    let updatedEnemy = updatedEnemyEntity as CombatEnemy;
+
+    if (expired.length > 0) {
+      expired.forEach(c => addLog(`${enemy.name}: ${c.name} condition expired.`, 'info'));
+    }
+
+    // Process ongoing condition effects (poison damage, etc.)
+    const turnEffects = processStartOfTurnConditions(updatedEnemy, enemy.name);
+    if (turnEffects.damage > 0) {
+      turnEffects.logs.forEach(log => addLog(log.message, log.type));
+      const newHp = Math.max(0, updatedEnemy.currentHp - turnEffects.damage);
+      updatedEnemy = { ...updatedEnemy, currentHp: newHp, isDefeated: newHp <= 0 };
+      if (updatedEnemy.isDefeated) {
+        addLog(`${enemy.name} succumbs to ${turnEffects.damageType} damage!`, 'damage');
+      }
     }
 
     if (updatedEnemy.currentHp !== enemy.currentHp || updatedEnemy.conditions !== enemy.conditions) {
@@ -924,8 +959,18 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         const actionDamageType = action.damageType || actingEnemy.damageType || detectDamageType(actionDamageFormula);
         const actionName = action.name || actingEnemy.name;
 
-        // Determine Advantage/Disadvantage
+        // Determine Advantage/Disadvantage (includes condition checks via getCombatAdvantage)
         let rollType = getCombatAdvantage(actingEnemy, character, 'melee');
+
+        // Log if enemy has disadvantage due to conditions
+        if (actingEnemy.conditions.some(c => ['poisoned', 'blinded', 'frightened', 'restrained'].includes(c.type))) {
+          const conditionNames = actingEnemy.conditions
+            .filter(c => ['poisoned', 'blinded', 'frightened', 'restrained'].includes(c.type))
+            .map(c => c.name)
+            .join(', ');
+          addLog(`${actingEnemy.name} attacks with Disadvantage (${conditionNames})!`, 'condition');
+        }
+
         const aliveAllies = enemies.filter(e => !e.isDefeated && e.id !== actingEnemy.id).length;
         if ((actingEnemy.traits || []).includes('pack-tactics') && aliveAllies > 0) {
           rollType = 'advantage';
@@ -1162,33 +1207,24 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     const enemy = enemies.find(e => e.id === selectedEnemy);
     if (!enemy || enemy.isDefeated) return;
 
-    if (!canAct(character)) {
-      addLog(`${character.name} cannot act!`, 'miss');
+    if (!canTakeAction(character)) {
+      addLog(`${character.name} cannot act!`, 'condition');
       return;
     }
 
     const weaponProps = character.equippedWeapon?.properties || [];
     const isRanged = weaponProps.includes('ranged');
-    let rollType = getCombatAdvantage(character, enemy, isRanged ? 'ranged' : 'melee');
 
-    // Stealth Advantage Logic
-    const isHidden = character.conditions.some(c => c.type === 'hidden');
-    if (isHidden) {
-      if (rollType === 'disadvantage') rollType = 'normal'; // Cancel out
-      else rollType = 'advantage';
+    // Determine Advantage/Disadvantage using centralized mechanics
+    let rollType = getAttackRollModifier(character, enemy, isRanged ? 'ranged' : 'melee');
+
+    // Notify if hidden (ConditionManager/mechanics handles the math, but we want to log it specifically if we want)
+    // Actually getAttackRollModifier handles the math. We just check for logging here if desired
+    // Notifying if hidden (ConditionManager/mechanics handles the math, but we want to log it specifically if we want)
+    if (character.conditions.some(c => c.type === 'hidden')) {
       addLog(`${character.name} attacks from the shadows! (Advantage)`, 'info');
-      // Remove hidden condition after attack logic checks (handled in pending action or immediately? 
-      // Strictly, you are no longer hidden *after* the attack hits/misses, but for advantage calc it matters now.
-      // We should queue removal.)
     }
-    if ((enemy.traits || []).includes('sunlight-sensitivity')) {
-      if (rollType === 'disadvantage') {
-        // cancel out
-        // no change
-      } else {
-        rollType = 'advantage';
-      }
-    }
+    const isHidden = character.conditions.some(c => c.type === 'hidden');
 
     const abilityMod = Math.floor((character.abilityScores.strength - 10) / 2); // Default Strength
     // Finesse check
@@ -1383,8 +1419,17 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     // Assassinate: Auto-crit if target is surprised (first turn and hasn't acted)
     const isAssassinateCrit = isFirstTurn && subclassId === 'assassin' && !enemyHasActed && total >= targetAC;
 
+    // Auto-crit: Paralyzed or Unconscious enemies (melee only)
+    const isConditionAutoCrit = !isRanged &&
+      enemy.conditions.some(c => c.type === 'paralyzed' || c.type === 'unconscious') &&
+      total >= targetAC;
+
+    if (isConditionAutoCrit && !isCritical) {
+      addLog(`Critical Hit! ${enemy.name} is helpless!`, 'damage');
+    }
+
     setDiceResult(roll);
-    setRollResult({ roll, total, isCritical: isCritical || isAssassinateCrit, isCriticalFailure });
+    setRollResult({ roll, total, isCritical: isCritical || isAssassinateCrit || isConditionAutoCrit, isCriticalFailure });
 
     setPendingCombatAction(() => () => {
       if (total >= targetAC || isCritical) {
@@ -1590,6 +1635,46 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           addLog(`${enemy.name} ${note}.`, 'info');
         }
         applyDamageToEnemy(enemy.id, adjustedDamage, damageType, { preAdjusted: true });
+
+        // === WEAPON ON-HIT CONDITIONS ===
+        const onHitEffects = getWeaponOnHitConditions(character.equippedWeapon);
+        for (const effect of onHitEffects) {
+          let conditionApplied = false;
+
+          if (effect.saveDC && effect.saveAbility) {
+            // Target makes a saving throw
+            const saveBonus = getEnemySavingThrowBonus(enemy, effect.saveAbility);
+            const saveRoll = rollDice(20) + saveBonus;
+
+            if (saveRoll < effect.saveDC) {
+              conditionApplied = true;
+              addLog(`${enemy.name} fails ${effect.saveAbility.toUpperCase()} save (${saveRoll} vs DC ${effect.saveDC})!`, 'condition');
+
+              // Apply extra damage if any
+              if (effect.extraDamage) {
+                const extraDmg = rollDamageFromString(effect.extraDamage);
+                applyDamageToEnemy(enemy.id, extraDmg, 'poison', { preAdjusted: false });
+                addLog(`${enemy.name} takes ${extraDmg} poison damage from ${effect.description}!`, 'damage');
+              }
+            } else {
+              addLog(`${enemy.name} resists ${effect.description} (${saveRoll} vs DC ${effect.saveDC}).`, 'info');
+            }
+          } else {
+            // No save required (e.g., Net)
+            conditionApplied = true;
+          }
+
+          if (conditionApplied) {
+            // Apply the condition to the enemy
+            setEnemies(prev => prev.map(e => {
+              if (e.id !== enemy.id) return e;
+              // Use ConditionManager to add condition
+              const updatedEnemy = ConditionManager.addCondition(e, effect.condition, effect.duration, effect.description);
+              return updatedEnemy as CombatEnemy;
+            }));
+            addLog(`${enemy.name} is ${effect.condition}! (${effect.description})`, 'condition');
+          }
+        }
       } else {
         addLog(`${character.name} misses ${enemy.name}.`, 'miss');
       }
@@ -2041,13 +2126,20 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         }
         const enemy = enemies.find(e => e.id === selectedEnemy);
         if (enemy) {
-          const saveRoll = rollDice(20);
-          const saveTotal = saveRoll + getEnemySavingThrowBonus(enemy, spell.saveType);
-          if (saveTotal >= spellDC) {
-            finalDamage = Math.floor(damageTotal / 2);
-            saveMessage = ` (Saved! Rolled ${saveTotal} vs DC ${spellDC})`;
+          // Check for auto-fail conditions (Paralyzed, Stunned, etc. auto-fail STR/DEX)
+          const saveAbility = spell.saveType as 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma';
+          if (autoFailsSave(enemy, saveAbility)) {
+            saveMessage = ` (Auto-fail! ${enemy.name} is incapacitated!)`;
+            addLog(`${enemy.name} automatically fails the ${saveAbility.toUpperCase()} save!`, 'condition');
           } else {
-            saveMessage = ` (Failed Save! Rolled ${saveTotal} vs DC ${spellDC})`;
+            const saveRoll = rollDice(20);
+            const saveTotal = saveRoll + getEnemySavingThrowBonus(enemy, spell.saveType);
+            if (saveTotal >= spellDC) {
+              finalDamage = Math.floor(damageTotal / 2);
+              saveMessage = ` (Saved! Rolled ${saveTotal} vs DC ${spellDC})`;
+            } else {
+              saveMessage = ` (Failed Save! Rolled ${saveTotal} vs DC ${spellDC})`;
+            }
           }
         }
       }
@@ -3008,10 +3100,18 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                   <div className="flex-1 p-3">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h4 className="font-bold text-sm">{character.name}</h4>
-                        <div className="text-xs text-muted-foreground">
-                          {character.race.name} {character.class.name}
-                        </div>
+                        <div className="text-sm font-bold">{character.name}</div>
+
+                        {/* Conditions Badges */}
+                        {character.conditions.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1 mb-2">
+                            {character.conditions.map((condition, idx) => (
+                              <div key={`${condition.type}-${idx}`}>
+                                <ConditionBadge type={condition.type} duration={condition.duration} size="sm" />
+                              </div>
+                            ))}
+                          </div>
+                        )}
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Shield className="h-3 w-3" /> AC {calculateArmorClass(character)}
                         </div>

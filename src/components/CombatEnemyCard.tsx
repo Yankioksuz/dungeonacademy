@@ -4,6 +4,7 @@ import { Progress } from './ui/progress';
 import { Shield, Skull } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Condition } from '@/types';
+import { ConditionBadge } from './ConditionBadge';
 import { useTranslation } from 'react-i18next';
 import { getEnemyPortraitByName } from '@/data/enemyPortraits';
 
@@ -88,13 +89,13 @@ export function CombatEnemyCard({
                         {enemy.conditions.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-2">
                                 {enemy.conditions.map((condition, idx) => (
-                                    <Badge
-                                        key={`${condition.type}-${idx}`}
-                                        variant="destructive"
-                                        className="text-[10px] px-1 py-0"
-                                    >
-                                        {condition.type} ({condition.duration})
-                                    </Badge>
+                                    <div key={`${condition.type}-${idx}`}>
+                                        <ConditionBadge
+                                            type={condition.type}
+                                            duration={condition.duration}
+                                            size="sm"
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         )}

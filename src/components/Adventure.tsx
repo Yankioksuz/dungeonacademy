@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Badge } from './ui/badge';
 import { useTranslation } from 'react-i18next';
-import { Sword, BookOpen, Dice6, DoorOpen, CheckCircle2, Backpack, X, Tent, ShoppingBag, Brain, Wand2 } from 'lucide-react';
+import { Sword, BookOpen, Dice6, DoorOpen, CheckCircle2, Backpack, X, Tent, ShoppingBag, Brain, Wand2, Map } from 'lucide-react';
 import type { Item, TalentOption, Encounter, SkillName, SpellContent, Subclass, Feat, PlayerCharacter } from '@/types';
 import { cn } from '@/lib/utils';
 import { CombatEncounter } from './CombatEncounter';
@@ -21,6 +21,8 @@ import { JournalPanel } from './JournalPanel';
 import { Shop } from './Shop';
 import { CharacterSheet } from './CharacterSheet';
 import { portraits } from '@/data/portraits';
+import { AdventureMap } from './AdventureMap';
+import { MiniMap } from './MiniMap';
 import {
   canRitualCast,
   getAvailableSlotLevels,
@@ -170,6 +172,7 @@ export function Adventure() {
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [showSpellMenu, setShowSpellMenu] = useState(false);
   const [showCharacterSheet, setShowCharacterSheet] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   const [selectedOptions, setSelectedOptions] = useState<Set<string>>(new Set());
 
@@ -1197,6 +1200,20 @@ export function Adventure() {
         </div>
       )}
 
+      {/* Adventure Map Modal */}
+      <AdventureMap
+        encounters={adventure.encounters}
+        currentEncounterId={currentEncounter.id}
+        visitedEncounterIds={visitedEncounters}
+        isOpen={showMap}
+        onClose={() => setShowMap(false)}
+        onNavigate={(id) => {
+          advanceToNextEncounter(id);
+          setShowMap(false);
+        }}
+        activeQuestIds={quests.filter(q => q.status === 'active').map(q => q.id)}
+      />
+
       {/* Character Stats Bar */}
       <div className="mb-6 flex flex-wrap gap-4 justify-center items-center">
         {/* Character Portrait Trigger */}
@@ -1312,6 +1329,15 @@ export function Adventure() {
             Merchant
           </Button>
           <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowMap(true)}
+            className="flex items-center gap-2"
+          >
+            <Map className="h-4 w-4" />
+            Map
+          </Button>
+          <Button
             variant="destructive"
             size="sm"
             onClick={() => setShowExitConfirm(true)}
@@ -1322,6 +1348,13 @@ export function Adventure() {
             {t('adventure.exit', 'Leave Adventure')}
           </Button>
         </div>
+        {/* MiniMap in corner */}
+        <MiniMap
+          encounters={adventure.encounters}
+          currentEncounterId={currentEncounter.id}
+          visitedEncounterIds={visitedEncounters}
+          onClick={() => setShowMap(true)}
+        />
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6 items-start">

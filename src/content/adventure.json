@@ -22,7 +22,11 @@
           "nextEncounterId": "village-square"
         }
       ],
-      "completed": false
+      "completed": false,
+      "mapPosition": {
+        "x": 280,
+        "y": 80
+      }
     },
     {
       "id": "village-square",
@@ -63,11 +67,19 @@
         }
       ],
       "completed": false,
-      "repeatable": true
+      "repeatable": true,
+      "mapPosition": {
+        "x": 280,
+        "y": 200
+      }
     },
     {
       "id": "merchant-dialogue",
       "title": "Conversation with Pip the Merchant",
+      "mapPosition": {
+        "x": 200,
+        "y": 150
+      },
       "description": "The merchant, a friendly halfling named Pip, gestures energetically to his wares with entrepreneurial enthusiasm. 'Welcome, welcome! You look like an adventurer! These goblins have been bad for business - nobody wants to travel the roads anymore. But you... you have the look of someone who can fix problems!'",
       "type": "social",
       "tutorial": {
@@ -183,6 +195,10 @@
     {
       "id": "village-square-return",
       "title": "Back in the Village Square",
+      "mapPosition": {
+        "x": 280,
+        "y": 200
+      },
       "description": "You've gathered some information. The village square is still bustling. You can talk to more people to learn more, or seek out the farmer who needs help.",
       "type": "exploration",
       "options": [
@@ -233,8 +249,12 @@
     },
     {
       "id": "merchant-dialogue-return",
-      "title": "Pip the Merchant - Follow-up",
-      "description": "Pip smiles warmly. 'Back again? I've been thinking about what you asked. Let me share something else...'",
+      "title": "Conversation with Pip the Merchant",
+      "mapPosition": {
+        "x": 200,
+        "y": 150
+      },
+      "description": "Pip is arranging his wares.",
       "type": "social",
       "options": [
         {
@@ -288,8 +308,12 @@
     },
     {
       "id": "guard-dialogue-return",
-      "title": "Thora the Guard - Follow-up",
-      "description": "Thora straightens up. 'You're still here? Good. Shows you're serious. What else do you need to know?'",
+      "title": "The Guard Post",
+      "mapPosition": {
+        "x": 360,
+        "y": 150
+      },
+      "description": "Thora remains vigilant.",
       "type": "social",
       "options": [
         {
@@ -351,8 +375,12 @@
     },
     {
       "id": "guard-dialogue",
-      "title": "Conversation with Thora the Guard",
-      "description": "The guard, a battle-scarred dwarf named Thora, sizes you up with professional assessment. Her hand rests casually on her axe handle, and her stance suggests years of military training. 'You look capable enough. Are you here to help, or just another tourist gawking at our misery?'",
+      "title": "The Guard Post",
+      "mapPosition": {
+        "x": 360,
+        "y": 150
+      },
+      "description": "Thora stands alert near the village gate, scanning the perimeter. She acknowledges your approach with a sharp nod.",
       "type": "social",
       "options": [
         {
@@ -465,8 +493,13 @@
     {
       "id": "talk-to-farmer",
       "title": "The Farmer's Plea",
-      "description": "The farmer, an elderly human named Eldred, clutches his hat nervously. 'My daughter saw them last night - goblins, at least six of them! They took our whole harvest. We'll starve this winter if someone doesn't stop them!'",
+      "description": "A weather-beaten farmer wrings his hands near the fountain. 'They took everything,' he mutters. 'My winter stores, my best tools... even my lucky pitchfork!'",
       "type": "social",
+      "mapPosition": {
+        "x": 280,
+        "y": 300
+      },
+      "questId": "stop-goblin-raids",
       "options": [
         {
           "id": "comfort-farmer",

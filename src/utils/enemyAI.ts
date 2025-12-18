@@ -1,6 +1,6 @@
 import type { CombatEnemy, PlayerCharacter } from '@/types';
 
-type EnemyAction = NonNullable<CombatEnemy['actions']>[number];
+export type EnemyAction = NonNullable<CombatEnemy['actions']>[number];
 
 type BreathAction = {
     type: 'breath';

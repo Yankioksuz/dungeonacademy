@@ -29,7 +29,8 @@ export type ConditionType =
   | 'petrified' | 'poisoned' | 'prone' | 'restrained'
   | 'stunned' | 'unconscious' | 'hexed' | 'turned' | 'pacified' | 'hidden' | 'reckless' | 'haste' | 'flying'
   | 'displacement-broken' // Cloak of Displacement temporarily inactive
-  | 'armor-not-proficient'; // Wearing armor without proficiency
+  | 'armor-not-proficient' // Wearing armor without proficiency
+  | 'exhaustion-1' | 'exhaustion-2' | 'exhaustion-3' | 'exhaustion-4' | 'exhaustion-5' | 'exhaustion-6';
 
 export interface Condition {
   type: ConditionType;
@@ -444,6 +445,7 @@ export interface CombatEnemy {
   creatureType?: string;
   initiative: number;
   isDefeated: boolean;
+  conditions: Condition[];
   actions?: {
     name: string;
     toHit: number;
@@ -606,6 +608,12 @@ export interface Encounter {
   };
   completed: boolean;
   xpReward?: number;
+  // Spatial map position (optional - if not set, auto-layout is used)
+  mapPosition?: {
+    x: number;
+    y: number;
+  };
+  questId?: string;
 }
 
 export interface EncounterOption {

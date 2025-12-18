@@ -110,6 +110,106 @@ export function getWeaponExtraDamage(weapon: Item | undefined, isAttuned: boolea
     return extras;
 }
 
+// === CONDITION EFFECTS ===
+
+export interface OnHitConditionEffect {
+    condition: 'poisoned' | 'restrained' | 'frightened' | 'paralyzed' | 'blinded';
+    duration: number; // rounds
+    saveDC?: number;
+    saveAbility?: 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma';
+    extraDamage?: string; // e.g., "2d10 poison"
+    description: string;
+}
+
+/**
+ * Get conditions that a weapon can apply on a successful hit.
+ * Returns an array of condition effects with save information.
+ */
+export function getWeaponOnHitConditions(weapon: Item | undefined): OnHitConditionEffect[] {
+    if (!weapon) return [];
+
+    const effects: OnHitConditionEffect[] = [];
+
+    switch (weapon.id) {
+        case 'dagger-venom':
+            // Dagger of Venom: DC 15 CON save or poisoned for 1 minute + 2d10 poison damage
+            effects.push({
+                condition: 'poisoned',
+                duration: 10, // 1 minute = 10 rounds
+                saveDC: 15,
+                saveAbility: 'constitution',
+                extraDamage: '2d10 poison',
+                description: 'Dagger of Venom'
+            });
+            break;
+        case 'net':
+            // Net: Target is restrained (no save, but can escape with DC 10 STR check or 5 slashing)
+            effects.push({
+                condition: 'restrained',
+                duration: -1, // Until escaped
+                description: 'Net'
+            });
+            break;
+        // Future: Add more weapons here (e.g., paralytic poison arrows, etc.)
+    }
+
+    return effects;
+}
+
+export interface UsableConditionEffect {
+    condition: 'invisible' | 'haste' | 'flying';
+    duration: number; // rounds, -1 for concentration/toggle
+    selfTarget: boolean;
+    description: string;
+}
+
+/**
+ * Get conditions that an item can apply when used (activated).
+ * Returns an array of condition effects.
+ */
+export function getItemUsableConditions(item: Item | undefined): UsableConditionEffect[] {
+    if (!item) return [];
+
+    const effects: UsableConditionEffect[] = [];
+
+    switch (item.id) {
+        case 'cloak-of-invisibility':
+            effects.push({
+                condition: 'invisible',
+                duration: -1, // Until deactivated or attack/spell
+                selfTarget: true,
+                description: 'Cloak of Invisibility'
+            });
+            break;
+        case 'ring-of-invisibility':
+            effects.push({
+                condition: 'invisible',
+                duration: -1, // Until deactivated
+                selfTarget: true,
+                description: 'Ring of Invisibility'
+            });
+            break;
+        case 'boots-of-speed': // Example, if exists
+            effects.push({
+                condition: 'haste',
+                duration: 10, // 1 minute
+                selfTarget: true,
+                description: 'Boots of Speed'
+            });
+            break;
+        case 'winged-boots':
+            effects.push({
+                condition: 'flying',
+                duration: -1, // While active
+                selfTarget: true,
+                description: 'Winged Boots'
+            });
+            break;
+    }
+
+    return effects;
+}
+
 /**
  * Check if weapon overcomes magic resistance
  */

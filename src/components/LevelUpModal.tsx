@@ -72,8 +72,8 @@ export function LevelUpModal({
   const abilities: string[] = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm fade-in">
-      <div className="relative w-full max-w-2xl p-8 mx-4 bg-fantasy-dark-card border-2 border-fantasy-gold rounded-xl shadow-[0_0_50px_rgba(255,215,0,0.3)] transform transition-all scale-100 animate-in zoom-in-95 duration-300">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/80 backdrop-blur-sm fade-in overflow-y-auto py-8">
+      <div className="relative w-full max-w-2xl p-8 mx-4 my-auto bg-fantasy-dark-card border-2 border-fantasy-gold rounded-xl shadow-[0_0_50px_rgba(255,215,0,0.3)] transform transition-all scale-100 animate-in zoom-in-95 duration-300">
         <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-fantasy-dark-card px-4 py-2 rounded-full border-2 border-fantasy-gold">
           <Sparkles className="w-8 h-8 text-fantasy-gold animate-pulse" />
         </div>
@@ -107,8 +107,8 @@ export function LevelUpModal({
                 {/* Continue Current Class Button */}
                 <button
                   className={`w-full p-4 rounded-lg border transition-all text-left ${!selectedMulticlassId
-                      ? 'border-fantasy-gold bg-fantasy-gold/10'
-                      : 'border-white/10 hover:border-fantasy-gold/50'
+                    ? 'border-fantasy-gold bg-fantasy-gold/10'
+                    : 'border-white/10 hover:border-fantasy-gold/50'
                     }`}
                   onClick={() => onSelectMulticlass?.(null)}
                 >
@@ -146,10 +146,10 @@ export function LevelUpModal({
                       <button
                         key={option.class.id}
                         className={`p-3 rounded-lg border transition-all text-left ${selectedMulticlassId === option.class.id
-                            ? 'border-fantasy-gold bg-fantasy-gold/10'
-                            : option.meetsPrereqs
-                              ? 'border-white/10 hover:border-fantasy-gold/50'
-                              : 'border-red-500/30 opacity-50 cursor-not-allowed'
+                          ? 'border-fantasy-gold bg-fantasy-gold/10'
+                          : option.meetsPrereqs
+                            ? 'border-white/10 hover:border-fantasy-gold/50'
+                            : 'border-red-500/30 opacity-50 cursor-not-allowed'
                           }`}
                         onClick={() => option.meetsPrereqs && onSelectMulticlass?.(option.class.id)}
                         disabled={!option.meetsPrereqs}

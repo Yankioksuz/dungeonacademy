@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGame } from '@/contexts/GameContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
@@ -8,7 +8,7 @@ import { MapPin, Trash2, Swords, ShieldCheck, Scroll, History, User } from 'luci
 import adventureData from '@/content/adventure.json';
 import intrigueAdventure from '@/content/adventure-shadows.json';
 import frozenAdventure from '@/content/adventure-frozen.json';
-import type { Adventure as AdventureType } from '@/types';
+import type { Adventure as AdventureType, Class } from '@/types';
 import { portraits } from '@/data/portraits';
 import { PortraitSelector } from './PortraitSelector';
 import tutorialArtwork from '@/assets/campaigns/tutorial-adventure.png';
@@ -19,8 +19,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { AdventureHistory } from './AdventureHistory';
 import { CharacterSheet } from './CharacterSheet';
 import { RestModal } from './RestModal';
+import { LevelUpModal } from './LevelUpModal';
 import { Moon } from 'lucide-react';
 import { formatInGameTime, getTimeUntilNextLongRest } from '@/utils/timeUtils';
+import { getAvailableMulticlassOptions, canLeaveCurrentClass, MULTICLASS_PREREQUISITES } from '@/data/multiclass';
+import characterCreationContent from '@/content/characterCreation.json';
 
 const AVAILABLE_ADVENTURES = [
   {
@@ -65,7 +68,9 @@ export function Camp() {
     unprepareSpell,
     inGameTime,
     canTakeLongRest,
-    timeSinceLastLongRest
+    timeSinceLastLongRest,
+    pendingLevelUp,
+    confirmLevelUp,
   } = useGame();
   const [selectedAdventureId, setSelectedAdventureId] = useState(AVAILABLE_ADVENTURES[0]?.id);
   const [isStarting, setIsStarting] = useState(false);
@@ -74,6 +79,30 @@ export function Camp() {
   const [showPortraitModal, setShowPortraitModal] = useState(false);
   const [pendingPortraitId, setPendingPortraitId] = useState<string | null>(character?.portraitId || null);
   const [activeTab, setActiveTab] = useState("adventures");
+  const [selectedMulticlassId, setSelectedMulticlassId] = useState<string | null>(null);
+
+  // Calculate multiclass options
+  const allClasses = characterCreationContent.classes as Class[];
+  const multiclassOptions = useMemo(() => {
+    if (!character) return [];
+    const available = getAvailableMulticlassOptions(character, allClasses);
+    return allClasses
+      .filter(c => c.id !== character.class.id) // Exclude current class
+      .map(c => {
+        const meetsPrereqs = available.some(ac => ac.id === c.id);
+        const prereqs = MULTICLASS_PREREQUISITES[c.id.toLowerCase()];
+        let prereqReason = '';
+        if (!meetsPrereqs && prereqs) {
+          const needed = Object.entries(prereqs)
+            .filter(([k, v]) => k !== 'orCondition' && typeof v === 'number')
+            .map(([k, v]) => `${k.toUpperCase()} ${v}`);
+          prereqReason = `Requires ${needed.join(prereqs.orCondition ? ' or ' : ' and ')}`;
+        }
+        return { class: c, meetsPrereqs, prereqReason };
+      });
+  }, [character, allClasses]);
+
+  const canLeave = character ? canLeaveCurrentClass(character) : false;
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -369,6 +398,27 @@ export function Camp() {
       )}
 
       <RestModal isOpen={showRestModal} onClose={() => setShowRestModal(false)} />
+
+      {/* Level Up Modal - shown when XP threshold reached */}
+      {character && (
+        <LevelUpModal
+          isOpen={pendingLevelUp}
+          level={character.level + 1}
+          hpIncrease={Math.floor(parseInt(character.class.hitDie?.replace('d', '') || '8') / 2) + 1 + Math.floor((character.abilityScores.constitution - 10) / 2)}
+          talents={[]}
+          selectedTalentId={null}
+          onSelectTalent={() => { }}
+          currentClassName={character.class.name}
+          multiclassOptions={multiclassOptions}
+          selectedMulticlassId={selectedMulticlassId}
+          onSelectMulticlass={setSelectedMulticlassId}
+          canLeaveCurrentClass={canLeave}
+          onConfirm={() => {
+            confirmLevelUp(selectedMulticlassId);
+            setSelectedMulticlassId(null);
+          }}
+        />
+      )}
     </div>
   );
 }
