@@ -1432,7 +1432,7 @@ export function Adventure() {
                 {/* NPC Portrait Detection */}
                 {(() => {
                   // Check for NPC names in the encounter title or description
-                  const npcIds = ['thora', 'pip', 'mara', 'kaela', 'eldred', 'vael', 'ryell'];
+                  const npcIds = ['thora', 'pip', 'mara', 'kaela', 'eldred', 'vael', 'ryell', 'aris', 'elara', 'krov', 'mal', 'vex', 'librarian', 'matriarch', 'warden', 'bone', 'guardian', 'pain', 'hound', 'elite', 'gargoyle'];
                   const titleLower = currentEncounter.title.toLowerCase();
                   const descLower = currentEncounter.description.toLowerCase();
 
@@ -1503,7 +1503,7 @@ export function Adventure() {
                 {/* Outcome Message from Last Choice - only show if no NPC portrait handled it */}
                 {outcomeMessage && !isRollingDice && (() => {
                   // Check if an NPC portrait is handling the outcome display
-                  const npcIds = ['thora', 'pip', 'mara', 'kaela', 'eldred', 'vael', 'ryell'];
+                  const npcIds = ['thora', 'pip', 'mara', 'kaela', 'eldred', 'vael', 'ryell', 'aris', 'elara', 'krov', 'mal', 'vex', 'librarian', 'matriarch', 'warden', 'bone', 'guardian', 'pain', 'hound', 'elite', 'gargoyle'];
                   const titleLower = currentEncounter.title.toLowerCase();
                   const descLower = currentEncounter.description.toLowerCase();
 

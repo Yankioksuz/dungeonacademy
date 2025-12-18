@@ -8,6 +8,22 @@ import eldredPortrait from '@/assets/npcs/eldred.png';
 import kaelaPortrait from '@/assets/npcs/kaela.png';
 import vaelPortrait from '@/assets/npcs/vael.png';
 import ryellPortrait from '@/assets/npcs/ryell.png';
+// Sanctum of the Flayed God NPCs
+import dukeArisPortrait from '@/assets/npcs/duke-aris.png';
+import elaraPortrait from '@/assets/npcs/elara.png';
+import krovPortrait from '@/assets/npcs/krov.png';
+import malPortrait from '@/assets/npcs/mal.png';
+import vexPortrait from '@/assets/npcs/vex.png';
+import librarianPortrait from '@/assets/npcs/librarian.png';
+import matriarchPortrait from '@/assets/npcs/matriarch.png';
+import wardenPortrait from '@/assets/npcs/warden.png';
+// Sanctum Enemies/Monsters
+import boneSwarmPortrait from '@/assets/npcs/bone-swarm.png';
+import gateGuardianPortrait from '@/assets/npcs/gate-guardian.png';
+import painEaterPortrait from '@/assets/npcs/pain-eater.png';
+import hellHoundPortrait from '@/assets/npcs/hell-hound.png';
+import eliteGuardPortrait from '@/assets/npcs/elite-guard.png';
+import gargoylePortrait from '@/assets/npcs/gargoyle.png';
 
 export interface NPCPortrait {
     id: string;
@@ -60,6 +76,92 @@ export const npcPortraits: NPCPortrait[] = [
         name: 'Archon Ryell',
         src: ryellPortrait,
         campaign: 'shadows'
+    },
+    // Sanctum of the Flayed God NPCs
+    {
+        id: 'aris',
+        name: 'Duke Aris',
+        src: dukeArisPortrait,
+        campaign: 'sanctum'
+    },
+    {
+        id: 'elara',
+        name: 'Sister Elara',
+        src: elaraPortrait,
+        campaign: 'sanctum'
+    },
+    {
+        id: 'krov',
+        name: 'Baron Krov',
+        src: krovPortrait,
+        campaign: 'sanctum'
+    },
+    {
+        id: 'mal',
+        name: 'Brother Mal',
+        src: malPortrait,
+        campaign: 'sanctum'
+    },
+    {
+        id: 'vex',
+        name: 'High Priest Vex',
+        src: vexPortrait,
+        campaign: 'sanctum'
+    },
+    {
+        id: 'librarian',
+        name: 'The Librarian',
+        src: librarianPortrait,
+        campaign: 'sanctum'
+    },
+    {
+        id: 'matriarch',
+        name: 'Harpy Matriarch',
+        src: matriarchPortrait,
+        campaign: 'sanctum'
+    },
+    {
+        id: 'warden',
+        name: 'Flesh Warden',
+        src: wardenPortrait,
+        campaign: 'sanctum'
+    },
+    // Sanctum Enemies/Monsters
+    {
+        id: 'bone',
+        name: 'Bone Swarm',
+        src: boneSwarmPortrait,
+        campaign: 'sanctum'
+    },
+    {
+        id: 'guardian',
+        name: 'Gate Guardian',
+        src: gateGuardianPortrait,
+        campaign: 'sanctum'
+    },
+    {
+        id: 'pain',
+        name: 'Pain Eater',
+        src: painEaterPortrait,
+        campaign: 'sanctum'
+    },
+    {
+        id: 'hound',
+        name: 'Hell Hound',
+        src: hellHoundPortrait,
+        campaign: 'sanctum'
+    },
+    {
+        id: 'elite',
+        name: 'Elite Guard',
+        src: eliteGuardPortrait,
+        campaign: 'sanctum'
+    },
+    {
+        id: 'gargoyle',
+        name: 'Stone Gargoyle',
+        src: gargoylePortrait,
+        campaign: 'sanctum'
     }
 ];
 
