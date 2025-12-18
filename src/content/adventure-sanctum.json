@@ -1,0 +1,1326 @@
+{
+    "id": "sanctum-of-the-flayed-god",
+    "title": "The Sanctum of the Flayed God",
+    "description": "An epic gothic horror adventure. Infiltrate a cursed cathedral suspended over the abyss, navigate 5 branching paths of madness, and stop the Sanguine Pontiff from blotting out the sun.",
+    "encounters": [
+        {
+            "id": "bridge-of-sighs",
+            "title": "The Bridge of Sighs",
+            "description": "The Cathedral of Xylos looms before you, a monstrosity of obsidian and bone suspended over an endless abyss. The only path is the Bridge of Sighs—a crumbling span where the wind sounds like screaming. The Rite of the Black Sun has begun; the sky is already bleeding red. You must choose how to cross the threshold.",
+            "type": "exploration",
+            "mapPosition": {
+                "x": 100,
+                "y": 300
+            },
+            "options": [
+                {
+                    "id": "path-procession",
+                    "text": "Don cultist robes and join the procession (Deception)",
+                    "type": "continue",
+                    "outcome": "You strip the robes from dead cultists and slip into the line of chanting figures. The air smells of copper and incense.",
+                    "nextEncounterId": "entry-procession"
+                },
+                {
+                    "id": "path-ossuary",
+                    "text": "Climb through the waste chutes (Stealth)",
+                    "type": "continue",
+                    "outcome": "You descend under the bridge to the refuse chutes. Bones clatter into the abyss as you shimmy up the slime-slicked tunnels.",
+                    "nextEncounterId": "entry-ossuary"
+                },
+                {
+                    "id": "path-spirit",
+                    "text": "Project your spirits across the gap (Arcana/Religion)",
+                    "type": "continue",
+                    "outcome": "You chant a ritual of severance, leaving your physical forms momentarily to cross the Ethereal Plane, bypassing the physical gates.",
+                    "nextEncounterId": "entry-spirit"
+                },
+                {
+                    "id": "path-assault",
+                    "text": "Storm the Black Gate (Combat)",
+                    "type": "continue",
+                    "outcome": "Guns blazing and swords drawn, you charge the gate Guardians. Subtle is for cowards.",
+                    "nextEncounterId": "entry-gate-combat"
+                },
+                {
+                    "id": "path-deal",
+                    "text": "[Warlock] Call upon a rival entity for passage",
+                    "type": "continue",
+                    "requiresClass": "Warlock",
+                    "outcome": "Your patron answers with a rusty chuckle. 'The Pontiff thinks this place is his? Let me show you the back door... for a price.'",
+                    "nextEncounterId": "entry-deal"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "entry-procession",
+            "title": "The Chant of Flesh",
+            "description": "You march in rhythm with the cultists. A 'Flesh-Warden' inspects the line, looking for imposters. He pauses in front of you.",
+            "type": "skill",
+            "mapPosition": {
+                "x": 200,
+                "y": 100
+            },
+            "skillCheck": {
+                "skill": "Deception",
+                "difficultyClass": 14,
+                "ability": "Charisma",
+                "success": "You mimicking the guttural chant perfectly. The Warden nods and marks your forehead with ash. 'Welcome home, brother.'",
+                "failure": "You stumble on the words. The Warden hisses. 'Your soul smells... unripe.' You have to kill him quietly before he raises the alarm.",
+                "successNextEncounterId": "nave-hub",
+                "failureNextEncounterId": "procession-combat",
+                "xpReward": 50
+            },
+            "options": [
+                {
+                    "id": "skill-check-procession",
+                    "text": "Attempt to blend in (Deception)",
+                    "type": "skill"
+                },
+                {
+                    "id": "skill-check-procession-force",
+                    "text": "Intimidate the Warden (Intimidation)",
+                    "type": "skill",
+                    "skill": "Intimidation",
+                    "difficultyClass": 15,
+                    "ability": "Charisma",
+                    "successOutcome": "You stare the Warden down. He flinches, assuming you are a high-ranking inquisitor.",
+                    "failureOutcome": "He screeches in rage at your insolence! Combat!",
+                    "successNextEncounterId": "nave-hub",
+                    "failureNextEncounterId": "procession-combat"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "procession-combat",
+            "title": "Silence the Warden",
+            "description": "The Flesh-Warden raises his bone-flute to scream. You must silence him now.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "cult-fanatic",
+                "name": "Flesh Warden",
+                "armorClass": 13,
+                "hitPoints": 33,
+                "attackBonus": 4,
+                "damage": "1d8+2",
+                "xpReward": 100
+            },
+            "options": [
+                {
+                    "id": "kill-warden",
+                    "text": "End him quickly",
+                    "type": "attack",
+                    "outcome": "He falls gurgling into the abyss. You rush inside before others notice.",
+                    "nextEncounterId": "nave-hub"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "entry-ossuary",
+            "title": "The Bone Chute",
+            "description": "The chute is a claustrophobic nightmare of serrated ribs and femurs. Something scuttles in the dark ahead.",
+            "type": "skill",
+            "mapPosition": {
+                "x": 200,
+                "y": 500
+            },
+            "skillCheck": {
+                "skill": "Stealth",
+                "difficultyClass": 13,
+                "ability": "Dexterity",
+                "success": "You freeze as a 'Bone-Eater' skitters past. You emerge into the Nave covered in grime but undetected.",
+                "failure": "You kick a skull. The chittering in the dark stops... then turns into a shriek. Combat!",
+                "successNextEncounterId": "nave-hub",
+                "failureNextEncounterId": "ossuary-combat",
+                "xpReward": 50
+            },
+            "options": [
+                {
+                    "id": "skill-check-ossuary",
+                    "text": "Sneak through the bone piles (Stealth)",
+                    "type": "skill"
+                },
+                {
+                    "id": "skill-check-ossuary-run",
+                    "text": "Sprint for the exit (Athletics)",
+                    "type": "skill",
+                    "skill": "Athletics",
+                    "difficultyClass": 14,
+                    "ability": "Strength",
+                    "successOutcome": "You dash through the darkness, outrunning the clicking shapes behind you.",
+                    "failureOutcome": "You trip on a femur and tumble into the pit. The swarm descends!",
+                    "successNextEncounterId": "nave-hub",
+                    "failureNextEncounterId": "ossuary-combat"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "ossuary-combat",
+            "title": "Carrion Crawlers",
+            "description": "Skeletal centipedes swarm from the walls!",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "skeleton",
+                "name": "Bone Swarm",
+                "armorClass": 12,
+                "hitPoints": 25,
+                "attackBonus": 3,
+                "damage": "1d6+1",
+                "xpReward": 75
+            },
+            "options": [
+                {
+                    "id": "smash-bones",
+                    "text": "Smash your way through",
+                    "type": "attack",
+                    "outcome": "You scatter the bones and climb the rest of the way, emerging into the Nave breathless.",
+                    "nextEncounterId": "nave-hub"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "entry-spirit",
+            "title": "The Ethereal Veil",
+            "description": "The material world fades to gray. But the Ethereal Cathedral is even more terrifying—writhing with the souls of the sacrificed.",
+            "type": "skill",
+            "mapPosition": {
+                "x": 200,
+                "y": 200
+            },
+            "skillCheck": {
+                "skill": "Arcana",
+                "difficultyClass": 15,
+                "ability": "Intelligence",
+                "success": "You weave a ward against the hungry ghosts. They wail but cannot touch you as you phase through the walls.",
+                "failure": "A spectre latches onto your soul! You take psychic damage but force your way through.",
+                "successNextEncounterId": "nave-hub",
+                "failureNextEncounterId": "nave-hub",
+                "failureOutcome": "You stumble into the Nave, your soul bruised. (Take 2d6 Psychic Damage - noted in log).",
+                "xpReward": 60
+            },
+            "options": [
+                {
+                    "id": "skill-check-spirit",
+                    "text": "Project your spirit (Arcana Check)",
+                    "type": "skill"
+                },
+                {
+                    "id": "skill-check-spirit-pray",
+                    "text": "Pray for protection (Religion)",
+                    "type": "skill",
+                    "skill": "Religion",
+                    "difficultyClass": 14,
+                    "ability": "Intelligence",
+                    "successOutcome": "Your faith manifests as a silver shield, repelling the hungry ghosts.",
+                    "failureOutcome": "The abyss laughs at your prayers. You take 2d6 psychic damage as your faith falters.",
+                    "successNextEncounterId": "nave-hub",
+                    "failureNextEncounterId": "nave-hub"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "entry-gate-combat",
+            "title": "The Black Gate Guardians",
+            "description": "Two massive Stone Golems block the gate. They roar with the sound of grinding boulders.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "animated-armor",
+                "name": "Gate Guardian",
+                "armorClass": 16,
+                "hitPoints": 45,
+                "attackBonus": 5,
+                "damage": "2d6+3",
+                "xpReward": 200
+            },
+            "options": [
+                {
+                    "id": "break-gate",
+                    "text": "Shatter them!",
+                    "type": "attack",
+                    "outcome": "The Golems crumble. The massive doors creak open, revealing the Nave. The cultists inside stare in shock.",
+                    "nextEncounterId": "nave-hub"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "entry-deal",
+            "title": "The Devil's Bargain",
+            "description": "A portal of black fire opens. A barbed hand gestures you through.",
+            "type": "social",
+            "mapPosition": {
+                "x": 200,
+                "y": 400
+            },
+            "options": [
+                {
+                    "id": "enter-portal",
+                    "text": "Step through the fire",
+                    "type": "continue",
+                    "outcome": "You step out directly behind a pillar in the Nave. A whisper echoes in your ear: 'One favor. I will collect later.' (+1 Corruption)",
+                    "nextEncounterId": "nave-hub",
+                    "xpReward": 50
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "nave-hub",
+            "title": "The Nave of Nightmares",
+            "description": "You stand in the Cathedral's heart. It is vast, lit by thousands of candles made from human fat. In the center lies the **Blood Font**. Above, the **Rafters** disappear into darkness. To the East, the **Library**. To the West, the **Inquisitor's Hall**. Direct ahead, the **Inner Sanctum** is sealed.",
+            "type": "exploration",
+            "mapPosition": {
+                "x": 400,
+                "y": 300
+            },
+            "options": [
+                {
+                    "id": "inspect-font",
+                    "text": "Inspect the Blood Font",
+                    "type": "continue",
+                    "outcome": "The font ripples with dark power.",
+                    "nextEncounterId": "blood-font-interaction"
+                },
+                {
+                    "id": "path-martyr",
+                    "text": "Head to the Wing of Sorrow (Martyr Path)",
+                    "type": "continue",
+                    "outcome": "You hear weeping from the western corridor.",
+                    "nextEncounterId": "martyr-start"
+                },
+                {
+                    "id": "path-inquisitor",
+                    "text": "Ascend the Stairs of Judgment (Inquisitor Path)",
+                    "type": "continue",
+                    "outcome": "The sound of marching boots echoes from the stairs.",
+                    "nextEncounterId": "inquisitor-start"
+                },
+                {
+                    "id": "path-shadow",
+                    "text": "Climb into the Rafters (Shadow Path)",
+                    "type": "continue",
+                    "outcome": "You grapple up into the dizzying darkness above.",
+                    "nextEncounterId": "shadow-start"
+                },
+                {
+                    "id": "path-acolyte",
+                    "text": "Blend in with the Cultists (Acolyte Path)",
+                    "type": "continue",
+                    "outcome": "You bow your head and move toward the barracks.",
+                    "nextEncounterId": "acolyte-start"
+                },
+                {
+                    "id": "path-occultist",
+                    "text": "Enter the Forbidden Library (Occultist Path)",
+                    "type": "continue",
+                    "outcome": "The library doors are cold to the touch.",
+                    "nextEncounterId": "occultist-start"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "blood-font-interaction",
+            "title": "The Blood Font",
+            "description": "The font is filled with fresh blood. It whispers to you. 'Drink and be strong.' Or you could purify it.",
+            "type": "social",
+            "mapPosition": {
+                "x": 400,
+                "y": 350
+            },
+            "options": [
+                {
+                    "id": "drink-blood",
+                    "text": "Drink from the font (+1 Corruption, Full Heal)",
+                    "type": "continue",
+                    "outcome": "The metallic taste is revolting, but power surges through you. Your wounds knit together instantly.",
+                    "nextEncounterId": "nave-hub",
+                    "grantsItemIds": [
+                        "vial-sanguine"
+                    ],
+                    "stayInEncounter": false
+                },
+                {
+                    "id": "purify-font",
+                    "text": "[Cleric/Paladin] Purify the Font",
+                    "type": "skill",
+                    "skill": "Religion",
+                    "ability": "Wisdom",
+                    "difficultyClass": 14,
+                    "success": "You pour holy water into the font. It boils and turns clear. The whispers scream and die. (-1 Corruption)",
+                    "failure": "The font fights back! A tendril of blood lashes out. You take 1d6 damage.",
+                    "successNextEncounterId": "nave-hub",
+                    "failureNextEncounterId": "nave-hub",
+                    "xpReward": 50
+                },
+                {
+                    "id": "leave-font",
+                    "text": "Leave it be",
+                    "type": "continue",
+                    "outcome": "You step away from the temptation.",
+                    "nextEncounterId": "nave-hub"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "martyr-start",
+            "title": "The Wing of Sorrow",
+            "description": "You enter the western wing. The air is damp with tears and blood. Moans of the imprisoned echo from the cells lining the walls. This is where the cult breaks the spirits of their victims.",
+            "type": "exploration",
+            "mapPosition": {
+                "x": 100,
+                "y": 400
+            },
+            "options": [
+                {
+                    "id": "martyr-explore-1",
+                    "text": "Check the first row of cells",
+                    "type": "continue",
+                    "outcome": "You look into the cages. Most are empty or hold corpses. But one holds a trembling figure.",
+                    "nextEncounterId": "martyr-cell-1"
+                },
+                {
+                    "id": "martyr-call-out",
+                    "text": "Call out softly for survivors",
+                    "type": "skill",
+                    "skill": "Perception",
+                    "difficultyClass": 12,
+                    "ability": "Wisdom",
+                    "successOutcome": "A faint voice answers. 'Here... hurry...'",
+                    "failureOutcome": "Your voice echoes. Only the dead answer.",
+                    "successNextEncounterId": "martyr-cell-1",
+                    "failureNextEncounterId": "martyr-start"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "martyr-cell-1",
+            "title": "The Forgotten Noble",
+            "description": "A man in tattered velvet robes looks up. 'I am Duke Aris. They took my family... please, let me out.'",
+            "type": "social",
+            "options": [
+                {
+                    "id": "free-duke",
+                    "text": "Pick the lock (Sleight of Hand)",
+                    "type": "skill",
+                    "skill": "Sleight of Hand",
+                    "difficultyClass": 12,
+                    "ability": "Dexterity",
+                    "successOutcome": "The lock clicks. Duke Aris stumbles out. 'I can fight... a little.' (Gain Ally: Duke Aris)",
+                    "failureOutcome": "The lock jams. You have to break it, making noise.",
+                    "successNextEncounterId": "martyr-corridor-1",
+                    "failureNextEncounterId": "martyr-combat-1",
+                    "xpReward": 25
+                },
+                {
+                    "id": "break-door-duke",
+                    "text": "Kick the door down (Athletics)",
+                    "type": "skill",
+                    "skill": "Athletics",
+                    "difficultyClass": 14,
+                    "ability": "Strength",
+                    "successOutcome": "The rusty hinges give way with a scream of metal. The Duke is free, but the noise echoes.",
+                    "failureOutcome": "The door holds. You bruise your shoulder and alert the guards.",
+                    "successNextEncounterId": "martyr-combat-1",
+                    "failureNextEncounterId": "martyr-combat-1"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "martyr-combat-1",
+            "title": "Jailer Patrol",
+            "description": "The noise attracted a 'Pain-Eater' demon.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "imp",
+                "name": "Pain Eater",
+                "armorClass": 13,
+                "hitPoints": 15,
+                "attackBonus": 4,
+                "damage": "1d6+2",
+                "creatureType": "fiend",
+                "xpReward": 50
+            },
+            "options": [
+                {
+                    "id": "win",
+                    "text": "Victory",
+                    "type": "attack",
+                    "nextEncounterId": "martyr-corridor-1"
+                }
+            ]
+        },
+        {
+            "id": "martyr-corridor-1",
+            "title": "The Hall of Thorns",
+            "description": "The floor is covered in magical thorns. To pass without hurting your followers, you must walk first to clear a path.",
+            "type": "skill",
+            "options": [
+                {
+                    "id": "sacrifice-hp",
+                    "text": "Walk through the thorns (Take 1d6 Damage)",
+                    "type": "continue",
+                    "outcome": "You bleed, but your allies follow safely. (-1 Corruption)",
+                    "nextEncounterId": "martyr-cell-2"
+                },
+                {
+                    "id": "acrobatics-thorns",
+                    "text": "[Acrobatics] Jump across",
+                    "type": "skill",
+                    "skill": "Acrobatics",
+                    "difficultyClass": 15,
+                    "success": "You make it, but your allies struggle and take damage.",
+                    "failure": "You fall into the thorns.",
+                    "successNextEncounterId": "martyr-cell-2",
+                    "failureNextEncounterId": "martyr-cell-2"
+                }
+            ]
+        },
+        {
+            "id": "martyr-cell-2",
+            "title": "The Weeping Paladin",
+            "description": "Sister Elara is chained to the wall. She is blind.",
+            "type": "social",
+            "options": [
+                {
+                    "id": "heal-elara-item",
+                    "text": "Use a Potion to heal her eyes",
+                    "type": "continue",
+                    "requiresItemId": "healing-potion",
+                    "outcome": "Her sight returns. 'The Light... I can see! I will shield you.' (Gain Item: Shield of the Weeping Saint)",
+                    "nextEncounterId": "martyr-boss-door",
+                    "grantsItemIds": [
+                        "shield-weeping-saint"
+                    ]
+                },
+                {
+                    "id": "heal-elara-spell",
+                    "text": "[Cleric] Cast Cure Wounds",
+                    "type": "continue",
+                    "requiresClass": "Cleric",
+                    "outcome": "Divinity flows through you. Elara stands, ready to fight.",
+                    "nextEncounterId": "martyr-boss-door"
+                },
+                {
+                    "id": "leave-elara",
+                    "text": "We cannot save everyone",
+                    "type": "continue",
+                    "outcome": "You leave her. (+1 Corruption)",
+                    "nextEncounterId": "martyr-boss-door"
+                }
+            ]
+        },
+        {
+            "id": "martyr-boss-door",
+            "title": "The Chamber of the Jailer",
+            "description": "Baron Krov stands before the exit to the Altar. He wears a hood made of human skin.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "gladiator",
+                "name": "Baron Krov",
+                "armorClass": 16,
+                "hitPoints": 60,
+                "attackBonus": 6,
+                "damage": "2d6+3",
+                "xpReward": 400
+            },
+            "options": [
+                {
+                    "id": "kill-krov",
+                    "text": "Execute the Executioner",
+                    "type": "attack",
+                    "nextEncounterId": "boss-climax"
+                }
+            ]
+        },
+        {
+            "id": "inquisitor-start",
+            "title": "The Stairs of Judgment",
+            "description": "You stand at the base of a spiraling staircase made of white marble stained red. Each landing is a battlefield. The only way is up.",
+            "type": "exploration",
+            "mapPosition": {
+                "x": 100,
+                "y": 200
+            },
+            "options": [
+                {
+                    "id": "climb-floor-1",
+                    "text": "Ascend to the First Floor",
+                    "type": "continue",
+                    "outcome": "You draw your weapons. The air grows hot.",
+                    "nextEncounterId": "inquisitor-floor-1"
+                },
+                {
+                    "id": "investigate-lobby",
+                    "text": "Search the reception area",
+                    "type": "skill",
+                    "skill": "Investigation",
+                    "difficultyClass": 13,
+                    "ability": "Intelligence",
+                    "successOutcome": "You find a 'Potion of Fire Resistance' in a forgotten crate.",
+                    "failureOutcome": "Nothing but ash and dust.",
+                    "successNextEncounterId": "inquisitor-floor-1",
+                    "failureNextEncounterId": "inquisitor-floor-1",
+                    "grantsItemIds": [
+                        "potion-fire-resistance"
+                    ]
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "inquisitor-floor-1",
+            "title": "Floor 1: The Kennel",
+            "description": "Hell Hounds gnaw on bones here. They smell your blood.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "hell-hound",
+                "name": "Hell Hound Pack",
+                "armorClass": 15,
+                "hitPoints": 30,
+                "attackBonus": 5,
+                "damage": "1d6+3",
+                "creatureType": "fiend",
+                "xpReward": 100
+            },
+            "options": [
+                {
+                    "id": "kill-hounds",
+                    "text": "Put them down",
+                    "type": "attack",
+                    "nextEncounterId": "inquisitor-floor-2"
+                }
+            ]
+        },
+        {
+            "id": "inquisitor-floor-2",
+            "title": "Floor 2: The Barracks",
+            "description": "Elite guards are stationed here. They form a shield wall.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "veteran",
+                "name": "Elite Guard Squad",
+                "armorClass": 17,
+                "hitPoints": 50,
+                "attackBonus": 5,
+                "damage": "1d8+3",
+                "xpReward": 200
+            },
+            "options": [
+                {
+                    "id": "kill-guards",
+                    "text": "Break their line",
+                    "type": "attack",
+                    "nextEncounterId": "inquisitor-armory"
+                }
+            ]
+        },
+        {
+            "id": "inquisitor-armory",
+            "title": "The Armory",
+            "description": "You catch your breath in a weapon storage room. A glowing sword rests on a rack.",
+            "type": "exploration",
+            "options": [
+                {
+                    "id": "loot-sword",
+                    "text": "Take the Blade of the Purifier",
+                    "type": "continue",
+                    "outcome": "You claim the sword. It hums with hatred for the undead. (Gain Item: Blade of the Purifier)",
+                    "nextEncounterId": "inquisitor-floor-3",
+                    "grantsItemIds": [
+                        "blade-purifier"
+                    ]
+                },
+                {
+                    "id": "short-rest",
+                    "text": "Take a moment to bandage wounds (Short Rest equivalent)",
+                    "type": "continue",
+                    "outcome": "You rest briefly. But the drums of war are beating above.",
+                    "nextEncounterId": "inquisitor-floor-3"
+                }
+            ]
+        },
+        {
+            "id": "inquisitor-floor-3",
+            "title": "Floor 3: The High Priest Vex",
+            "description": "High Priest Vex awaits you. He wields a flaming mace.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "priest",
+                "name": "High Priest Vex",
+                "armorClass": 15,
+                "hitPoints": 55,
+                "attackBonus": 5,
+                "damage": "2d6+2",
+                "xpReward": 450
+            },
+            "options": [
+                {
+                    "id": "kill-vex",
+                    "text": "Strike him down",
+                    "type": "attack",
+                    "nextEncounterId": "boss-climax"
+                }
+            ]
+        },
+        {
+            "id": "shadow-start",
+            "title": "The Rafters",
+            "description": "You ascend into the darkness. The air is thin and cold. Below, the congregation looks like ants. Above, massive bells sway silently.",
+            "type": "exploration",
+            "mapPosition": {
+                "x": 100,
+                "y": 600
+            },
+            "options": [
+                {
+                    "id": "climb-pipes",
+                    "text": "Climb the Organ Pipes (Athletics)",
+                    "type": "skill",
+                    "skill": "Athletics",
+                    "difficultyClass": 13,
+                    "ability": "Strength",
+                    "successOutcome": "You finding footing on the brass pipes. They hum with low energy.",
+                    "failureOutcome": "You slip! You catch yourself but kick a pipe, causing a loud BONG. (Gargoyles alerted)",
+                    "successNextEncounterId": "shadow-gargoyles",
+                    "failureNextEncounterId": "shadow-combat-gargoyles",
+                    "xpReward": 50
+                },
+                {
+                    "id": "find-ladder",
+                    "text": "Search for maintenance ladder (Investigation)",
+                    "type": "skill",
+                    "skill": "Investigation",
+                    "difficultyClass": 12,
+                    "ability": "Intelligence",
+                    "successOutcome": "You find a rusty ladder tucked behind the organ bellows.",
+                    "failureOutcome": "You waste time searching and find nothing. You must climb.",
+                    "successNextEncounterId": "shadow-gargoyles",
+                    "failureNextEncounterId": "shadow-start"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "shadow-gargoyles",
+            "title": "The Stone Watchers",
+            "description": "Three stone gargoyles perch on the next beam. They haven't seen you yet.",
+            "type": "skill",
+            "options": [
+                {
+                    "id": "sneak-past",
+                    "text": "Creep behind them (Stealth)",
+                    "type": "skill",
+                    "skill": "Stealth",
+                    "difficultyClass": 15,
+                    "ability": "Dexterity",
+                    "success": "You move like a shadow. They remain stone.",
+                    "failure": "One turns its head. Eyes glow red. SCREECH!",
+                    "successNextEncounterId": "shadow-harpy-nest",
+                    "failureNextEncounterId": "shadow-combat-gargoyles"
+                },
+                {
+                    "id": "distract-gargoyles",
+                    "text": "Create a distraction (Illusion/Performance)",
+                    "type": "skill",
+                    "skill": "Performance",
+                    "difficultyClass": 14,
+                    "ability": "Charisma",
+                    "successOutcome": "You throw a stone (or cast a sound). The gargoyles fly off to investigate.",
+                    "failureOutcome": "They ignore the noise and spot you immediately!",
+                    "successNextEncounterId": "shadow-harpy-nest",
+                    "failureNextEncounterId": "shadow-combat-gargoyles"
+                }
+            ]
+        },
+        {
+            "id": "shadow-combat-gargoyles",
+            "title": "Gargoyle Ambush",
+            "description": "The statues burst to life!",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "gargoyle",
+                "name": "Stone Gargoyle",
+                "armorClass": 15,
+                "hitPoints": 40,
+                "attackBonus": 4,
+                "damage": "1d6+2",
+                "xpReward": 200
+            },
+            "options": [
+                {
+                    "id": "kill-gargoyle",
+                    "text": "Shatter them",
+                    "type": "attack",
+                    "nextEncounterId": "shadow-harpy-nest"
+                }
+            ]
+        },
+        {
+            "id": "shadow-harpy-nest",
+            "title": "The Harpy's Nest",
+            "description": "A massive nest of bones and cloth blocks the path. The Harpy Matriarch is sleeping on a chest.",
+            "type": "exploration",
+            "options": [
+                {
+                    "id": "steal-cloak",
+                    "text": "Steal the chest without waking her",
+                    "type": "skill",
+                    "skill": "Sleight of Hand",
+                    "difficultyClass": 16,
+                    "ability": "Dexterity",
+                    "success": "You grab the Cloak of Whispers. (Gain Item: Cloak of Whispers)",
+                    "failure": "She wakes up screaming.",
+                    "successNextEncounterId": "shadow-chandelier",
+                    "failureNextEncounterId": "shadow-combat-harpy",
+                    "grantsItemIds": [
+                        "cloak-whispers"
+                    ]
+                },
+                {
+                    "id": "kill-harpy",
+                    "text": "Assassinate her while she sleeps (Crit)",
+                    "type": "combat",
+                    "autoStartCombat": true,
+                    "enemy": {
+                        "id": "harpy",
+                        "name": "Matriarch",
+                        "armorClass": 11,
+                        "hitPoints": 20,
+                        "attackBonus": 3,
+                        "damage": "1d8",
+                        "xpReward": 100
+                    },
+                    "options": [
+                        {
+                            "id": "win-harpy",
+                            "text": "She dies instantly.",
+                            "type": "attack",
+                            "nextEncounterId": "shadow-chandelier"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "shadow-combat-harpy",
+            "title": "Harpy Matriarch",
+            "description": "The Matriarch screeches!",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "harpy",
+                "name": "Matriarch (Awake)",
+                "armorClass": 11,
+                "hitPoints": 60,
+                "attackBonus": 3,
+                "damage": "2d6",
+                "xpReward": 200
+            },
+            "options": [
+                {
+                    "id": "kill-harpy-awake",
+                    "text": "Fight her",
+                    "type": "attack",
+                    "nextEncounterId": "shadow-chandelier"
+                }
+            ]
+        },
+        {
+            "id": "shadow-chandelier",
+            "title": "Above the Altar",
+            "description": "You are directly above the boss arena. A massive iron chandelier hangs by a single rope.",
+            "type": "exploration",
+            "options": [
+                {
+                    "id": "drop-chandelier",
+                    "text": "Cut the rope!",
+                    "type": "continue",
+                    "outcome": "The chandelier plummets. CRASH! It deals massive damage to the boss below. (Boss starts at half HP).",
+                    "nextEncounterId": "boss-climax"
+                },
+                {
+                    "id": "jump-chandelier",
+                    "text": "Jump onto the Chandelier (Acrobatics)",
+                    "type": "skill",
+                    "skill": "Acrobatics",
+                    "difficultyClass": 15,
+                    "ability": "Dexterity",
+                    "successOutcome": "You land on the iron ring. You have the perfect vantage point for a plunging attack!",
+                    "failureOutcome": "You miss and fall! Ouch. (Take 2d6 falling damage).",
+                    "successNextEncounterId": "boss-climax",
+                    "failureNextEncounterId": "boss-climax",
+                    "outcome": "You crash into the arena."
+                }
+            ]
+        },
+        {
+            "id": "acolyte-start",
+            "title": "The Inner Coven",
+            "description": "You walk boldly into the barracks. Cultists are sharpening blades and chanting.",
+            "type": "social",
+            "mapPosition": {
+                "x": 100,
+                "y": 800
+            },
+            "options": [
+                {
+                    "id": "initiation-chant",
+                    "text": "Join the chant (Deception)",
+                    "type": "skill",
+                    "skill": "Deception",
+                    "difficultyClass": 14,
+                    "ability": "Charisma",
+                    "success": "You blend in. A senior acolyte, Brother Mal, nods at you. 'You have the fire, initiate.'",
+                    "failure": "You mutter the wrong words. Suspicion rises.",
+                    "successNextEncounterId": "acolyte-kitchen",
+                    "failureNextEncounterId": "acolyte-kitchen",
+                    "xpReward": 50
+                },
+                {
+                    "id": "observe-chant",
+                    "text": "Observe quietly (Insight)",
+                    "type": "skill",
+                    "skill": "Insight",
+                    "difficultyClass": 13,
+                    "ability": "Wisdom",
+                    "successOutcome": "You spot the rhythm. You realize they are not praying, but keeping a beat for something below.",
+                    "failureOutcome": "You stare too long. Someone notices.",
+                    "successNextEncounterId": "acolyte-kitchen",
+                    "failureNextEncounterId": "acolyte-kitchen"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "acolyte-kitchen",
+            "title": "The Blood Kitchen",
+            "description": "Brother Mal hands you a knife. 'Prepare the feast.' The meat on the table is... indistinguishable.",
+            "type": "social",
+            "options": [
+                {
+                    "id": "cook-meat",
+                    "text": "Do as you are told (Constitution Save)",
+                    "type": "skill",
+                    "skill": "Constitution",
+                    "difficultyClass": 12,
+                    "ability": "Constitution",
+                    "success": "You stomach the grisly task. Mal is impressed. 'Good. You are ready for the High Table.'",
+                    "failure": "You vomit. Mal sneers. 'Weak stomach. You stay in the back.' (-1 Reputation)",
+                    "successNextEncounterId": "acolyte-promotion",
+                    "failureNextEncounterId": "acolyte-barracks"
+                },
+                {
+                    "id": "poison-soup",
+                    "text": "Poison the soup (Medicine)",
+                    "type": "skill",
+                    "skill": "Medicine",
+                    "difficultyClass": 15,
+                    "ability": "Wisdom",
+                    "successOutcome": "You slip a rotting gland into the pot. Many will be sick tonight. (Combat enemies start with half HP)",
+                    "failureOutcome": "Mal catches your hand! 'Traitor!'",
+                    "successNextEncounterId": "acolyte-promotion",
+                    "failureNextEncounterId": "acolyte-combat"
+                }
+            ]
+        },
+        {
+            "id": "acolyte-promotion",
+            "title": "The Promotion",
+            "description": "Mal presents you with a ring. 'Wear the Ring of the Covenant. It marks you as an Inner Brother.'",
+            "type": "exploration",
+            "options": [
+                {
+                    "id": "take-ring",
+                    "text": "Wear the ring",
+                    "type": "continue",
+                    "outcome": "The ring tightens on your finger. You feel... belonging. (Gain Item: Ring of the Covenant)",
+                    "nextEncounterId": "acolyte-feast",
+                    "grantsItemIds": [
+                        "ring-covenant"
+                    ]
+                },
+                {
+                    "id": "inspect-ring",
+                    "text": "Inspect it closely (Arcana)",
+                    "type": "skill",
+                    "skill": "Arcana",
+                    "difficultyClass": 14,
+                    "ability": "Intelligence",
+                    "successOutcome": "It's a slave collar! You pretend to put it on but pocket it instead.",
+                    "failureOutcome": "You fumble and drop it. Mal glares.",
+                    "successNextEncounterId": "acolyte-feast",
+                    "failureNextEncounterId": "acolyte-feast",
+                    "grantsItemIds": [
+                        "ring-covenant"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "acolyte-barracks",
+            "title": "the Barracks",
+            "description": "You are relegated to cleaning duty. But you overhear the guard rotation.",
+            "type": "exploration",
+            "options": [
+                {
+                    "id": "clean",
+                    "text": "Listen while you work",
+                    "type": "continue",
+                    "nextEncounterId": "acolyte-feast"
+                },
+                {
+                    "id": "spread-rumors",
+                    "text": "Spread rumors (Deception)",
+                    "type": "skill",
+                    "skill": "Deception",
+                    "difficultyClass": 13,
+                    "ability": "Charisma",
+                    "successOutcome": "You whisper about a spy. The guards turn on each other.",
+                    "failureOutcome": "They ignore you.",
+                    "successNextEncounterId": "acolyte-feast",
+                    "failureNextEncounterId": "acolyte-feast"
+                }
+            ]
+        },
+        {
+            "id": "acolyte-feast",
+            "title": "The Sanguine Feast",
+            "description": "The High Priest hosts a dinner before the ritual. The main course is served still beating.",
+            "type": "social",
+            "options": [
+                {
+                    "id": "eat-feast",
+                    "text": "Eat to maintain cover (+2 Corruption)",
+                    "type": "continue",
+                    "outcome": "You force it down. The Pontiff smiles at you from the head of the table. 'You are loyal.'",
+                    "nextEncounterId": "acolyte-betrayal"
+                },
+                {
+                    "id": "fake-eat",
+                    "text": "Sleight of Hand to hide the meat",
+                    "type": "skill",
+                    "skill": "Sleight of Hand",
+                    "difficultyClass": 16,
+                    "ability": "Dexterity",
+                    "success": "You hide the meat in your sleeve.",
+                    "failure": "Caught! The table goes silent.",
+                    "successNextEncounterId": "acolyte-betrayal",
+                    "failureNextEncounterId": "acolyte-combat"
+                }
+            ]
+        },
+        {
+            "id": "acolyte-betrayal",
+            "title": "The Honor guard",
+            "description": "The Pontiff stands. 'Come, my loyal servant. Stand by my side as I extinguish the sun.'",
+            "type": "exploration",
+            "options": [
+                {
+                    "id": "betrayal-stab",
+                    "text": "Walk with him... then STAB HIM!",
+                    "type": "continue",
+                    "outcome": "You gain surprise on the final boss. Critical Hit on the first round.",
+                    "nextEncounterId": "boss-climax"
+                }
+            ]
+        },
+        {
+            "id": "acolyte-combat",
+            "title": "Exposed!",
+            "description": "The room erupts in violence.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "cult-fanatic",
+                "name": "Dinner Guests",
+                "armorClass": 13,
+                "hitPoints": 33,
+                "attackBonus": 4,
+                "damage": "1d8",
+                "xpReward": 100
+            },
+            "options": [
+                {
+                    "id": "win-dinner",
+                    "text": "Fight for your life",
+                    "type": "attack",
+                    "nextEncounterId": "boss-climax"
+                }
+            ]
+        },
+        {
+            "id": "occultist-start",
+            "title": "The Forbidden Library",
+            "description": "Rows of books made of skin stretch into infinity. A ghost floats behind the desk. She is the Librarian, bound here by chains of ink.",
+            "type": "social",
+            "mapPosition": {
+                "x": 100,
+                "y": 1000
+            },
+            "options": [
+                {
+                    "id": "speak-librarian",
+                    "text": "Ask for the location of the True Name",
+                    "type": "social",
+                    "outcome": "She points to a book that is bleeding. 'The knowledge you seek is inside. Literally.'",
+                    "nextEncounterId": "occultist-book-dungeon"
+                },
+                {
+                    "id": "threaten-librarian",
+                    "text": "Demand the book (Intimidation)",
+                    "type": "skill",
+                    "skill": "Intimidation",
+                    "difficultyClass": 15,
+                    "ability": "Charisma",
+                    "successOutcome": "She weeps ink and reveals the book immediately.",
+                    "failureOutcome": "She shrieks! 'Silence in the library!' (You take 1d6 sonic damage)",
+                    "successNextEncounterId": "occultist-book-dungeon",
+                    "failureNextEncounterId": "occultist-book-dungeon"
+                }
+            ],
+            "completed": false
+        },
+        {
+            "id": "occultist-book-dungeon",
+            "title": "Inside the Tome",
+            "description": "You touch the page and are sucked inside. You are now standing in a text-based landscape.",
+            "type": "exploration",
+            "options": [
+                {
+                    "id": "read-runes",
+                    "text": "Decipher the burning runes (Arcana)",
+                    "type": "skill",
+                    "skill": "Arcana",
+                    "difficultyClass": 16,
+                    "ability": "Intelligence",
+                    "success": "You understand the syntax of the gods. You find the 'Lens of Truth'. (Gain Item: Lens of Truth)",
+                    "failure": "The words burn your mind. (Take 2d6 Psychic Damage)",
+                    "successNextEncounterId": "occultist-sanity-check",
+                    "failureNextEncounterId": "occultist-sanity-check",
+                    "grantsItemIds": [
+                        "lens-truth"
+                    ]
+                },
+                {
+                    "id": "search-images",
+                    "text": "Look for illustrations (Investigation)",
+                    "type": "skill",
+                    "skill": "Investigation",
+                    "difficultyClass": 12,
+                    "ability": "Intelligence",
+                    "successOutcome": "You find a diagram of the Mind Flayer's riddle.",
+                    "failureOutcome": "You get lost in the margins.",
+                    "successNextEncounterId": "occultist-sanity-check",
+                    "failureNextEncounterId": "occultist-sanity-check"
+                }
+            ]
+        },
+        {
+            "id": "occultist-sanity-check",
+            "title": "The Mind Flayer's Riddle",
+            "description": "A mental projection of a Mind Flayer blocks your exit. 'What walks on four legs in the morning... no, too simple. What gives life by taking it?'",
+            "type": "social",
+            "options": [
+                {
+                    "id": "answer-blood",
+                    "text": "Blood",
+                    "type": "continue",
+                    "outcome": "Correct. The projection dissolves.",
+                    "nextEncounterId": "occultist-true-name"
+                },
+                {
+                    "id": "answer-wrong",
+                    "text": "Time?",
+                    "type": "continue",
+                    "outcome": "Wrong. It Blasts your mind.",
+                    "nextEncounterId": "occultist-combat-mind"
+                }
+            ]
+        },
+        {
+            "id": "occultist-combat-mind",
+            "title": "Mental Battle",
+            "description": "You fight the projection in your own head.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "specter",
+                "name": "Mind Projection",
+                "armorClass": 12,
+                "hitPoints": 22,
+                "attackBonus": 4,
+                "damage": "3d6",
+                "xpReward": 200
+            },
+            "options": [
+                {
+                    "id": "win-mind",
+                    "text": "Widen your mind",
+                    "type": "attack",
+                    "nextEncounterId": "occultist-true-name"
+                }
+            ]
+        },
+        {
+            "id": "occultist-true-name",
+            "title": "The True Name",
+            "description": "You find the forbidden page. The name of the God is written there. Knowing it gives you power over it.",
+            "type": "exploration",
+            "options": [
+                {
+                    "id": "learn-name",
+                    "text": "Memorize the name",
+                    "type": "continue",
+                    "outcome": "It burns, but you have it. You can now BANISH the boss.",
+                    "nextEncounterId": "boss-climax"
+                },
+                {
+                    "id": "copy-name",
+                    "text": "Transcribe it to a scroll (Sleight of Hand)",
+                    "type": "skill",
+                    "skill": "Sleight of Hand",
+                    "difficultyClass": 14,
+                    "ability": "Dexterity",
+                    "successOutcome": "You copy it without looking directly at it. Safe.",
+                    "failureOutcome": "Your hand shakes. You smudge it. You have to read it. (Take 1d6 Psychic dmg)",
+                    "successNextEncounterId": "boss-climax",
+                    "failureNextEncounterId": "boss-climax"
+                }
+            ]
+        },
+        {
+            "id": "boss-climax",
+            "title": "The Altar of the Black Sun",
+            "description": "The Pontiff floats above the altar. The sun outside is eclipsed by a bleeding hole in reality. 'YOU ARE TOO LATE!' he screams.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "lich",
+                "name": "Sanguine Pontiff",
+                "armorClass": 17,
+                "hitPoints": 100,
+                "attackBonus": 7,
+                "damage": "4d6",
+                "creatureType": "undead",
+                "xpReward": 1000
+            },
+            "options": [
+                {
+                    "id": "attack-normal",
+                    "text": "Attack him head on",
+                    "type": "attack",
+                    "outcome": "You charge the floating monstrosity.",
+                    "nextEncounterId": "boss-phase-2"
+                },
+                {
+                    "id": "banish-god",
+                    "text": "[Occultist] Speak the True Name",
+                    "type": "continue",
+                    "outcome": "You scream the forbidden name. The Pontiff shrieks as his power is ripped away. He falls, human and weak.",
+                    "nextEncounterId": "ending-unbound"
+                }
+            ]
+        },
+        {
+            "id": "boss-phase-2",
+            "title": "The Blood Avatar",
+            "description": "The Pontiff's body explodes, reshaping into a massive demon of blood and bone.",
+            "type": "combat",
+            "autoStartCombat": true,
+            "enemy": {
+                "id": "pit-fiend",
+                "name": "Blood Avatar",
+                "armorClass": 19,
+                "hitPoints": 150,
+                "attackBonus": 8,
+                "damage": "4d8+5",
+                "creatureType": "fiend",
+                "xpReward": 2000
+            },
+            "options": [
+                {
+                    "id": "kill-avatar",
+                    "text": "Destroy the Avatar",
+                    "type": "attack",
+                    "nextEncounterId": "ending-choice"
+                },
+                {
+                    "id": "seal-rift-combat",
+                    "text": "Seal the Rift behind him (Arcana/Religion)",
+                    "type": "skill",
+                    "skill": "Arcana",
+                    "difficultyClass": 18,
+                    "ability": "Intelligence",
+                    "successOutcome": "You close the source of his power! He weakens significantly. (Boss takes 4d10 Force damage)",
+                    "failureOutcome": "The rift blasts you back! (Take 2d10 Force damage)",
+                    "successNextEncounterId": "ending-choice",
+                    "failureNextEncounterId": "ending-choice"
+                }
+            ]
+        },
+        {
+            "id": "ending-choice",
+            "title": "The Fate of Xylos",
+            "description": "The Avatar dissolves into sludge. The Eclipse remains. The power is unguarded.",
+            "type": "social",
+            "options": [
+                {
+                    "id": "end-good-trigger",
+                    "text": "Reverse the Ritual (Save the World)",
+                    "type": "continue",
+                    "outcome": "You channel the energy back into the earth. The sun returns. The cathedral begins to crumble.",
+                    "nextEncounterId": "ending-dawn"
+                },
+                {
+                    "id": "end-evil-trigger",
+                    "text": "Claim the Power (Become the New God)",
+                    "type": "continue",
+                    "outcome": "You sit on the throne. The blood flows into you. You are eternal.",
+                    "nextEncounterId": "ending-dark-lord"
+                }
+            ]
+        },
+        {
+            "id": "ending-dawn",
+            "title": "The Dawn",
+            "description": "You wake up on the cliffs outside. The Sanctum has fallen into the abyss. The world is safe, and the scars will heal.",
+            "type": "ending",
+            "options": [],
+            "completed": true
+        },
+        {
+            "id": "ending-dark-lord",
+            "title": "The Sanguine Throne",
+            "description": "The world descends into darkness. You rule over a empire of dust and blood. All hail the new Pontiff.",
+            "type": "ending",
+            "options": [],
+            "completed": true
+        },
+        {
+            "id": "ending-unbound",
+            "title": "The Unbound",
+            "description": "You banished the god, but the Pontiff escaped in the chaos. He is out there, powerless but hateful. A victory, for now.",
+            "type": "ending",
+            "options": [],
+            "completed": true
+        }
+    ]
+}

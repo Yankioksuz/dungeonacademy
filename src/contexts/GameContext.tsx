@@ -22,6 +22,7 @@ import characterCreationContent from '@/content/characterCreation.json';
 import { useSaveSystem } from '@/hooks/useSaveSystem';
 import tutorialAdventure from '@/content/adventure.json';
 import spireAdventure from '@/content/adventure-shadows.json';
+import sanctumAdventure from '@/content/adventure-sanctum.json';
 import spellsContent from '@/content/spells.json';
 import { getMaxPreparedSpells } from '@/lib/spells';
 import { getProficiencyBonus, createDefaultSkills, getPassiveScore } from '@/utils/skillUtils';
@@ -108,7 +109,7 @@ const addVisitedEncounter = (visited: string[] | undefined, encounterId?: string
   return Array.from(current);
 };
 
-const canonicalAdventures = [tutorialAdventure, spireAdventure].reduce<Record<string, Adventure>>(
+const canonicalAdventures = [tutorialAdventure, spireAdventure, sanctumAdventure].reduce<Record<string, Adventure>>(
   (catalog, adventureData) => {
     const typedAdventure = {
       ...(adventureData as unknown as Adventure),

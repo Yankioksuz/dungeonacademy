@@ -605,6 +605,8 @@ export interface Encounter {
     failure: string;
     rewardItemIds?: string[];
     xpReward?: number;
+    successNextEncounterId?: string;
+    failureNextEncounterId?: string;
   };
   completed: boolean;
   xpReward?: number;

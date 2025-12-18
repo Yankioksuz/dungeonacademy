@@ -585,6 +585,10 @@
     {
       "id": "daughter-dialogue",
       "title": "The Farmer's Daughter",
+      "mapPosition": {
+        "x": 280,
+        "y": 300
+      },
       "description": "A young woman with determined eyes approaches. 'I'm Mara. I saw the goblins clearly - there were six of them, led by one with a skull painted on its face. They headed toward the old ruins.'",
       "type": "social",
       "tutorial": {
@@ -1180,6 +1184,10 @@
     {
       "id": "return-to-village",
       "title": "Return to the Village",
+      "mapPosition": {
+        "x": 280,
+        "y": 200
+      },
       "description": "With the stolen supplies secured, you make your way back to the village square. Villagers gather as you arrive, eager to hear the news and reclaim what was taken.",
       "type": "social",
       "options": [
@@ -1213,6 +1221,10 @@
     {
       "id": "eldred-thanks",
       "title": "Eldred's Gratitude",
+      "mapPosition": {
+        "x": 280,
+        "y": 300
+      },
       "description": "Eldred hugs the crates like lost family heirlooms. Tears well in his eyes as he thanks you over and over.",
       "type": "social",
       "options": [
@@ -1230,6 +1242,10 @@
     {
       "id": "thora-thanks",
       "title": "Thora's Respect",
+      "mapPosition": {
+        "x": 360,
+        "y": 150
+      },
       "description": "Thora listens to your report, then clasps your forearm with a proud grin. 'You handled it like a seasoned warrior.'",
       "type": "social",
       "options": [

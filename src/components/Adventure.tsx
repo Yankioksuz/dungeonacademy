@@ -613,8 +613,14 @@ export function Adventure() {
           let finalTargetId = targetEncounterId;
           if (success && option.successNextEncounterId) {
             finalTargetId = option.successNextEncounterId;
+          } else if (success && currentEncounter.skillCheck?.successNextEncounterId) {
+            // Fallback to encounter-level skillCheck navigation
+            finalTargetId = currentEncounter.skillCheck.successNextEncounterId;
           } else if (!success && option.failureNextEncounterId) {
             finalTargetId = option.failureNextEncounterId;
+          } else if (!success && currentEncounter.skillCheck?.failureNextEncounterId) {
+            // Fallback to encounter-level skillCheck navigation
+            finalTargetId = currentEncounter.skillCheck.failureNextEncounterId;
           }
 
           if (!stayInEncounter) {

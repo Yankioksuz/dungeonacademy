@@ -616,6 +616,36 @@
         "thrown",
         "melee"
       ]
+    },
+    {
+      "id": "blade-purifier",
+      "name": "Blade of the Purifier",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "Longsword +1. Deals extra Radiant damage to Undead/Fiends. Glows near blood magic.",
+      "damage": "1d8+1",
+      "value": 2000,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "versatile-1d10",
+        "melee"
+      ]
+    },
+    {
+      "id": "pontiff-crosier",
+      "name": "The Pontiff's Crosier",
+      "type": "weapon",
+      "subtype": "Magic Staff",
+      "description": "Quarterstaff +2. Can cast Vampiric Touch 1/day.",
+      "damage": "1d6+2",
+      "value": 5000,
+      "rarity": "very rare",
+      "properties": [
+        "magic",
+        "versatile-1d8",
+        "melee"
+      ]
     }
   ],
   "armor": [
@@ -898,6 +928,35 @@
         "attunement"
       ],
       "armorType": "shield"
+    },
+    {
+      "id": "shield-weeping-saint",
+      "name": "Shield of the Weeping Saint",
+      "type": "armor",
+      "subtype": "Magic Shield",
+      "description": "AC +2. Can use Reaction to take damage intended for an adjacent ally.",
+      "armorClass": 4,
+      "value": 4000,
+      "rarity": "rare",
+      "properties": [
+        "magic",
+        "shield"
+      ],
+      "armorType": "shield"
+    },
+    {
+      "id": "robes-flayed",
+      "name": "Robes of the Flayed",
+      "type": "armor",
+      "subtype": "Magic Armor",
+      "description": "AC 12 + Dex. Resistance to Necrotic damage.",
+      "armorClass": 12,
+      "value": 2500,
+      "rarity": "rare",
+      "properties": [
+        "magic"
+      ],
+      "armorType": "light"
     }
   ],
   "magicItems": [
@@ -1310,6 +1369,38 @@
       "properties": [
         "attunement"
       ]
+    },
+    {
+      "id": "cloak-whispers",
+      "name": "Cloak of Whispers",
+      "type": "wondrous",
+      "description": "Advantage on Stealth. Once per day, turn invisible for 1 turn.",
+      "value": 3000,
+      "rarity": "uncommon"
+    },
+    {
+      "id": "ring-covenant",
+      "name": "Ring of the Covenant",
+      "type": "ring",
+      "description": "Cultists treat you as friendly. +2 Deception vs Religious fanatics.",
+      "value": 1000,
+      "rarity": "uncommon"
+    },
+    {
+      "id": "lens-truth",
+      "name": "Lens of Truth",
+      "type": "wondrous",
+      "description": "Reveals hidden magical text and invisible enemies.",
+      "value": 5000,
+      "rarity": "rare"
+    },
+    {
+      "id": "tear-martyr",
+      "name": "Tear of the Martyr",
+      "type": "wondrous",
+      "description": "Revival Charm (Auto-revive to 1HP if downed). Consumed on use.",
+      "value": 2000,
+      "rarity": "rare"
     }
   ],
   "potions": [
@@ -1342,6 +1433,21 @@
       "type": "potion",
       "description": "When you drink this potion, you gain the effect of the haste spell for 1 minute (no concentration required).",
       "value": 400
+    },
+    {
+      "id": "vial-sanguine",
+      "name": "Vial of The Sanguine God",
+      "type": "potion",
+      "description": "Heals 4d8 HP but adds +1 Corruption.",
+      "value": 500,
+      "healing": 20
+    },
+    {
+      "id": "gargoyle-potion",
+      "name": "Gargoyle Stone Skin Potion",
+      "type": "potion",
+      "description": "Resistance to physical damage for 1 minute, but speed halved.",
+      "value": 300
     }
   ],
   "scrolls": [

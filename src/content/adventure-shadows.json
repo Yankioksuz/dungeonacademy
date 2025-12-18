@@ -8,6 +8,10 @@
       "title": "Summons from the Silverwind",
       "description": "Three days before you reach the Azure Spire, a silver courier hawk finds your caravan with a note sealed by Spymaster Kaela. It speaks of a mirror-born conspiracy and begs you to detour to the war camp before the council meeting.",
       "type": "exploration",
+      "mapPosition": {
+        "x": 100,
+        "y": 300
+      },
       "options": [
         {
           "id": "read-letter",
@@ -40,6 +44,10 @@
       "title": "Nightfall at the War Camp",
       "description": "You arrive at a wind-torn war camp outside the Azure Spire. Lanterns flicker across tents bearing four rival banners. Before you can announce yourself, a half-elf with ink-stained gloves approaches, flanked by two silent scouts.",
       "type": "social",
+      "mapPosition": {
+        "x": 200,
+        "y": 300
+      },
       "options": [
         {
           "id": "kaela-introduces",
@@ -81,6 +89,10 @@
       "title": "The War Camp",
       "description": "The war camp sprawls before you—a maze of tents bearing four rival banners. The air is thick with tension as soldiers from different factions eye each other warily. You see Kaela's command tent, a merchant's stall, clusters of refugees, and a group of armored envoys arguing near the central fire pit.",
       "type": "exploration",
+      "mapPosition": {
+        "x": 350,
+        "y": 300
+      },
       "repeatable": true,
       "options": [
         {
@@ -147,6 +159,10 @@
       "title": "Kaela's Briefing",
       "description": "Kaela's tent is organized chaos—maps pinned to every surface, ink bottles balanced precariously, and a scrying pool reflecting faces that aren't in the room. She gestures you to a stool while her scouts take positions outside.",
       "type": "social",
+      "mapPosition": {
+        "x": 350,
+        "y": 150
+      },
       "repeatable": true,
       "options": [
         {
@@ -225,6 +241,10 @@
       "title": "Zorn's War Supplies",
       "description": "The dwarf merchant Zorn sits behind crates stamped with a dozen different guild marks. Battle scars crisscross his arms, and his eyes assess you with professional interest. 'Looking to gear up before the big push?'",
       "type": "social",
+      "mapPosition": {
+        "x": 200,
+        "y": 200
+      },
       "repeatable": true,
       "options": [
         {
@@ -293,6 +313,10 @@
       "title": "The Displaced",
       "description": "A cluster of refugees huddles near a dying fire. Their clothes bear the marks of different regions, but their eyes share the same hollow exhaustion. A young woman with ink-stained fingers—clearly a scholar—looks up as you approach.",
       "type": "social",
+      "mapPosition": {
+        "x": 200,
+        "y": 400
+      },
       "repeatable": true,
       "options": [
         {
@@ -373,6 +397,10 @@
       "title": "The Fractured Banners",
       "description": "Four envoys stand in a circle of mutual hostility. Commander Vex of the Iron Banner jabs a finger at a robed diplomat. Tensions are about to boil over.",
       "type": "social",
+      "mapPosition": {
+        "x": 500,
+        "y": 400
+      },
       "repeatable": true,
       "options": [
         {
@@ -455,6 +483,10 @@
       "title": "Council of Unlikely Allies",
       "description": "Kaela has gathered the envoys in the command tent. A map of the Azure Spire dominates the table, with three colored routes marked in chalk. All eyes turn to you.",
       "type": "social",
+      "mapPosition": {
+        "x": 500,
+        "y": 300
+      },
       "options": [
         {
           "id": "question-envoys",
@@ -493,6 +525,10 @@
       "title": "Skybridge Glide",
       "description": "Wind howls across the crystal spans. Far below, clouds churn like an angry sea. Ahead, wardlights pulse along the bridge, and you glimpse sentries patrolling the pylons that rewrite reality.",
       "type": "skill",
+      "mapPosition": {
+        "x": 650,
+        "y": 100
+      },
       "options": [
         {
           "id": "observe-wardlights",
@@ -586,6 +622,10 @@
       "title": "Warded Aerie",
       "description": "Crystal pylons pulse above the council chamber, waiting to recast Vael's lies as law. You could disable them... or let them misfire later.",
       "type": "exploration",
+      "mapPosition": {
+        "x": 800,
+        "y": 100
+      },
       "options": [
         {
           "id": "arcane-discharge",
@@ -669,6 +709,10 @@
       "title": "Underworks Crawl",
       "description": "Steam pipes hiss and glow. Smuggled mirror crates roll through these tunnels toward allied warfronts. One wrong valve floods everything with scalding brine.",
       "type": "skill",
+      "mapPosition": {
+        "x": 650,
+        "y": 250
+      },
       "options": [
         {
           "id": "hear-pipes",
@@ -775,6 +819,10 @@
       "title": "Ember Forge",
       "description": "Deep beneath the spire, mirror crystals are tempered in lava wells. Sabotage here topples the cabal's supply lines—and proves Vael's collusion.",
       "type": "exploration",
+      "mapPosition": {
+        "x": 800,
+        "y": 250
+      },
       "options": [
         {
           "id": "dragonborn-roar",
@@ -861,6 +909,10 @@
       "title": "Mirror Masquerade",
       "description": "Laughter echoes through mirrored halls. Masked nobles toast Vael's 'peace initiatives' while servants circulate with wine and secrets.",
       "type": "social",
+      "mapPosition": {
+        "x": 650,
+        "y": 400
+      },
       "options": [
         {
           "id": "mingle-gossip",
@@ -1003,6 +1055,10 @@
       "title": "Gilded Vault",
       "description": "You stand above the mirror vault, watching the cabal shunt evidence through portals. Crates stamped with Vael's seal are everywhere.",
       "type": "exploration",
+      "mapPosition": {
+        "x": 800,
+        "y": 400
+      },
       "options": [
         {
           "id": "human-ledger",
@@ -1080,6 +1136,10 @@
       "title": "Mirror Heart Confrontation",
       "description": "Councilor Vael stands amid towering mirrors, Archon Ryell's reflection flickering in each surface. Kaela watches through a scrying focus. The intel you gathered will determine this confrontation.",
       "type": "social",
+      "mapPosition": {
+        "x": 950,
+        "y": 250
+      },
       "options": [
         {
           "id": "question-vael-motive",

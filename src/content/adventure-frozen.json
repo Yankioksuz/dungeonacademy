@@ -8,6 +8,10 @@
             "title": "The Trail Grows Cold",
             "description": "Three weeks after the events at Oakhaven, you receive an urgent message. The mysterious leader who commanded the goblins was never found among the dead—they fled north, taking stolen maps and artifacts. Worse, intelligence from Spymaster Kaela suggests that Archon Ryell of the Azure Spire was merely a puppet. The true mastermind is heading toward the Frostfang Mountains, where ancient records speak of a vault sealed since the Age of Frost. Whatever they're planning, it ends here.",
             "type": "exploration",
+            "mapPosition": {
+                "x": 100,
+                "y": 300
+            },
             "options": [
                 {
                     "id": "read-kaela-message",
@@ -40,6 +44,10 @@
             "title": "Frostfang Pass",
             "description": "The mountain pass is treacherous—ice-slicked stone, howling winds, and visibility measured in feet rather than yards. Through the blizzard, you spot a frozen watchtower and the remnants of a merchant caravan, their wagons half-buried in snow. Something moves in the white haze ahead.",
             "type": "exploration",
+            "mapPosition": {
+                "x": 250,
+                "y": 300
+            },
             "options": [
                 {
                     "id": "investigate-caravan",
@@ -98,6 +106,10 @@
             "title": "The Last Stand",
             "description": "The watchtower's interior tells a grim story. Guards froze mid-combat, weapons aimed at stairs leading down into the mountain. Scratched into the frost on one wall: 'SEAL THE ENTRANCE. DO NOT LET THEM REACH THE HEART.' The stairs descend into darkness and bitter cold.",
             "type": "exploration",
+            "mapPosition": {
+                "x": 400,
+                "y": 300
+            },
             "options": [
                 {
                     "id": "examine-guards",
@@ -156,6 +168,10 @@
             "title": "The Frozen Labyrinth",
             "description": "The tunnels open into a vast underground network carved from living ice. Blue-white light pulses through the walls like frozen veins. Three passages branch before you: one echoes with distant hammering, another with whispered voices, and the third with an eerie, beautiful humming.",
             "type": "exploration",
+            "mapPosition": {
+                "x": 550,
+                "y": 300
+            },
             "repeatable": true,
             "options": [
                 {
@@ -211,6 +227,10 @@
             "title": "The Forge of Endless Winter",
             "description": "An ancient dwarven forge, now corrupted by elemental ice magic. Frost-burned smiths—undead dwarves frozen mid-strike—continue their work eternally, hammering weapons that smoke with supernatural cold. In the center, a massive golem of ice and iron awaits animation.",
             "type": "exploration",
+            "mapPosition": {
+                "x": 550,
+                "y": 150
+            },
             "options": [
                 {
                     "id": "observe-forge",
@@ -295,6 +315,10 @@
             "title": "Voice of the Glacier",
             "description": "The humming emanates from a frozen pool at the heart of an ice cavern. A figure stands within the ice—beautiful, terrible, and radiating cold. It speaks without moving its lips: 'You seek the one who disturbed my slumber. I can show you... for a price.'",
             "type": "social",
+            "mapPosition": {
+                "x": 550,
+                "y": 450
+            },
             "options": [
                 {
                     "id": "ask-price",
@@ -388,6 +412,10 @@
             "title": "The Pale Court",
             "description": "You find a hidden encampment where the Pale Architect's followers gather. Cultists in ice-white robes kneel before a crystalline altar, and you recognize faces among them—former agents of the Azure Spire, goblins from Oakhaven, and mercenaries from a dozen nations. At the center stands a figure wrapped in frost: the Pale Architect themselves.",
             "type": "social",
+            "mapPosition": {
+                "x": 700,
+                "y": 300
+            },
             "options": [
                 {
                     "id": "observe-ritual",
@@ -470,6 +498,10 @@
             "title": "Face to Face with the Enemy",
             "description": "The Pale Architect regards you with ancient, cold eyes. 'You've been a more capable adversary than I expected. Oakhaven was supposed to be a quiet heist. The Azure Spire, a subtle corruption. But you disrupted both—and now you've followed me here. Admirable. Foolish, but admirable.'",
             "type": "social",
+            "mapPosition": {
+                "x": 800,
+                "y": 300
+            },
             "options": [
                 {
                     "id": "demand-answers",
@@ -550,6 +582,10 @@
             "title": "The Threshold of Winter",
             "description": "The tunnel opens into a massive cavern of primordial ice. At its center, a crystalline formation pulses with cold light—the vault containing the Heart of Winter. Cracks spider-web across its surface as something within begins to stir. Vaelthris's vial lies shattered at the vault's base. You have moments before the Primordial fully wakes.",
             "type": "exploration",
+            "mapPosition": {
+                "x": 900,
+                "y": 300
+            },
             "options": [
                 {
                     "id": "examine-vault",
@@ -638,6 +674,10 @@
             "title": "The Thaw",
             "description": "The Heart of Winter dissolves into frost and memory. The unnatural cold begins to lift from the Frostfang Mountains. Around you, the ice tunnels groan as they begin—slowly—to warm. You've done what the Rimeguard couldn't: defeated a Primordial before it fully woke. In the remains of the vault, a single shard of pure winter remains, humming with contained power. Perhaps it can be used for good. Perhaps it should be destroyed. But that is a decision for another day. For now, you have earned your rest—and your legend.",
             "type": "ending",
+            "mapPosition": {
+                "x": 1100,
+                "y": 300
+            },
             "options": [
                 {
                     "id": "take-shard",

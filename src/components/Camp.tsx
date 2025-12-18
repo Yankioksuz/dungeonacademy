@@ -8,12 +8,14 @@ import { MapPin, Trash2, Swords, ShieldCheck, Scroll, History, User } from 'luci
 import adventureData from '@/content/adventure.json';
 import intrigueAdventure from '@/content/adventure-shadows.json';
 import frozenAdventure from '@/content/adventure-frozen.json';
+import sanctumAdventure from '@/content/adventure-sanctum.json';
 import type { Adventure as AdventureType, Class } from '@/types';
 import { portraits } from '@/data/portraits';
 import { PortraitSelector } from './PortraitSelector';
 import tutorialArtwork from '@/assets/campaigns/tutorial-adventure.png';
 import spireArtwork from '@/assets/campaigns/shadows-of-the-spire.png';
 import frozenArtwork from '@/assets/campaigns/frozen-depths.png';
+import sanctumArtwork from '@/assets/campaigns/sanctum-of-the-flayed-god.png';
 import { Switch } from './ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { AdventureHistory } from './AdventureHistory';
@@ -52,6 +54,15 @@ const AVAILABLE_ADVENTURES = [
     length: 'Long',
     data: frozenAdventure as unknown as AdventureType,
     artwork: frozenArtwork,
+  },
+  {
+    id: (sanctumAdventure as AdventureType).id,
+    title: sanctumAdventure.title,
+    description: sanctumAdventure.description,
+    difficulty: 'Deadly',
+    length: 'Epic',
+    data: sanctumAdventure as unknown as AdventureType,
+    artwork: sanctumArtwork,
   }
 ];
 

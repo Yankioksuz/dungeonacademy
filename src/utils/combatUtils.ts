@@ -182,10 +182,12 @@ export function calculateDamage(
         class?: { id: string };
         subclass?: { id: string };
         hasFeatures?: string[];
+        equippedWeapon?: { id: string };
     },
     defender: Combatant & {
         hitPoints?: number;
         maxHitPoints?: number;
+        creatureType?: string;
     },
     isCrit: boolean = false
 ): { total: number; breakdown: string } {
@@ -211,6 +213,16 @@ export function calculateDamage(
         const colossusDmg = Math.floor(Math.random() * 8) + 1;
         total += colossusDmg;
         parts.push(`Colossus Slayer: ${colossusDmg}`);
+    }
+
+    // Blade of the Purifier Effect (Sanctum Adventure)
+    if (
+        attacker.equippedWeapon?.id === 'blade-purifier' &&
+        ['undead', 'fiend'].includes(defender.creatureType?.toLowerCase() || '')
+    ) {
+        const radiantDmg = Math.floor(Math.random() * 6) + 1;
+        total += radiantDmg;
+        parts.push(`Purifier: ${radiantDmg} (Radiant)`);
     }
 
     // Critical Hit processing would normally double dice here if passed in dice count

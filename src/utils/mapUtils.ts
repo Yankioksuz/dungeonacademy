@@ -11,21 +11,33 @@ import { DEFAULT_MAP_CONFIG } from '@/types/mapTypes';
 function getEncounterConnections(encounter: Encounter): string[] {
     const connections = new Set<string>();
 
-    for (const option of encounter.options) {
-        // Standard next encounter
-        if (option.nextEncounterId && option.nextEncounterId !== encounter.id) {
-            connections.add(option.nextEncounterId);
+    if (encounter.options && Array.isArray(encounter.options)) {
+        for (const option of encounter.options) {
+            // Standard next encounter
+            if (option.nextEncounterId && option.nextEncounterId !== encounter.id) {
+                connections.add(option.nextEncounterId);
+            }
+            // Success/failure branching
+            if (option.successNextEncounterId) {
+                connections.add(option.successNextEncounterId);
+            }
+            if (option.failureNextEncounterId) {
+                connections.add(option.failureNextEncounterId);
+            }
+            // First time vs repeat
+            if (option.firstTimeEncounterId) {
+                connections.add(option.firstTimeEncounterId);
+            }
         }
-        // Success/failure branching
-        if (option.successNextEncounterId) {
-            connections.add(option.successNextEncounterId);
+    }
+
+    // Also check for direct skill check transitions on the encounter itself
+    if (encounter.skillCheck) {
+        if (encounter.skillCheck.successNextEncounterId) {
+            connections.add(encounter.skillCheck.successNextEncounterId);
         }
-        if (option.failureNextEncounterId) {
-            connections.add(option.failureNextEncounterId);
-        }
-        // First time vs repeat
-        if (option.firstTimeEncounterId) {
-            connections.add(option.firstTimeEncounterId);
+        if (encounter.skillCheck.failureNextEncounterId) {
+            connections.add(encounter.skillCheck.failureNextEncounterId);
         }
     }
 
