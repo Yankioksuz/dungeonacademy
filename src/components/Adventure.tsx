@@ -398,16 +398,16 @@ export function Adventure() {
     const castAsRitual = options?.castAsRitual ?? false;
     const fromScroll = options?.fromScroll ?? false;
     const preparedList = character.preparedSpells ?? character.knownSpells ?? [];
+    // Cantrips are always available - no preparation needed
+    const isCantrip = spell.level === 0;
     const preparedOk = options?.bypassPreparation
       ? true
-      : !isPreparedCaster(character.class.name) || preparedList.includes(spellId);
+      : !isPreparedCaster(character.class.name) || isCantrip || preparedList.includes(spellId);
 
     if (!preparedOk) {
       addToNarrativeLog(`${spell.name} is not prepared.`);
       return false;
     }
-
-    const isCantrip = spell.level === 0;
     const computedSlotLevel = spell.level > 0 && !castAsRitual && !fromScroll
       ? (options?.slotLevel ?? getAvailableSlotLevels(character, spell)[0])
       : undefined;
@@ -1715,8 +1715,10 @@ export function Adventure() {
                       !isCantrip &&
                       availableSlotLevels.length === 0 &&
                       !canCastAsRitual;
+                    // Cantrips are always available for prepared casters
                     const preparedRequirement =
                       !isPreparedCaster(character.class.name) ||
+                      isCantrip ||
                       (character.preparedSpells || character.knownSpells || []).includes(spellId);
 
                     return (

@@ -53,7 +53,7 @@ const AVAILABLE_ADVENTURES = [
 
 export function Camp() {
   const { t } = useTranslation();
-  const { character, startAdventure, reset, updateCharacter, tutorialsEnabled, setTutorialsEnabled } = useGame();
+  const { character, startAdventure, reset, updateCharacter, tutorialsEnabled, setTutorialsEnabled, prepareSpell, unprepareSpell } = useGame();
   const [selectedAdventureId, setSelectedAdventureId] = useState(AVAILABLE_ADVENTURES[0]?.id);
   const [isStarting, setIsStarting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -255,7 +255,11 @@ export function Camp() {
             </TabsContent>
 
             <TabsContent value="character" className="flex-1 mt-0">
-              <CharacterSheet character={character} />
+              <CharacterSheet
+                character={character}
+                onPrepareSpell={prepareSpell}
+                onUnprepareSpell={unprepareSpell}
+              />
             </TabsContent>
 
             <TabsContent value="history" className="flex-1 mt-0">

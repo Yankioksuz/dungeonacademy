@@ -1929,9 +1929,11 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     const fromScroll = options?.fromScroll ?? false;
 
     const preparedList = character.preparedSpells ?? character.knownSpells ?? [];
+    // Check if this is a cantrip first - cantrips don't need preparation
+    const isCantrip = spell.level === 0;
     const preparedOk = options?.bypassPreparation
       ? true
-      : !isPreparedCaster(character.class.name) || preparedList.includes(spellId);
+      : !isPreparedCaster(character.class.name) || isCantrip || preparedList.includes(spellId);
     if (!preparedOk) {
       addLog(`${spell.name} is not prepared.`, 'miss');
       return;
@@ -1939,9 +1941,6 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
     const abilityKey = getSpellcastingAbility(character.class.name);
     const abilityMod = Math.floor((character.abilityScores[abilityKey] - 10) / 2);
-
-
-    const isCantrip = spell.level === 0;
     const computedSlotLevel = spell.level > 0 && !castAsRitual
       ? (options?.slotLevel ?? getAvailableSlotLevels(character, spell)[0])
       : undefined;
@@ -2283,10 +2282,18 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
   const torchOilAvailable = Boolean(findTorchOilItem());
 
-  // For prepared casters (Wizard, Cleric, Druid, Paladin), use preparedSpells; otherwise use knownSpells
+  // For prepared casters (Wizard, Cleric, Druid, Paladin), use preparedSpells for leveled spells + always include cantrips from knownSpells
   const availableSpells = useMemo(() => {
     if (isPreparedCaster(character.class.name)) {
-      return character.preparedSpells ?? [];
+      // Get cantrips from known spells (always available)
+      const knownCantrips = (character.knownSpells ?? []).filter(spellId => {
+        const spell = spellsData.find(s => s.id === spellId);
+        return spell && spell.level === 0;
+      });
+      // Get prepared leveled spells
+      const preparedLeveled = character.preparedSpells ?? [];
+      // Combine: cantrips + prepared leveled spells
+      return [...new Set([...knownCantrips, ...preparedLeveled])];
     }
     return character.knownSpells ?? [];
   }, [character.knownSpells, character.preparedSpells, character.class.name]);

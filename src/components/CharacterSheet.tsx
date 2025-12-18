@@ -28,17 +28,23 @@ import {
     Scroll,
     Dna,
     X,
-    Award
+    Award,
+    BookOpen,
+    Check,
+    Circle
 } from 'lucide-react';
 import spellsData from '@/content/spells.json';
 import feats from '@/content/feats.json';
+import { isPreparedCaster, getMaxPreparedSpells } from '@/lib/spells';
 
 interface CharacterSheetProps {
     character: PlayerCharacter;
     onClose?: () => void;
+    onPrepareSpell?: (spellId: string) => void;
+    onUnprepareSpell?: (spellId: string) => void;
 }
 
-export function CharacterSheet({ character, onClose }: CharacterSheetProps) {
+export function CharacterSheet({ character, onClose, onPrepareSpell, onUnprepareSpell }: CharacterSheetProps) {
     const [activeTab, setActiveTab] = useState("equipment");
     const proficiencyBonus = calculateProficiencyBonus(character.level);
     const armorClass = calculateArmorClass(character);
@@ -60,6 +66,19 @@ export function CharacterSheet({ character, onClose }: CharacterSheetProps) {
     const knownSpellsDetailed = (character.knownSpells || [])
         .map(getSpellById)
         .filter((spell): spell is typeof spellsData[number] => Boolean(spell));
+
+    // Spell preparation for prepared casters
+    const isCharPreparedCaster = isPreparedCaster(character.class.name);
+    const maxPrepared = getMaxPreparedSpells(character);
+    const currentPreparedCount = (character.preparedSpells || []).filter(id => {
+        const spell = getSpellById(id);
+        return spell && spell.level > 0; // Only count non-cantrips
+    }).length;
+    const canPrepareMore = currentPreparedCount < maxPrepared;
+
+    // Separate cantrips from leveled spells
+    const knownCantrips = knownSpellsDetailed.filter(s => s.level === 0);
+    const knownLeveledSpells = knownSpellsDetailed.filter(s => s.level > 0);
 
     const abilities: (keyof PlayerCharacter['abilityScores'])[] = [
         'strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'
@@ -431,49 +450,122 @@ export function CharacterSheet({ character, onClose }: CharacterSheetProps) {
                                     )}
                                 </div>
                             </div>
-                            <div className="rounded-2xl border border-fantasy-purple/30 bg-black/30 p-5 space-y-3">
-                                <h3 className="text-xs font-semibold uppercase tracking-[0.3em] text-fantasy-gold">
-                                    Prepared Spells
-                                </h3>
-                                {preparedSpells.length > 0 ? (
+
+                            {/* Cantrips - Always available */}
+                            {knownCantrips.length > 0 && (
+                                <div className="rounded-2xl border border-fantasy-purple/30 bg-black/30 p-5 space-y-3">
+                                    <h3 className="text-xs font-semibold uppercase tracking-[0.3em] text-fantasy-gold">
+                                        Cantrips (Always Available)
+                                    </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                        {preparedSpells.map((spell) => (
-                                            <div key={spell.id} className="rounded-xl border border-fantasy-purple/30 bg-fantasy-purple/10 px-3 py-2 text-sm text-white">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="font-semibold">{spell.name}</span>
-                                                    <Badge variant="secondary">Lvl {spell.level}</Badge>
-                                                </div>
-                                                <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-                                                    {spell.concentration && <Badge variant="outline" className="text-[10px]">Concentration</Badge>}
-                                                    {spell.ritual && <Badge variant="outline" className="text-[10px]">Ritual</Badge>}
-                                                </div>
+                                        {knownCantrips.map((spell) => (
+                                            <div key={spell.id} className="rounded-xl border border-fantasy-gold/30 bg-fantasy-gold/5 px-3 py-2 text-sm text-white">
+                                                <span className="font-semibold">{spell.name}</span>
+                                                <p className="text-xs text-muted-foreground line-clamp-1 mt-1">{spell.description}</p>
                                             </div>
                                         ))}
                                     </div>
-                                ) : (
-                                    <p className="text-sm text-muted-foreground">No spells prepared.</p>
-                                )}
-                            </div>
-                            <div className="rounded-2xl border border-fantasy-purple/30 bg-black/30 p-5 space-y-3">
-                                <h3 className="text-xs font-semibold uppercase tracking-[0.3em] text-fantasy-gold">
-                                    Known Spells
-                                </h3>
-                                {knownSpellsDetailed.length > 0 ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                        {knownSpellsDetailed.map((spell) => (
-                                            <div key={spell.id} className="rounded-xl border border-white/5 bg-black/40 px-3 py-2 text-sm text-white">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="font-semibold">{spell.name}</span>
-                                                    <Badge variant="secondary">Lvl {spell.level}</Badge>
-                                                </div>
-                                                <p className="text-xs text-muted-foreground line-clamp-2">{spell.description}</p>
-                                            </div>
-                                        ))}
+                                </div>
+                            )}
+
+                            {/* Spellbook / Spell Preparation for Prepared Casters */}
+                            {isCharPreparedCaster && onPrepareSpell && onUnprepareSpell ? (
+                                <div className="rounded-2xl border border-fantasy-purple/40 bg-black/30 p-5 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-xs font-semibold uppercase tracking-[0.3em] text-fantasy-gold flex items-center gap-2">
+                                            <BookOpen className="h-4 w-4" /> Spellbook
+                                        </h3>
+                                        <Badge
+                                            variant={canPrepareMore ? "outline" : "fantasy"}
+                                            className="text-[11px]"
+                                        >
+                                            {currentPreparedCount}/{maxPrepared} Prepared
+                                        </Badge>
                                     </div>
-                                ) : (
-                                    <p className="text-sm text-muted-foreground">No known spells.</p>
-                                )}
-                            </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        Click spells to prepare or unprepare them. Prepared spells can be cast in combat.
+                                    </p>
+                                    {knownLeveledSpells.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                            {knownLeveledSpells.map((spell) => {
+                                                const isPrepared = (character.preparedSpells || []).includes(spell.id);
+                                                const canToggle = isPrepared || canPrepareMore;
+
+                                                return (
+                                                    <button
+                                                        key={spell.id}
+                                                        onClick={() => {
+                                                            if (isPrepared) {
+                                                                onUnprepareSpell(spell.id);
+                                                            } else if (canPrepareMore) {
+                                                                onPrepareSpell(spell.id);
+                                                            }
+                                                        }}
+                                                        disabled={!canToggle}
+                                                        className={`text-left rounded-xl border px-3 py-2 text-sm transition-all overflow-hidden ${isPrepared
+                                                            ? 'border-fantasy-purple/50 bg-fantasy-purple/20 text-white ring-1 ring-fantasy-purple/30'
+                                                            : canToggle
+                                                                ? 'border-white/10 bg-black/40 text-muted-foreground hover:border-fantasy-purple/30 hover:bg-fantasy-purple/10'
+                                                                : 'border-white/5 bg-black/20 text-muted-foreground/50 cursor-not-allowed'
+                                                            }`}
+                                                    >
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="flex-shrink-0">
+                                                                {isPrepared ? (
+                                                                    <Check className="h-4 w-4 text-fantasy-gold" />
+                                                                ) : (
+                                                                    <Circle className="h-4 w-4 text-muted-foreground/50" />
+                                                                )}
+                                                            </span>
+                                                            <span className={`flex-1 min-w-0 truncate ${isPrepared ? 'font-semibold text-white' : ''}`}>
+                                                                {spell.name}
+                                                            </span>
+                                                            <span className="flex-shrink-0 text-[10px] text-muted-foreground">
+                                                                L{spell.level}
+                                                            </span>
+                                                        </div>
+                                                        {(spell.concentration || spell.ritual) && (
+                                                            <div className="mt-1 flex flex-wrap gap-1 text-[10px]">
+                                                                {spell.concentration && <Badge variant="outline" className="text-[9px]">Concentration</Badge>}
+                                                                {spell.ritual && <Badge variant="outline" className="text-[9px]">Ritual</Badge>}
+                                                            </div>
+                                                        )}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground">No leveled spells in spellbook.</p>
+                                    )}
+                                </div>
+                            ) : (
+                                /* Non-prepared casters or no callbacks - show read-only lists */
+                                <>
+                                    <div className="rounded-2xl border border-fantasy-purple/30 bg-black/30 p-5 space-y-3">
+                                        <h3 className="text-xs font-semibold uppercase tracking-[0.3em] text-fantasy-gold">
+                                            {isCharPreparedCaster ? 'Prepared Spells' : 'Known Spells'}
+                                        </h3>
+                                        {(isCharPreparedCaster ? preparedSpells : knownLeveledSpells).length > 0 ? (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                                {(isCharPreparedCaster ? preparedSpells : knownLeveledSpells).map((spell) => (
+                                                    <div key={spell.id} className="rounded-xl border border-fantasy-purple/30 bg-fantasy-purple/10 px-3 py-2 text-sm text-white">
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="font-semibold">{spell.name}</span>
+                                                            <Badge variant="secondary">Lvl {spell.level}</Badge>
+                                                        </div>
+                                                        <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                                                            {spell.concentration && <Badge variant="outline" className="text-[10px]">Concentration</Badge>}
+                                                            {spell.ritual && <Badge variant="outline" className="text-[10px]">Ritual</Badge>}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-muted-foreground">No spells available.</p>
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </TabsContent>
                     </Tabs>
                 </div >
