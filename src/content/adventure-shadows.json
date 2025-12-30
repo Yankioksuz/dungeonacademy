@@ -304,6 +304,36 @@
           "outcome": "Zorn gives you a dwarven salute. 'May your beard grow long and your axe stay sharp. Even if you don't have a beard.'",
           "nextEncounterId": "war-camp-hub",
           "isExitOption": true
+        },
+        {
+          "id": "charlatan-hustle",
+          "text": "[Charlatan] \"I know a fence when I see one. What's really for sale?\"",
+          "type": "continue",
+          "requiresBackground": "Charlatan",
+          "outcome": "Zorn's eyes narrow, then he grins. 'Sharp one, aren't you? I've got... special items. A forged noble's seal that'll get you into the masquerade. No questions asked.'",
+          "nextEncounterId": "merchant-zorn",
+          "stayInEncounter": true,
+          "xpReward": 30
+        },
+        {
+          "id": "entertainer-charm",
+          "text": "[Entertainer] \"I could draw a crowd away from those guards if you need.\"",
+          "type": "continue",
+          "requiresBackground": "Entertainer",
+          "outcome": "Zorn laughs heartily. 'A performer! Now that's useful. The gala route would suit you perfectly. Nobles love a show.'",
+          "nextEncounterId": "merchant-zorn",
+          "stayInEncounter": true,
+          "xpReward": 25
+        },
+        {
+          "id": "guild-artisan-trade",
+          "text": "[Guild Artisan] \"I recognize guild marks from three kingdoms on your crates.\"",
+          "type": "continue",
+          "requiresBackground": "Guild Artisan",
+          "outcome": "Zorn whistles appreciatively. 'A fellow tradesperson! Those crates tell a story - Vael's been buying from guilds across the realm. Here, take this ledger page I... acquired. It shows the money trail.'",
+          "nextEncounterId": "merchant-zorn",
+          "stayInEncounter": true,
+          "xpReward": 30
         }
       ],
       "completed": false
@@ -388,6 +418,26 @@
           "outcome": "Aelia watches you go. 'Please. Make the truth undeniable.'",
           "nextEncounterId": "war-camp-hub",
           "isExitOption": true
+        },
+        {
+          "id": "druid-nature",
+          "text": "[Druid] \"The land remembers even when records are erased.\"",
+          "type": "continue",
+          "requiresClass": "Druid",
+          "outcome": "Aelia's eyes widen. 'A druid! Yes, the old oak groves near our village still hold the memories. If you could speak to them... they'd testify to our existence.'",
+          "nextEncounterId": "refugee-camp",
+          "stayInEncounter": true,
+          "xpReward": 25
+        },
+        {
+          "id": "hermit-wisdom",
+          "text": "[Hermit] \"In my years of solitude, I learned that truth persists.\"",
+          "type": "continue",
+          "requiresBackground": "Hermit",
+          "outcome": "A elderly refugee nods slowly. 'You understand isolation. We too are now isolated from the world, erased from its memory. Your wisdom gives us hope.'",
+          "nextEncounterId": "refugee-camp",
+          "stayInEncounter": true,
+          "xpReward": 25
         }
       ],
       "completed": false
@@ -474,6 +524,26 @@
           "outcome": "The argument resumes as you walk away, but they're watching you now. Your presence has changed something.",
           "nextEncounterId": "war-camp-hub",
           "isExitOption": true
+        },
+        {
+          "id": "sailor-navigation",
+          "text": "[Sailor] \"I've navigated worse storms than your political squalls.\"",
+          "type": "continue",
+          "requiresBackground": "Sailor",
+          "outcome": "Vex actually chuckles. 'A sailor? Ha! If you can navigate the treacherous currents of Vael's court as well as the sea, we might just have a chance.'",
+          "nextEncounterId": "envoy-argument",
+          "stayInEncounter": true,
+          "xpReward": 25
+        },
+        {
+          "id": "urchin-survive",
+          "text": "[Urchin] \"I survived the streets. I know when powerful people are lying.\"",
+          "type": "continue",
+          "requiresBackground": "Urchin",
+          "outcome": "The silent fourth envoy finally speaks. 'The street child sees what nobles miss. Perhaps the most honest perspective here.' The others fall quiet, reconsidering.",
+          "nextEncounterId": "envoy-argument",
+          "stayInEncounter": true,
+          "xpReward": 30
         }
       ],
       "completed": false
@@ -760,6 +830,15 @@
           "requiresRace": "Gnome",
           "outcome": "You emerge directly above the forge control room. Sometimes small is best.",
           "xpReward": 70,
+          "nextEncounterId": "ember-forge"
+        },
+        {
+          "id": "outlander-tunnels",
+          "text": "[Outlander] These tunnels are like cave systems. I can read them.",
+          "type": "continue",
+          "requiresBackground": "Outlander",
+          "outcome": "Your experience with natural caves helps you navigate the artificial ones. Steam vents become landmarks, and you find the safest path through.",
+          "xpReward": 65,
           "nextEncounterId": "ember-forge"
         }
       ],
@@ -1326,7 +1405,8 @@
           "xpReward": 150,
           "grantsItemIds": [
             "gold-coins",
-            "silver-luck-charm"
+            "silver-luck-charm",
+            "rapier-plus-1"
           ]
         }
       ],
@@ -1347,7 +1427,8 @@
           "xpReward": 150,
           "grantsItemIds": [
             "gold-coins",
-            "silver-luck-charm"
+            "silver-luck-charm",
+            "longsword-plus-1"
           ]
         }
       ],
@@ -1461,7 +1542,8 @@
           "grantsItemIds": [
             "gold-coins",
             "silver-luck-charm",
-            "marked-courier-map"
+            "marked-courier-map",
+            "longbow-plus-1"
           ]
         }
       ],

@@ -646,6 +646,146 @@
         "versatile-1d8",
         "melee"
       ]
+    },
+    {
+      "id": "longbow-plus-1",
+      "name": "Longbow +1",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "A finely crafted longbow enchanted with minor magic. This weapon counts as magical for the purpose of overcoming resistance and immunity to nonmagical attacks.",
+      "damage": "1d8+1",
+      "value": 500,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "ranged",
+        "two-handed",
+        "heavy"
+      ]
+    },
+    {
+      "id": "shortbow-plus-1",
+      "name": "Shortbow +1",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "A nimble shortbow imbued with enchantment. This weapon counts as magical for the purpose of overcoming resistance and immunity to nonmagical attacks.",
+      "damage": "1d6+1",
+      "value": 400,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "ranged",
+        "two-handed"
+      ]
+    },
+    {
+      "id": "longsword-plus-1",
+      "name": "Longsword +1",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "A well-balanced blade humming with magical energy. This weapon counts as magical for the purpose of overcoming resistance and immunity to nonmagical attacks.",
+      "damage": "1d8+1",
+      "value": 500,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "versatile-1d10",
+        "melee"
+      ]
+    },
+    {
+      "id": "rapier-plus-1",
+      "name": "Rapier +1",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "An elegant blade etched with arcane sigils. This weapon counts as magical for the purpose of overcoming resistance and immunity to nonmagical attacks.",
+      "damage": "1d8+1",
+      "value": 500,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "finesse",
+        "melee"
+      ]
+    },
+    {
+      "id": "battleaxe-plus-1",
+      "name": "Battleaxe +1",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "A dwarven-forged axe with a keen magical edge. This weapon counts as magical for the purpose of overcoming resistance and immunity to nonmagical attacks.",
+      "damage": "1d8+1",
+      "value": 500,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "versatile-1d10",
+        "melee"
+      ]
+    },
+    {
+      "id": "warhammer-plus-1",
+      "name": "Warhammer +1",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "A consecrated hammer that glows faintly in the presence of evil. This weapon counts as magical for the purpose of overcoming resistance and immunity to nonmagical attacks.",
+      "damage": "1d8+1",
+      "value": 500,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "versatile-1d10",
+        "melee"
+      ]
+    },
+    {
+      "id": "hand-crossbow-plus-1",
+      "name": "Hand Crossbow +1",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "A compact crossbow with an enchanted mechanism. This weapon counts as magical for the purpose of overcoming resistance and immunity to nonmagical attacks.",
+      "damage": "1d6+1",
+      "value": 500,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "ranged",
+        "loading",
+        "light"
+      ]
+    },
+    {
+      "id": "dagger-plus-1",
+      "name": "Dagger +1",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "A small blade that never dulls and always flies true. This weapon counts as magical for the purpose of overcoming resistance and immunity to nonmagical attacks.",
+      "damage": "1d4+1",
+      "value": 300,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "finesse",
+        "light",
+        "thrown",
+        "melee"
+      ]
+    },
+    {
+      "id": "greatsword-plus-1",
+      "name": "Greatsword +1",
+      "type": "weapon",
+      "subtype": "Magic Weapon",
+      "description": "A massive blade forged with ancient techniques and imbued with magic. This weapon counts as magical for the purpose of overcoming resistance and immunity to nonmagical attacks.",
+      "damage": "2d6+1",
+      "value": 600,
+      "rarity": "uncommon",
+      "properties": [
+        "magic",
+        "heavy",
+        "two-handed",
+        "melee"
+      ]
     }
   ],
   "armor": [
@@ -866,83 +1006,6 @@
         "magic",
         "attunement"
       ]
-    },
-    {
-      "id": "shield-plus-1",
-      "name": "+1 Shield",
-      "type": "armor",
-      "subtype": "Magic Shield",
-      "description": "While holding this shield, you have a +1 bonus to AC in addition to the shield's normal bonus.",
-      "armorClass": 3,
-      "value": 1500,
-      "rarity": "uncommon",
-      "properties": [
-        "magic",
-        "shield"
-      ],
-      "armorType": "shield"
-    },
-    {
-      "id": "shield-plus-2",
-      "name": "+2 Shield",
-      "type": "armor",
-      "subtype": "Magic Shield",
-      "description": "While holding this shield, you have a +2 bonus to AC in addition to the shield's normal bonus.",
-      "armorClass": 4,
-      "value": 6000,
-      "rarity": "rare",
-      "properties": [
-        "magic",
-        "shield"
-      ],
-      "armorType": "shield"
-    },
-    {
-      "id": "animated-shield",
-      "name": "Animated Shield",
-      "type": "armor",
-      "subtype": "Legendary Shield",
-      "description": "While holding this shield, you can speak its command word to cause it to animate. The shield floats in your space, leaving your hands free.",
-      "armorClass": 2,
-      "value": 12000,
-      "rarity": "very rare",
-      "properties": [
-        "magic",
-        "shield",
-        "attunement"
-      ],
-      "armorType": "shield"
-    },
-    {
-      "id": "spellguard-shield",
-      "name": "Spellguard Shield",
-      "type": "armor",
-      "subtype": "Legendary Shield",
-      "description": "While holding this shield, you have advantage on saving throws against spells and magical effects, and spell attacks have disadvantage against you.",
-      "armorClass": 2,
-      "value": 18000,
-      "rarity": "very rare",
-      "properties": [
-        "magic",
-        "shield",
-        "attunement"
-      ],
-      "armorType": "shield"
-    },
-    {
-      "id": "shield-weeping-saint",
-      "name": "Shield of the Weeping Saint",
-      "type": "armor",
-      "subtype": "Magic Shield",
-      "description": "AC +2. Can use Reaction to take damage intended for an adjacent ally.",
-      "armorClass": 4,
-      "value": 4000,
-      "rarity": "rare",
-      "properties": [
-        "magic",
-        "shield"
-      ],
-      "armorType": "shield"
     },
     {
       "id": "robes-flayed",
@@ -2044,6 +2107,64 @@
       "armorClass": 2,
       "value": 3000,
       "rarity": "uncommon",
+      "armorType": "shield",
+      "properties": [
+        "magic"
+      ]
+    },
+    {
+      "id": "shield-plus-2",
+      "name": "+2 Shield",
+      "type": "shield",
+      "subtype": "Magic Shield",
+      "description": "While holding this shield, you have a +2 bonus to AC in addition to the shield's normal bonus.",
+      "armorClass": 4,
+      "value": 6000,
+      "rarity": "rare",
+      "armorType": "shield",
+      "properties": [
+        "magic"
+      ]
+    },
+    {
+      "id": "animated-shield",
+      "name": "Animated Shield",
+      "type": "shield",
+      "subtype": "Legendary Shield",
+      "description": "While holding this shield, you can speak its command word to cause it to animate. The shield floats in your space, leaving your hands free.",
+      "armorClass": 2,
+      "value": 12000,
+      "rarity": "very rare",
+      "armorType": "shield",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "spellguard-shield",
+      "name": "Spellguard Shield",
+      "type": "shield",
+      "subtype": "Legendary Shield",
+      "description": "While holding this shield, you have advantage on saving throws against spells and magical effects, and spell attacks have disadvantage against you.",
+      "armorClass": 2,
+      "value": 18000,
+      "rarity": "very rare",
+      "armorType": "shield",
+      "properties": [
+        "magic",
+        "attunement"
+      ]
+    },
+    {
+      "id": "shield-weeping-saint",
+      "name": "Shield of the Weeping Saint",
+      "type": "shield",
+      "subtype": "Magic Shield",
+      "description": "AC +2. Can use Reaction to take damage intended for an adjacent ally.",
+      "armorClass": 4,
+      "value": 4000,
+      "rarity": "rare",
       "armorType": "shield",
       "properties": [
         "magic"

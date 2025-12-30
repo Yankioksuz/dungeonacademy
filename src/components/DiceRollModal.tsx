@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { DiceRoller } from './DiceRoller';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
+import { Star } from 'lucide-react';
 
 interface RollResult {
     roll: number;
@@ -20,6 +21,10 @@ interface DiceRollModalProps {
     skillName?: string;
     difficultyClass?: number;
     modifier?: number;
+    // Optional boost button (for Favored by the Gods, etc.)
+    canBoost?: boolean;
+    boostLabel?: string;
+    onBoost?: () => void;
 }
 
 export function DiceRollModal({
@@ -31,11 +36,17 @@ export function DiceRollModal({
     onClose,
     skillName,
     difficultyClass,
-    modifier
+    modifier,
+    canBoost,
+    boostLabel,
+    onBoost
 }: DiceRollModalProps) {
     const { t } = useTranslation();
 
     if (!isOpen) return null;
+
+    const isFailed = rollResult && difficultyClass && rollResult.total < difficultyClass;
+    const showBoostButton = canBoost && isFailed && onBoost;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm fade-in">
@@ -65,7 +76,7 @@ export function DiceRollModal({
 
                 {/* Result Area */}
                 {!isRolling && diceRoll !== null && rollResult && (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className={cn(
                             "p-4 rounded-lg border text-center",
                             (rollResult.total >= (difficultyClass || 10))
@@ -85,6 +96,18 @@ export function DiceRollModal({
                                 {(rollResult.total >= (difficultyClass || 10)) ? t('adventure.success') : t('adventure.failure')}
                             </p>
                         </div>
+
+                        {/* Boost Button (Favored by the Gods) */}
+                        {showBoostButton && (
+                            <Button
+                                onClick={onBoost}
+                                variant="fantasy"
+                                className="w-full py-4 text-base font-semibold animate-pulse"
+                            >
+                                <Star className="mr-2 h-4 w-4" />
+                                {boostLabel || 'Favored by the Gods (+2d4)'}
+                            </Button>
+                        )}
 
                         <Button
                             onClick={onClose}

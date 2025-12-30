@@ -34,6 +34,7 @@ import { getDefaultFeatureUses } from '@/utils/featureUtils';
 import { processBackgroundEquipment } from '@/utils/backgroundEquipment';
 import itemsData from '@/content/items.json';
 import { CLASS_PROGRESSION } from '@/data/classProgression';
+import { EncounterGenerator } from '@/services/EncounterGenerator';
 
 type CharacterUpdater =
   | Partial<PlayerCharacter>
@@ -547,6 +548,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
           });
         }
 
+        // Apply Half-Elf bonus ability scores (+1 to two abilities of choice, not CHA)
+        if (finalData?.halfElfAbilityBonuses && finalData.halfElfAbilityBonuses.length === 2) {
+          finalData.halfElfAbilityBonuses.forEach((ability) => {
+            const key = ability.toLowerCase() as keyof typeof scores;
+            if (scores[key] !== undefined) {
+              scores[key] = scores[key] + 1;
+            }
+          });
+        }
+
         return scores;
       })();
 
@@ -593,6 +604,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
           if (raceName === 'Tiefling') langs.push('Infernal');
           if (raceName === 'Gnome') langs.push('Gnomish');
           if (raceName === 'Half-Orc') langs.push('Orc');
+          if (raceName === 'Half-Elf') langs.push('Elvish'); // Half-Elves know Elvish + one choice
           // Add extra languages passed from creation
           if (updatedCharacter.languages) {
             langs.push(...updatedCharacter.languages);
@@ -785,6 +797,38 @@ export function GameProvider({ children }: { children: ReactNode }) {
       // If no nextEncounterId provided or it's empty, just increment index
       if (!nextEncounterId) {
         const nextIndex = prev.currentEncounterIndex + 1;
+
+        // Endless Mode Logic
+        if (prev.isEndless && nextIndex >= prev.encounters.length) {
+          // Calculate floor progression
+          const totalRooms = (prev.totalRoomsCleared || 0) + 1;
+          const roomsOnFloor = ((prev.roomsOnFloor || 0) + 1) % 5;
+          const currentFloor = roomsOnFloor === 0
+            ? (prev.currentFloor || 1) + 1
+            : (prev.currentFloor || 1);
+          const newDifficulty = currentFloor; // Difficulty scales with floor
+
+          // Create updated adventure state for generator
+          const updatedAdventure = {
+            ...prev,
+            currentFloor,
+            roomsOnFloor,
+            totalRoomsCleared: totalRooms,
+            difficulty: newDifficulty,
+            highestFloor: Math.max(prev.highestFloor || 1, currentFloor),
+          };
+
+          // Generate new room with updated state
+          const nextRoom = EncounterGenerator.generateNextRoom(updatedAdventure, character);
+
+          return {
+            ...updatedAdventure,
+            encounters: [...prev.encounters, nextRoom],
+            currentEncounterIndex: nextIndex,
+            visitedEncounterIds: addVisitedEncounter(prev.visitedEncounterIds, nextRoom.id)
+          };
+        }
+
         if (nextIndex >= prev.encounters.length) {
           // Adventure complete
           setIsInAdventure(false);
@@ -1195,6 +1239,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
       if (!prev) return null;
 
       const xpForNextLevel = prev.maxXp;
+
+      // Guard: Don't level up if XP is below threshold
+      if (prev.xp < xpForNextLevel) {
+        console.warn('Cannot level up: XP below threshold', prev.xp, xpForNextLevel);
+        // Reset the pending flag since we can't actually level up
+        setPendingLevelUp(false);
+        return prev;
+      }
+
       const newLevel = prev.level + 1;
 
       // Determine which class is gaining a level

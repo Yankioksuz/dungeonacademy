@@ -24,6 +24,7 @@ import painEaterPortrait from '@/assets/npcs/pain-eater.png';
 import hellHoundPortrait from '@/assets/npcs/hell-hound.png';
 import eliteGuardPortrait from '@/assets/npcs/elite-guard.png';
 import gargoylePortrait from '@/assets/npcs/gargoyle.png';
+import sanguinePontiffPortrait from '@/assets/npcs/sanguine-pontiff.png';
 
 export interface NPCPortrait {
     id: string;
@@ -161,6 +162,12 @@ export const npcPortraits: NPCPortrait[] = [
         id: 'gargoyle',
         name: 'Stone Gargoyle',
         src: gargoylePortrait,
+        campaign: 'sanctum'
+    },
+    {
+        id: 'pontiff',
+        name: 'Sanguine Pontiff',
+        src: sanguinePontiffPortrait,
         campaign: 'sanctum'
     }
 ];

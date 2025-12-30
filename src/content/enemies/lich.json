@@ -10,25 +10,107 @@
   "xpReward": 33000,
   "size": "Medium",
   "alignment": "any evil alignment",
-  "speed": { "walk": 30 },
-  "abilityScores": { "strength": 11, "dexterity": 16, "constitution": 16, "intelligence": 20, "wisdom": 14, "charisma": 16 },
-  "savingThrows": { "con": 10, "int": 12, "wis": 9 },
-  "skills": { "arcana": 19, "history": 12, "insight": 9, "perception": 9 },
-  "damageResistances": ["cold", "lightning", "necrotic"],
-  "damageImmunities": ["poison", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
-  "conditionImmunities": ["charmed", "exhaustion", "frightened", "paralyzed", "poisoned"],
-  "senses": ["truesight 120 ft.", "passive Perception 19"],
-  "languages": ["Common plus up to five other languages"],
+  "speed": {
+    "walk": 30
+  },
+  "abilityScores": {
+    "strength": 11,
+    "dexterity": 16,
+    "constitution": 16,
+    "intelligence": 20,
+    "wisdom": 14,
+    "charisma": 16
+  },
+  "savingThrows": {
+    "con": 10,
+    "int": 12,
+    "wis": 9
+  },
+  "skills": {
+    "arcana": 19,
+    "history": 12,
+    "insight": 9,
+    "perception": 9
+  },
+  "damageResistances": [
+    "cold",
+    "lightning",
+    "necrotic"
+  ],
+  "damageImmunities": [
+    "poison",
+    "nonmagical bludgeoning",
+    "nonmagical piercing",
+    "nonmagical slashing"
+  ],
+  "conditionImmunities": [
+    "charmed",
+    "exhaustion",
+    "frightened",
+    "paralyzed",
+    "poisoned"
+  ],
+  "senses": [
+    "truesight 120 ft.",
+    "passive Perception 19"
+  ],
+  "languages": [
+    "Common plus up to five other languages"
+  ],
   "challenge": "21",
-  "traits": ["legendary-resistance", "rejuvenation", "spellcasting", "turn-resistance"],
+  "traits": [
+    "legendary-resistance",
+    "rejuvenation",
+    "spellcasting",
+    "turn-resistance"
+  ],
   "actions": [
-    { "name": "Paralyzing Touch", "type": "melee", "toHit": 12, "reach": 5, "targets": "one creature", "damage": "3d6 cold", "damageType": "cold", "description": "DC 18 CON save or paralyzed for 1 minute; repeat save at end of each turn." }
+    {
+      "name": "Paralyzing Touch",
+      "type": "melee",
+      "toHit": 12,
+      "reach": 5,
+      "targets": "one creature",
+      "damage": "3d6 cold",
+      "damageType": "cold",
+      "description": "DC 18 CON save or paralyzed for 1 minute; repeat save at end of each turn."
+    }
   ],
   "legendaryActions": [
-    { "name": "Cantrip", "description": "Casts a cantrip." },
-    { "name": "Paralyzing Touch (Costs 2 Actions)", "description": "Uses Paralyzing Touch." },
-    { "name": "Frightening Gaze (Costs 2 Actions)", "description": "Creature within 10 ft. makes DC 18 WIS save or frightened 1 minute (repeat saves end of turns; 24-hour immunity on success)." },
-    { "name": "Disrupt Life (Costs 3 Actions)", "description": "Non-undead within 20 ft. make DC 18 CON save, taking 21 (6d6) necrotic on failure, half on success." }
+    {
+      "name": "Cantrip (Ray of Frost)",
+      "description": "Casts Ray of Frost, dealing cold damage and reducing speed.",
+      "damage": "1d8",
+      "damageType": "cold"
+    },
+    {
+      "name": "Paralyzing Touch",
+      "cost": 2,
+      "description": "Uses Paralyzing Touch.",
+      "damage": "3d6",
+      "damageType": "cold",
+      "effect": "paralyze",
+      "saveDC": 18,
+      "saveAbility": "constitution"
+    },
+    {
+      "name": "Frightening Gaze",
+      "cost": 2,
+      "description": "Creature within 10 ft. makes DC 18 WIS save or frightened 1 minute.",
+      "effect": "frighten",
+      "saveDC": 18,
+      "saveAbility": "wisdom"
+    },
+    {
+      "name": "Disrupt Life",
+      "cost": 3,
+      "description": "Non-undead within 20 ft. make DC 18 CON save, taking necrotic damage.",
+      "damage": "6d6",
+      "damageType": "necrotic",
+      "saveDC": 18,
+      "saveAbility": "constitution",
+      "halfOnSave": true
+    }
   ],
   "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/l-monster-stat-block.md",
   "statBlockHeading": "Lich"

@@ -177,6 +177,51 @@
           "nextEncounterId": "village-square-return",
           "requiresRace": "Tiefling",
           "stayInEncounter": true
+        },
+        {
+          "id": "human-adaptable",
+          "text": "[Human] \"We humans may not have special talents, but we adapt quickly.\"",
+          "type": "continue",
+          "outcome": "Pip grins broadly. 'That's what I like about your kind - no nonsense, just get things done! Half my best customers are humans. Here's a tip: goblins underestimate humans. Use that to your advantage.'",
+          "nextEncounterId": "village-square-return",
+          "requiresRace": "Human",
+          "stayInEncounter": true
+        },
+        {
+          "id": "charlatan-hustle",
+          "text": "[Charlatan] \"Between you and me, I know how to... acquire things.\"",
+          "type": "continue",
+          "outcome": "Pip's eyes twinkle knowingly. 'Ah, a fellow artist of opportunity! Word of advice - the goblins have a stash of stolen goods. Anything you \"liberate\" is fair game in my book. And I might know a buyer or two.'",
+          "nextEncounterId": "village-square-return",
+          "requiresBackground": "Charlatan",
+          "stayInEncounter": true
+        },
+        {
+          "id": "entertainer-performance",
+          "text": "[Entertainer] \"Perhaps a performance would lift the village's spirits?\"",
+          "type": "continue",
+          "outcome": "Pip's face lights up. 'A performer! We could use some joy around here. Tell you what - help with these goblins and I'll organize a proper festival for your grand performance!'",
+          "nextEncounterId": "village-square-return",
+          "requiresBackground": "Entertainer",
+          "stayInEncounter": true
+        },
+        {
+          "id": "noble-diplomacy",
+          "text": "[Noble] \"My family has influence. Perhaps we can arrange proper protection for this village.\"",
+          "type": "continue",
+          "outcome": "Pip bows slightly. 'A person of standing! Your family's patronage would mean the world to us common folk. Handle these goblins and I'll personally write to the local lord about your heroics.'",
+          "nextEncounterId": "village-square-return",
+          "requiresBackground": "Noble",
+          "stayInEncounter": true
+        },
+        {
+          "id": "sage-knowledge",
+          "text": "[Sage] \"I've read extensively about goblin tribal behavior.\"",
+          "type": "continue",
+          "outcome": "Pip leans in with interest. 'A scholar! Please, share your wisdom. Anything that helps us understand these creatures better is worth its weight in gold.'",
+          "nextEncounterId": "village-square-return",
+          "requiresBackground": "Sage",
+          "stayInEncounter": true
         }
       ],
       "skillCheck": {
@@ -477,6 +522,60 @@
           "outcome": "Thora laughs heartily. 'I like your spirit! The leader is the one you want. Big, nasty, and thinks he's a king. Smash him for me.'",
           "nextEncounterId": "village-square-return",
           "requiresClass": "Barbarian",
+          "stayInEncounter": true
+        },
+        {
+          "id": "acolyte-blessing",
+          "text": "[Acolyte] \"The gods have guided me here. Perhaps this is divine purpose.\"",
+          "type": "continue",
+          "outcome": "Thora's expression softens. 'Divine purpose, you say? Well, we'll take all the help we can get - mortal or otherwise. May your gods watch over you in battle.'",
+          "nextEncounterId": "village-square-return",
+          "requiresBackground": "Acolyte",
+          "stayInEncounter": true
+        },
+        {
+          "id": "folk-hero-duty",
+          "text": "[Folk Hero] \"I've defended my own village before. I know what's at stake.\"",
+          "type": "continue",
+          "outcome": "Thora clasps your shoulder. 'A fellow defender of the common folk! That's exactly the kind of person we need. The villagers will rally behind someone like you.'",
+          "nextEncounterId": "village-square-return",
+          "requiresBackground": "Folk Hero",
+          "stayInEncounter": true
+        },
+        {
+          "id": "hermit-insight",
+          "text": "[Hermit] \"In my solitude, I learned to read nature's warnings. Something unnatural stirs.\"",
+          "type": "continue",
+          "outcome": "Thora listens intently. 'Unnatural, you say? That matches what I've sensed. These goblins aren't acting on instinct - something is compelling them. Your insight may prove valuable.'",
+          "nextEncounterId": "village-square-return",
+          "requiresBackground": "Hermit",
+          "stayInEncounter": true
+        },
+        {
+          "id": "outlander-survival",
+          "text": "[Outlander] \"I've lived among wild creatures. Goblins are predictable when cornered.\"",
+          "type": "continue",
+          "outcome": "Thora nods approvingly. 'Someone who knows the wild! Yes - corner a goblin and it fights dirty. Give them an escape route and they'll take it. Use that to control the battle.'",
+          "nextEncounterId": "village-square-return",
+          "requiresBackground": "Outlander",
+          "stayInEncounter": true
+        },
+        {
+          "id": "sailor-navigation",
+          "text": "[Sailor] \"I've faced storms and sea monsters. Goblins don't scare me.\"",
+          "type": "continue",
+          "outcome": "Thora raises an eyebrow. 'A sailor, here in the heartland? Well, if you can navigate through a tempest, navigating through goblin territory should be simple. Good luck, sea dog.'",
+          "nextEncounterId": "village-square-return",
+          "requiresBackground": "Sailor",
+          "stayInEncounter": true
+        },
+        {
+          "id": "urchin-streets",
+          "text": "[Urchin] \"I grew up on the streets. I know how to survive against the odds.\"",
+          "type": "continue",
+          "outcome": "Thora studies you with new respect. 'Street-smart, eh? That cunning will serve you well. Goblins think they're clever - show them what a real survivor looks like.'",
+          "nextEncounterId": "village-square-return",
+          "requiresBackground": "Urchin",
           "stayInEncounter": true
         }
       ],
@@ -1281,7 +1380,8 @@
           "grantsItemIds": [
             "gold-coins",
             "silver-luck-charm",
-            "marked-courier-map"
+            "marked-courier-map",
+            "dagger-plus-1"
           ]
         }
       ],

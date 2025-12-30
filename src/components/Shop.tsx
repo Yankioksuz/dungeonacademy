@@ -63,6 +63,40 @@ const getItemIcon = (item: Item) => {
     }
 };
 
+// Helper to get rarity border color classes
+const getRarityBorderColor = (rarity?: string): string => {
+    switch (rarity?.toLowerCase()) {
+        case 'legendary':
+            return 'border-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]';
+        case 'very rare':
+        case 'epic':
+            return 'border-purple-500 shadow-[0_0_6px_rgba(168,85,247,0.3)]';
+        case 'rare':
+            return 'border-blue-500 shadow-[0_0_4px_rgba(59,130,246,0.25)]';
+        case 'uncommon':
+            return 'border-green-500';
+        default:
+            return 'border-gray-500/50';
+    }
+};
+
+// Helper to get rarity text color for name
+const getRarityTextColor = (rarity?: string): string => {
+    switch (rarity?.toLowerCase()) {
+        case 'legendary':
+            return 'text-orange-400';
+        case 'very rare':
+        case 'epic':
+            return 'text-purple-400';
+        case 'rare':
+            return 'text-blue-400';
+        case 'uncommon':
+            return 'text-green-400';
+        default:
+            return 'text-foreground';
+    }
+};
+
 interface ShopCategoryProps {
     title: string;
     icon: React.ReactNode;
@@ -121,10 +155,13 @@ const ShopCategory = ({
                                 )}
                                 onClick={() => onSelectShopItem(item)}
                             >
-                                <div className="w-8 h-8 flex-shrink-0 rounded overflow-hidden flex items-center justify-center">
+                                <div className={cn(
+                                    "w-8 h-8 flex-shrink-0 rounded overflow-hidden flex items-center justify-center border-2",
+                                    getRarityBorderColor(item.rarity)
+                                )}>
                                     {getItemIcon(item)}
                                 </div>
-                                <span className="flex-1 text-sm truncate">{item.name}</span>
+                                <span className={cn("flex-1 text-sm truncate", getRarityTextColor(item.rarity))}>{item.name}</span>
                                 <span className={cn(
                                     "text-sm font-medium",
                                     canAfford ? "text-fantasy-gold" : "text-red-400"
@@ -299,11 +336,14 @@ export function Shop({ onClose }: ShopProps) {
                                                     setSelectedShopItem(null);
                                                 }}
                                             >
-                                                <div className="w-8 h-8 flex-shrink-0 rounded overflow-hidden flex items-center justify-center">
+                                                <div className={cn(
+                                                    "w-8 h-8 flex-shrink-0 rounded overflow-hidden flex items-center justify-center border-2",
+                                                    getRarityBorderColor(item.rarity)
+                                                )}>
                                                     {getItemIcon(item)}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm truncate">{item.name}</p>
+                                                    <p className={cn("text-sm truncate", getRarityTextColor(item.rarity))}>{item.name}</p>
                                                     {isEquipped && (
                                                         <p className="text-[10px] text-fantasy-gold">Equipped</p>
                                                     )}

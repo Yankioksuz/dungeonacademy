@@ -1,19 +1,42 @@
+
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { useTranslation } from 'react-i18next';
-import { Sword, Shield, Skull, Backpack, X, Flame, Wand, Activity, HeartPulse, Brain, Zap, Sparkles, Search, MessageCircle, Crosshair } from 'lucide-react';
+import {
+  Sword,
+  Shield,
+  Zap,
+  Crosshair,
+  // RotateCcw,
+  Flag,
+  EyeOff,
+  Skull,
+  Brain,
+  Activity,
+  Sparkles,
+  Wand,
+  Backpack,
+  Search,
+  MessageCircle,
+  HeartPulse,
+  Flame,
+  X,
+  Sun,
+  Star
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PlayerCharacter, CombatEnemy, CombatLogEntry, SpellContent, CombatLogEntryType, Condition, AbilityName, Item } from '@/types';
 import { useGame } from '@/contexts/GameContext';
 import {
   canAct,
+  hasCondition,
   getCombatAdvantage,
   getSavingThrowAdvantage,
   detectDamageType,
-  getEnemyAbilityMod,
+  // getEnemyAbilityMod,
   getEnemySavingThrowBonus,
   isEnemyConditionImmune,
   adjustDamageForDefenses,
@@ -23,6 +46,13 @@ import { ConditionManager } from '@/managers/ConditionManager';
 import { getAttackRollModifier, canTakeAction } from '@/utils/combatMechanics';
 import { processStartOfTurnConditions, autoFailsSave } from '@/utils/conditionEffects';
 import { ConditionBadge } from '@/components/ConditionBadge';
+import { Tooltip } from './ui/tooltip';
+import {
+  classActionTooltips,
+  combatManeuverTooltips,
+  featAbilityTooltips,
+  generalActionTooltips
+} from '@/content/combatAbilityTooltips';
 
 import { CombatLogPanel } from './CombatLogPanel';
 
@@ -50,6 +80,9 @@ import {
   getSavingThrowModifier, // Use robust modifier calculator
 } from '@/utils/characterStats';
 
+// Multiclass utilities
+import { hasClassFeature, getLevelInClass } from '@/utils/characterUtils';
+
 // Subclass feature utilities
 import {
   getCritThreshold,
@@ -70,6 +103,12 @@ import {
   hasAdamantineArmor,
   getWeaponOnHitConditions,
 } from '@/utils/magicItemEffects';
+
+// Battle Master Maneuvers
+import {
+  BATTLE_MASTER_MANEUVERS,
+  rollSuperiorityDie,
+} from '@/data/battleMasterManeuvers';
 
 
 type CombatEnemyState = CombatEnemy & {
@@ -124,9 +163,12 @@ interface CombatEncounterProps {
   onVictory: () => void;
   onDefeat: () => void;
   playerAdvantage?: boolean;
+  surprisedEnemies?: string[];
+  initialPlayerHidden?: boolean;
 }
 
-export function CombatEncounter({ character, enemies: initialEnemies, onVictory, onDefeat, playerAdvantage }: CombatEncounterProps) {
+export function CombatEncounter(props: CombatEncounterProps) {
+  const { character, enemies: initialEnemies, onVictory, onDefeat, playerAdvantage, surprisedEnemies, initialPlayerHidden } = props;
   const { t } = useTranslation();
   const {
     updateCharacter,
@@ -167,7 +209,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           breathType: enemy.breathType || catalogEnemy.breathType,
         })
         : {
-          id: enemy.id || `enemy-${index}`,
+          id: enemy.id || `enemy - ${index} `,
           name: enemy.name,
           currentHp: enemy.hitPoints,
           maxHp: enemy.hitPoints,
@@ -185,12 +227,26 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           conditions: [],
         };
 
+      const enemyId = base.id || `enemy-${index}`;
+      const isSurprised = surprisedEnemies?.includes(enemyId);
+
+      const initialConditions: Condition[] = [...(base.conditions || [])];
+      if (isSurprised) {
+        initialConditions.push({
+          type: 'surprised',
+          name: 'Surprised',
+          description: 'Cannot move or take actions on first turn.',
+          duration: 1,
+          source: 'Ambush'
+        });
+      }
+
       return {
         ...base,
-        id: base.id || `enemy-${index}`,
+        id: enemyId,
         initiative: Math.floor(Math.random() * 20) + 1,
         isDefeated: false,
-        conditions: [],
+        conditions: initialConditions,
         temporaryHp: 0,
       };
     })
@@ -206,6 +262,11 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   const [rollResult, setRollResult] = useState<{ roll: number; total: number; isCritical: boolean; isCriticalFailure: boolean } | null>(null);
   const [pendingCombatAction, setPendingCombatAction] = useState<(() => void) | null>(null);
   const [attackDetails, setAttackDetails] = useState<{ name: string; dc: number; modifier: number } | null>(null);
+
+  // Favored by the Gods boost system
+  const [canBoostRoll, setCanBoostRoll] = useState(false);
+  const [boostCallback, setBoostCallback] = useState<((bonus: number) => void) | null>(null);
+
   const [showInventory, setShowInventory] = useState(false);
   const [showSpellMenu, setShowSpellMenu] = useState(false);
   const [analyzedEnemies, setAnalyzedEnemies] = useState<Set<string>>(new Set());
@@ -213,7 +274,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     const map: Record<string, number> = {};
     initialEnemies.forEach((enemy: InitialEnemyInput, index) => {
       const catalogEnemy = enemy.id ? getEnemyById(enemy.id) : getEnemyById(enemy.enemyId || '');
-      const id = enemy.id || enemy.enemyId || `enemy-${index}`;
+      const id = enemy.id || enemy.enemyId || `enemy - ${index} `;
       if (catalogEnemy?.legendaryActions?.length || enemy.legendaryActions?.length) {
         map[id] = 3;
       }
@@ -224,7 +285,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     const map: Record<string, boolean> = {};
     initialEnemies.forEach((enemy: InitialEnemyInput, index) => {
       const catalogEnemy = enemy.id ? getEnemyById(enemy.id) : getEnemyById(enemy.enemyId || '');
-      const id = enemy.id || enemy.enemyId || `enemy-${index}`;
+      const id = enemy.id || enemy.enemyId || `enemy - ${index} `;
       const hasBreath = (catalogEnemy?.breathDamage && catalogEnemy.breathType) || (enemy.breathDamage && enemy.breathType);
       if (hasBreath) {
         map[id] = true;
@@ -313,7 +374,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   const isBarbarian = character.class.name.toLowerCase() === 'barbarian';
   const [rageAvailable, setRageAvailable] = useState(isBarbarian ? defaultUses.rage : 0); // 2 Rages per long rest at level 1
   const [rageActive, setRageActive] = useState(false);
-  const [rageRoundsLeft, setRageRoundsLeft] = useState(0);
+  const [_rageRoundsLeft, setRageRoundsLeft] = useState(0);
   const [recklessAttackActive, setRecklessAttackActive] = useState(false);
 
   // Bardic Inspiration State
@@ -371,7 +432,12 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   // Fighter Subclass States
   const [fightingSpiritUses, setFightingSpiritUses] = useState(defaultUses.fightingSpirit || 0); // Samurai
   const [fightingSpiritActive, setFightingSpiritActive] = useState(false);
-  // TODO: Add superiorityDiceLeft for Battle Master maneuvers when implemented
+
+  // Battle Master States
+  const [superiorityDiceLeft, setSuperiorityDiceLeft] = useState(defaultUses.superiorityDice || 0);
+  const [pendingManeuver, setPendingManeuver] = useState<string | null>(null); // Active maneuver for next attack
+  const [feintingAttackActive, setFeintingAttackActive] = useState(false); // Feinting Attack advantage
+  const isBattleMaster = character.subclass?.id === 'battle-master';
 
   // Rogue Subclass States
   const [psychicBladesUsedThisTurn, setPsychicBladesUsedThisTurn] = useState(false); // Whispers
@@ -385,16 +451,35 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     }
     return [];
   });
-  // TODO: Add arcaneWardCurrentHp for Abjuration wizards when implemented
 
-  // TODO: Add wardingFlareUses and wrathOfTheStormUses for Cleric subclasses when implemented
+  // Derived subclass info - declare early for use below
+  const subclassId = character.subclass?.id || '';
+
+  // Wizard Subclass States - Abjuration
+  const [arcaneWardHp, setArcaneWardHp] = useState(defaultUses.arcaneWardHp || 0);
+  const isAbjurationWizard = character.class?.name?.toLowerCase() === 'wizard' && subclassId === 'abjuration';
+
+  // Cleric Subclass States - Light Domain
+  const [wardingFlareUses, setWardingFlareUses] = useState(defaultUses.wardingFlare || 0);
+  const isLightCleric = character.class?.name?.toLowerCase() === 'cleric' && subclassId === 'light';
+
+  // Cleric Subclass States - Tempest Domain
+  const [wrathOfTheStormUses, setWrathOfTheStormUses] = useState(defaultUses.wrathOfTheStorm || 0);
+  const isTempestCleric = character.class?.name?.toLowerCase() === 'cleric' && subclassId === 'tempest';
+
+  // Sorcerer Subclass States - Wild Magic
+  const [tidesOfChaosAvailable, setTidesOfChaosAvailable] = useState(defaultUses.tidesOfChaos || 0);
+  const isWildMagicSorcerer = character.class?.name?.toLowerCase() === 'sorcerer' && subclassId === 'wild-magic';
+  const [tidesOfChaosActive, setTidesOfChaosActive] = useState(false); // Advantage on next roll
+
+  // Sorcerer Subclass States - Divine Soul
+  const [favoredByTheGodsAvailable, setFavoredByTheGodsAvailable] = useState(defaultUses.favoredByTheGods || 0);
+  const isDivineSoulSorcerer = character.class?.name?.toLowerCase() === 'sorcerer' && subclassId === 'divine-soul';
 
   // Warlock Subclass States  
   const [hexbladesCurseTarget, setHexbladesCurseTarget] = useState<string | null>(null);
   const [hexbladesCurseAvailable, setHexbladesCurseAvailable] = useState(defaultUses.hexbladesCurse || 0);
   const [healingLightDicePool, setHealingLightDicePool] = useState(defaultUses.healingLightDice || 0);
-
-  // TODO: Add tidesOfChaosAvailable and favoredByTheGodsAvailable for Sorcerer subclasses when implemented
 
   // Bard Subclass States  
   const [, setCuttingWordsUsedThisTurn] = useState(false);
@@ -402,8 +487,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   // Paladin Subclass States
   const [vowOfEnmityTarget, setVowOfEnmityTarget] = useState<string | null>(null);
 
-  // Derived subclass info
-  const subclassId = character.subclass?.id || '';
+  // Critical hit threshold
   const critThreshold = useMemo(() => {
     let threshold = getCritThreshold(character);
     // Hexblade's Curse also lowers crit threshold on cursed target
@@ -421,10 +505,8 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     () => enemies.find((enemy) => enemy.id === selectedEnemy) || null,
     [enemies, selectedEnemy]
   );
-  const legendaryCreatures = useMemo(
-    () => enemies.filter((enemy) => enemy.legendaryActions?.length && !enemy.isDefeated),
-    [enemies]
-  );
+  // Note: Legendary actions are now handled automatically via performLegendaryAction()
+  // and displayed on enemy cards via legendaryPoints prop
 
   const findTorchOilItem = () =>
     (character.inventory || []).find(
@@ -458,6 +540,15 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     return lightFromInv;
   };
 
+
+  const applyPlayerCondition = useCallback((condition: Condition) => {
+    updateCharacter((prev) => {
+      if (!prev) return prev;
+      if (prev.conditions.some(c => c.type === condition.type)) return prev;
+      return { ...prev, conditions: [...prev.conditions, condition] };
+    });
+  }, [updateCharacter]);
+
   useEffect(() => {
     const uses = character.featureUses || getDefaultFeatureUses(character);
     if (isFighter) {
@@ -472,26 +563,65 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     if (isSorcerer) setSorceryPoints(uses.sorceryPoints);
     if (isCleric) setChannelDivinityUses(uses.channelDivinity);
     setOffhandAvailable(true);
-  }, [character.featureUses, character.level, character.class.name, isBarbarian, isBard, isCleric, isDruid, isFighter, isMonk, isPaladin, isSorcerer]);
+
+    // Initial Hidden State
+    if (initialPlayerHidden) {
+      // We need to use a timeout or ensure character update happens after mount
+      // Checking if already hidden to avoid infinite loops if this effect re-runs
+      const isHidden = character.conditions.some(c => c.type === 'hidden');
+      if (!isHidden) {
+        applyPlayerCondition({
+          type: 'hidden',
+          name: 'Hidden',
+          description: 'Unseen by enemies. Advantage on attacks, attacks against you have disadvantage.',
+          duration: -1, // Indefinite until broken
+          source: 'Stealth'
+        });
+        addLog(`${character.name} starts combat hidden from view!`, 'info');
+      }
+    }
+  }, [character.featureUses, character.level, character.class.name, isBarbarian, isBard, isCleric, isDruid, isFighter, isMonk, isPaladin, isSorcerer, initialPlayerHidden]);
+
+
+  const rollDice = (sides: number = 20) => {
+    return Math.floor(Math.random() * sides) + 1;
+  };
+
+  const rollDamageFromString = (damage: string) => {
+    if (!damage) return 0;
+    let total = 0;
+    let matched = false;
+    const regex = /(\d+)d(\d+)([+-]\d+)?/gi;
+    let m;
+    while ((m = regex.exec(damage)) !== null) {
+      matched = true;
+      const count = Number(m[1]);
+      const sides = Number(m[2]);
+      const mod = m[3] ? Number(m[3]) : 0;
+      for (let i = 0; i < count; i++) {
+        total += rollDice(sides);
+      }
+      total += mod;
+    }
+    if (!matched) {
+      const flat = parseInt(damage, 10);
+      if (!Number.isNaN(flat)) total += flat;
+    }
+    return total;
+  };
 
   const hasHalflingLucky = (character.race?.traits || []).includes('Lucky');
 
   const applyHalflingLucky = (roll: number, context: string) => {
     if (hasHalflingLucky && roll === 1) {
       const reroll = rollDice(20);
-      addLog(`${character.name}'s Lucky trait rerolls a natural 1 (${context}).`, 'info');
+      addLog(`${character.name} 's Lucky trait rerolls a natural 1 (${context}).`, 'info');
       return reroll;
     }
     return roll;
   };
 
-  const applyPlayerCondition = (condition: Condition) => {
-    updateCharacter((prev) => {
-      if (!prev) return prev;
-      if (prev.conditions.some(c => c.type === condition.type)) return prev;
-      return { ...prev, conditions: [...prev.conditions, condition] };
-    });
-  };
+
 
   const rollPlayerSavingThrow = (
     ability: 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma',
@@ -525,7 +655,15 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     roll = applyHalflingLucky(roll, 'saving throw');
 
     const total = roll + getSavingThrowModifier(character, ability);
-    return { roll, total, advantageType };
+
+    // Bless: Add 1d4 to saving throw
+    let blessBonus = 0;
+    if (character.conditions.some(c => c.type === 'blessed')) {
+      blessBonus = rollDice(4);
+      addLog(`Bless! +${blessBonus} to save!`, 'info');
+    }
+
+    return { roll, total: total + blessBonus, advantageType };
   };
 
   const getPlayerDefenseBonus = () => {
@@ -533,37 +671,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     return activeBuffs.reduce((acc, buff) => acc + (buff.bonus || 0), 0);
   };
 
-  const applyEnemyOngoingEffects = useCallback((enemy: CombatEnemyState) => {
-    let updatedEnemy: CombatEnemyState = { ...enemy };
-    const remainingEffects: Condition[] = [];
-    const messages: Array<{ message: string; type: CombatLogEntry['type'] }> = [];
 
-    enemy.conditions.forEach((condition) => {
-      // Logic for ongoing condition effects can go here
-      // For now, we just decrement duration
-      if (updatedEnemy.currentHp > 0) {
-        const nextDuration = (condition.duration || 0) - 1;
-        if (nextDuration > 0) {
-          remainingEffects.push({ ...condition, duration: nextDuration });
-        }
-      }
-    });
-
-    updatedEnemy = {
-      ...updatedEnemy,
-      isDefeated: updatedEnemy.currentHp <= 0,
-      conditions: updatedEnemy.currentHp <= 0 ? [] : remainingEffects,
-    };
-
-    if (updatedEnemy.isDefeated && enemy.currentHp > updatedEnemy.currentHp) {
-      messages.push({
-        message: `${enemy.name} is defeated by lingering effects!`,
-        type: 'defeat'
-      });
-    }
-
-    return { updatedEnemy, messages };
-  }, []);
 
 
 
@@ -616,6 +724,12 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     if (resisted) {
       remainingDamage = Math.floor(remainingDamage / 2);
       addLog(`Resisted ${incomingDamageType} damage!`, 'info');
+    }
+
+    // Abjuration Wizard: Arcane Ward absorbs damage first
+    if (isAbjurationWizard && arcaneWardHp > 0) {
+      const absorbed = absorbDamageWithArcaneWard(remainingDamage);
+      remainingDamage = Math.max(0, remainingDamage - absorbed);
     }
 
     // Apply damage to Temporary Hit Points
@@ -707,7 +821,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           applyPlayerCondition({ type: 'charmed', name: 'Charmed', description: 'Cannot attack the charmer; charmer has advantage on socials.', duration: 2, source: actingEnemy.name });
           addLog(`${character.name} is charmed! (Failed save ${save.total} vs DC ${dc})`, 'condition');
         } else if (effect === 'poison') {
-          const monkImmune = character.class.id === 'monk' && character.level >= 10;
+          const monkImmune = hasClassFeature(character, 'monk', 10);
           if (!monkImmune && !traits.includes('Poison Immunity')) {
             applyPlayerCondition({ type: 'poisoned', name: 'Poisoned', description: 'Disadvantage on attack rolls and ability checks.', duration: 3, source: actingEnemy.name });
             addLog(`${character.name} is poisoned! (Failed save ${save.total} vs DC ${dc})`, 'condition');
@@ -727,12 +841,183 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     const cost = action.cost || 1;
     const remaining = legendaryPoints[enemyId] ?? 0;
     if (remaining < cost) {
-      addLog(`${enemy.name} has no legendary actions left for that option.`, 'miss');
-      return;
+      return; // Silently return if not enough points
     }
     setLegendaryPoints(prev => ({ ...prev, [enemyId]: Math.max(0, remaining - cost) }));
-    addLog(`${enemy.name} spends a legendary action: ${action.name}. ${action.description}`, 'info');
+    addLog(`⚡ ${enemy.name} uses Legendary Action: ${action.name}!`, 'condition');
+    addLog(`   ➤ ${action.description}`, 'info');
+
+    // Helper to roll damage from complex formulas like "3d6+4+6d6" or "4d8+10"
+    const rollLegendaryDamage = (damageStr: string): number => {
+      if (!damageStr) return 0;
+      let total = 0;
+      // Match all dice expressions like XdY and modifiers like +N or -N
+      const parts = damageStr.match(/(\d+d\d+|[+-]?\d+)/g) || [];
+      for (const part of parts) {
+        if (part.includes('d')) {
+          const [numDice, sides] = part.split('d').map(n => parseInt(n));
+          for (let i = 0; i < numDice; i++) {
+            total += Math.floor(Math.random() * sides) + 1;
+          }
+        } else {
+          total += parseInt(part);
+        }
+      }
+      return Math.max(0, total);
+    };
+
+    // Handle enemy self-healing (e.g., Unicorn's Heal Self)
+    if (action.healing) {
+      const healAmount = rollLegendaryDamage(action.healing);
+      setEnemies(prev => prev.map(e => {
+        if (e.id !== enemyId) return e;
+        const newHp = Math.min(e.maxHp, e.currentHp + healAmount);
+        return { ...e, currentHp: newHp };
+      }));
+      addLog(`${enemy.name} heals for ${healAmount} HP!`, 'heal');
+      return; // Healing actions don't damage the player
+    }
+
+    // Handle damage with optional saving throw
+    if (action.damage) {
+      let totalDamage = rollLegendaryDamage(action.damage);
+      const damageType = action.damageType || 'magical';
+
+      // If action has a save DC, apply saving throw
+      if (action.saveDC) {
+        const saveAbility = (action.saveAbility || 'constitution') as 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma';
+        const save = rollPlayerSavingThrow(saveAbility);
+
+        if (save.total >= action.saveDC) {
+          // Success
+          if (action.halfOnSave) {
+            totalDamage = Math.floor(totalDamage / 2);
+            addLog(`${character.name} succeeds ${saveAbility.toUpperCase()} save (${save.total} vs DC ${action.saveDC}) - Half damage!`, 'info');
+          } else {
+            addLog(`${character.name} succeeds ${saveAbility.toUpperCase()} save (${save.total} vs DC ${action.saveDC}) - No damage!`, 'info');
+            totalDamage = 0;
+          }
+        } else {
+          addLog(`${character.name} fails ${saveAbility.toUpperCase()} save (${save.total} vs DC ${action.saveDC})!`, 'miss');
+        }
+      }
+
+      if (totalDamage > 0) {
+        addLog(`${enemy.name} deals ${totalDamage} ${damageType} damage!`, 'damage');
+        applyEnemyDamageToPlayer(enemy, totalDamage, damageType);
+      }
+    }
+
+    // Apply conditions if specified (effect-only actions or combined damage+effect)
+    if (action.effect) {
+      const effectLower = action.effect.toLowerCase();
+      const saveDC = action.saveDC || enemy.saveDC || 15;
+      const saveAbility = (action.saveAbility || 'wisdom') as 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma';
+
+      // Only roll save if we haven't already handled damage (avoids double save)
+      const needsSave = !action.damage || !action.saveDC;
+      let saveFailed = false;
+
+      if (needsSave) {
+        const save = rollPlayerSavingThrow(saveAbility);
+        saveFailed = save.total < saveDC;
+        if (saveFailed) {
+          addLog(`${character.name} fails ${saveAbility.toUpperCase()} save (${save.total} vs DC ${saveDC})!`, 'miss');
+        } else {
+          addLog(`${character.name} succeeds ${saveAbility.toUpperCase()} save (${save.total} vs DC ${saveDC})!`, 'info');
+        }
+      } else {
+        // If we already rolled a save for damage, check if they failed
+        const save = rollPlayerSavingThrow(saveAbility);
+        saveFailed = save.total < saveDC;
+      }
+
+      if (saveFailed) {
+        if (effectLower.includes('frighten') || effectLower === 'fear') {
+          addLog(`${character.name} is Frightened!`, 'condition');
+          updateCharacter(prev => ({
+            ...prev,
+            conditions: [...prev.conditions.filter(c => c.type !== 'frightened'),
+            { type: 'frightened', name: 'Frightened', description: 'Disadvantage on attacks while frightened.', duration: 1, source: enemy.name }]
+          }));
+        }
+        if (effectLower.includes('paralyze') || effectLower.includes('paralyz')) {
+          addLog(`${character.name} is Paralyzed!`, 'condition');
+          updateCharacter(prev => ({
+            ...prev,
+            conditions: [...prev.conditions.filter(c => c.type !== 'paralyzed'),
+            { type: 'paralyzed', name: 'Paralyzed', description: 'Cannot move or take actions.', duration: 1, source: enemy.name }]
+          }));
+        }
+        if (effectLower.includes('blind') || effectLower === 'blinded') {
+          addLog(`${character.name} is Blinded!`, 'condition');
+          updateCharacter(prev => ({
+            ...prev,
+            conditions: [...prev.conditions.filter(c => c.type !== 'blinded'),
+            { type: 'blinded', name: 'Blinded', description: 'Cannot see; attacks have disadvantage.', duration: 1, source: enemy.name }]
+          }));
+        }
+        if (effectLower.includes('stun') || effectLower === 'stunned') {
+          addLog(`${character.name} is Stunned!`, 'condition');
+          updateCharacter(prev => ({
+            ...prev,
+            conditions: [...prev.conditions.filter(c => c.type !== 'stunned'),
+            { type: 'stunned', name: 'Stunned', description: 'Cannot move or take actions; attacks against have advantage.', duration: 1, source: enemy.name }]
+          }));
+        }
+        if (effectLower.includes('prone')) {
+          addLog(`${character.name} is knocked Prone!`, 'condition');
+          updateCharacter(prev => ({
+            ...prev,
+            conditions: [...prev.conditions.filter(c => c.type !== 'prone'),
+            { type: 'prone', name: 'Prone', description: 'Attack rolls against have advantage within 5ft. Standing costs half movement.', duration: 1, source: enemy.name }]
+          }));
+        }
+      }
+    }
   };
+
+  // AI function to automatically use legendary actions at the end of other creatures' turns
+  const performLegendaryAction = useCallback(() => {
+    const legendaryEnemies = enemies.filter(e => !e.isDefeated && e.legendaryActions && e.legendaryActions.length > 0);
+
+    for (const enemy of legendaryEnemies) {
+      const remaining = legendaryPoints[enemy.id] ?? 0;
+      if (remaining <= 0) continue;
+
+      // AI chooses which legendary action to use based on cost and situation
+      const affordableActions = (enemy.legendaryActions || []).filter(a => (a.cost || 1) <= remaining);
+      if (affordableActions.length === 0) continue;
+
+      // Prioritize: high damage actions if player is hurt, cheap actions otherwise
+      const playerHealthPercent = (playerHp / character.maxHitPoints);
+      let chosenAction: typeof affordableActions[0] | undefined;
+
+      if (playerHealthPercent < 0.3) {
+        // Player is low - use highest cost action for maximum effect
+        chosenAction = affordableActions.reduce((best, current) =>
+          (current.cost || 1) > (best?.cost || 1) ? current : best
+          , affordableActions[0]);
+      } else {
+        // Use a random action, weighted toward cheaper ones
+        const weights = affordableActions.map(a => 1 / (a.cost || 1));
+        const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+        let random = Math.random() * totalWeight;
+        for (let i = 0; i < affordableActions.length; i++) {
+          random -= weights[i];
+          if (random <= 0) {
+            chosenAction = affordableActions[i];
+            break;
+          }
+        }
+        if (!chosenAction) chosenAction = affordableActions[0];
+      }
+
+      if (chosenAction) {
+        spendLegendaryAction(enemy.id, chosenAction);
+      }
+    }
+  }, [enemies, legendaryPoints, playerHp, character.maxHitPoints]);
 
   const applyDamageToEnemy = (
     enemyId: string,
@@ -761,9 +1046,10 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       if (newHp === 0 && !e.isDefeated) {
         // Dark One's Blessing (Warlock - Fiend)
         // "When you reduce a hostile creature to 0 hit points, you gain temporary hit points equal to your Charisma modifier + your warlock level."
-        if (character.class.id === 'warlock' && character.subclass?.id === 'fiend') {
+        const warlockLevel = getLevelInClass(character, 'warlock');
+        if (warlockLevel > 0 && character.subclass?.id === 'fiend') {
           const chaMod = Math.floor((character.abilityScores.charisma - 10) / 2);
-          const tempAmount = Math.max(1, chaMod + character.level);
+          const tempAmount = Math.max(1, chaMod + warlockLevel);
 
           updateCharacter((prevChar) => {
             if (!prevChar) return prevChar;
@@ -801,34 +1087,20 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     return enemy.armorClass - (isProne ? 2 : 0);
   };
 
-  const rollDice = (sides: number = 20) => {
-    return Math.floor(Math.random() * sides) + 1;
-  };
 
-  const rollDamageFromString = (damage: string) => {
-    if (!damage) return 0;
-    let total = 0;
-    let matched = false;
-    const regex = /(\d+)d(\d+)([+-]\d+)?/gi;
-    let m;
-    while ((m = regex.exec(damage)) !== null) {
-      matched = true;
-      const count = Number(m[1]);
-      const sides = Number(m[2]);
-      const mod = m[3] ? Number(m[3]) : 0;
-      for (let i = 0; i < count; i++) {
-        total += rollDice(sides);
-      }
-      total += mod;
-    }
-    if (!matched) {
-      const flat = parseInt(damage, 10);
-      if (!Number.isNaN(flat)) total += flat;
-    }
-    return total;
-  };
 
   const nextTurn = useCallback(() => {
+    // Legendary creatures can take legendary actions at the end of other creatures' turns
+    // Check if there are legendary enemies and trigger their actions
+    const hasLegendaryEnemies = enemies.some(e => !e.isDefeated && e.legendaryActions && e.legendaryActions.length > 0);
+    if (hasLegendaryEnemies) {
+      // 50% chance each turn that a legendary creature uses a legendary action
+      // This simulates the DM's choice while keeping combat dynamic
+      if (Math.random() < 0.5) {
+        performLegendaryAction();
+      }
+    }
+
     setTimeout(() => {
       setCurrentTurnIndex(prev => {
         // Guard against empty turnOrder (should not happen, but just in case)
@@ -867,6 +1139,13 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           setPsychicBladesUsedThisTurn(false);
           setCuttingWordsUsedThisTurn(false);
 
+          // Reset Battle Master pending maneuver if not used
+          if (pendingManeuver) {
+            addLog('Unused maneuver was cancelled.', 'info');
+            setPendingManeuver(null);
+          }
+          setFeintingAttackActive(false);
+
           // Reset offhand attack availability, bonus action, and reaction
           setOffhandAvailable(true);
           setBonusActionUsed(false);
@@ -881,7 +1160,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         return nextIndex;
       });
     }, 500);
-  }, [turnOrder, maxAttacks]);
+  }, [turnOrder, maxAttacks, enemies, performLegendaryAction, character, updateCharacter]);
 
   const performEnemyTurn = (enemyId: string) => {
     const enemy = enemies.find(e => e.id === enemyId);
@@ -932,6 +1211,15 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       } else {
         addLog(`${updatedEnemy.name}'s breath weapon does not recharge.`, 'info');
       }
+    }
+
+    // Check for Surprised condition specifically (it expires at end of turn, so we check the state before updates)
+    if (hasCondition(enemy, 'surprised')) {
+      addLog(`${updatedEnemy.name} is surprised and cannot act!`, 'condition');
+      // Updated enemy already has condition removed (duration 1 -> 0), so saving it clears it for next turn
+      setEnemies(prev => prev.map(e => e.id === enemyId ? updatedEnemy : e));
+      nextTurn();
+      return;
     }
 
     const grappled = updatedEnemy.conditions.some((c) => c.type === 'grappled');
@@ -991,6 +1279,12 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         if (hasCloakActive) {
           rollType = rollType === 'advantage' ? 'normal' : 'disadvantage';
           addLog(`Cloak of Displacement! Attack is at disadvantage.`, 'info');
+        }
+
+        // Light Cleric: Warding Flare - impose disadvantage on attacker
+        if (shouldUseWardingFlare()) {
+          useWardingFlare(actingEnemy.name);
+          rollType = rollType === 'advantage' ? 'normal' : 'disadvantage';
         }
 
         if (actionName) {
@@ -1104,13 +1398,34 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
             if ((actingEnemy.traits || []).includes('brute')) {
               damageRoll += rollDice(6);
             }
+
+            // Battle Master: Parry - reduce damage on melee hit
+            const isMeleeAttack = action.type === 'melee' || !action.type;
+            if (shouldAutoParry(isMeleeAttack)) {
+              const parryReduction = calculateParryReduction();
+              if (parryReduction > 0) {
+                damageRoll = Math.max(0, damageRoll - parryReduction);
+              }
+            }
+
             addLog(`${actingEnemy.name} ${t('combat.hits')} ${character.name} ${t('combat.for')} ${damageRoll} ${t('combat.damage')}!`, 'damage');
 
             const incomingDamageType = actionDamageType || detectDamageType(actingEnemy.damage || '');
             applyEnemyDamageToPlayer(actingEnemy, damageRoll, incomingDamageType);
+
+            // Tempest Cleric: Wrath of the Storm - deal damage when hit by melee
+            if (shouldUseWrathOfTheStorm() && isMeleeAttack) {
+              useWrathOfTheStorm(actingEnemy);
+            }
           }
         } else {
           addLog(`${actingEnemy.name} ${t('combat.attacks')} ${character.name} ${t('combat.butMisses')}`, 'miss');
+
+          // Battle Master: Riposte - counter-attack on melee miss
+          const isMeleeAttack = action.type === 'melee' || !action.type;
+          if (isBattleMaster && superiorityDiceLeft > 0 && !reactionUsed && isMeleeAttack) {
+            executeRiposte(actingEnemy.id);
+          }
         }
       };
 
@@ -1198,6 +1513,141 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   };
 
 
+  const handleHide = () => {
+    if (isRolling) return;
+
+    // Check if can act
+    if (!canTakeAction(character)) {
+      addLog(`${character.name} cannot act!`, 'condition');
+      return;
+    }
+
+    const isHidden = character.conditions.some(c => c.type === 'hidden');
+    if (isHidden) {
+      addLog(`${character.name} is already hidden.`, 'info');
+      return;
+    }
+
+    // Determine Action Cost
+    let isBonusAction = false;
+    // Rogue Cunning Action (Level 2+) - supports multiclassing
+    if (hasClassFeature(character, 'rogue', 2)) {
+      isBonusAction = true;
+    }
+    // Goblin Nimble Escape
+    if ((character.race.traits || []).includes('Nimble Escape')) {
+      isBonusAction = true;
+    }
+
+    if (isBonusAction) {
+      if (bonusActionUsed) {
+        addLog('Already used Bonus Action this turn.', 'warning');
+        return;
+      }
+    } else {
+      if (attacksLeft < maxAttacks) { // Simplified check for "Action used"
+        addLog('Action already used.', 'warning');
+        return;
+      }
+    }
+
+    // Calculate Highest Passive Perception among enemies
+    const highestPassive = enemies
+      .filter(e => !e.isDefeated)
+      .reduce((max, e) => {
+        const wisdom = e.abilityScores?.wisdom || 10;
+        const mod = Math.floor((wisdom - 10) / 2);
+        const passive = 10 + mod + (e.skills?.perception || 0);
+        return Math.max(max, passive);
+      }, 10);
+
+    // Roll Stealth
+    const dexMod = Math.floor((character.abilityScores.dexterity - 10) / 2);
+    const proficiency = character.skills.stealth?.proficient ? character.proficiencyBonus : 0;
+    const expertise = character.skills.stealth?.expertise ? character.proficiencyBonus : 0;
+    const modifier = dexMod + proficiency + expertise;
+
+    // Check for heavy armor disadvantage on Stealth
+    const equippedArmor = character.equippedArmor;
+    const hasStealthDisadvantage = equippedArmor?.properties?.includes('stealth-disadvantage') ||
+      equippedArmor?.type === 'heavy';
+
+    setAttackDetails({ name: 'Hide (Stealth)', dc: highestPassive, modifier });
+    setIsRolling(true);
+    setShowDiceModal(true);
+
+    let baseRoll = rollDice(20);
+    if (hasStealthDisadvantage) {
+      const secondRoll = rollDice(20);
+      baseRoll = Math.min(baseRoll, secondRoll);
+      addLog(`Heavy armor imposes disadvantage on Stealth (rolled ${baseRoll} and ${secondRoll}, using ${baseRoll}).`, 'info');
+    }
+    const roll = applyHalflingLucky(baseRoll, 'Hide (Stealth)');
+    const total = roll + modifier;
+    const isCritical = roll === 20;
+    const isCriticalFailure = roll === 1;
+
+    setDiceResult(roll);
+    setRollResult({ roll, total, isCritical, isCriticalFailure });
+
+    setPendingCombatAction(() => () => {
+      if (total >= highestPassive) {
+        applyPlayerCondition({
+          type: 'hidden',
+          name: 'Hidden',
+          description: 'Unseen by enemies. Advantage on attacks, attacks against you have disadvantage.',
+          duration: -1,
+          source: 'Stealth'
+        });
+        addLog(`${character.name} slips into the shadows! (Stealth ${total} vs DC ${highestPassive})`, 'info');
+      } else {
+        addLog(`${character.name} tries to hide but is spotted! (Stealth ${total} vs DC ${highestPassive})`, 'miss');
+      }
+
+      if (isBonusAction) {
+        setBonusActionUsed(true);
+      } else {
+        // Consume Action: clear attacks
+        setAttacksLeft(0);
+      }
+      // Note: Hiding doesn't end turn automatically
+    });
+  };
+
+  /**
+   * Dodge Action - imposes disadvantage on attacks against you until your next turn
+   */
+  const handleDodge = () => {
+    if (isRolling) return;
+
+    // Check if can act
+    if (!canTakeAction(character)) {
+      addLog(`${character.name} cannot act!`, 'condition');
+      return;
+    }
+
+    // Check if action is available
+    if (attacksLeft < maxAttacks) {
+      addLog('Action already used this turn.', 'warning');
+      return;
+    }
+
+    // Apply dodging condition
+    applyPlayerCondition({
+      type: 'invisible' as Condition['type'], // Using invisible for disadvantage on attacks
+      name: 'Dodging',
+      description: 'Attacks against you have disadvantage. Advantage on DEX saves.',
+      duration: 1,
+      source: 'Dodge Action'
+    });
+
+    addLog(`${character.name} takes the Dodge action! Attacks against you have disadvantage.`, 'info');
+
+    // Consume action
+    setAttacksLeft(0);
+    nextTurn();
+  };
+
   const handlePlayerAttack = () => {
     if (!selectedEnemy || isRolling) return;
     if (attacksLeft <= 0) {
@@ -1256,6 +1706,26 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         rollType = 'advantage';
       }
       addLog('Fighting Spirit: Advantage on attack!', 'info');
+    }
+
+    // Battle Master: Feinting Attack - advantage on next attack
+    if (feintingAttackActive) {
+      if (rollType === 'disadvantage') {
+        rollType = 'normal';
+      } else {
+        rollType = 'advantage';
+      }
+      addLog('Feinting Attack: Advantage on attack!', 'info');
+    }
+
+    // Wild Magic Sorcerer: Tides of Chaos - advantage on next roll
+    if (consumeTidesOfChaos()) {
+      if (rollType === 'disadvantage') {
+        rollType = 'normal';
+      } else {
+        rollType = 'advantage';
+      }
+      addLog('Tides of Chaos: Advantage on attack!', 'info');
     }
 
     // Swashbuckler: Rakish Audacity - add CHA to initiative (handled elsewhere) and solo sneak attack
@@ -1404,7 +1874,20 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     if (gwmActive && !isRanged) finalAttackModifier -= 5; // Assumes Heavy check is done or user knows
     if (sharpshooterActive && isRanged) finalAttackModifier -= 5;
 
-    const total = roll + finalAttackModifier + inspirationRoll;
+    // Battle Master: Precision Attack bonus
+    const precisionBonus = applyPrecisionAttack();
+    if (precisionBonus > 0) {
+      finalAttackModifier += precisionBonus;
+    }
+
+    // Bless: Add 1d4 to attack roll
+    let blessBonus = 0;
+    if (character.conditions.some(c => c.type === 'blessed')) {
+      blessBonus = rollDice(4);
+      addLog(`Bless! +${blessBonus} to attack!`, 'info');
+    }
+
+    const total = roll + finalAttackModifier + inspirationRoll + blessBonus;
 
     // Dynamic critical hit threshold (Champion, Hexblade's Curse)
     let effectiveCritThreshold = critThreshold;
@@ -1430,6 +1913,14 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
     setDiceResult(roll);
     setRollResult({ roll, total, isCritical: isCritical || isAssassinateCrit || isConditionAutoCrit, isCriticalFailure });
+
+    // Check if Divine Soul Sorcerer can boost a failed attack
+    if (total < targetAC && !isCritical) {
+      checkFavoredByTheGodsBoost(total, targetAC, () => {
+        // This callback is called when the player uses Favored by the Gods
+        // The boost is handled in useFavoredByTheGods which updates rollResult
+      });
+    }
 
     setPendingCombatAction(() => () => {
       if (total >= targetAC || isCritical) {
@@ -1618,19 +2109,33 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         }
 
         // Swashbuckler Rakish Audacity - sneak attack when no allies needed
-        if (isRogue && subclassId === 'swashbuckler' && !sneakAttackUsedThisTurn && rakishAudacity) {
-          // Can sneak attack if target is only adjacent enemy (simplified: always allow if have Rakish Audacity)
+        // Sneak Attack: Swashbuckler Rakish Audacity (can sneak attack 1v1)
+        if (isRogue && !sneakAttackUsedThisTurn && rakishAudacity?.soloSneakAttack) {
           const sneakDice = Math.ceil(character.level / 2);
-          let sneakDamage = 0;
-          for (let i = 0; i < sneakDice; i++) sneakDamage += rollDice(6);
+          const sneakDamage = rollDice(6) * sneakDice;
           damageRoll += sneakDamage;
           addLog(`Rakish Audacity Sneak Attack! (+${sneakDamage} damage)`, 'info');
           setSneakAttackUsedThisTurn(true);
         }
 
+        // Battle Master: Apply on-hit maneuver effects
+        if (pendingManeuver && isBattleMaster) {
+          damageRoll = applyManeuverOnHit(enemy, damageRoll);
+        }
+
         const damageType = weaponDamageType || detectDamageType(enemy.damage || '');
         const { adjustedDamage, note } = adjustDamageForDefenses(enemy, damageRoll, damageType, { isMagical: isMagicalWeapon });
-        addLog(`${character.name} hits ${enemy.name} for ${adjustedDamage} damage!`, 'damage');
+
+        // Warn player if their weapon cannot hurt this enemy
+        if (adjustedDamage === 0 && damageRoll > 0) {
+          addLog(`⚠️ ${enemy.name} is immune to ${damageType} damage!`, 'warning');
+          if (!isMagicalWeapon && note?.includes('nonmagical')) {
+            addLog(`💡 Tip: You need a magic weapon to harm this creature!`, 'info');
+          }
+        } else {
+          addLog(`${character.name} hits ${enemy.name} for ${adjustedDamage} damage!`, 'damage');
+        }
+
         if (note) {
           addLog(`${enemy.name} ${note}.`, 'info');
         }
@@ -1788,6 +2293,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   };
 
   // Polearm Master: Bonus action 1d4 bludgeoning attack with polearm butt end
+
   const handlePolearmBonusAttack = () => {
     if (bonusActionUsed || !selectedEnemy || isRolling) return;
     if (!character.feats?.includes('polearm-master')) return;
@@ -1836,6 +2342,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   };
 
   // Crossbow Expert: Bonus action hand crossbow attack when attacking with one-handed weapon
+
   const handleCrossbowBonusAttack = () => {
     if (bonusActionUsed || !selectedEnemy || isRolling) return;
     if (!character.feats?.includes('crossbow-expert')) return;
@@ -1883,10 +2390,11 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   };
 
   // Healer feat: Use an action to heal 1d6 + 4 + target's hit dice (once per creature per short rest)
-  const [healerUsedThisRest, setHealerUsedThisRest] = useState(false);
+  const healerFeatUsed = character.featureUses?.healerFeatUsed ?? false;
+
   const handleHealerAction = () => {
     if (!character.feats?.includes('healer')) return;
-    if (healerUsedThisRest) {
+    if (healerFeatUsed) {
       addLog('Healer feat already used this rest!', 'miss');
       return;
     }
@@ -1899,15 +2407,20 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     updateCharacter(prev => {
       if (!prev) return prev;
       const newHp = Math.min(prev.maxHitPoints, prev.hitPoints + healing);
-      return { ...prev, hitPoints: newHp };
+      const currentUses = prev.featureUses || getDefaultFeatureUses(prev);
+      return {
+        ...prev,
+        hitPoints: newHp,
+        featureUses: { ...currentUses, healerFeatUsed: true }
+      };
     });
 
     addLog(`${character.name} uses Healer's Kit mastery to heal for ${healing} HP!`, 'info');
-    setHealerUsedThisRest(true);
     nextTurn();
   };
 
   // Charger feat: Bonus action for +5 damage melee attack
+
   const handleChargerAttack = () => {
     if (!character.feats?.includes('charger')) return;
     if (bonusActionUsed || !selectedEnemy || isRolling) return;
@@ -1968,7 +2481,8 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   };
 
   // Inspiring Leader feat: Grant self temp HP = level + CHA mod (once per short rest, simplified)
-  const [inspiringLeaderUsed, setInspiringLeaderUsed] = useState(false);
+  const inspiringLeaderUsed = character.featureUses?.inspiringLeaderUsed ?? false;
+
   const handleInspiringLeader = () => {
     if (!character.feats?.includes('inspiring-leader')) return;
     if (inspiringLeaderUsed) {
@@ -1983,13 +2497,432 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     updateCharacter(prev => {
       if (!prev) return prev;
       const currentTemp = prev.temporaryHitPoints || 0;
-      // Temp HP doesn't stack, take higher
-      return { ...prev, temporaryHitPoints: Math.max(currentTemp, tempHp) };
+      const currentUses = prev.featureUses || getDefaultFeatureUses(prev);
+      return {
+        ...prev,
+        temporaryHitPoints: Math.max(currentTemp, tempHp),
+        featureUses: { ...currentUses, inspiringLeaderUsed: true }
+      };
     });
 
     addLog(`${character.name} delivers an inspiring speech! Gained ${tempHp} temporary HP!`, 'info');
-    setInspiringLeaderUsed(true);
   };
+
+  // ==========================================
+  // BATTLE MASTER MANEUVERS
+  // ==========================================
+
+  /**
+   * Activate a maneuver that triggers on the next attack (Precision, Trip, Menacing, etc.)
+   */
+  const activateManeuver = (maneuverId: string) => {
+    if (!isBattleMaster || superiorityDiceLeft <= 0) {
+      addLog('No superiority dice remaining!', 'miss');
+      return;
+    }
+
+    const maneuver = BATTLE_MASTER_MANEUVERS.find(m => m.id === maneuverId);
+    if (!maneuver) return;
+
+    // For on-attack and on-hit maneuvers, set as pending
+    if (maneuver.timing === 'on-attack' || maneuver.timing === 'on-hit') {
+      setPendingManeuver(maneuverId);
+      addLog(`${character.name} readies ${maneuver.name}!`, 'info');
+    }
+  };
+
+  /**
+   * Rally - bonus action to grant temp HP
+   */
+  const handleRally = () => {
+    if (!isBattleMaster || superiorityDiceLeft <= 0 || bonusActionUsed || !isPlayerTurn) return;
+
+    const dieRoll = rollSuperiorityDie(character.level);
+    const chaMod = Math.floor((character.abilityScores.charisma - 10) / 2);
+    const tempHp = dieRoll + Math.max(0, chaMod);
+
+    setSuperiorityDiceLeft(prev => prev - 1);
+    setBonusActionUsed(true);
+
+    updateCharacter(prev => {
+      if (!prev) return prev;
+      const currentTemp = prev.temporaryHitPoints || 0;
+      return {
+        ...prev,
+        temporaryHitPoints: Math.max(currentTemp, tempHp)
+      };
+    });
+
+    addLog(`${character.name} rallies! Gained ${tempHp} temporary HP!`, 'heal');
+  };
+
+  /**
+   * Feinting Attack - bonus action for advantage + damage on next attack
+   */
+  const handleFeintingAttack = () => {
+    if (!isBattleMaster || superiorityDiceLeft <= 0 || bonusActionUsed || !isPlayerTurn) return;
+
+    setFeintingAttackActive(true);
+    setPendingManeuver('feinting-attack');
+    setBonusActionUsed(true);
+
+    addLog(`${character.name} feints, gaining advantage on the next attack!`, 'info');
+  };
+
+  /**
+   * Apply a maneuver's effect after hitting (called from attack resolution)
+   */
+  const applyManeuverOnHit = (enemy: CombatEnemyState, baseDamage: number): number => {
+    if (!pendingManeuver || !isBattleMaster) return baseDamage;
+
+    const maneuver = BATTLE_MASTER_MANEUVERS.find(m => m.id === pendingManeuver);
+    if (!maneuver) return baseDamage;
+
+    // For on-hit maneuvers, consume die and apply effects
+    if (maneuver.timing === 'on-hit') {
+      setSuperiorityDiceLeft(prev => prev - 1);
+      const dieRoll = rollSuperiorityDie(character.level);
+      let totalDamage = baseDamage;
+
+      // Add damage from die
+      if (maneuver.effect.addDamageDie) {
+        totalDamage += dieRoll;
+        addLog(`${maneuver.name}: +${dieRoll} damage!`, 'damage');
+      }
+
+      // Apply saving throw effect
+      if (maneuver.effect.targetSave && maneuver.effect.onFailedSave) {
+        const strMod = Math.floor((character.abilityScores.strength - 10) / 2);
+        const dexMod = Math.floor((character.abilityScores.dexterity - 10) / 2);
+        const saveDC = 8 + character.proficiencyBonus + Math.max(strMod, dexMod);
+
+        // Enemy save
+        const enemySaveBonus = getEnemySavingThrowBonus(enemy, maneuver.effect.targetSave);
+        const saveRoll = rollDice(20) + enemySaveBonus;
+
+        if (saveRoll < saveDC) {
+          // Failed save - apply condition
+          const condition = maneuver.effect.onFailedSave.condition;
+          if (condition === 'prone') {
+            setEnemies(prev => prev.map(e =>
+              e.id === enemy.id ? {
+                ...e,
+                conditions: [...e.conditions, {
+                  type: 'prone',
+                  name: 'Prone',
+                  description: 'Attack rolls within 5 feet have advantage. Disadvantage on attacks.',
+                  duration: -1,
+                  source: maneuver.name
+                }]
+              } : e
+            ));
+            addLog(`${enemy.name} is knocked prone! (Save ${saveRoll} vs DC ${saveDC})`, 'condition');
+          } else if (condition === 'frightened') {
+            setEnemies(prev => prev.map(e =>
+              e.id === enemy.id ? {
+                ...e,
+                conditions: [...e.conditions, {
+                  type: 'frightened',
+                  name: 'Frightened',
+                  description: 'Disadvantage on ability checks and attacks while source is in sight.',
+                  duration: 1,
+                  source: maneuver.name
+                }]
+              } : e
+            ));
+            addLog(`${enemy.name} is frightened! (Save ${saveRoll} vs DC ${saveDC})`, 'condition');
+          } else if (condition === 'pushed') {
+            addLog(`${enemy.name} is pushed back ${maneuver.effect.onFailedSave.pushDistance} feet! (Save ${saveRoll} vs DC ${saveDC})`, 'info');
+          } else if (condition === 'disarmed') {
+            // Apply disarmed - enemy has disadvantage on attacks
+            setEnemies(prev => prev.map(e =>
+              e.id === enemy.id ? {
+                ...e,
+                conditions: [...e.conditions, {
+                  type: 'restrained', // Use restrained for disadvantage effect
+                  name: 'Disarmed',
+                  description: 'Dropped weapon. Disadvantage on attacks until recovered.',
+                  duration: 1,
+                  source: maneuver.name
+                }]
+              } : e
+            ));
+            addLog(`${enemy.name} is disarmed! (Save ${saveRoll} vs DC ${saveDC})`, 'condition');
+          } else if (condition === 'goaded') {
+            // Apply goaded - tracked separately to affect AI targeting
+            setEnemies(prev => prev.map(e =>
+              e.id === enemy.id ? {
+                ...e,
+                conditions: [...e.conditions, {
+                  type: 'charmed', // Use charmed as proxy for goaded
+                  name: 'Goaded',
+                  description: 'Has disadvantage on attacks against targets other than the Battle Master.',
+                  duration: 1,
+                  source: `${character.name} (Goading Attack)`
+                }]
+              } : e
+            ));
+            addLog(`${enemy.name} is goaded into focusing on ${character.name}! (Save ${saveRoll} vs DC ${saveDC})`, 'condition');
+          }
+        } else {
+          addLog(`${enemy.name} resists the maneuver! (Save ${saveRoll} vs DC ${saveDC})`, 'info');
+        }
+      }
+
+      // Clear pending maneuver
+      setPendingManeuver(null);
+      setFeintingAttackActive(false);
+
+      return totalDamage;
+    }
+
+    // For feinting attack, just add damage die (advantage was already applied)
+    if (pendingManeuver === 'feinting-attack') {
+      setSuperiorityDiceLeft(prev => prev - 1);
+      const dieRoll = rollSuperiorityDie(character.level);
+      addLog(`Feinting Attack: +${dieRoll} damage!`, 'damage');
+      setPendingManeuver(null);
+      setFeintingAttackActive(false);
+      return baseDamage + dieRoll;
+    }
+
+    return baseDamage;
+  };
+
+  /**
+   * Apply Precision Attack - add superiority die to attack roll (called before hit determination)
+   */
+  const applyPrecisionAttack = (): number => {
+    if (pendingManeuver !== 'precision-attack' || !isBattleMaster || superiorityDiceLeft <= 0) return 0;
+
+    setSuperiorityDiceLeft(prev => prev - 1);
+    const dieRoll = rollSuperiorityDie(character.level);
+    setPendingManeuver(null);
+
+    addLog(`Precision Attack: +${dieRoll} to attack roll!`, 'info');
+    return dieRoll;
+  };
+
+  /**
+   * Execute Riposte - counter-attack when enemy misses
+   */
+  const executeRiposte = (enemyId: string) => {
+    if (!isBattleMaster || superiorityDiceLeft <= 0 || reactionUsed) return;
+
+    const enemy = enemies.find(e => e.id === enemyId);
+    if (!enemy || enemy.isDefeated) {
+      return;
+    }
+
+    setReactionUsed(true);
+    setSuperiorityDiceLeft(prev => prev - 1);
+
+    // Make a weapon attack
+    const abilityMod = Math.max(
+      Math.floor((character.abilityScores.strength - 10) / 2),
+      Math.floor((character.abilityScores.dexterity - 10) / 2)
+    );
+    const attackRoll = rollDice(20);
+    const total = attackRoll + abilityMod + character.proficiencyBonus;
+    const targetAC = getEnemyEffectiveAC(enemy);
+
+    if (attackRoll === 1) {
+      addLog(`Riposte: Critical miss! (${attackRoll})`, 'miss');
+    } else if (total >= targetAC || attackRoll === 20) {
+      const baseDamage = rollDice(8) + abilityMod; // Assume d8 weapon
+      const superiorityDamage = rollSuperiorityDie(character.level);
+      const totalDamage = baseDamage + superiorityDamage;
+
+      addLog(`Riposte! ${character.name} counter-attacks ${enemy.name} for ${totalDamage} damage! (${total} vs AC ${targetAC})`, 'damage');
+
+      setEnemies(prev => prev.map(e => {
+        if (e.id === enemyId) {
+          const newHp = Math.max(0, e.currentHp - totalDamage);
+          return { ...e, currentHp: newHp, isDefeated: newHp <= 0 };
+        }
+        return e;
+      }));
+    } else {
+      addLog(`Riposte: ${character.name}'s counter-attack misses! (${total} vs AC ${targetAC})`, 'miss');
+    }
+  };
+
+  /**
+   * Execute Parry - reduce incoming damage (returns reduced damage amount)
+   * Called during enemy attack resolution
+   */
+  const calculateParryReduction = (): number => {
+    if (!isBattleMaster || superiorityDiceLeft <= 0 || reactionUsed) {
+      return 0; // No reduction possible
+    }
+
+    setReactionUsed(true);
+    setSuperiorityDiceLeft(prev => prev - 1);
+
+    const dieRoll = rollSuperiorityDie(character.level);
+    const dexMod = Math.floor((character.abilityScores.dexterity - 10) / 2);
+    const reduction = dieRoll + dexMod;
+
+    addLog(`Parry! Reducing damage by ${reduction}!`, 'info');
+    return reduction;
+  };
+
+  /**
+   * Check if Parry should auto-trigger (for simplicity, auto-parry on melee hits when available)
+   */
+  const shouldAutoParry = (isMeleeAttack: boolean): boolean => {
+    return isBattleMaster && superiorityDiceLeft > 0 && !reactionUsed && isMeleeAttack;
+  };
+
+  // ==========================================
+  // CLERIC DOMAIN REACTIONS
+  // ==========================================
+
+  /**
+   * Warding Flare (Light Domain) - Impose disadvantage on attacker
+   * Returns true if flare was used
+   */
+  const shouldUseWardingFlare = (): boolean => {
+    return isLightCleric && wardingFlareUses > 0 && !reactionUsed;
+  };
+
+  const useWardingFlare = (attackerName: string): void => {
+    if (!shouldUseWardingFlare()) return;
+
+    setWardingFlareUses(prev => prev - 1);
+    setReactionUsed(true);
+    addLog(`Warding Flare! ${attackerName} has disadvantage on this attack!`, 'info');
+  };
+
+  /**
+   * Wrath of the Storm (Tempest Domain) - Deal lightning/thunder damage when hit
+   */
+  const shouldUseWrathOfTheStorm = (): boolean => {
+    return isTempestCleric && wrathOfTheStormUses > 0 && !reactionUsed;
+  };
+
+  const useWrathOfTheStorm = (attacker: CombatEnemyState): void => {
+    if (!shouldUseWrathOfTheStorm()) return;
+
+    setWrathOfTheStormUses(prev => prev - 1);
+    setReactionUsed(true);
+
+    const wisMod = Math.floor((character.abilityScores.wisdom - 10) / 2);
+    const saveDC = 8 + character.proficiencyBonus + wisMod;
+    const saveBonus = getEnemySavingThrowBonus(attacker, 'dexterity');
+    const saveRoll = rollDice(20) + saveBonus;
+
+    // 2d8 lightning or thunder damage
+    let damage = rollDice(8) + rollDice(8);
+
+    if (saveRoll >= saveDC) {
+      damage = Math.floor(damage / 2);
+      addLog(`Wrath of the Storm! ${attacker.name} takes ${damage} lightning damage (DEX save ${saveRoll} vs DC ${saveDC} - half)!`, 'damage');
+    } else {
+      addLog(`Wrath of the Storm! ${attacker.name} takes ${damage} lightning damage (DEX save ${saveRoll} vs DC ${saveDC} - failed)!`, 'damage');
+    }
+
+    setEnemies(prev => prev.map(e => {
+      if (e.id === attacker.id) {
+        const newHp = Math.max(0, e.currentHp - damage);
+        return { ...e, currentHp: newHp, isDefeated: newHp <= 0 };
+      }
+      return e;
+    }));
+  };
+
+  // ==========================================
+  // WIZARD SUBCLASS FEATURES
+  // ==========================================
+
+  /**
+   * Arcane Ward (Abjuration) - Absorb damage
+   * Returns amount of damage absorbed (reduced from incoming)
+   */
+  const absorbDamageWithArcaneWard = (incomingDamage: number): number => {
+    if (!isAbjurationWizard || arcaneWardHp <= 0) return 0;
+
+    const absorbed = Math.min(arcaneWardHp, incomingDamage);
+    setArcaneWardHp(prev => prev - absorbed);
+
+    if (absorbed > 0) {
+      addLog(`Arcane Ward absorbs ${absorbed} damage! (${arcaneWardHp - absorbed} HP remaining)`, 'info');
+    }
+
+    return absorbed;
+  };
+
+  // ==========================================
+  // SORCERER SUBCLASS FEATURES
+  // ==========================================
+
+  /**
+   * Tides of Chaos (Wild Magic) - Gain advantage on one roll
+   */
+  const activateTidesOfChaos = (): void => {
+    if (!isWildMagicSorcerer || tidesOfChaosAvailable <= 0) return;
+
+    setTidesOfChaosAvailable(prev => prev - 1);
+    setTidesOfChaosActive(true);
+    addLog(`Tides of Chaos activated! Advantage on next attack, check, or save!`, 'info');
+  };
+
+  /**
+   * Consume Tides of Chaos advantage (returns true if active)
+   */
+  const consumeTidesOfChaos = (): boolean => {
+    if (!tidesOfChaosActive) return false;
+    setTidesOfChaosActive(false);
+    return true;
+  };
+
+  /**
+   * Favored by the Gods (Divine Soul) - Add 2d4 to failed save/attack
+   * Called when player clicks the boost button in dice modal
+   */
+  const useFavoredByTheGods = (): void => {
+    if (!isDivineSoulSorcerer || favoredByTheGodsAvailable <= 0 || !boostCallback) return;
+
+    setFavoredByTheGodsAvailable(prev => prev - 1);
+    const bonus = rollDice(4) + rollDice(4);
+    addLog(`Favored by the Gods! Added +${bonus} to the roll!`, 'info');
+
+    // Update the displayed roll result
+    if (rollResult) {
+      const newTotal = rollResult.total + bonus;
+      setRollResult({
+        ...rollResult,
+        total: newTotal
+      });
+    }
+
+    // Call the boost callback with the bonus
+    boostCallback(bonus);
+
+    // Disable further boosting
+    setCanBoostRoll(false);
+    setBoostCallback(null);
+  };
+
+  /**
+   * Check if current roll can be boosted by Favored by the Gods
+   */
+  const checkFavoredByTheGodsBoost = (
+    rollTotal: number,
+    targetDC: number,
+    onBoost: (bonus: number) => void
+  ): void => {
+    // Only Divine Soul Sorcerers with uses remaining can boost
+    if (!isDivineSoulSorcerer || favoredByTheGodsAvailable <= 0) return;
+
+    // Only offer boost if the roll failed but could potentially succeed with 2d4 (2-8)
+    const maxBoost = 8;
+    if (rollTotal < targetDC && rollTotal + maxBoost >= targetDC) {
+      setCanBoostRoll(true);
+      setBoostCallback(() => onBoost);
+    }
+  };
+
 
   const handleCastSpell = (
     spellId: string,
@@ -2086,80 +3019,129 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     const damageOrHealingFormula = buildDamageFormula();
 
     if (spell.damage || spell.level === 0) {
-      // Attack Spell
-      if (!selectedEnemy) return;
+      // Check if this is an AoE spell
+      const isAoE = spell.areaOfEffect && spell.areaOfEffect.size > 0;
 
-      const damageTotal = parseDice(damageOrHealingFormula || '1d6');
+      // For AoE spells, target all living enemies
+      // For single-target spells, require a selected enemy
+      const targetEnemies = isAoE
+        ? enemies.filter(e => !e.isDefeated)
+        : selectedEnemy
+          ? [enemies.find(e => e.id === selectedEnemy)].filter(Boolean) as typeof enemies
+          : [];
 
-      let finalDamage = damageTotal;
-
-      // Metamagic: Empowered Spell
-      if (empoweredSpellUsed) {
-        const bonus = rollDice(6);
-        finalDamage += bonus;
-        setEmpoweredSpellUsed(false);
-        addLog(`Empowered Spell! Added ${bonus} damage.`, 'info');
-      }
-
-      // Warlock: Agonizing Blast
-      if (spell.id === 'eldritch-blast' && character.class.name.toLowerCase() === 'warlock' && character.level >= 2) {
-        const charismaMod = Math.floor((character.abilityScores.charisma - 10) / 2);
-        finalDamage += charismaMod;
-        addLog(`Agonizing Blast!(+${charismaMod} damage)`, 'info');
-      }
-
-      // Warlock: Hex Damage (Spells)
-      const targetEnemy = enemies.find(e => e.id === selectedEnemy);
-      if (targetEnemy && targetEnemy.conditions.some(c => c.type === 'hexed') && (spell.damage || spell.level === 0)) {
-        const hexDamage = rollDice(6);
-        finalDamage += hexDamage;
-        addLog(`Hex!(+${hexDamage} necrotic damage)`, 'info');
-      }
-
-      let saveMessage = '';
-
-      // Handle Saving Throw
-      if (spell.saveType) {
-        let spellDC = getSpellSaveDC(character);
-        if (character.pactBoon === 'Pact of the Tome') {
-          spellDC += 1;
+      if (targetEnemies.length === 0) {
+        if (!isAoE) {
+          addLog('No target selected.', 'miss');
         }
-        const enemy = enemies.find(e => e.id === selectedEnemy);
-        if (enemy) {
-          // Check for auto-fail conditions (Paralyzed, Stunned, etc. auto-fail STR/DEX)
+        return;
+      }
+
+      // Get base spell DC
+      let spellDC = getSpellSaveDC(character);
+      if (character.pactBoon === 'Pact of the Tome') {
+        spellDC += 1;
+      }
+
+      // Get damage type
+      const damageType = spell.damageType || detectDamageType(spell.damage || spell.name || '');
+
+      // Process each target
+      let totalDamageDealt = 0;
+      const hitEnemies: string[] = [];
+
+      for (const targetEnemy of targetEnemies) {
+        if (!targetEnemy) continue;
+
+        // Roll base damage (same roll for all targets based on D&D rules)
+        const baseDamageRoll = parseDice(damageOrHealingFormula || '1d6');
+        let finalDamage = baseDamageRoll;
+
+        // Metamagic: Empowered Spell (only once per cast)
+        if (empoweredSpellUsed && targetEnemy === targetEnemies[0]) {
+          const bonus = rollDice(6);
+          finalDamage += bonus;
+          setEmpoweredSpellUsed(false);
+          addLog(`Empowered Spell! Added ${bonus} damage.`, 'info');
+        }
+
+        // Warlock Eldritch Invocations for Eldritch Blast
+        if (!isAoE && spell.id === 'eldritch-blast' && character.class.name.toLowerCase() === 'warlock') {
+          const invocations = character.eldritchInvocations || [];
+
+          // Agonizing Blast: Add CHA to damage (requires level 2)
+          if ((invocations.includes('agonizing-blast') || character.level >= 2)) {
+            const charismaMod = Math.floor((character.abilityScores.charisma - 10) / 2);
+            finalDamage += charismaMod;
+            addLog(`Agonizing Blast! (+${charismaMod} damage)`, 'info');
+          }
+
+          // Repelling Blast: Push target 10ft
+          if (invocations.includes('repelling-blast')) {
+            addLog(`Repelling Blast! ${targetEnemy.name} is pushed 10 feet!`, 'info');
+          }
+        }
+
+        // Warlock: Hex Damage
+        if (targetEnemy.conditions.some(c => c.type === 'hexed')) {
+          const hexDamage = rollDice(6);
+          finalDamage += hexDamage;
+          addLog(`Hex! (+${hexDamage} necrotic damage to ${targetEnemy.name})`, 'info');
+        }
+
+        // Handle Saving Throw
+        let savedForHalf = false;
+        if (spell.saveType) {
           const saveAbility = spell.saveType as 'strength' | 'dexterity' | 'constitution' | 'intelligence' | 'wisdom' | 'charisma';
-          if (autoFailsSave(enemy, saveAbility)) {
-            saveMessage = ` (Auto-fail! ${enemy.name} is incapacitated!)`;
-            addLog(`${enemy.name} automatically fails the ${saveAbility.toUpperCase()} save!`, 'condition');
+
+          if (autoFailsSave(targetEnemy, saveAbility)) {
+            addLog(`${targetEnemy.name} auto-fails ${saveAbility.toUpperCase()} save! (incapacitated)`, 'condition');
           } else {
             const saveRoll = rollDice(20);
-            const saveTotal = saveRoll + getEnemySavingThrowBonus(enemy, spell.saveType);
+            const saveBonus = getEnemySavingThrowBonus(targetEnemy, spell.saveType);
+            const saveTotal = saveRoll + saveBonus;
+
             if (saveTotal >= spellDC) {
-              finalDamage = Math.floor(damageTotal / 2);
-              saveMessage = ` (Saved! Rolled ${saveTotal} vs DC ${spellDC})`;
+              savedForHalf = true;
+              finalDamage = Math.floor(baseDamageRoll / 2);
+              if (isAoE) {
+                addLog(`${targetEnemy.name} saves! (${saveTotal} vs DC ${spellDC}) - Half damage`, 'info');
+              }
             } else {
-              saveMessage = ` (Failed Save! Rolled ${saveTotal} vs DC ${spellDC})`;
+              if (isAoE) {
+                addLog(`${targetEnemy.name} fails save! (${saveTotal} vs DC ${spellDC})`, 'damage');
+              }
             }
           }
         }
-      }
 
-      const targetEnemyData = enemies.find(e => e.id === selectedEnemy);
-      const damageType = spell.damageType || detectDamageType(spell.damage || spell.name || '');
-      if (targetEnemyData) {
-        const { adjustedDamage, note } = adjustDamageForDefenses(targetEnemyData, finalDamage, damageType, { isSpell: true, isMagical: true });
+        // Apply resistances/immunities
+        const { adjustedDamage, note } = adjustDamageForDefenses(targetEnemy, finalDamage, damageType, { isSpell: true, isMagical: true });
         finalDamage = adjustedDamage;
         if (note) {
-          addLog(`${targetEnemyData.name} ${note}.`, 'info');
+          addLog(`${targetEnemy.name} ${note}.`, 'info');
+        }
+
+        // Apply damage
+        if (finalDamage > 0) {
+          applyDamageToEnemy(targetEnemy.id, finalDamage, damageType, { preAdjusted: true });
+          totalDamageDealt += finalDamage;
+          hitEnemies.push(`${targetEnemy.name} (${finalDamage}${savedForHalf ? ' - saved' : ''})`);
         }
       }
 
-      // Apply damage
-      if (targetEnemyData) {
-        applyDamageToEnemy(targetEnemyData.id, finalDamage, damageType, { preAdjusted: true });
+      // Log the spell cast
+      if (isAoE) {
+        const aoeType = spell.areaOfEffect?.type || 'area';
+        const aoeSize = spell.areaOfEffect?.size || 0;
+        addLog(`💥 ${character.name} casts ${spell.name}! (${aoeSize}ft ${aoeType})`, 'damage');
+        if (hitEnemies.length > 0) {
+          addLog(`Hits: ${hitEnemies.join(', ')}`, 'damage');
+        }
+      } else {
+        const singleTarget = targetEnemies[0];
+        addLog(`${character.name} casts ${spell.name} on ${singleTarget?.name} for ${totalDamageDealt} ${damageType} damage!`, 'damage');
       }
-
-      addLog(`${character.name} casts ${spell.name} on ${targetEnemyData?.name} for ${finalDamage} ${spell.damageType} damage!${saveMessage} `, 'damage');
 
     } else if (spell.healing) {
       // Healing Spell
@@ -2195,6 +3177,321 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
       };
       setEnemies(prev => prev.map(e => e.id === selectedEnemy ? { ...e, conditions: [...e.conditions, hexCondition] } : e));
       addLog(`${character.name} curses ${enemies.find(e => e.id === selectedEnemy)?.name} with Hex!`, 'condition');
+
+      // BUFF SPELLS
+    } else if (spell.id === 'bless') {
+      // Bless: +1d4 to attacks and saves
+      applyPlayerCondition({
+        type: 'blessed' as Condition['type'],
+        name: 'Blessed',
+        description: 'Add 1d4 to attack rolls and saving throws.',
+        duration: 10,
+        source: 'Bless'
+      });
+      addLog(`${character.name} casts Bless! +1d4 to attacks and saves.`, 'info');
+
+    } else if (spell.id === 'bane') {
+      // Bane: Up to 3 enemies -1d4 to attacks and saves (CHA save)
+      const livingEnemies = enemies.filter(e => !e.isDefeated);
+      const spellDC = getSpellSaveDC(character);
+      let affectedCount = 0;
+
+      for (const enemy of livingEnemies.slice(0, 3)) {
+        const saveBonus = getEnemySavingThrowBonus(enemy, 'charisma');
+        const saveRoll = rollDice(20) + saveBonus;
+
+        if (saveRoll < spellDC) {
+          const baneCondition: Condition = {
+            type: 'poisoned' as Condition['type'], // Use poisoned as proxy for disadvantage
+            name: 'Baned',
+            description: 'Subtract 1d4 from attack rolls and saving throws.',
+            duration: 10,
+            source: 'Bane'
+          };
+          setEnemies(prev => prev.map(e =>
+            e.id === enemy.id ? { ...e, conditions: [...e.conditions, baneCondition] } : e
+          ));
+          addLog(`${enemy.name} is affected by Bane! (Save ${saveRoll} vs DC ${spellDC})`, 'condition');
+          affectedCount++;
+        } else {
+          addLog(`${enemy.name} resists Bane! (Save ${saveRoll} vs DC ${spellDC})`, 'info');
+        }
+      }
+      addLog(`${character.name} casts Bane! ${affectedCount} enemies affected.`, 'info');
+
+    } else if (spell.id === 'hunters-mark') {
+      // Hunter's Mark: Like Hex but for Rangers
+      if (!selectedEnemy) return;
+      const markCondition: Condition = {
+        type: 'hexed' as Condition['type'], // Use same type as Hex for damage tracking
+        name: "Hunter's Mark",
+        description: 'Takes extra 1d6 damage from weapon attacks.',
+        duration: 60, // 1 hour
+        source: "Hunter's Mark"
+      };
+      setEnemies(prev => prev.map(e => e.id === selectedEnemy ? { ...e, conditions: [...e.conditions, markCondition] } : e));
+      addLog(`${character.name} marks ${enemies.find(e => e.id === selectedEnemy)?.name} as quarry!`, 'condition');
+
+    } else if (spell.id === 'faerie-fire') {
+      // Faerie Fire: Outlined enemies grant advantage on attacks (DEX save)
+      const livingEnemies = enemies.filter(e => !e.isDefeated);
+      const spellDC = getSpellSaveDC(character);
+      let affectedCount = 0;
+
+      for (const enemy of livingEnemies) {
+        const saveBonus = getEnemySavingThrowBonus(enemy, 'dexterity');
+        const saveRoll = rollDice(20) + saveBonus;
+
+        if (saveRoll < spellDC) {
+          const faerieCondition: Condition = {
+            type: 'restrained' as Condition['type'], // Use restrained for advantage effect
+            name: 'Faerie Fire',
+            description: 'Outlined in light. Attacks against this creature have advantage.',
+            duration: 10,
+            source: 'Faerie Fire'
+          };
+          setEnemies(prev => prev.map(e =>
+            e.id === enemy.id ? { ...e, conditions: [...e.conditions, faerieCondition] } : e
+          ));
+          addLog(`${enemy.name} is outlined! (Save ${saveRoll} vs DC ${spellDC})`, 'condition');
+          affectedCount++;
+        } else {
+          addLog(`${enemy.name} resists Faerie Fire! (Save ${saveRoll} vs DC ${spellDC})`, 'info');
+        }
+      }
+      addLog(`${character.name} casts Faerie Fire! ${affectedCount} creatures outlined.`, 'info');
+
+      // CONTROL SPELLS
+    } else if (spell.id === 'hold-person') {
+      // Hold Person: Paralyze a humanoid (WIS save)
+      if (!selectedEnemy) {
+        addLog('No target selected.', 'miss');
+        return;
+      }
+      const spellDC = getSpellSaveDC(character);
+      const enemy = enemies.find(e => e.id === selectedEnemy);
+      if (enemy) {
+        const saveBonus = getEnemySavingThrowBonus(enemy, 'wisdom');
+        const saveRoll = rollDice(20) + saveBonus;
+
+        if (saveRoll < spellDC) {
+          const paralyzedCondition: Condition = {
+            type: 'paralyzed',
+            name: 'Held',
+            description: 'Paralyzed by Hold Person. Auto-fail STR/DEX saves. Attacks from 5ft are crits.',
+            duration: 10,
+            source: 'Hold Person'
+          };
+          setEnemies(prev => prev.map(e =>
+            e.id === enemy.id ? { ...e, conditions: [...e.conditions, paralyzedCondition] } : e
+          ));
+          addLog(`${enemy.name} is paralyzed! (Save ${saveRoll} vs DC ${spellDC})`, 'condition');
+        } else {
+          addLog(`${enemy.name} resists Hold Person! (Save ${saveRoll} vs DC ${spellDC})`, 'info');
+        }
+        addLog(`${character.name} casts Hold Person on ${enemy.name}!`, 'info');
+      }
+
+    } else if (spell.id === 'web') {
+      // Web: Restrain enemies in area (DEX save)
+      const livingEnemies = enemies.filter(e => !e.isDefeated);
+      const spellDC = getSpellSaveDC(character);
+      let affectedCount = 0;
+
+      for (const enemy of livingEnemies) {
+        const saveBonus = getEnemySavingThrowBonus(enemy, 'dexterity');
+        const saveRoll = rollDice(20) + saveBonus;
+
+        if (saveRoll < spellDC) {
+          const webCondition: Condition = {
+            type: 'restrained',
+            name: 'Webbed',
+            description: 'Restrained by sticky webs. Speed 0, disadvantage on attacks, attacks against have advantage.',
+            duration: 60, // 1 hour concentration
+            source: 'Web'
+          };
+          setEnemies(prev => prev.map(e =>
+            e.id === enemy.id ? { ...e, conditions: [...e.conditions, webCondition] } : e
+          ));
+          addLog(`${enemy.name} is caught in the web! (Save ${saveRoll} vs DC ${spellDC})`, 'condition');
+          affectedCount++;
+        } else {
+          addLog(`${enemy.name} avoids the web! (Save ${saveRoll} vs DC ${spellDC})`, 'info');
+        }
+      }
+      addLog(`${character.name} casts Web! ${affectedCount} creatures restrained.`, 'info');
+
+    } else if (spell.id === 'command') {
+      // Command: Force enemy to obey (WIS save, 1 turn)
+      if (!selectedEnemy) {
+        addLog('No target selected.', 'miss');
+        return;
+      }
+      const spellDC = getSpellSaveDC(character);
+      const enemy = enemies.find(e => e.id === selectedEnemy);
+      if (enemy) {
+        const saveBonus = getEnemySavingThrowBonus(enemy, 'wisdom');
+        const saveRoll = rollDice(20) + saveBonus;
+
+        if (saveRoll < spellDC) {
+          const commandCondition: Condition = {
+            type: 'incapacitated',
+            name: 'Commanded',
+            description: 'Following a one-word command. Cannot take normal actions.',
+            duration: 1,
+            source: 'Command'
+          };
+          setEnemies(prev => prev.map(e =>
+            e.id === enemy.id ? { ...e, conditions: [...e.conditions, commandCondition] } : e
+          ));
+          addLog(`${enemy.name} follows your command! (Save ${saveRoll} vs DC ${spellDC})`, 'condition');
+        } else {
+          addLog(`${enemy.name} resists your command! (Save ${saveRoll} vs DC ${spellDC})`, 'info');
+        }
+        addLog(`${character.name} commands ${enemy.name}!`, 'info');
+      }
+
+    } else if (spell.id === 'entangle') {
+      // Entangle: Restrain enemies in area (STR save)
+      const livingEnemies = enemies.filter(e => !e.isDefeated);
+      const spellDC = getSpellSaveDC(character);
+      let affectedCount = 0;
+
+      for (const enemy of livingEnemies) {
+        const saveBonus = getEnemySavingThrowBonus(enemy, 'strength');
+        const saveRoll = rollDice(20) + saveBonus;
+
+        if (saveRoll < spellDC) {
+          const entangleCondition: Condition = {
+            type: 'restrained',
+            name: 'Entangled',
+            description: 'Restrained by grasping plants. Speed 0, disadvantage on attacks.',
+            duration: 10,
+            source: 'Entangle'
+          };
+          setEnemies(prev => prev.map(e =>
+            e.id === enemy.id ? { ...e, conditions: [...e.conditions, entangleCondition] } : e
+          ));
+          addLog(`${enemy.name} is entangled! (Save ${saveRoll} vs DC ${spellDC})`, 'condition');
+          affectedCount++;
+        } else {
+          addLog(`${enemy.name} breaks free! (Save ${saveRoll} vs DC ${spellDC})`, 'info');
+        }
+      }
+      addLog(`${character.name} casts Entangle! ${affectedCount} creatures restrained.`, 'info');
+
+    } else if (spell.id === 'hypnotic-pattern') {
+      // Hypnotic Pattern: AoE charmed + incapacitated (WIS save)
+      const livingEnemies = enemies.filter(e => !e.isDefeated);
+      const spellDC = getSpellSaveDC(character);
+      let affectedCount = 0;
+
+      for (const enemy of livingEnemies) {
+        const saveBonus = getEnemySavingThrowBonus(enemy, 'wisdom');
+        const saveRoll = rollDice(20) + saveBonus;
+
+        if (saveRoll < spellDC) {
+          const hypnoticCondition: Condition = {
+            type: 'charmed',
+            name: 'Hypnotized',
+            description: 'Charmed and incapacitated by swirling colors. Speed 0. Cannot act.',
+            duration: 10,
+            source: 'Hypnotic Pattern'
+          };
+          setEnemies(prev => prev.map(e =>
+            e.id === enemy.id ? { ...e, conditions: [...e.conditions, hypnoticCondition] } : e
+          ));
+          addLog(`${enemy.name} is mesmerized! (Save ${saveRoll} vs DC ${spellDC})`, 'condition');
+          affectedCount++;
+        } else {
+          addLog(`${enemy.name} looks away! (Save ${saveRoll} vs DC ${spellDC})`, 'info');
+        }
+      }
+      addLog(`${character.name} casts Hypnotic Pattern! ${affectedCount} creatures charmed.`, 'info');
+
+    } else if (spell.id === 'sleep') {
+      // Sleep: HP pool mechanic - 5d8 HP puts enemies to sleep from lowest HP first
+      let sleepPool = 0;
+      for (let i = 0; i < 5; i++) {
+        sleepPool += rollDice(8);
+      }
+      addLog(`${character.name} casts Sleep! Roll: ${sleepPool} HP of creatures.`, 'info');
+
+      // Sort living enemies by current HP (lowest first)
+      const livingEnemies = enemies
+        .filter(e => !e.isDefeated)
+        .sort((a, b) => a.currentHp - b.currentHp);
+
+      let remainingPool = sleepPool;
+      let affectedCount = 0;
+
+      for (const enemy of livingEnemies) {
+        // Undead and creatures immune to being charmed can't be put to sleep
+        const isImmune = (enemy.traits || []).some(t =>
+          t.toLowerCase().includes('undead') ||
+          t.toLowerCase().includes('charm immunity') ||
+          t.toLowerCase().includes('elf')
+        );
+
+        if (isImmune) {
+          addLog(`${enemy.name} is immune to Sleep!`, 'info');
+          continue;
+        }
+
+        if (enemy.currentHp <= remainingPool) {
+          remainingPool -= enemy.currentHp;
+          const sleepCondition: Condition = {
+            type: 'unconscious',
+            name: 'Sleeping',
+            description: 'Magically asleep. Unconscious until damaged or woken.',
+            duration: 10,
+            source: 'Sleep'
+          };
+          setEnemies(prev => prev.map(e =>
+            e.id === enemy.id ? { ...e, conditions: [...e.conditions, sleepCondition] } : e
+          ));
+          addLog(`${enemy.name} falls asleep! (${enemy.currentHp} HP)`, 'condition');
+          affectedCount++;
+        } else {
+          addLog(`${enemy.name} too hardy to sleep. (${enemy.currentHp} HP > ${remainingPool} remaining)`, 'info');
+        }
+      }
+      addLog(`Sleep affects ${affectedCount} creatures!`, 'info');
+
+    } else if (spell.id === 'banishment') {
+      // Banishment: Remove target from combat on failed CHA save
+      if (!selectedEnemy) {
+        addLog('No target selected.', 'miss');
+        return;
+      }
+      const spellDC = getSpellSaveDC(character);
+      const enemy = enemies.find(e => e.id === selectedEnemy);
+      if (enemy) {
+        const saveBonus = getEnemySavingThrowBonus(enemy, 'charisma');
+        const saveRoll = rollDice(20) + saveBonus;
+
+        if (saveRoll < spellDC) {
+          // Mark enemy as banished (effectively defeated but can return)
+          setEnemies(prev => prev.map(e =>
+            e.id === enemy.id ? {
+              ...e,
+              isDefeated: true,
+              conditions: [...e.conditions, {
+                type: 'incapacitated' as Condition['type'],
+                name: 'Banished',
+                description: 'Sent to a harmless demiplane. Returns if concentration breaks.',
+                duration: 10,
+                source: 'Banishment'
+              }]
+            } : e
+          ));
+          addLog(`${enemy.name} is banished to another plane! (Save ${saveRoll} vs DC ${spellDC})`, 'condition');
+          addLog(`💫 ${enemy.name} vanishes!`, 'damage');
+        } else {
+          addLog(`${enemy.name} resists banishment! (Save ${saveRoll} vs DC ${spellDC})`, 'info');
+        }
+        addLog(`${character.name} casts Banishment on ${enemy.name}!`, 'info');
+      }
     }
 
     if (spell.concentration) {
@@ -2257,6 +3554,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   // Initialize combat
   useEffect(() => {
     const baseInitRoll = Math.floor(Math.random() * 20) + 1;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     const initRoll = applyHalflingLucky(baseInitRoll, 'initiative');
     let playerInitiative = initRoll + Math.floor((character.abilityScores.dexterity - 10) / 2);
 
@@ -2307,6 +3605,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     }
 
     if (currentEntity && currentEntity.id === 'player') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOffhandAvailable(true);
       setSneakAttackUsedThisTurn(false);
       // Haste Boost
@@ -2337,6 +3636,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
   useEffect(() => {
     const allEnemiesHandled = enemies.every(e => e.isDefeated || e.conditions.some(c => c.type === 'pacified'));
     if (allEnemiesHandled && enemies.length > 0 && !victoryAchieved) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVictoryAchieved(true);
       addLog(t('combat.victory'), 'defeat');
       setTimeout(() => onVictory(), 1500);
@@ -2354,6 +3654,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
 
   useEffect(() => {
     if (isPlayerTurn) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveBuffs(prev => prev.filter(b => b.duration > 1).map(b => ({ ...b, duration: b.duration - 1 })));
       setSneakAttackUsedThisTurn(false);
 
@@ -2370,7 +3671,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
         });
       }
     }
-  }, [isPlayerTurn]);
+  }, [isPlayerTurn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const torchOilAvailable = Boolean(findTorchOilItem());
 
@@ -2854,76 +4155,10 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
     // Logic to consume item and apply effect
     // For now, just log
     addLog(`${character.name} coats their weapon in torch oil! (+1 Fire Damage)`, 'info');
+    addLog(`${character.name} coats their weapon in torch oil! (+1 Fire Damage)`, 'info');
     setActiveBuffs(prev => [...prev, { id: 'torch-oil', name: 'Flaming Weapon', bonus: 0, duration: 10 }]); // Bonus 0 to AC, but we can handle damage elsewhere
     // Remove item from inventory (mock)
     nextTurn();
-  };
-
-  const getEnemyPassivePerception = (enemy: CombatEnemy) => {
-    // 10 + Perception Mod
-    const wisMod = getEnemyAbilityMod(enemy, 'wisdom');
-    const perceptionBonus = enemy.skills?.perception ? (parseInt(enemy.skills.perception.toString()) || 0) : 0;
-    // If skills.perception is just a number in the JSON (simplified), or if it's a structured object we might need more checks.
-    // Assuming for now it matches the type definition or is a direct number if simplified.
-    // If 'skills' is Record<string, number>, we use it.
-    // If checking `skills` type from enemies.ts/types:
-    // It seems `skills` in CombatEnemy is `Record<string, number> | undefined` based on typical usage, 
-    // but definitions say `Skills` is `Record<SkillName, SkillProficiency>`.
-    // Let's assume for enemies it might be simplified or we just use Wis mod if complex.
-    // SAFETY: Use Wis Mod as baseline, add any explicit bonus if we can find it.
-    return 10 + wisMod + perceptionBonus;
-  };
-
-  const handleHide = () => {
-    if (isRolling) return;
-
-    // Check against highest passive perception of active enemies
-    let maxPassive = 0;
-    enemies.forEach(e => {
-      if (!e.isDefeated) {
-        const pp = getEnemyPassivePerception(e);
-        if (pp > maxPassive) maxPassive = pp;
-      }
-    });
-
-    if (maxPassive === 0) maxPassive = 10; // Fallback
-
-    const dexMod = Math.floor((character.abilityScores.dexterity - 10) / 2);
-    const isProficient = character.skills?.stealth?.proficient;
-    const bonus = dexMod + (isProficient ? character.proficiencyBonus : 0);
-    const hasDisadvantage = (character.equippedArmor?.armorType === 'heavy' || character.equippedArmor?.stealthDisadvantage);
-    // Simplified armor check
-
-    let roll = rollDice(20);
-    if (hasDisadvantage) {
-      roll = Math.min(roll, rollDice(20));
-      addLog('Rolling Stealth with Disadvantage (Armor)', 'info');
-    }
-    roll = applyHalflingLucky(roll, 'stealth check');
-    const total = roll + bonus;
-
-    setAttackDetails({ name: 'Stealth check', dc: maxPassive, modifier: bonus });
-    setIsRolling(true);
-    setShowDiceModal(true);
-    setDiceResult(roll);
-    setRollResult({ roll, total, isCritical: roll === 20, isCriticalFailure: roll === 1 });
-
-    setPendingCombatAction(() => () => {
-      if (total >= maxPassive) {
-        const hiddenCondition: Condition = {
-          type: 'hidden',
-          name: 'Hidden',
-          description: 'Unseen and unheard. Attacks have advantage.',
-          duration: -1,
-          source: 'Hide Action'
-        };
-        applyPlayerCondition(hiddenCondition);
-        addLog(`${character.name} slips into the shadows and is Hidden! (${total} vs PP ${maxPassive})`, 'info');
-      } else {
-        addLog(`${character.name} tries to hide but is spotted! (${total} vs PP ${maxPassive})`, 'miss');
-      }
-      nextTurn();
-    });
   };
 
   const handleSpeak = () => {
@@ -3282,14 +4517,27 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                     )}
 
                     <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        variant="default"
-                        className="w-full justify-start"
-                        onClick={handlePlayerAttack}
-                        disabled={!isPlayerTurn || isRolling || !selectedEnemy || attacksLeft <= 0}
+                      <Tooltip
+                        content={
+                          <div>
+                            <div className="font-bold mb-1">{generalActionTooltips['attack'].name}</div>
+                            <div className="text-xs text-muted-foreground">{generalActionTooltips['attack'].description}</div>
+                            {generalActionTooltips['attack'].actionType && (
+                              <div className="text-xs text-fantasy-gold mt-1">Action Type: {generalActionTooltips['attack'].actionType}</div>
+                            )}
+                          </div>
+                        }
+                        position="right"
                       >
-                        <Sword className="mr-2 h-4 w-4" /> {t('combat.attack')} {attacksLeft > 1 && `(${attacksLeft})`}
-                      </Button>
+                        <Button
+                          variant="default"
+                          className="w-full justify-start"
+                          onClick={handlePlayerAttack}
+                          disabled={!isPlayerTurn || isRolling || !selectedEnemy || attacksLeft <= 0}
+                        >
+                          <Sword className="mr-2 h-4 w-4" /> {t('combat.attack')} {attacksLeft > 1 && `(${attacksLeft})`}
+                        </Button>
+                      </Tooltip>
                       {hasInspirationDie && (
                         <Button
                           variant={useInspiration ? "fantasy" : "outline"}
@@ -3323,14 +4571,25 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                           <Sparkles className="mr-2 h-4 w-4" /> Use Luck Point ({character.featureUses.luckPoints})
                         </Button>
                       )}
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                        onClick={handleDefend}
-                        disabled={!isPlayerTurn || isRolling}
+                      <Tooltip
+                        content={
+                          <div>
+                            <div className="font-bold mb-1">{generalActionTooltips['defend'].name}</div>
+                            <div className="text-xs text-muted-foreground">{generalActionTooltips['defend'].description}</div>
+                            <div className="text-xs text-fantasy-gold mt-1">Action Type: {generalActionTooltips['defend'].actionType}</div>
+                          </div>
+                        }
+                        position="right"
                       >
-                        <Shield className="mr-2 h-4 w-4" /> {t('combat.defend')}
-                      </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={handleDefend}
+                          disabled={!isPlayerTurn || isRolling}
+                        >
+                          <Shield className="mr-2 h-4 w-4" /> {t('combat.defend')}
+                        </Button>
+                      </Tooltip>
                       {isBarbarian && character.level >= 2 && (
                         <Button
                           variant={recklessAttackActive ? "destructive" : "outline"}
@@ -3363,30 +4622,63 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                           <Sword className="mr-2 h-4 w-4" /> {recklessAttackActive ? 'Reckless (Active)' : 'Reckless Attack'}
                         </Button>
                       )}
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                        onClick={() => setShowSpellMenu(!showSpellMenu)}
-                        disabled={!isPlayerTurn || isRolling || !canCastAnySpell}
+                      <Tooltip
+                        content={
+                          <div>
+                            <div className="font-bold mb-1">{generalActionTooltips['cast-spell'].name}</div>
+                            <div className="text-xs text-muted-foreground">{generalActionTooltips['cast-spell'].description}</div>
+                            <div className="text-xs text-fantasy-gold mt-1">Action Type: {generalActionTooltips['cast-spell'].actionType}</div>
+                          </div>
+                        }
+                        position="right"
                       >
-                        <Wand className="mr-2 h-4 w-4" /> {t('combat.castSpell')}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                        onClick={() => setShowInventory(!showInventory)}
-                        disabled={!isPlayerTurn || isRolling}
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={() => setShowSpellMenu(!showSpellMenu)}
+                          disabled={!isPlayerTurn || isRolling || !canCastAnySpell}
+                        >
+                          <Wand className="mr-2 h-4 w-4" /> {t('combat.castSpell')}
+                        </Button>
+                      </Tooltip>
+                      <Tooltip
+                        content={
+                          <div>
+                            <div className="font-bold mb-1">{generalActionTooltips['use-item'].name}</div>
+                            <div className="text-xs text-muted-foreground">{generalActionTooltips['use-item'].description}</div>
+                            <div className="text-xs text-fantasy-gold mt-1">Action Type: {generalActionTooltips['use-item'].actionType}</div>
+                          </div>
+                        }
+                        position="right"
                       >
-                        <Backpack className="mr-2 h-4 w-4" /> {t('combat.item')}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                        onClick={handleAnalyzeEnemy}
-                        disabled={!isPlayerTurn || isRolling || !selectedEnemy || analyzedEnemies.has(selectedEnemy || '')}
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={() => setShowInventory(!showInventory)}
+                          disabled={!isPlayerTurn || isRolling}
+                        >
+                          <Backpack className="mr-2 h-4 w-4" /> {t('combat.item')}
+                        </Button>
+                      </Tooltip>
+                      <Tooltip
+                        content={
+                          <div>
+                            <div className="font-bold mb-1">{generalActionTooltips['analyze'].name}</div>
+                            <div className="text-xs text-muted-foreground">{generalActionTooltips['analyze'].description}</div>
+                            <div className="text-xs text-fantasy-gold mt-1">Action Type: {generalActionTooltips['analyze'].actionType}</div>
+                          </div>
+                        }
+                        position="right"
                       >
-                        <Search className="mr-2 h-4 w-4" /> {analyzedEnemies.has(selectedEnemy || '') ? 'Analyzed' : 'Analyze'}
-                      </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={handleAnalyzeEnemy}
+                          disabled={!isPlayerTurn || isRolling || !selectedEnemy || analyzedEnemies.has(selectedEnemy || '')}
+                        >
+                          <Search className="mr-2 h-4 w-4" /> {analyzedEnemies.has(selectedEnemy || '') ? 'Analyzed' : 'Analyze'}
+                        </Button>
+                      </Tooltip>
                       <Button
                         variant="outline"
                         className="w-full justify-start"
@@ -3404,188 +4696,463 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                         <div className="grid grid-cols-2 gap-2">
                           {isFighter && (
                             <>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={handleSecondWind}
-                                disabled={!isPlayerTurn || !secondWindAvailable || isRolling}
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['second-wind'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['second-wind'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['second-wind'].actionType}</div>
+                                    {classActionTooltips['second-wind'].usesResource && (
+                                      <div className="text-xs text-blue-400 mt-1">{classActionTooltips['second-wind'].usesResource}</div>
+                                    )}
+                                  </div>
+                                }
+                                position="right"
                               >
-                                <HeartPulse className="mr-2 h-3 w-3" /> Second Wind
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={handleActionSurge}
-                                disabled={!isPlayerTurn || !actionSurgeAvailable || isRolling}
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={handleSecondWind}
+                                  disabled={!isPlayerTurn || !secondWindAvailable || isRolling}
+                                >
+                                  <HeartPulse className="mr-2 h-3 w-3" /> Second Wind
+                                </Button>
+                              </Tooltip>
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">Hide</div>
+                                    <div className="text-xs text-muted-foreground">Attempt to hide from enemies. Requires Stealth check vs Passive Perception.</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: Action</div>
+                                  </div>
+                                }
+                                position="right"
                               >
-                                <Zap className="mr-2 h-3 w-3" /> Action Surge
-                              </Button>
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={handleHide}
+                                  disabled={!isPlayerTurn || isRolling || attacksLeft <= 0}
+                                >
+                                  <EyeOff className="mr-2 h-3 w-3" /> Hide
+                                </Button>
+                              </Tooltip>
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">Dodge</div>
+                                    <div className="text-xs text-muted-foreground">Focus on avoiding attacks. Attacks against you have disadvantage until your next turn. Advantage on DEX saves.</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: Action</div>
+                                  </div>
+                                }
+                                position="right"
+                              >
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={handleDodge}
+                                  disabled={!isPlayerTurn || isRolling || attacksLeft < maxAttacks}
+                                >
+                                  <Shield className="mr-2 h-3 w-3" /> Dodge
+                                </Button>
+                              </Tooltip>
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['action-surge'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['action-surge'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['action-surge'].actionType}</div>
+                                    {classActionTooltips['action-surge'].usesResource && (
+                                      <div className="text-xs text-blue-400 mt-1">{classActionTooltips['action-surge'].usesResource}</div>
+                                    )}
+                                  </div>
+                                }
+                                position="right"
+                              >
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={handleActionSurge}
+                                  disabled={!isPlayerTurn || !actionSurgeAvailable || isRolling}
+                                >
+                                  <Zap className="mr-2 h-3 w-3" /> Action Surge
+                                </Button>
+                              </Tooltip>
                             </>
                           )}
                           {isRogue && (
                             <>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => handleCunningAction('dash')}
-                                disabled={!isPlayerTurn || isRolling}
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['dash'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['dash'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['dash'].actionType}</div>
+                                  </div>
+                                }
+                                position="right"
                               >
-                                <Activity className="mr-2 h-3 w-3" /> Dash
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => handleCunningAction('disengage')}
-                                disabled={!isPlayerTurn || isRolling}
-                              >
-                                <Activity className="mr-2 h-3 w-3" /> Disengage
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => handleCunningAction('hide')}
-                                disabled={!isPlayerTurn || isRolling}
-                              >
-                                <Activity className="mr-2 h-3 w-3" /> Hide
-                              </Button>
-                              {character.level >= 5 && (
                                 <Button
-                                  variant={activeBuffs.some(b => b.id === 'uncanny-dodge') ? "fantasy" : "secondary"}
+                                  variant="secondary"
                                   size="sm"
-                                  onClick={() => {
-                                    if (activeBuffs.some(b => b.id === 'uncanny-dodge')) {
-                                      setActiveBuffs(prev => prev.filter(b => b.id !== 'uncanny-dodge'));
-                                    } else {
-                                      setActiveBuffs(prev => [...prev, { id: 'uncanny-dodge', name: 'Uncanny Dodge', duration: 1, bonus: 0 }]);
-                                      addLog(`${character.name} prepares to use Uncanny Dodge (Will halve next attack damage).`, 'info');
-                                    }
-                                  }}
-                                  disabled={!isPlayerTurn && false /* Allow toggling off turn? No, isPlayerTurn handles Reacts? */}
+                                  onClick={() => handleCunningAction('dash')}
+                                  disabled={!isPlayerTurn || isRolling}
                                 >
-                                  <Shield className="mr-2 h-3 w-3" /> Uncanny Dodge
+                                  <Activity className="mr-2 h-3 w-3" /> Dash
                                 </Button>
+                              </Tooltip>
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['disengage'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['disengage'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['disengage'].actionType}</div>
+                                  </div>
+                                }
+                                position="right"
+                              >
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => handleCunningAction('disengage')}
+                                  disabled={!isPlayerTurn || isRolling}
+                                >
+                                  <Activity className="mr-2 h-3 w-3" /> Disengage
+                                </Button>
+                              </Tooltip>
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['hide'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['hide'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['hide'].actionType}</div>
+                                  </div>
+                                }
+                                position="right"
+                              >
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={handleHide}
+                                  disabled={!isPlayerTurn || isRolling}
+                                >
+                                  <Activity className="mr-2 h-3 w-3" /> Hide
+                                </Button>
+                              </Tooltip>
+                              {character.level >= 5 && (
+                                <Tooltip
+                                  content={
+                                    <div>
+                                      <div className="font-bold mb-1">{classActionTooltips['uncanny-dodge'].name}</div>
+                                      <div className="text-xs text-muted-foreground">{classActionTooltips['uncanny-dodge'].description}</div>
+                                      <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['uncanny-dodge'].actionType}</div>
+                                    </div>
+                                  }
+                                  position="right"
+                                >
+                                  <Button
+                                    variant={activeBuffs.some(b => b.id === 'uncanny-dodge') ? "fantasy" : "secondary"}
+                                    size="sm"
+                                    onClick={() => {
+                                      if (activeBuffs.some(b => b.id === 'uncanny-dodge')) {
+                                        setActiveBuffs(prev => prev.filter(b => b.id !== 'uncanny-dodge'));
+                                      } else {
+                                        setActiveBuffs(prev => [...prev, { id: 'uncanny-dodge', name: 'Uncanny Dodge', duration: 1, bonus: 0 }]);
+                                        addLog(`${character.name} prepares to use Uncanny Dodge (Will halve next attack damage).`, 'info');
+                                      }
+                                    }}
+                                    disabled={!isPlayerTurn && false /* Allow toggling off turn? No, isPlayerTurn handles Reacts? */}
+                                  >
+                                    <Shield className="mr-2 h-3 w-3" /> Uncanny Dodge
+                                  </Button>
+                                </Tooltip>
                               )}
                             </>
                           )}
                           {isBarbarian && (
                             <>
-                              <Button
-                                variant={rageActive ? "destructive" : "secondary"}
-                                size="sm"
-                                onClick={handleRage}
-                                disabled={!isPlayerTurn || rageAvailable <= 0 || rageActive || isRolling}
-                                className={cn(rageActive && "animate-pulse ring-2 ring-red-500")}
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['rage'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['rage'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['rage'].actionType}</div>
+                                    {classActionTooltips['rage'].usesResource && (
+                                      <div className="text-xs text-blue-400 mt-1">{classActionTooltips['rage'].usesResource}</div>
+                                    )}
+                                  </div>
+                                }
+                                position="right"
                               >
-                                <Flame className="mr-2 h-3 w-3" /> {rageActive ? 'Raging!' : `Rage (${rageAvailable})`}
-                              </Button>
-                              {character.subclass?.id === 'berserker' && rageActive && (
                                 <Button
-                                  variant="secondary"
+                                  variant={rageActive ? "destructive" : "secondary"}
                                   size="sm"
-                                  onClick={handleFrenziedStrike}
-                                  disabled={!isPlayerTurn || isRolling || !selectedEnemy}
-                                  className="border-red-500 bg-red-500/10 text-red-700 hover:bg-red-500/20"
+                                  onClick={handleRage}
+                                  disabled={!isPlayerTurn || rageAvailable <= 0 || rageActive || isRolling}
+                                  className={cn(rageActive && "animate-pulse ring-2 ring-red-500")}
                                 >
-                                  <Sword className="mr-2 h-3 w-3" /> Frenzied Strike
+                                  <Flame className="mr-2 h-3 w-3" /> {rageActive ? 'Raging!' : `Rage (${rageAvailable})`}
                                 </Button>
+                              </Tooltip>
+                              {character.subclass?.id === 'berserker' && rageActive && (
+                                <Tooltip
+                                  content={
+                                    <div>
+                                      <div className="font-bold mb-1">{classActionTooltips['frenzied-strike'].name}</div>
+                                      <div className="text-xs text-muted-foreground">{classActionTooltips['frenzied-strike'].description}</div>
+                                      <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['frenzied-strike'].actionType}</div>
+                                    </div>
+                                  }
+                                  position="right"
+                                >
+                                  <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={handleFrenziedStrike}
+                                    disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                                    className="border-red-500 bg-red-500/10 text-red-700 hover:bg-red-500/20"
+                                  >
+                                    <Sword className="mr-2 h-3 w-3" /> Frenzied Strike
+                                  </Button>
+                                </Tooltip>
                               )}
                             </>
                           )}
                           {isBard && (
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              onClick={handleBardicInspiration}
-                              disabled={!isPlayerTurn || inspirationAvailable <= 0 || hasInspirationDie || isRolling}
+                            <Tooltip
+                              content={
+                                <div>
+                                  <div className="font-bold mb-1">{classActionTooltips['bardic-inspiration'].name}</div>
+                                  <div className="text-xs text-muted-foreground">{classActionTooltips['bardic-inspiration'].description}</div>
+                                  <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['bardic-inspiration'].actionType}</div>
+                                  {classActionTooltips['bardic-inspiration'].usesResource && (
+                                    <div className="text-xs text-blue-400 mt-1">{classActionTooltips['bardic-inspiration'].usesResource}</div>
+                                  )}
+                                </div>
+                              }
+                              position="right"
                             >
-                              <Sparkles className="mr-2 h-3 w-3" /> Inspire ({inspirationAvailable})
-                            </Button>
-                          )}
-                          {isPaladin && (
-                            <>
                               <Button
                                 variant="secondary"
                                 size="sm"
-                                onClick={handleLayOnHands}
-                                disabled={!isPlayerTurn || layOnHandsPool <= 0 || playerHp >= character.maxHitPoints || isRolling}
+                                onClick={handleBardicInspiration}
+                                disabled={!isPlayerTurn || inspirationAvailable <= 0 || hasInspirationDie || isRolling}
                               >
-                                <HeartPulse className="mr-2 h-3 w-3" /> Lay on Hands ({layOnHandsPool})
+                                <Sparkles className="mr-2 h-3 w-3" /> Inspire ({inspirationAvailable})
                               </Button>
-                              <Button
-                                variant={divineSmiteActive ? "fantasy" : "secondary"}
-                                size="sm"
-                                onClick={() => setDivineSmiteActive(!divineSmiteActive)}
-                                disabled={!isPlayerTurn || (character.spellSlots?.[1]?.current || 0) <= 0 || isRolling}
-                                className={cn(divineSmiteActive && "ring-2 ring-yellow-400")}
+                            </Tooltip>
+                          )}
+                          {isPaladin && (
+                            <>
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['lay-on-hands'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['lay-on-hands'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['lay-on-hands'].actionType}</div>
+                                    {classActionTooltips['lay-on-hands'].usesResource && (
+                                      <div className="text-xs text-blue-400 mt-1">{classActionTooltips['lay-on-hands'].usesResource}</div>
+                                    )}
+                                  </div>
+                                }
+                                position="right"
                               >
-                                <Zap className="mr-2 h-3 w-3" /> {divineSmiteActive ? 'Smite Ready!' : 'Divine Smite'}
-                              </Button>
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={handleLayOnHands}
+                                  disabled={!isPlayerTurn || layOnHandsPool <= 0 || playerHp >= character.maxHitPoints || isRolling}
+                                >
+                                  <HeartPulse className="mr-2 h-3 w-3" /> Lay on Hands ({layOnHandsPool})
+                                </Button>
+                              </Tooltip>
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['divine-smite'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['divine-smite'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['divine-smite'].actionType}</div>
+                                    {classActionTooltips['divine-smite'].usesResource && (
+                                      <div className="text-xs text-blue-400 mt-1">{classActionTooltips['divine-smite'].usesResource}</div>
+                                    )}
+                                  </div>
+                                }
+                                position="right"
+                              >
+                                <Button
+                                  variant={divineSmiteActive ? "fantasy" : "secondary"}
+                                  size="sm"
+                                  onClick={() => setDivineSmiteActive(!divineSmiteActive)}
+                                  disabled={!isPlayerTurn || (character.spellSlots?.[1]?.current || 0) <= 0 || isRolling}
+                                  className={cn(divineSmiteActive && "ring-2 ring-yellow-400")}
+                                >
+                                  <Zap className="mr-2 h-3 w-3" /> {divineSmiteActive ? 'Smite Ready!' : 'Divine Smite'}
+                                </Button>
+                              </Tooltip>
                             </>
                           )}
                           {isMonk && (
                             <>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => handleKiAction('flurry')}
-                                disabled={!isPlayerTurn || kiPoints <= 0 || !selectedEnemy || isRolling}
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['flurry-of-blows'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['flurry-of-blows'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['flurry-of-blows'].actionType}</div>
+                                    {classActionTooltips['flurry-of-blows'].usesResource && (
+                                      <div className="text-xs text-blue-400 mt-1">{classActionTooltips['flurry-of-blows'].usesResource}</div>
+                                    )}
+                                  </div>
+                                }
+                                position="right"
                               >
-                                <Activity className="mr-2 h-3 w-3" /> Flurry of Blows ({kiPoints})
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => handleKiAction('defense')}
-                                disabled={!isPlayerTurn || kiPoints <= 0 || isRolling}
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => handleKiAction('flurry')}
+                                  disabled={!isPlayerTurn || kiPoints <= 0 || !selectedEnemy || isRolling}
+                                >
+                                  <Activity className="mr-2 h-3 w-3" /> Flurry of Blows ({kiPoints})
+                                </Button>
+                              </Tooltip>
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['patient-defense'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['patient-defense'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['patient-defense'].actionType}</div>
+                                    {classActionTooltips['patient-defense'].usesResource && (
+                                      <div className="text-xs text-blue-400 mt-1">{classActionTooltips['patient-defense'].usesResource}</div>
+                                    )}
+                                  </div>
+                                }
+                                position="right"
                               >
-                                <Shield className="mr-2 h-3 w-3" /> Patient Defense ({kiPoints})
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => handleKiAction('step')}
-                                disabled={!isPlayerTurn || kiPoints <= 0 || isRolling}
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => handleKiAction('defense')}
+                                  disabled={!isPlayerTurn || kiPoints <= 0 || isRolling}
+                                >
+                                  <Shield className="mr-2 h-3 w-3" /> Patient Defense ({kiPoints})
+                                </Button>
+                              </Tooltip>
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['step-of-wind'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['step-of-wind'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['step-of-wind'].actionType}</div>
+                                    {classActionTooltips['step-of-wind'].usesResource && (
+                                      <div className="text-xs text-blue-400 mt-1">{classActionTooltips['step-of-wind'].usesResource}</div>
+                                    )}
+                                  </div>
+                                }
+                                position="right"
                               >
-                                <Activity className="mr-2 h-3 w-3" /> Step of Wind ({kiPoints})
-                              </Button>
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => handleKiAction('step')}
+                                  disabled={!isPlayerTurn || kiPoints <= 0 || isRolling}
+                                >
+                                  <Activity className="mr-2 h-3 w-3" /> Step of Wind ({kiPoints})
+                                </Button>
+                              </Tooltip>
                             </>
                           )}
                           {isDruid && (
-                            <Button
-                              variant={wildShapeActive ? "destructive" : "secondary"}
-                              size="sm"
-                              onClick={handleWildShape}
-                              disabled={!isPlayerTurn || wildShapeAvailable <= 0 || wildShapeActive || isRolling}
+                            <Tooltip
+                              content={
+                                <div>
+                                  <div className="font-bold mb-1">{classActionTooltips['wild-shape'].name}</div>
+                                  <div className="text-xs text-muted-foreground">{classActionTooltips['wild-shape'].description}</div>
+                                  <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['wild-shape'].actionType}</div>
+                                  {classActionTooltips['wild-shape'].usesResource && (
+                                    <div className="text-xs text-blue-400 mt-1">{classActionTooltips['wild-shape'].usesResource}</div>
+                                  )}
+                                </div>
+                              }
+                              position="right"
                             >
-                              <Activity className="mr-2 h-3 w-3" /> {wildShapeActive ? 'Beast Form' : `Wild Shape (${wildShapeAvailable})`}
-                            </Button>
+                              <Button
+                                variant={wildShapeActive ? "destructive" : "secondary"}
+                                size="sm"
+                                onClick={handleWildShape}
+                                disabled={!isPlayerTurn || wildShapeAvailable <= 0 || wildShapeActive || isRolling}
+                              >
+                                <Activity className="mr-2 h-3 w-3" /> {wildShapeActive ? 'Beast Form' : `Wild Shape (${wildShapeAvailable})`}
+                              </Button>
+                            </Tooltip>
                           )}
                           {isSorcerer && (
                             <>
-                              <Button
-                                variant={empoweredSpellUsed ? "fantasy" : "secondary"}
-                                size="sm"
-                                onClick={() => handleMetamagic('empowered')}
-                                disabled={!isPlayerTurn || sorceryPoints < 1 || empoweredSpellUsed || isRolling}
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['empowered-spell'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['empowered-spell'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['empowered-spell'].actionType}</div>
+                                    {classActionTooltips['empowered-spell'].usesResource && (
+                                      <div className="text-xs text-blue-400 mt-1">{classActionTooltips['empowered-spell'].usesResource}</div>
+                                    )}
+                                  </div>
+                                }
+                                position="right"
                               >
-                                <Zap className="mr-2 h-3 w-3" /> Empowered (1 SP)
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => handleMetamagic('quickened')}
-                                disabled={!isPlayerTurn || sorceryPoints < 2 || isRolling}
+                                <Button
+                                  variant={empoweredSpellUsed ? "fantasy" : "secondary"}
+                                  size="sm"
+                                  onClick={() => handleMetamagic('empowered')}
+                                  disabled={!isPlayerTurn || sorceryPoints < 1 || empoweredSpellUsed || isRolling}
+                                >
+                                  <Zap className="mr-2 h-3 w-3" /> Empowered (1 SP)
+                                </Button>
+                              </Tooltip>
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['quickened-spell'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['quickened-spell'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['quickened-spell'].actionType}</div>
+                                    {classActionTooltips['quickened-spell'].usesResource && (
+                                      <div className="text-xs text-blue-400 mt-1">{classActionTooltips['quickened-spell'].usesResource}</div>
+                                    )}
+                                  </div>
+                                }
+                                position="right"
                               >
-                                <Activity className="mr-2 h-3 w-3" /> Quickened (2 SP)
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => handleMetamagic('create_slot')}
-                                disabled={!isPlayerTurn || sorceryPoints < 2 || isRolling}
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => handleMetamagic('quickened')}
+                                  disabled={!isPlayerTurn || sorceryPoints < 2 || isRolling}
+                                >
+                                  <Activity className="mr-2 h-3 w-3" /> Quickened (2 SP)
+                                </Button>
+                              </Tooltip>
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['create-slot'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['create-slot'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['create-slot'].actionType}</div>
+                                    {classActionTooltips['create-slot'].usesResource && (
+                                      <div className="text-xs text-blue-400 mt-1">{classActionTooltips['create-slot'].usesResource}</div>
+                                    )}
+                                  </div>
+                                }
+                                position="right"
                               >
-                                <Sparkles className="mr-2 h-3 w-3" /> Create Slot (2 SP)
-                              </Button>
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => handleMetamagic('create_slot')}
+                                  disabled={!isPlayerTurn || sorceryPoints < 2 || isRolling}
+                                >
+                                  <Sparkles className="mr-2 h-3 w-3" /> Create Slot (2 SP)
+                                </Button>
+                              </Tooltip>
                               <div className="col-span-2 text-xs text-center text-muted-foreground">
                                 Sorcery Points: {sorceryPoints}
                               </div>
@@ -3593,23 +5160,51 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                           )}
                           {isCleric && (
                             <>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => handleChannelDivinity('turn-undead')}
-                                disabled={!isPlayerTurn || channelDivinityUses <= 0 || isRolling || !selectedEnemy}
+                              <Tooltip
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{classActionTooltips['turn-undead'].name}</div>
+                                    <div className="text-xs text-muted-foreground">{classActionTooltips['turn-undead'].description}</div>
+                                    <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['turn-undead'].actionType}</div>
+                                    {classActionTooltips['turn-undead'].usesResource && (
+                                      <div className="text-xs text-blue-400 mt-1">{classActionTooltips['turn-undead'].usesResource}</div>
+                                    )}
+                                  </div>
+                                }
+                                position="right"
                               >
-                                <Sparkles className="mr-2 h-3 w-3" /> Turn Undead
-                              </Button>
-                              {character.subclass?.id === 'life' && (
                                 <Button
                                   variant="secondary"
                                   size="sm"
-                                  onClick={() => handleChannelDivinity('preserve-life')}
-                                  disabled={!isPlayerTurn || channelDivinityUses <= 0 || isRolling}
+                                  onClick={() => handleChannelDivinity('turn-undead')}
+                                  disabled={!isPlayerTurn || channelDivinityUses <= 0 || isRolling || !selectedEnemy}
                                 >
-                                  <HeartPulse className="mr-2 h-3 w-3" /> Preserve Life
+                                  <Sparkles className="mr-2 h-3 w-3" /> Turn Undead
                                 </Button>
+                              </Tooltip>
+                              {character.subclass?.id === 'life' && (
+                                <Tooltip
+                                  content={
+                                    <div>
+                                      <div className="font-bold mb-1">{classActionTooltips['preserve-life'].name}</div>
+                                      <div className="text-xs text-muted-foreground">{classActionTooltips['preserve-life'].description}</div>
+                                      <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['preserve-life'].actionType}</div>
+                                      {classActionTooltips['preserve-life'].usesResource && (
+                                        <div className="text-xs text-blue-400 mt-1">{classActionTooltips['preserve-life'].usesResource}</div>
+                                      )}
+                                    </div>
+                                  }
+                                  position="right"
+                                >
+                                  <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => handleChannelDivinity('preserve-life')}
+                                    disabled={!isPlayerTurn || channelDivinityUses <= 0 || isRolling}
+                                  >
+                                    <HeartPulse className="mr-2 h-3 w-3" /> Preserve Life
+                                  </Button>
+                                </Tooltip>
                               )}
                               <div className="col-span-2 text-xs text-center text-muted-foreground">
                                 Channel Divinity: {channelDivinityUses}
@@ -3617,48 +5212,95 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                             </>
                           )}
                           {isRanger && (
-                            <Button
-                              variant={favoredEnemyActive ? "default" : "secondary"}
-                              size="sm"
-                              onClick={() => setFavoredEnemyActive(!favoredEnemyActive)}
-                              disabled={!isPlayerTurn || isRolling}
+                            <Tooltip
+                              content={
+                                <div>
+                                  <div className="font-bold mb-1">{classActionTooltips['favored-enemy'].name}</div>
+                                  <div className="text-xs text-muted-foreground">{classActionTooltips['favored-enemy'].description}</div>
+                                  <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['favored-enemy'].actionType}</div>
+                                </div>
+                              }
+                              position="right"
                             >
-                              <Crosshair className="mr-2 h-3 w-3" /> {favoredEnemyActive ? 'Favored Enemy Active' : 'Favored Enemy'}
-                            </Button>
+                              <Button
+                                variant={favoredEnemyActive ? "default" : "secondary"}
+                                size="sm"
+                                onClick={() => setFavoredEnemyActive(!favoredEnemyActive)}
+                                disabled={!isPlayerTurn || isRolling}
+                              >
+                                <Crosshair className="mr-2 h-3 w-3" /> {favoredEnemyActive ? 'Favored Enemy Active' : 'Favored Enemy'}
+                              </Button>
+                            </Tooltip>
                           )}
                           {isWizard && (
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              onClick={handleArcaneRecovery}
-                              disabled={!isPlayerTurn || arcaneRecoveryUsed || isRolling}
+                            <Tooltip
+                              content={
+                                <div>
+                                  <div className="font-bold mb-1">{classActionTooltips['arcane-recovery'].name}</div>
+                                  <div className="text-xs text-muted-foreground">{classActionTooltips['arcane-recovery'].description}</div>
+                                  <div className="text-xs text-fantasy-gold mt-1">Action Type: {classActionTooltips['arcane-recovery'].actionType}</div>
+                                  {classActionTooltips['arcane-recovery'].usesResource && (
+                                    <div className="text-xs text-blue-400 mt-1">{classActionTooltips['arcane-recovery'].usesResource}</div>
+                                  )}
+                                </div>
+                              }
+                              position="right"
                             >
-                              <Sparkles className="mr-2 h-3 w-3" /> Arcane Recovery
-                            </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={handleArcaneRecovery}
+                                disabled={!isPlayerTurn || arcaneRecoveryUsed || isRolling}
+                              >
+                                <Sparkles className="mr-2 h-3 w-3" /> Arcane Recovery
+                              </Button>
+                            </Tooltip>
                           )}
 
                           {/* ==========================================
                           FEAT ABILITIES
                           ========================================== */}
                           {character.feats?.includes('great-weapon-master') && (
-                            <Button
-                              variant={gwmActive ? "fantasy" : "secondary"}
-                              size="sm"
-                              onClick={() => setGwmActive(!gwmActive)}
-                              disabled={!isPlayerTurn || isRolling}
+                            <Tooltip
+                              content={
+                                <div>
+                                  <div className="font-bold mb-1">{featAbilityTooltips['great-weapon-master-power'].name}</div>
+                                  <div className="text-xs text-muted-foreground">{featAbilityTooltips['great-weapon-master-power'].description}</div>
+                                  <div className="text-xs text-fantasy-gold mt-1">Action Type: {featAbilityTooltips['great-weapon-master-power'].actionType}</div>
+                                </div>
+                              }
+                              position="right"
                             >
-                              <Sword className="mr-2 h-3 w-3" /> {gwmActive ? 'GWM Active (-5/+10)' : 'Great Weapon Master'}
-                            </Button>
+                              <Button
+                                variant={gwmActive ? "fantasy" : "secondary"}
+                                size="sm"
+                                onClick={() => setGwmActive(!gwmActive)}
+                                disabled={!isPlayerTurn || isRolling}
+                              >
+                                <Sword className="mr-2 h-3 w-3" /> {gwmActive ? 'GWM Active (-5/+10)' : 'Great Weapon Master'}
+                              </Button>
+                            </Tooltip>
                           )}
                           {character.feats?.includes('sharpshooter') && (
-                            <Button
-                              variant={sharpshooterActive ? "fantasy" : "secondary"}
-                              size="sm"
-                              onClick={() => setSharpshooterActive(!sharpshooterActive)}
-                              disabled={!isPlayerTurn || isRolling}
+                            <Tooltip
+                              content={
+                                <div>
+                                  <div className="font-bold mb-1">{featAbilityTooltips['sharpshooter-power'].name}</div>
+                                  <div className="text-xs text-muted-foreground">{featAbilityTooltips['sharpshooter-power'].description}</div>
+                                  <div className="text-xs text-fantasy-gold mt-1">Action Type: {featAbilityTooltips['sharpshooter-power'].actionType}</div>
+                                </div>
+                              }
+                              position="right"
                             >
-                              <Crosshair className="mr-2 h-3 w-3" /> {sharpshooterActive ? 'Sharpshooter Active (-5/+10)' : 'Sharpshooter'}
-                            </Button>
+                              <Button
+                                variant={sharpshooterActive ? "fantasy" : "secondary"}
+                                size="sm"
+                                onClick={() => setSharpshooterActive(!sharpshooterActive)}
+                                disabled={!isPlayerTurn || isRolling}
+                              >
+                                <Crosshair className="mr-2 h-3 w-3" /> {sharpshooterActive ? 'Sharpshooter Active (-5/+10)' : 'Sharpshooter'}
+                              </Button>
+                            </Tooltip>
                           )}
                           {character.feats?.includes('lucky') && (
                             <Button
@@ -3678,6 +5320,246 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                             >
                               <Sparkles className="mr-2 h-3 w-3" /> Use Luck Point ({character.featureUses?.luckPoints ?? 0})
                             </Button>
+                          )}
+
+                          {/* Polearm Master Button */}
+                          {character.feats?.includes('polearm-master') && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={handlePolearmBonusAttack}
+                              disabled={!isPlayerTurn || isRolling || bonusActionUsed}
+                            >
+                              <Sword className="mr-2 h-3 w-3" /> Polearm Bonus Attack
+                            </Button>
+                          )}
+
+                          {/* Crossbow Expert Button */}
+                          {character.feats?.includes('crossbow-expert') && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={handleCrossbowBonusAttack}
+                              disabled={!isPlayerTurn || isRolling || bonusActionUsed}
+                            >
+                              <Crosshair className="mr-2 h-3 w-3" /> Crossbow Bonus Attack
+                            </Button>
+                          )}
+
+                          {/* Charger Button */}
+                          {character.feats?.includes('charger') && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={handleChargerAttack}
+                              disabled={!isPlayerTurn || isRolling || bonusActionUsed}
+                            >
+                              <Zap className="mr-2 h-3 w-3" /> Charge Attack (+5 Dmg)
+                            </Button>
+                          )}
+
+                          {/* Healer Button */}
+                          {character.feats?.includes('healer') && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={handleHealerAction}
+                              disabled={!isPlayerTurn || isRolling || healerFeatUsed}
+                            >
+                              <HeartPulse className="mr-2 h-3 w-3" /> Healer's Kit (1d6+4+Lvl)
+                            </Button>
+                          )}
+
+                          {/* Inspiring Leader Button */}
+                          {character.feats?.includes('inspiring-leader') && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={handleInspiringLeader}
+                              disabled={!isPlayerTurn || isRolling || inspiringLeaderUsed}
+                            >
+                              <Flag className="mr-2 h-3 w-3" /> Inspiring Leader (Temp HP)
+                            </Button>
+                          )}
+
+                          {/* ==========================================
+                          BATTLE MASTER MANEUVERS
+                          ========================================== */}
+                          {isBattleMaster && (
+                            <div className="flex flex-col gap-2 p-2 bg-muted/30 rounded-lg border border-fantasy-gold/20">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-semibold text-fantasy-gold">Battle Master</span>
+                                <Badge variant="outline" className="text-fantasy-gold border-fantasy-gold">
+                                  {superiorityDiceLeft} Dice (d{character.level >= 18 ? 12 : character.level >= 10 ? 10 : 8})
+                                </Badge>
+                              </div>
+
+                              {/* On-Hit Maneuvers */}
+                              <div className="flex flex-wrap gap-1">
+                                <Tooltip
+                                  content={
+                                    <div>
+                                      <div className="font-bold mb-1">Precision Attack</div>
+                                      <div className="text-xs text-muted-foreground">Add superiority die to your attack roll. Use before or after rolling.</div>
+                                    </div>
+                                  }
+                                  position="top"
+                                >
+                                  <Button
+                                    variant={pendingManeuver === 'precision-attack' ? 'fantasy' : 'secondary'}
+                                    size="sm"
+                                    onClick={() => activateManeuver('precision-attack')}
+                                    disabled={!isPlayerTurn || isRolling || superiorityDiceLeft <= 0}
+                                    className="text-xs"
+                                  >
+                                    Precision (+Attack)
+                                  </Button>
+                                </Tooltip>
+                                <Tooltip
+                                  content={
+                                    <div>
+                                      <div className="font-bold mb-1">Trip Attack</div>
+                                      <div className="text-xs text-muted-foreground">On hit: Add die to damage. Target makes STR save or is knocked prone.</div>
+                                    </div>
+                                  }
+                                  position="top"
+                                >
+                                  <Button
+                                    variant={pendingManeuver === 'trip-attack' ? 'fantasy' : 'secondary'}
+                                    size="sm"
+                                    onClick={() => activateManeuver('trip-attack')}
+                                    disabled={!isPlayerTurn || isRolling || superiorityDiceLeft <= 0}
+                                    className="text-xs"
+                                  >
+                                    Trip (Prone)
+                                  </Button>
+                                </Tooltip>
+                                <Tooltip
+                                  content={
+                                    <div>
+                                      <div className="font-bold mb-1">Menacing Attack</div>
+                                      <div className="text-xs text-muted-foreground">On hit: Add die to damage. Target makes WIS save or is frightened until end of your next turn.</div>
+                                    </div>
+                                  }
+                                  position="top"
+                                >
+                                  <Button
+                                    variant={pendingManeuver === 'menacing-attack' ? 'fantasy' : 'secondary'}
+                                    size="sm"
+                                    onClick={() => activateManeuver('menacing-attack')}
+                                    disabled={!isPlayerTurn || isRolling || superiorityDiceLeft <= 0}
+                                    className="text-xs"
+                                  >
+                                    Menacing (Fear)
+                                  </Button>
+                                </Tooltip>
+                                <Tooltip
+                                  content={
+                                    <div>
+                                      <div className="font-bold mb-1">Pushing Attack</div>
+                                      <div className="text-xs text-muted-foreground">On hit: Add die to damage. Target makes STR save or is pushed 15 feet away.</div>
+                                    </div>
+                                  }
+                                  position="top"
+                                >
+                                  <Button
+                                    variant={pendingManeuver === 'pushing-attack' ? 'fantasy' : 'secondary'}
+                                    size="sm"
+                                    onClick={() => activateManeuver('pushing-attack')}
+                                    disabled={!isPlayerTurn || isRolling || superiorityDiceLeft <= 0}
+                                    className="text-xs"
+                                  >
+                                    Push (15ft)
+                                  </Button>
+                                </Tooltip>
+                                <Tooltip
+                                  content={
+                                    <div>
+                                      <div className="font-bold mb-1">Disarming Attack</div>
+                                      <div className="text-xs text-muted-foreground">On hit: Add die to damage. Target makes STR save or is disarmed (disadvantage).</div>
+                                    </div>
+                                  }
+                                  position="top"
+                                >
+                                  <Button
+                                    variant={pendingManeuver === 'disarming-attack' ? 'fantasy' : 'secondary'}
+                                    size="sm"
+                                    onClick={() => activateManeuver('disarming-attack')}
+                                    disabled={!isPlayerTurn || isRolling || superiorityDiceLeft <= 0}
+                                    className="text-xs"
+                                  >
+                                    Disarm
+                                  </Button>
+                                </Tooltip>
+                                <Tooltip
+                                  content={
+                                    <div>
+                                      <div className="font-bold mb-1">Goading Attack</div>
+                                      <div className="text-xs text-muted-foreground">On hit: Add die to damage. Target makes WIS save or must attack you (or have disadvantage).</div>
+                                    </div>
+                                  }
+                                  position="top"
+                                >
+                                  <Button
+                                    variant={pendingManeuver === 'goading-attack' ? 'fantasy' : 'secondary'}
+                                    size="sm"
+                                    onClick={() => activateManeuver('goading-attack')}
+                                    disabled={!isPlayerTurn || isRolling || superiorityDiceLeft <= 0}
+                                    className="text-xs"
+                                  >
+                                    Goad
+                                  </Button>
+                                </Tooltip>
+                              </div>
+
+                              {/* Bonus Action Maneuvers */}
+                              <div className="flex flex-wrap gap-1">
+                                <Tooltip
+                                  content={
+                                    <div>
+                                      <div className="font-bold mb-1">Rally</div>
+                                      <div className="text-xs text-muted-foreground">Bonus Action: Gain temporary HP equal to superiority die + CHA modifier.</div>
+                                    </div>
+                                  }
+                                  position="top"
+                                >
+                                  <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={handleRally}
+                                    disabled={!isPlayerTurn || isRolling || bonusActionUsed || superiorityDiceLeft <= 0}
+                                    className="text-xs"
+                                  >
+                                    <HeartPulse className="mr-1 h-3 w-3" /> Rally (Temp HP)
+                                  </Button>
+                                </Tooltip>
+                                <Tooltip
+                                  content={
+                                    <div>
+                                      <div className="font-bold mb-1">Feinting Attack</div>
+                                      <div className="text-xs text-muted-foreground">Bonus Action: Gain advantage on your next attack. If it hits, add die to damage.</div>
+                                    </div>
+                                  }
+                                  position="top"
+                                >
+                                  <Button
+                                    variant={feintingAttackActive ? 'fantasy' : 'secondary'}
+                                    size="sm"
+                                    onClick={handleFeintingAttack}
+                                    disabled={!isPlayerTurn || isRolling || bonusActionUsed || superiorityDiceLeft <= 0}
+                                    className="text-xs"
+                                  >
+                                    Feint (Advantage)
+                                  </Button>
+                                </Tooltip>
+                              </div>
+
+                              {pendingManeuver && (
+                                <div className="text-xs text-fantasy-gold italic">
+                                  {BATTLE_MASTER_MANEUVERS.find(m => m.id === pendingManeuver)?.name} ready for next attack!
+                                </div>
+                              )}
+                            </div>
                           )}
 
                           {/* ==========================================
@@ -3772,7 +5654,58 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                             </Button>
                           )}
 
-                          {/* Wizard: Divination - Portent Dice */}
+                          {/* Cleric: Light Domain - Warding Flare (info display) */}
+                          {isLightCleric && wardingFlareUses > 0 && (
+                            <div className="flex items-center gap-2 p-2 bg-yellow-500/10 rounded border border-yellow-500/30">
+                              <Sun className="h-4 w-4 text-yellow-400" />
+                              <span className="text-xs text-yellow-300">
+                                Warding Flare: {wardingFlareUses} uses (auto-imposes disadvantage on attackers)
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Cleric: Tempest Domain - Wrath of the Storm (info display) */}
+                          {isTempestCleric && wrathOfTheStormUses > 0 && (
+                            <div className="flex items-center gap-2 p-2 bg-blue-500/10 rounded border border-blue-500/30">
+                              <Zap className="h-4 w-4 text-blue-400" />
+                              <span className="text-xs text-blue-300">
+                                Wrath of the Storm: {wrathOfTheStormUses} uses (auto-deals 2d8 lightning when hit)
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Wizard: Abjuration - Arcane Ward (info display) */}
+                          {isAbjurationWizard && (
+                            <div className="flex items-center gap-2 p-2 bg-purple-500/10 rounded border border-purple-500/30">
+                              <Shield className="h-4 w-4 text-purple-400" />
+                              <span className="text-xs text-purple-300">
+                                Arcane Ward: {arcaneWardHp} HP (absorbs damage first)
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Sorcerer: Wild Magic - Tides of Chaos */}
+                          {isWildMagicSorcerer && tidesOfChaosAvailable > 0 && (
+                            <Button
+                              variant={tidesOfChaosActive ? "fantasy" : "secondary"}
+                              size="sm"
+                              onClick={activateTidesOfChaos}
+                              disabled={!isPlayerTurn || tidesOfChaosActive || tidesOfChaosAvailable <= 0 || isRolling}
+                              className={cn(tidesOfChaosActive && "ring-2 ring-pink-500 animate-pulse")}
+                            >
+                              <Sparkles className="mr-2 h-3 w-3" /> {tidesOfChaosActive ? 'Advantage Ready!' : `Tides of Chaos (${tidesOfChaosAvailable})`}
+                            </Button>
+                          )}
+
+                          {/* Sorcerer: Divine Soul - Favored by the Gods (info display) */}
+                          {isDivineSoulSorcerer && favoredByTheGodsAvailable > 0 && (
+                            <div className="flex items-center gap-2 p-2 bg-gold-500/10 rounded border border-yellow-500/30">
+                              <Star className="h-4 w-4 text-yellow-400" />
+                              <span className="text-xs text-yellow-300">
+                                Favored by the Gods: {favoredByTheGodsAvailable} use (add 2d4 to failed save/attack)
+                              </span>
+                            </div>
+                          )}
                           {isWizard && subclassId === 'divination' && portentDiceRolls.length > 0 && (
                             <div className="col-span-2 p-2 bg-purple-500/10 rounded border border-purple-500/30">
                               <p className="text-xs font-bold text-purple-300 mb-1">Portent Dice</p>
@@ -3843,70 +5776,67 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                     <div className="pt-2 border-t">
                       <p className="text-xs text-muted-foreground mb-2 font-bold uppercase">Maneuvers</p>
                       <div className="grid grid-cols-2 gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleShove}
-                          disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                        <Tooltip
+                          content={
+                            <div>
+                              <div className="font-bold mb-1">{combatManeuverTooltips['shove'].name}</div>
+                              <div className="text-xs text-muted-foreground">{combatManeuverTooltips['shove'].description}</div>
+                              <div className="text-xs text-fantasy-gold mt-1">Action Type: {combatManeuverTooltips['shove'].actionType}</div>
+                            </div>
+                          }
+                          position="right"
                         >
-                          <Activity className="mr-2 h-3 w-3" /> Shove
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleGrapple}
-                          disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleShove}
+                            disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                          >
+                            <Activity className="mr-2 h-3 w-3" /> Shove
+                          </Button>
+                        </Tooltip>
+                        <Tooltip
+                          content={
+                            <div>
+                              <div className="font-bold mb-1">{combatManeuverTooltips['grapple'].name}</div>
+                              <div className="text-xs text-muted-foreground">{combatManeuverTooltips['grapple'].description}</div>
+                              <div className="text-xs text-fantasy-gold mt-1">Action Type: {combatManeuverTooltips['grapple'].actionType}</div>
+                            </div>
+                          }
+                          position="right"
                         >
-                          <Activity className="mr-2 h-3 w-3" /> Grapple
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleHide}
-                          disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleGrapple}
+                            disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                          >
+                            <Activity className="mr-2 h-3 w-3" /> Grapple
+                          </Button>
+                        </Tooltip>
+                        <Tooltip
+                          content={
+                            <div>
+                              <div className="font-bold mb-1">{combatManeuverTooltips['combat-hide'].name}</div>
+                              <div className="text-xs text-muted-foreground">{combatManeuverTooltips['combat-hide'].description}</div>
+                              <div className="text-xs text-fantasy-gold mt-1">Action Type: {combatManeuverTooltips['combat-hide'].actionType}</div>
+                            </div>
+                          }
+                          position="right"
                         >
-                          <Activity className="mr-2 h-3 w-3" /> Hide
-                        </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleHide}
+                            disabled={!isPlayerTurn || isRolling || !selectedEnemy}
+                          >
+                            <Activity className="mr-2 h-3 w-3" /> Hide
+                          </Button>
+                        </Tooltip>
                       </div>
                     </div>
 
-                    {legendaryCreatures.length > 0 && (
-                      <div className="pt-2 border-t">
-                        <p className="text-xs text-muted-foreground mb-2 font-bold uppercase">Legendary Actions</p>
-                        <div className="space-y-2">
-                          {legendaryCreatures.map((enemy) => {
-                            const remaining = legendaryPoints[enemy.id] ?? 0;
-                            if (remaining <= 0) return null;
-                            return (
-                              <div key={enemy.id} className="border rounded-md p-2 bg-muted/40">
-                                <div className="flex justify-between items-center text-sm mb-1">
-                                  <span className="font-semibold">{enemy.name}</span>
-                                  <Badge variant="outline" className="text-[10px]">Points: {remaining}</Badge>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                  {(enemy.legendaryActions || []).map((action) => {
-                                    const cost = action.cost || 1;
-                                    const disabled = cost > remaining;
-                                    return (
-                                      <Button
-                                        key={`${enemy.id}-${action.name}`}
-                                        variant="secondary"
-                                        size="sm"
-                                        disabled={disabled}
-                                        onClick={() => spendLegendaryAction(enemy.id, action)}
-                                        className="justify-start text-xs"
-                                      >
-                                        {action.name} {cost > 1 ? `(Cost ${cost})` : ''}
-                                      </Button>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
+                    {/* Legendary Actions are handled by the AI automatically when player ends turn - see performLegendaryActions */}
 
                     {/* Inventory Modal is rendered outside this section */}
 
@@ -3926,17 +5856,58 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                             const hasSlot = isCantrip || (character.spellSlots?.[spell.level]?.current || 0) > 0;
 
                             return (
-                              <Button
+                              <Tooltip
                                 key={spellId}
-                                variant="ghost"
-                                size="sm"
-                                className="w-full justify-start text-xs"
-                                disabled={!hasSlot}
-                                onClick={() => handleCastSpell(spellId)}
+                                content={
+                                  <div>
+                                    <div className="font-bold mb-1">{spell.name}</div>
+                                    <div className="text-xs mb-2">
+                                      <span className="text-fantasy-gold">{spell.school}</span>
+                                      {isCantrip ? ' Cantrip' : ` Level ${spell.level}`}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground mb-1">
+                                      <strong>Casting Time:</strong> {spell.castingTime}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground mb-1">
+                                      <strong>Range:</strong> {spell.range}
+                                    </div>
+                                    {spell.duration && (
+                                      <div className="text-xs text-muted-foreground mb-1">
+                                        <strong>Duration:</strong> {spell.duration}
+                                      </div>
+                                    )}
+                                    <div className="text-xs text-muted-foreground mt-2">{spell.description}</div>
+                                    {spell.damage && (
+                                      <div className="text-xs text-red-400 mt-1">
+                                        <strong>Damage:</strong> {spell.damage} {spell.damageType}
+                                      </div>
+                                    )}
+                                    {spell.healing && (
+                                      <div className="text-xs text-green-400 mt-1">
+                                        <strong>Healing:</strong> {spell.healing}
+                                      </div>
+                                    )}
+                                    {spell.areaOfEffect && (
+                                      <div className="text-xs text-orange-400 mt-1">
+                                        <strong>Area:</strong> {spell.areaOfEffect.size}ft {spell.areaOfEffect.type} (hits all enemies)
+                                      </div>
+                                    )}
+                                  </div>
+                                }
+                                position="left"
                               >
-                                <Sparkles className="mr-2 h-3 w-3 text-blue-400" />
-                                {spell.name} {isCantrip ? '(Cantrip)' : `(L${spell.level})`}
-                              </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="w-full justify-start text-xs"
+                                  disabled={!hasSlot}
+                                  onClick={() => handleCastSpell(spellId)}
+                                >
+                                  <Sparkles className="mr-2 h-3 w-3 text-blue-400" />
+                                  {spell.name} {isCantrip ? '(Cantrip)' : `(L${spell.level})`}
+                                  {spell.areaOfEffect && <span className="ml-1 text-orange-400">⚡</span>}
+                                </Button>
+                              </Tooltip>
                             );
                           })}
                         </div>
@@ -3967,6 +5938,7 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
                   isSelected={selectedEnemy === enemy.id}
                   effectiveAC={getEnemyEffectiveAC(enemy)}
                   onSelect={() => setSelectedEnemy(enemy.id)}
+                  legendaryPoints={legendaryPoints[enemy.id]}
                 />
               ))}
             </div>
@@ -3994,6 +5966,8 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
             setIsRolling(false);
             setDiceResult(null);
             setRollResult(null);
+            setCanBoostRoll(false);
+            setBoostCallback(null);
             if (pendingCombatAction) {
               pendingCombatAction();
               setPendingCombatAction(null);
@@ -4002,6 +5976,10 @@ export function CombatEncounter({ character, enemies: initialEnemies, onVictory,
           skillName={attackDetails?.name || 'Attack Roll'}
           difficultyClass={attackDetails?.dc}
           modifier={attackDetails?.modifier}
+          // Favored by the Gods boost
+          canBoost={canBoostRoll && favoredByTheGodsAvailable > 0}
+          boostLabel={`Favored by the Gods (+2d4) - ${favoredByTheGodsAvailable} use left`}
+          onBoost={useFavoredByTheGods}
         />
 
         {/* Combat Inventory Modal */}

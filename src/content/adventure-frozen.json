@@ -97,6 +97,33 @@
                     "outcome": "Your dwarven instincts sense something wrong with the mountain itself. The stone has been worked—ancient dwarven tunnels, older than any surface records. Your ancestors knew of this place and sealed it for a reason.",
                     "nextEncounterId": "watchtower-interior",
                     "xpReward": 40
+                },
+                {
+                    "id": "half-elf-heritage",
+                    "text": "[Half-Elf] Sense fey magic in the unnatural cold",
+                    "type": "continue",
+                    "requiresRace": "Half-Elf",
+                    "outcome": "Your elven blood tingles with recognition—this cold has fey origins, from the darkest corners of the Feywild. Whatever sleeps here was once connected to the Winter Court.",
+                    "nextEncounterId": "watchtower-interior",
+                    "xpReward": 40
+                },
+                {
+                    "id": "outlander-survival",
+                    "text": "[Outlander] Use wilderness skills to navigate the storm",
+                    "type": "continue",
+                    "requiresBackground": "Outlander",
+                    "outcome": "Years of surviving harsh environments guide you through the blizzard. You find natural landmarks invisible to city-dwellers and reach the watchtower safely.",
+                    "nextEncounterId": "watchtower-interior",
+                    "xpReward": 35
+                },
+                {
+                    "id": "soldier-discipline",
+                    "text": "[Soldier] March through the storm with military discipline",
+                    "type": "continue",
+                    "requiresBackground": "Soldier",
+                    "outcome": "You've endured worse on forced marches. Setting a steady pace and keeping your head down, you push through to the watchtower without stopping.",
+                    "nextEncounterId": "watchtower-interior",
+                    "xpReward": 35
                 }
             ],
             "completed": false
@@ -159,6 +186,33 @@
                     "outcome": "Your patron's presence stirs at the edge of your consciousness. 'This place predates my kind. What sleeps below is from the First Age—a Primordial of endless winter. If it wakes fully, even the gods will shiver.'",
                     "nextEncounterId": "ice-tunnels-hub",
                     "xpReward": 50
+                },
+                {
+                    "id": "acolyte-lore",
+                    "text": "[Acolyte] Recall religious texts about primordial entities",
+                    "type": "continue",
+                    "requiresBackground": "Acolyte",
+                    "outcome": "Temple scriptures spoke of the First Powers—entities from before the gods established order. If this is truly a Primordial's prison, divine intervention may be necessary.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "xpReward": 40
+                },
+                {
+                    "id": "sage-history",
+                    "text": "[Sage] Apply academic knowledge of ancient civilizations",
+                    "type": "continue",
+                    "requiresBackground": "Sage",
+                    "outcome": "You recall obscure texts about the Rimeguard—a holy order dedicated to containing something called 'The First Frost.' Most scholars dismissed it as legend. You now know better.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "xpReward": 40
+                },
+                {
+                    "id": "dragonborn-cold",
+                    "text": "[Dragonborn] Let your draconic blood resist the cold",
+                    "type": "continue",
+                    "requiresRace": "Dragonborn",
+                    "outcome": "Your dragon blood burns hot, pushing back the unnatural cold. The frozen guards almost seem to salute as you pass—recognizing kindred elemental power.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "xpReward": 40
                 }
             ],
             "completed": false
@@ -218,6 +272,36 @@
                     "outcome": "You've gathered enough intelligence. Time to confront the Pale Architect before the vault opens.",
                     "nextEncounterId": "heart-approach",
                     "requiresVisitedEncounterId": "conspirators-camp"
+                },
+                {
+                    "id": "druid-nature",
+                    "text": "[Druid] Commune with the ice to understand this place",
+                    "type": "continue",
+                    "requiresClass": "Druid",
+                    "outcome": "You touch the frozen walls and feel the land's anguish. Nature here has been twisted by an unnatural presence. The ice whispers of a sleeping horror that should never wake.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "stayInEncounter": true,
+                    "xpReward": 40
+                },
+                {
+                    "id": "hermit-intuition",
+                    "text": "[Hermit] Meditate and let the mountain reveal its secrets",
+                    "type": "continue",
+                    "requiresBackground": "Hermit",
+                    "outcome": "In your years of solitude, you learned to listen to places as well as people. The mountain's silence speaks of dread and ancient duty. Something was buried here for good reason.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "stayInEncounter": true,
+                    "xpReward": 35
+                },
+                {
+                    "id": "criminal-hideouts",
+                    "text": "[Criminal] Search for hidden passages like you would in a city",
+                    "type": "continue",
+                    "requiresBackground": "Criminal",
+                    "outcome": "You spot the signs of concealed routes—scratches on ice that mark patrol patterns, subtle airflow indicating hidden passages. Someone has been using these tunnels extensively.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "stayInEncounter": true,
+                    "xpReward": 35
                 }
             ],
             "completed": false
@@ -279,6 +363,33 @@
                     "outcome": "You back away from the forge, leaving the undead to their eternal task—for now.",
                     "nextEncounterId": "ice-tunnels-hub",
                     "isExitOption": true
+                },
+                {
+                    "id": "fighter-tactics",
+                    "text": "[Fighter] Assess the forge's tactical value",
+                    "type": "continue",
+                    "requiresClass": "Fighter",
+                    "outcome": "Your combat experience tells you this forge could produce weapons for an army. Denying it to the enemy is crucial. You note weak points in the structure for later sabotage.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "xpReward": 40
+                },
+                {
+                    "id": "guild-artisan-smithing",
+                    "text": "[Guild Artisan] Analyze the forging techniques",
+                    "type": "continue",
+                    "requiresBackground": "Guild Artisan",
+                    "outcome": "The craftsmanship is exquisite but corrupted. You recognize techniques from the old dwarven masters, but twisted by dark magic. You could disrupt the process by adjusting key parameters.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "xpReward": 40
+                },
+                {
+                    "id": "gnome-tinkering",
+                    "text": "[Gnome] Examine the forge's mechanisms",
+                    "type": "continue",
+                    "requiresRace": "Gnome",
+                    "outcome": "Your natural affinity for mechanisms helps you understand the forge's operation. A few adjustments to the cooling runes could cause a catastrophic overload—useful knowledge.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "xpReward": 40
                 }
             ],
             "completed": false
@@ -373,6 +484,33 @@
                     "requiresClass": "Paladin",
                     "outcome": "Holy light blazes from your weapon. The spirit screams—a sound of ancient hatred—and attacks with the fury of a blizzard.",
                     "nextEncounterId": "ice-siren-combat"
+                },
+                {
+                    "id": "tiefling-darkness",
+                    "text": "[Tiefling] \"I've dealt with darker entities than you.\"",
+                    "type": "continue",
+                    "requiresRace": "Tiefling",
+                    "outcome": "The spirit senses your infernal heritage and pauses. 'You carry fire in your blood. How... interesting. Perhaps we can reach an understanding after all.' It reveals the Architect's path without demanding payment.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "xpReward": 60
+                },
+                {
+                    "id": "entertainer-charm",
+                    "text": "[Entertainer] Perform a tale of warmth and hope",
+                    "type": "continue",
+                    "requiresBackground": "Entertainer",
+                    "outcome": "You spin a story of summer festivals and warm hearths. The spirit listens, transfixed by memories of a warmth it can never feel. In gratitude for the vicarious experience, it shares what you need.",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "xpReward": 50
+                },
+                {
+                    "id": "charlatan-lie",
+                    "text": "[Charlatan] Offer a fake memory",
+                    "type": "continue",
+                    "requiresBackground": "Charlatan",
+                    "outcome": "You fabricate a warm memory—convincing enough to fool even a spirit. It drinks deeply, then pauses. 'This memory tastes... hollow. But amusing. I appreciate the attempt at deception. Go, clever one.'",
+                    "nextEncounterId": "ice-tunnels-hub",
+                    "xpReward": 50
                 }
             ],
             "completed": false
@@ -462,6 +600,33 @@
                     "requiresClass": "Rogue",
                     "outcome": "You melt through the shadows, blade seeking the Architect's throat—but they turn at the last moment, catching your wrist with inhuman speed. 'A valiant attempt. But I've lived a thousand years. Did you think I wouldn't sense the blade of an assassin?' Combat erupts around you.",
                     "nextEncounterId": "architect-confrontation"
+                },
+                {
+                    "id": "half-orc-intimidate",
+                    "text": "[Half-Orc] Step forward and challenge the cult's warriors",
+                    "type": "continue",
+                    "requiresRace": "Half-Orc",
+                    "outcome": "You stride into the camp, your orcish presence radiating menace. Several cultists flinch. 'Who among you dares face me?' The Pale Architect notices the disruption.",
+                    "nextEncounterId": "architect-confrontation",
+                    "xpReward": 40
+                },
+                {
+                    "id": "folk-hero-rally",
+                    "text": "[Folk Hero] Appeal to any common folk among the cultists",
+                    "type": "continue",
+                    "requiresBackground": "Folk Hero",
+                    "outcome": "You recognize farmers and laborers among the robed figures—people who joined out of desperation. Your words reach some of them. 'You don't have to serve this monster!' Several hesitate.",
+                    "nextEncounterId": "architect-confrontation",
+                    "xpReward": 45
+                },
+                {
+                    "id": "noble-authority",
+                    "text": "[Noble] Demand surrender in the name of your house",
+                    "type": "continue",
+                    "requiresBackground": "Noble",
+                    "outcome": "Your commanding presence cuts through the mumbled prayers. 'By the authority of House [name], I command you to stand down!' Some cultists recognize nobility and waver.",
+                    "nextEncounterId": "architect-confrontation",
+                    "xpReward": 40
                 }
             ],
             "completed": false
@@ -546,6 +711,33 @@
                     "outcome": "Vaelthris's composure cracks. 'You know NOTHING of our glory! We ruled when your forest-dwelling ancestors still hunted with sticks! The Frost Court was BETRAYED—and I will restore what was stolen!' Their rage is exploitable.",
                     "nextEncounterId": "architect-fight",
                     "xpReward": 40
+                },
+                {
+                    "id": "human-resolve",
+                    "text": "[Human] \"Humans have survived your kind before. We'll do it again.\"",
+                    "type": "continue",
+                    "requiresRace": "Human",
+                    "outcome": "Vaelthris's sneer falters slightly. 'Your kind is... adaptable. I'll grant you that. But adaptation won't save you from eternal winter.' There's a hint of respect—and fear—in their voice.",
+                    "nextEncounterId": "architect-fight",
+                    "xpReward": 40
+                },
+                {
+                    "id": "sorcerer-power",
+                    "text": "[Sorcerer] Let your innate magic flare against the cold",
+                    "type": "continue",
+                    "requiresClass": "Sorcerer",
+                    "outcome": "Your wild magic responds to the primordial cold, crackling with chaotic energy. Vaelthris's eyes widen. 'You carry the bloodline power. Interesting. But raw talent is nothing against millennia of mastery.'",
+                    "nextEncounterId": "architect-fight",
+                    "xpReward": 45
+                },
+                {
+                    "id": "monk-discipline",
+                    "text": "[Monk] Center yourself against the cold with inner fire",
+                    "type": "continue",
+                    "requiresClass": "Monk",
+                    "outcome": "You regulate your ki, generating warmth from within. The cold that should paralyze you barely slows your movements. Vaelthris notices with irritation. 'Ah, the monastic arts. You'll make a fascinating frozen statue.'",
+                    "nextEncounterId": "architect-fight",
+                    "xpReward": 45
                 }
             ],
             "completed": false
@@ -628,6 +820,33 @@
                     "outcome": "You release your fury—not just as combat rage, but as pure life force. Heat radiates from your body, pushing back the primordial cold. The Heart of Winter recoils from your defiance.",
                     "nextEncounterId": "heart-apex",
                     "xpReward": 100
+                },
+                {
+                    "id": "halfling-luck",
+                    "text": "[Halfling] Trust your legendary luck",
+                    "type": "continue",
+                    "requiresRace": "Halfling",
+                    "outcome": "Against all odds, you find exactly the right rune to touch, the right word to speak. Halfling luck—or something watching over small folk—guides your hand to reinforce the seals.",
+                    "nextEncounterId": "heart-apex",
+                    "xpReward": 80
+                },
+                {
+                    "id": "urchin-resourceful",
+                    "text": "[Urchin] Use street-smart resourcefulness",
+                    "type": "continue",
+                    "requiresBackground": "Urchin",
+                    "outcome": "Growing up with nothing taught you to use everything. You spot tools left by the Rimeguard and improvise a solution—jamming debris into key cracks to slow the vault's opening.",
+                    "nextEncounterId": "heart-apex",
+                    "xpReward": 80
+                },
+                {
+                    "id": "sailor-ropes",
+                    "text": "[Sailor] Use rope skills to secure the vault",
+                    "type": "continue",
+                    "requiresBackground": "Sailor",
+                    "outcome": "You've lashed sails in hurricanes—this is just another storm to weather. Using ropes and bindings, you create a web around the vault that distributes pressure and slows the cracks.",
+                    "nextEncounterId": "heart-apex",
+                    "xpReward": 80
                 }
             ],
             "completed": false

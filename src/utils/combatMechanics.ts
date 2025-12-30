@@ -109,7 +109,8 @@ export function canTakeAction(entity: PlayerCharacter | CombatEnemy): boolean {
         ConditionManager.hasCondition(entity, 'paralyzed') ||
         ConditionManager.hasCondition(entity, 'petrified') ||
         ConditionManager.hasCondition(entity, 'stunned') ||
-        ConditionManager.hasCondition(entity, 'unconscious')
+        ConditionManager.hasCondition(entity, 'unconscious') ||
+        ConditionManager.hasCondition(entity, 'surprised')
     ) {
         return false;
     }

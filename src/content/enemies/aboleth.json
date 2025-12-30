@@ -87,9 +87,23 @@
     }
   ],
   "legendaryActions": [
-    { "name": "Detect", "description": "The aboleth makes a Wisdom (Perception) check." },
-    { "name": "Tail Swipe", "description": "The aboleth makes one tail attack." },
-    { "name": "Psychic Drain", "cost": 2, "description": "One charmed creature takes 10 (3d6) psychic damage; the aboleth regains hit points equal to the damage dealt." }
+    {
+      "name": "Detect",
+      "description": "The aboleth makes a Wisdom (Perception) check."
+    },
+    {
+      "name": "Tail Swipe",
+      "description": "The aboleth makes one tail attack.",
+      "damage": "3d6+5",
+      "damageType": "bludgeoning"
+    },
+    {
+      "name": "Psychic Drain",
+      "cost": 2,
+      "description": "One creature takes psychic damage; the aboleth regains hit points equal to the damage dealt.",
+      "damage": "3d6",
+      "damageType": "psychic"
+    }
   ],
   "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/a-monster-stat-block.md",
   "statBlockHeading": "Aboleth"

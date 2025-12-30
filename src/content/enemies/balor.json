@@ -12,14 +12,44 @@
   "xpReward": 22000,
   "size": "Huge",
   "alignment": "chaotic evil",
-  "speed": { "walk": 40, "fly": 80 },
-  "abilityScores": { "strength": 26, "dexterity": 15, "constitution": 22, "intelligence": 20, "wisdom": 16, "charisma": 22 },
-  "savingThrows": { "str": 14, "con": 12, "wis": 9, "cha": 12 },
-  "damageResistances": ["cold", "lightning"],
-  "damageImmunities": ["fire", "poison", "nonmagical bludgeoning/piercing/slashing"],
-  "conditionImmunities": ["poisoned"],
-  "senses": ["truesight 120 ft.", "passive Perception 13"],
-  "languages": ["Abyssal", "telepathy 120 ft."],
+  "speed": {
+    "walk": 40,
+    "fly": 80
+  },
+  "abilityScores": {
+    "strength": 26,
+    "dexterity": 15,
+    "constitution": 22,
+    "intelligence": 20,
+    "wisdom": 16,
+    "charisma": 22
+  },
+  "savingThrows": {
+    "str": 14,
+    "con": 12,
+    "wis": 9,
+    "cha": 12
+  },
+  "damageResistances": [
+    "cold",
+    "lightning"
+  ],
+  "damageImmunities": [
+    "fire",
+    "poison",
+    "nonmagical bludgeoning/piercing/slashing"
+  ],
+  "conditionImmunities": [
+    "poisoned"
+  ],
+  "senses": [
+    "truesight 120 ft.",
+    "passive Perception 13"
+  ],
+  "languages": [
+    "Abyssal",
+    "telepathy 120 ft."
+  ],
   "challenge": "19",
   "traits": [
     "death-throes",
@@ -28,13 +58,43 @@
     "magic-weapons"
   ],
   "actions": [
-    { "name": "Multiattack", "type": "special", "description": "The balor makes two attacks: one with its longsword and one with its whip." },
-    { "name": "Longsword", "type": "melee", "toHit": 14, "reach": 10, "targets": "one target", "damage": "3d8+8 slashing + 3d8 lightning", "damageType": "slashing" },
-    { "name": "Whip", "type": "melee", "toHit": 14, "reach": 30, "targets": "one target", "damage": "3d10+8 slashing", "damageType": "slashing", "description": "Target grappled (escape DC 20) if Large or smaller; pulled up to 25 ft. toward balor." }
+    {
+      "name": "Multiattack",
+      "type": "special",
+      "description": "The balor makes two attacks: one with its longsword and one with its whip."
+    },
+    {
+      "name": "Longsword",
+      "type": "melee",
+      "toHit": 14,
+      "reach": 10,
+      "targets": "one target",
+      "damage": "3d8+8 slashing + 3d8 lightning",
+      "damageType": "slashing"
+    },
+    {
+      "name": "Whip",
+      "type": "melee",
+      "toHit": 14,
+      "reach": 30,
+      "targets": "one target",
+      "damage": "3d10+8 slashing",
+      "damageType": "slashing",
+      "description": "Target grappled (escape DC 20) if Large or smaller; pulled up to 25 ft. toward balor."
+    }
   ],
   "legendaryActions": [
-    { "name": "Teleport", "description": "The balor magically teleports up to 120 ft. and appears with any equipment it is wearing or carrying." },
-    { "name": "Sword", "cost": 2, "description": "The balor makes one longsword attack." }
+    {
+      "name": "Teleport",
+      "description": "Magically teleports up to 120 ft. and appears with any equipment."
+    },
+    {
+      "name": "Sword",
+      "cost": 2,
+      "description": "Makes one longsword attack.",
+      "damage": "3d8+8+3d8",
+      "damageType": "slashing"
+    }
   ],
   "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/b-monster-stat-block.md",
   "statBlockHeading": "Balor"

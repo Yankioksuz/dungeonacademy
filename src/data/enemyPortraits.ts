@@ -15,6 +15,19 @@ import frostSmithPortrait from '@/assets/enemies/frost-smith.png';
 import heartWinterPortrait from '@/assets/enemies/heart-winter.png';
 import skyWardenPortrait from '@/assets/enemies/sky-warden.png';
 
+// Sanctum of the Flayed God
+import fleshWardenPortrait from '@/assets/enemies/flesh-warden.png';
+import boneSwarmPortrait from '@/assets/enemies/bone-swarm.png';
+import gateGuardianPortrait from '@/assets/enemies/gate-guardian.png';
+import painEaterPortrait from '@/assets/enemies/pain-eater.png';
+import baronKrovPortrait from '@/assets/enemies/baron-krov.png';
+import highPriestVexPortrait from '@/assets/enemies/high-priest-vex.png';
+import stoneGargoylePortrait from '@/assets/enemies/stone-gargoyle.png';
+import harpyMatriarchPortrait from '@/assets/enemies/harpy-matriarch.png';
+import mindProjectionPortrait from '@/assets/enemies/mind-projection.png';
+import sanguinePontiffPortrait from '@/assets/enemies/sanguine-pontiff.png';
+import bloodAvatarPortrait from '@/assets/enemies/blood-avatar.png';
+
 export interface EnemyPortrait {
     id: string;
     name: string;
@@ -97,6 +110,73 @@ export const enemyPortraits: EnemyPortrait[] = [
         name: 'The Heart of Winter',
         src: heartWinterPortrait,
         aliases: ['ice-elemental', 'winter-core', 'boss-elemental']
+    },
+    // Sanctum of the Flayed God Enemies
+    {
+        id: 'flesh-warden',
+        name: 'Flesh Warden',
+        src: fleshWardenPortrait,
+        aliases: ['cult-fanatic', 'cultist', 'dinner-guests']
+    },
+    {
+        id: 'bone-swarm',
+        name: 'Bone Swarm',
+        src: boneSwarmPortrait,
+        aliases: ['skeleton-swarm', 'carrion-crawler']
+    },
+    {
+        id: 'gate-guardian',
+        name: 'Gate Guardian',
+        src: gateGuardianPortrait,
+        aliases: ['stone-golem', 'gate-keeper']
+    },
+    {
+        id: 'pain-eater',
+        name: 'Pain Eater',
+        src: painEaterPortrait,
+        aliases: ['imp', 'demon-scout']
+    },
+    {
+        id: 'baron-krov',
+        name: 'Baron Krov',
+        src: baronKrovPortrait,
+        aliases: ['jailer', 'executioner', 'gladiator']
+    },
+    {
+        id: 'high-priest-vex',
+        name: 'High Priest Vex',
+        src: highPriestVexPortrait,
+        aliases: ['priest', 'cult-leader']
+    },
+    {
+        id: 'stone-gargoyle',
+        name: 'Stone Gargoyle',
+        src: stoneGargoylePortrait,
+        aliases: ['gargoyle', 'statue-sentinel']
+    },
+    {
+        id: 'harpy-matriarch',
+        name: 'Harpy Matriarch',
+        src: harpyMatriarchPortrait,
+        aliases: ['harpy', 'matriarch']
+    },
+    {
+        id: 'mind-projection',
+        name: 'Mind Projection',
+        src: mindProjectionPortrait,
+        aliases: ['specter', 'mind-flayer-gost']
+    },
+    {
+        id: 'sanguine-pontiff',
+        name: 'Sanguine Pontiff',
+        src: sanguinePontiffPortrait,
+        aliases: ['lich', 'pontiff']
+    },
+    {
+        id: 'blood-avatar',
+        name: 'Blood Avatar',
+        src: bloodAvatarPortrait,
+        aliases: ['pit-fiend', 'avatar-of-blood']
     }
 ];
 

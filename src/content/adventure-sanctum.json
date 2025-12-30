@@ -36,7 +36,7 @@
                 },
                 {
                     "id": "path-assault",
-                    "text": "Storm the Black Gate (Combat)",
+                    "text": "Storm the Black Gate",
                     "type": "continue",
                     "outcome": "Guns blazing and swords drawn, you charge the gate Guardians. Subtle is for cowards.",
                     "nextEncounterId": "entry-gate-combat"
@@ -48,6 +48,42 @@
                     "requiresClass": "Warlock",
                     "outcome": "Your patron answers with a rusty chuckle. 'The Pontiff thinks this place is his? Let me show you the back door... for a price.'",
                     "nextEncounterId": "entry-deal"
+                },
+                {
+                    "id": "tiefling-kinship",
+                    "text": "[Tiefling] Sense the infernal power flowing through the cathedral",
+                    "type": "continue",
+                    "requiresRace": "Tiefling",
+                    "outcome": "Your heritage allows you to feel the fiendish wards. You locate a weak point in their defenses—a maintenance passage overlooked by the cultists.",
+                    "nextEncounterId": "nave-hub",
+                    "xpReward": 50
+                },
+                {
+                    "id": "rogue-shadows",
+                    "text": "[Rogue] Find a path through the shadows",
+                    "type": "continue",
+                    "requiresClass": "Rogue",
+                    "outcome": "Your trained eye spots gaps in the patrol patterns. You slip past the guards like a whisper, arriving inside before anyone notices.",
+                    "nextEncounterId": "nave-hub",
+                    "xpReward": 50
+                },
+                {
+                    "id": "criminal-contacts",
+                    "text": "[Criminal] Use underworld contacts to find a way in",
+                    "type": "continue",
+                    "requiresBackground": "Criminal",
+                    "outcome": "You recognize a fence among the pilgrims. A few whispered words and a gold coin later, you know about the smuggler's tunnel beneath the bridge.",
+                    "nextEncounterId": "nave-hub",
+                    "xpReward": 45
+                },
+                {
+                    "id": "soldier-tactical",
+                    "text": "[Soldier] Assess the defensive weaknesses",
+                    "type": "continue",
+                    "requiresBackground": "Soldier",
+                    "outcome": "Military training reveals the guards' blind spots. You time your movement to their rotation and breach during the shift change.",
+                    "nextEncounterId": "nave-hub",
+                    "xpReward": 45
                 }
             ],
             "completed": false
@@ -154,6 +190,33 @@
                     "failureOutcome": "You trip on a femur and tumble into the pit. The swarm descends!",
                     "successNextEncounterId": "nave-hub",
                     "failureNextEncounterId": "ossuary-combat"
+                },
+                {
+                    "id": "dwarf-bones",
+                    "text": "[Dwarf] Recognize the dwarven construction of the ossuary",
+                    "type": "continue",
+                    "requiresRace": "Dwarf",
+                    "outcome": "These bones form a dwarven burial pattern. You speak the words of respect, and the path clears before you.",
+                    "nextEncounterId": "nave-hub",
+                    "xpReward": 40
+                },
+                {
+                    "id": "ranger-tracking",
+                    "text": "[Ranger] Track the safe path through the bones",
+                    "type": "continue",
+                    "requiresClass": "Ranger",
+                    "outcome": "Your tracking skills reveal which bones are stable. You navigate the ossuary without disturbing the creatures.",
+                    "nextEncounterId": "nave-hub",
+                    "xpReward": 40
+                },
+                {
+                    "id": "outlander-survival",
+                    "text": "[Outlander] Navigate like you would a treacherous cave",
+                    "type": "continue",
+                    "requiresBackground": "Outlander",
+                    "outcome": "Years in the wild taught you to read dangerous terrain. The bone chute is just another obstacle to overcome.",
+                    "nextEncounterId": "nave-hub",
+                    "xpReward": 35
                 }
             ],
             "completed": false
@@ -221,6 +284,42 @@
                     "failureOutcome": "The abyss laughs at your prayers. You take 2d6 psychic damage as your faith falters.",
                     "successNextEncounterId": "nave-hub",
                     "failureNextEncounterId": "nave-hub"
+                },
+                {
+                    "id": "wizard-ethereal",
+                    "text": "[Wizard] Use arcane knowledge to navigate the Ethereal",
+                    "type": "continue",
+                    "requiresClass": "Wizard",
+                    "outcome": "Your studies of the planes serve you well. You weave protective wards and glide through the screaming souls unharmed.",
+                    "nextEncounterId": "nave-hub",
+                    "xpReward": 50
+                },
+                {
+                    "id": "elf-ancestry",
+                    "text": "[Elf] Let your fey ancestry guide you through",
+                    "type": "continue",
+                    "requiresRace": "Elf",
+                    "outcome": "Your elven soul resonates with the Ethereal. The hungry ghosts recognize kindred fey blood and part before you.",
+                    "nextEncounterId": "nave-hub",
+                    "xpReward": 45
+                },
+                {
+                    "id": "half-elf-bridge",
+                    "text": "[Half-Elf] Walk between worlds as you walk between peoples",
+                    "type": "continue",
+                    "requiresRace": "Half-Elf",
+                    "outcome": "Your dual nature makes you comfortable in liminal spaces. The Ethereal Veil is just another boundary you've learned to cross.",
+                    "nextEncounterId": "nave-hub",
+                    "xpReward": 45
+                },
+                {
+                    "id": "acolyte-spirits",
+                    "text": "[Acolyte] Speak prayers of rest to the tortured souls",
+                    "type": "continue",
+                    "requiresBackground": "Acolyte",
+                    "outcome": "Your religious training prepared you for this. You chant prayers of peace, and the souls calm enough for you to pass.",
+                    "nextEncounterId": "nave-hub",
+                    "xpReward": 40
                 }
             ],
             "completed": false
@@ -281,6 +380,7 @@
                 "x": 400,
                 "y": 300
             },
+            "repeatable": true,
             "options": [
                 {
                     "id": "inspect-font",
@@ -291,38 +391,68 @@
                 },
                 {
                     "id": "path-martyr",
-                    "text": "Head to the Wing of Sorrow (Martyr Path)",
+                    "text": "Head to the Wing of Sorrow",
                     "type": "continue",
                     "outcome": "You hear weeping from the western corridor.",
                     "nextEncounterId": "martyr-start"
                 },
                 {
                     "id": "path-inquisitor",
-                    "text": "Ascend the Stairs of Judgment (Inquisitor Path)",
+                    "text": "Ascend the Stairs of Judgment",
                     "type": "continue",
                     "outcome": "The sound of marching boots echoes from the stairs.",
                     "nextEncounterId": "inquisitor-start"
                 },
                 {
                     "id": "path-shadow",
-                    "text": "Climb into the Rafters (Shadow Path)",
+                    "text": "Climb into the Rafters",
                     "type": "continue",
                     "outcome": "You grapple up into the dizzying darkness above.",
                     "nextEncounterId": "shadow-start"
                 },
                 {
                     "id": "path-acolyte",
-                    "text": "Blend in with the Cultists (Acolyte Path)",
+                    "text": "Blend in with the Cultists",
                     "type": "continue",
                     "outcome": "You bow your head and move toward the barracks.",
                     "nextEncounterId": "acolyte-start"
                 },
                 {
                     "id": "path-occultist",
-                    "text": "Enter the Forbidden Library (Occultist Path)",
+                    "text": "Enter the Forbidden Library",
                     "type": "continue",
                     "outcome": "The library doors are cold to the touch.",
                     "nextEncounterId": "occultist-start"
+                },
+                {
+                    "id": "dragonborn-presence",
+                    "text": "[Dragonborn] Let your draconic presence intimidate the cultists",
+                    "type": "continue",
+                    "requiresRace": "Dragonborn",
+                    "outcome": "Your imposing draconic form makes the lesser cultists instinctively bow. They assume you are a high priest of some terrible dragon god.",
+                    "nextEncounterId": "nave-hub",
+                    "stayInEncounter": true,
+                    "xpReward": 35
+                },
+                {
+                    "id": "paladin-sense",
+                    "text": "[Paladin] Sense the corruption and its source",
+                    "type": "continue",
+                    "requiresClass": "Paladin",
+                    "outcome": "Your divine sense blazes with warnings. The corruption radiates from the altar above—and from something ancient below.",
+                    "nextEncounterId": "nave-hub",
+                    "stayInEncounter": true,
+                    "xpReward": 40
+                },
+                {
+                    "id": "noble-authority",
+                    "text": "[Noble] Project an air of authority",
+                    "type": "continue",
+                    "requiresBackground": "Noble",
+                    "outcome": "Your bearing commands respect even here. Cultists move aside, assuming you are someone important. You learn valuable information about the cathedral's layout.",
+                    "nextEncounterId": "nave-hub",
+                    "stayInEncounter": true,
+                    "xpReward": 35
                 }
             ],
             "completed": false
@@ -339,7 +469,7 @@
             "options": [
                 {
                     "id": "drink-blood",
-                    "text": "Drink from the font (+1 Corruption, Full Heal)",
+                    "text": "Drink from the font",
                     "type": "continue",
                     "outcome": "The metallic taste is revolting, but power surges through you. Your wounds knit together instantly.",
                     "nextEncounterId": "nave-hub",
@@ -399,6 +529,24 @@
                     "failureOutcome": "Your voice echoes. Only the dead answer.",
                     "successNextEncounterId": "martyr-cell-1",
                     "failureNextEncounterId": "martyr-start"
+                },
+                {
+                    "id": "folk-hero-rescue",
+                    "text": "[Folk Hero] You've saved your own people before—you'll save these too",
+                    "type": "continue",
+                    "requiresBackground": "Folk Hero",
+                    "outcome": "Your experience protecting the common folk guides you. You know exactly how frightened prisoners behave and find a survivor quickly.",
+                    "nextEncounterId": "martyr-cell-1",
+                    "xpReward": 35
+                },
+                {
+                    "id": "human-compassion",
+                    "text": "[Human] Show the adaptable compassion of humanity",
+                    "type": "continue",
+                    "requiresRace": "Human",
+                    "outcome": "Your human empathy cuts through the horror. You focus on who can still be saved, not on those already lost.",
+                    "nextEncounterId": "martyr-cell-1",
+                    "xpReward": 30
                 }
             ],
             "completed": false
@@ -470,7 +618,7 @@
             "options": [
                 {
                     "id": "sacrifice-hp",
-                    "text": "Walk through the thorns (Take 1d6 Damage)",
+                    "text": "Walk through the thorns yourself",
                     "type": "continue",
                     "outcome": "You bleed, but your allies follow safely. (-1 Corruption)",
                     "nextEncounterId": "martyr-cell-2"
@@ -577,6 +725,33 @@
                     "grantsItemIds": [
                         "potion-fire-resistance"
                     ]
+                },
+                {
+                    "id": "fighter-tactics",
+                    "text": "[Fighter] Assess the tactical situation",
+                    "type": "continue",
+                    "requiresClass": "Fighter",
+                    "outcome": "Your combat experience reveals chokepoints and defensive positions. You'll use the terrain to your advantage in the battles ahead.",
+                    "nextEncounterId": "inquisitor-floor-1",
+                    "xpReward": 40
+                },
+                {
+                    "id": "barbarian-fury",
+                    "text": "[Barbarian] Let your rage build as you climb",
+                    "type": "continue",
+                    "requiresClass": "Barbarian",
+                    "outcome": "The stench of blood and corruption feeds your fury. By the time you reach the top, your rage will be unstoppable.",
+                    "nextEncounterId": "inquisitor-floor-1",
+                    "xpReward": 40
+                },
+                {
+                    "id": "half-orc-endurance",
+                    "text": "[Half-Orc] Draw on your orcish endurance",
+                    "type": "continue",
+                    "requiresRace": "Half-Orc",
+                    "outcome": "The punishing climb is nothing to your half-orc constitution. You arrive at the top ready for battle while others would be exhausted.",
+                    "nextEncounterId": "inquisitor-floor-1",
+                    "xpReward": 35
                 }
             ],
             "completed": false
@@ -648,7 +823,7 @@
                 },
                 {
                     "id": "short-rest",
-                    "text": "Take a moment to bandage wounds (Short Rest equivalent)",
+                    "text": "Take a moment to bandage wounds",
                     "type": "continue",
                     "outcome": "You rest briefly. But the drums of war are beating above.",
                     "nextEncounterId": "inquisitor-floor-3"
@@ -713,6 +888,33 @@
                     "failureOutcome": "You waste time searching and find nothing. You must climb.",
                     "successNextEncounterId": "shadow-gargoyles",
                     "failureNextEncounterId": "shadow-start"
+                },
+                {
+                    "id": "monk-acrobatics",
+                    "text": "[Monk] Use ki-enhanced movement to scale the rafters",
+                    "type": "continue",
+                    "requiresClass": "Monk",
+                    "outcome": "Your monastic training makes the climb effortless. You practically run up the vertical surfaces, silent as a shadow.",
+                    "nextEncounterId": "shadow-gargoyles",
+                    "xpReward": 50
+                },
+                {
+                    "id": "halfling-climb",
+                    "text": "[Halfling] Small size helps you find handholds",
+                    "type": "continue",
+                    "requiresRace": "Halfling",
+                    "outcome": "Your small stature lets you use cracks and gaps that larger folk couldn't. You climb quickly and quietly.",
+                    "nextEncounterId": "shadow-gargoyles",
+                    "xpReward": 40
+                },
+                {
+                    "id": "urchin-rooftops",
+                    "text": "[Urchin] This is just like climbing rooftops as a child",
+                    "type": "continue",
+                    "requiresBackground": "Urchin",
+                    "outcome": "Years of escaping through city heights taught you to climb anything. The rafters are child's play.",
+                    "nextEncounterId": "shadow-gargoyles",
+                    "xpReward": 40
                 }
             ],
             "completed": false
@@ -796,7 +998,7 @@
                 },
                 {
                     "id": "kill-harpy",
-                    "text": "Assassinate her while she sleeps (Crit)",
+                    "text": "Assassinate her while she sleeps",
                     "type": "combat",
                     "autoStartCombat": true,
                     "enemy": {
@@ -905,6 +1107,33 @@
                     "failureOutcome": "You stare too long. Someone notices.",
                     "successNextEncounterId": "acolyte-kitchen",
                     "failureNextEncounterId": "acolyte-kitchen"
+                },
+                {
+                    "id": "bard-performance",
+                    "text": "[Bard] Match their rhythm and add your own voice",
+                    "type": "continue",
+                    "requiresClass": "Bard",
+                    "outcome": "Your musical talent allows you to harmonize perfectly with the dark chant. The cultists are impressed by your 'devotion.'",
+                    "nextEncounterId": "acolyte-kitchen",
+                    "xpReward": 50
+                },
+                {
+                    "id": "charlatan-act",
+                    "text": "[Charlatan] Play the role of a devoted cultist",
+                    "type": "continue",
+                    "requiresBackground": "Charlatan",
+                    "outcome": "You've played harder roles than this. Your false fervor convinces even the most suspicious acolytes.",
+                    "nextEncounterId": "acolyte-kitchen",
+                    "xpReward": 45
+                },
+                {
+                    "id": "entertainer-perform",
+                    "text": "[Entertainer] Project conviction like you're on stage",
+                    "type": "continue",
+                    "requiresBackground": "Entertainer",
+                    "outcome": "Every performance teaches you to become someone else. Tonight, you are the most devoted cultist they've ever seen.",
+                    "nextEncounterId": "acolyte-kitchen",
+                    "xpReward": 40
                 }
             ],
             "completed": false
@@ -1008,7 +1237,7 @@
             "options": [
                 {
                     "id": "eat-feast",
-                    "text": "Eat to maintain cover (+2 Corruption)",
+                    "text": "Eat to maintain cover",
                     "type": "continue",
                     "outcome": "You force it down. The Pontiff smiles at you from the head of the table. 'You are loyal.'",
                     "nextEncounterId": "acolyte-betrayal"
@@ -1094,6 +1323,69 @@
                     "failureOutcome": "She shrieks! 'Silence in the library!' (You take 1d6 sonic damage)",
                     "successNextEncounterId": "occultist-book-dungeon",
                     "failureNextEncounterId": "occultist-book-dungeon"
+                },
+                {
+                    "id": "sorcerer-power",
+                    "text": "[Sorcerer] Use your innate magic to communicate with the spirits",
+                    "type": "continue",
+                    "requiresClass": "Sorcerer",
+                    "outcome": "Your wild magic resonates with the bound souls. The librarian recognizes a kindred spirit of chaotic power and offers her help freely.",
+                    "nextEncounterId": "occultist-book-dungeon",
+                    "xpReward": 45
+                },
+                {
+                    "id": "druid-spirits",
+                    "text": "[Druid] Speak to the bound spirits with nature's compassion",
+                    "type": "continue",
+                    "requiresClass": "Druid",
+                    "outcome": "Even corrupted spirits remember the natural order. Your connection to the primal world soothes the tortured librarian's rage.",
+                    "nextEncounterId": "occultist-book-dungeon",
+                    "xpReward": 45
+                },
+                {
+                    "id": "sage-knowledge",
+                    "text": "[Sage] Reference obscure texts to negotiate",
+                    "type": "continue",
+                    "requiresBackground": "Sage",
+                    "outcome": "You quote from the Binding Accords of Xylos. The librarian is stunned that anyone remembers the old protocols and must comply.",
+                    "nextEncounterId": "occultist-book-dungeon",
+                    "xpReward": 50
+                },
+                {
+                    "id": "gnome-curiosity",
+                    "text": "[Gnome] Appeal to the librarian's love of knowledge",
+                    "type": "continue",
+                    "requiresRace": "Gnome",
+                    "outcome": "Your genuine curiosity and respect for knowledge melts the ghost's hostility. She was a scholar in life, after all.",
+                    "nextEncounterId": "occultist-book-dungeon",
+                    "xpReward": 40
+                },
+                {
+                    "id": "hermit-wisdom",
+                    "text": "[Hermit] Offer wisdom gained from years of solitary study",
+                    "type": "continue",
+                    "requiresBackground": "Hermit",
+                    "outcome": "The librarian recognizes a kindred spirit—someone who understands the value of solitary contemplation. She shares her secrets.",
+                    "nextEncounterId": "occultist-book-dungeon",
+                    "xpReward": 40
+                },
+                {
+                    "id": "guild-artisan-trade",
+                    "text": "[Guild Artisan] Offer to repair damaged tomes in exchange",
+                    "type": "continue",
+                    "requiresBackground": "Guild Artisan",
+                    "outcome": "Your offer to restore damaged books touches the librarian's heart. She agrees to help in exchange for future restoration work.",
+                    "nextEncounterId": "occultist-book-dungeon",
+                    "xpReward": 40
+                },
+                {
+                    "id": "sailor-tales",
+                    "text": "[Sailor] Share tales of far-off lands she'll never see",
+                    "type": "continue",
+                    "requiresBackground": "Sailor",
+                    "outcome": "The bound ghost is starved for stories of the outside world. Your seafaring tales earn her gratitude—and her help.",
+                    "nextEncounterId": "occultist-book-dungeon",
+                    "xpReward": 35
                 }
             ],
             "completed": false
@@ -1284,14 +1576,14 @@
             "options": [
                 {
                     "id": "end-good-trigger",
-                    "text": "Reverse the Ritual (Save the World)",
+                    "text": "Reverse the Ritual",
                     "type": "continue",
                     "outcome": "You channel the energy back into the earth. The sun returns. The cathedral begins to crumble.",
                     "nextEncounterId": "ending-dawn"
                 },
                 {
                     "id": "end-evil-trigger",
-                    "text": "Claim the Power (Become the New God)",
+                    "text": "Claim the Power for yourself",
                     "type": "continue",
                     "outcome": "You sit on the throne. The blood flows into you. You are eternal.",
                     "nextEncounterId": "ending-dark-lord"

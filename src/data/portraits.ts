@@ -35,8 +35,8 @@ export const portraits: PortraitDefinition[] = Object.entries(portraitModules).m
   let genderSegment = 'other';
   let idSegment = '01';
 
-  if (parts[0] === 'half' && parts[1] === 'orc') {
-    race = 'half-orc';
+  if (parts[0] === 'half' && (parts[1] === 'orc' || parts[1] === 'elf')) {
+    race = `half-${parts[1]}`;
     genderSegment = parts[2] || 'other';
     idSegment = parts[3] || '01';
   } else {

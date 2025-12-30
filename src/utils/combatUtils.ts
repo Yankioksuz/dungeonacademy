@@ -18,7 +18,8 @@ export function canAct(entity: Combatant): boolean {
         'stunned',
         'paralyzed',
         'unconscious',
-        'petrified'
+        'petrified',
+        'surprised'
     ];
 
     return !(entity.conditions?.some(c => incapacitatingConditions.includes(c.type)) || false);
@@ -42,6 +43,7 @@ export function getCombatAdvantage(
     if (hasCondition(attacker, 'armor-not-proficient')) advantage--; // Armor non-proficiency penalty
 
     if (hasCondition(attacker, 'invisible')) advantage++;
+    if (hasCondition(attacker, 'hidden')) advantage++;
     if (hasCondition(attacker, 'reckless')) advantage++; // Reckless Attack (Attacker)
 
     // --- Defender Conditions ---
@@ -62,6 +64,7 @@ export function getCombatAdvantage(
     }
 
     if (hasCondition(defender, 'invisible')) advantage--; // Attacker can't see defender
+    if (hasCondition(defender, 'hidden')) advantage--; // Attacker can't see defender
 
     // --- Result ---
     if (advantage > 0) return 'advantage';

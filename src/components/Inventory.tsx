@@ -11,7 +11,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { PlayerCharacter, Item, EquipmentSlot } from '@/types';
 import { requiresAttunement, isAttuned, MAX_ATTUNED_ITEMS } from '@/utils/magicItemEffects';
-import { formatItemEffect } from '@/utils/itemEffects';
+import { formatItemEffect, formatItemProperty } from '@/utils/itemEffects';
 import { isArmorProficient, isWeaponProficient } from '@/utils/characterStats';
 import { getItemIconSrc, hasItemIcon } from '@/data/itemIcons';
 
@@ -60,6 +60,40 @@ const getSlotName = (slot: EquipmentSlot) => {
   return names[slot];
 };
 
+// Helper to get rarity border color classes
+const getRarityBorderColor = (rarity?: string): string => {
+  switch (rarity?.toLowerCase()) {
+    case 'legendary':
+      return 'border-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]';
+    case 'very rare':
+    case 'epic':
+      return 'border-purple-500 shadow-[0_0_6px_rgba(168,85,247,0.3)]';
+    case 'rare':
+      return 'border-blue-500 shadow-[0_0_4px_rgba(59,130,246,0.25)]';
+    case 'uncommon':
+      return 'border-green-500';
+    default:
+      return 'border-gray-500/50';
+  }
+};
+
+// Helper to get rarity text color for name
+const getRarityTextColor = (rarity?: string): string => {
+  switch (rarity?.toLowerCase()) {
+    case 'legendary':
+      return 'text-orange-400';
+    case 'very rare':
+    case 'epic':
+      return 'text-purple-400';
+    case 'rare':
+      return 'text-blue-400';
+    case 'uncommon':
+      return 'text-green-400';
+    default:
+      return 'text-foreground';
+  }
+};
+
 // Helper to map item type to slot (for future use)
 const getSlotForItemType = (type: Item['type']): EquipmentSlot | null => {
   switch (type) {
@@ -101,7 +135,10 @@ const EquipmentSlotBox = ({ slot, equipped, isSelected, onSelect }: EquipmentSlo
       onClick={() => equipped && onSelect(equipped)}
     >
       {equipped && hasIcon && iconSrc ? (
-        <div className="w-10 h-10 mb-1 rounded bg-black/20 overflow-hidden shadow-sm">
+        <div className={cn(
+          "w-10 h-10 mb-1 rounded bg-black/20 overflow-hidden shadow-sm border-2",
+          getRarityBorderColor(equipped.rarity)
+        )}>
           <img src={iconSrc} alt={equipped.name} className="w-full h-full object-cover" />
         </div>
       ) : (
@@ -186,10 +223,13 @@ const CategorySection = ({
                 )}
                 onClick={() => onItemClick(item)}
               >
-                <div className="w-8 h-8 flex-shrink-0 rounded overflow-hidden flex items-center justify-center">
+                <div className={cn(
+                  "w-8 h-8 flex-shrink-0 rounded overflow-hidden flex items-center justify-center border-2",
+                  getRarityBorderColor(item.rarity)
+                )}>
                   {getItemIcon(item)}
                 </div>
-                <span className="flex-1 text-sm truncate">{item.name}</span>
+                <span className={cn("flex-1 text-sm truncate", getRarityTextColor(item.rarity))}>{item.name}</span>
                 {equipped && <Check className="h-3 w-3 text-fantasy-gold" />}
                 {attuned && <Sparkles className="h-3 w-3 text-blue-400" />}
               </div>
@@ -622,15 +662,28 @@ export function Inventory({
                 <div className="space-y-4">
                   {/* Item Header */}
                   <div className="text-center pb-4 border-b border-fantasy-purple/20">
-                    <div className="w-16 h-16 mx-auto mb-3 rounded-lg bg-fantasy-dark-card border border-fantasy-purple/30 flex items-center justify-center">
+                    <div className={cn(
+                      "w-16 h-16 mx-auto mb-3 rounded-lg bg-fantasy-dark-card flex items-center justify-center border-2",
+                      getRarityBorderColor(selectedItem.rarity)
+                    )}>
                       {getItemIcon(selectedItem)}
                     </div>
-                    <h4 className="text-xl font-semibold text-fantasy-gold">
+                    <h4 className={cn("text-xl font-semibold", getRarityTextColor(selectedItem.rarity) || "text-fantasy-gold")}>
                       {selectedItem.name}
                     </h4>
-                    <p className="text-sm text-muted-foreground capitalize">
-                      {selectedItem.type}
-                    </p>
+                    <div className="flex items-center justify-center gap-2 mt-1">
+                      <span className="text-sm text-muted-foreground capitalize">
+                        {selectedItem.type}
+                      </span>
+                      {selectedItem.rarity && (
+                        <Badge
+                          variant="outline"
+                          className={cn("text-xs capitalize", getRarityTextColor(selectedItem.rarity))}
+                        >
+                          {selectedItem.rarity}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
 
                   {/* Stats */}
@@ -685,7 +738,7 @@ export function Inventory({
                         <div className="flex flex-wrap gap-1 mt-1">
                           {selectedItem.properties.map(prop => (
                             <Badge key={prop} variant="outline" className="text-xs">
-                              {prop}
+                              {formatItemProperty(prop)}
                             </Badge>
                           ))}
                         </div>

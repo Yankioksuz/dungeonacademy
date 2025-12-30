@@ -16,6 +16,8 @@ import commonGreataxe from '@/assets/items/common_greataxe_1765781117441.png';
 import commonShortbow from '@/assets/items/common_shortbow_1765781132061.png';
 import commonLongbow from '@/assets/items/common_longbow_1765781146025.png';
 import commonQuarterstaff from '@/assets/items/common_quarterstaff_1765781167051.png';
+import commonGreatsword from '@/assets/items/greatsword_1766393443420.png';
+import commonHandCrossbow from '@/assets/items/hand_crossbow_1766393457424.png';
 
 // Legendary Staves
 import staffOfTheMagi from '@/assets/items/staff_of_the_magi_1765781180830.png';
@@ -65,6 +67,29 @@ import rodPactKeeper from '@/assets/items/rod_pact_keeper_1765720746530.png';
 import heartShard from '@/assets/items/heart_shard_1765720761124.png';
 import rimeguardMedallion from '@/assets/items/rimeguard_medallion_1765720779909.png';
 
+// Potions
+import healingPotionItem from '@/assets/items/healing_potion_1766393358703.png';
+import greaterHealingPotionItem from '@/assets/items/greater_healing_potion_1766393569622.png';
+
+// Treasure
+import goldCoinsItem from '@/assets/items/gold_coins_1766393581085.png';
+import gemItem from '@/assets/items/gem_jewel_1766393594310.png';
+
+// More Common Weapons
+import lightCrossbowItem from '@/assets/items/light_crossbow_1766393622119.png';
+import heavyCrossbowItem from '@/assets/items/heavy_crossbow_1766393636852.png';
+import spearItem from '@/assets/items/spear_weapon_1766393650613.png';
+import javelinItem from '@/assets/items/javelin_weapon_1766393683275.png';
+import maceItem from '@/assets/items/mace_weapon_1766393697569.png';
+import handaxeItem from '@/assets/items/handaxe_weapon_1766393711266.png';
+import clubItem from '@/assets/items/club_weapon_1766393826435.png';
+
+// More Cloaks
+import cloakOfProtectionItem from '@/assets/items/cloak_of_protection_1766393740694.png';
+
+// Magic Weapons (Adventure Rewards)
+import bladePurifierItem from '@/assets/items/blade_purifier_1766393838762.png';
+
 // Common Armor - Light
 import paddedArmor from '@/assets/items/padded_armor_1765799907529.png';
 import leatherArmor from '@/assets/items/leather_armor_1765799924178.png';
@@ -112,6 +137,27 @@ import shovelItem from '@/assets/items/shovel_1765887022289.png';
 import huntingTrapItem from '@/assets/items/hunting_trap_1765887064786.png';
 import musicalInstrumentItem from '@/assets/items/musical_instrument_1765887082320.png';
 
+// New Batch
+import mithralArmor from '@/assets/items/mithral_armor_1766393850000.png';
+import wandMagicMissiles from '@/assets/items/wand_magic_missiles_1766393860000.png';
+import potionSpeed from '@/assets/items/potion_speed_1766393870000.png';
+import greatclubItem from '@/assets/items/greatclub_1766393910000.png';
+import lightHammerItem from '@/assets/items/light_hammer_1766393920000.png';
+import sickleItem from '@/assets/items/sickle_1766393930000.png';
+import lanceItem from '@/assets/items/lance_1766394000000.png';
+import maulItem from '@/assets/items/maul_1766394010000.png';
+import warPickItem from '@/assets/items/war_pick_1766394020000.png';
+import halberdItem from '@/assets/items/halberd_1766394100000.png';
+import glaiveItem from '@/assets/items/glaive_1766394110000.png';
+import pikeItem from '@/assets/items/pike_1766394120000.png';
+import tridentItem from '@/assets/items/trident_1766394200000.png';
+import whipItem from '@/assets/items/whip_1766394210000.png';
+import blowgunItem from '@/assets/items/blowgun_1766394220000.png';
+import dartItem from '@/assets/items/dart_1766394300000.png';
+import slingItem from '@/assets/items/sling_1766394310000.png';
+import vialSanguineItem from '@/assets/items/vial_sanguine_1766394320000.png';
+import gargoylePotionItem from '@/assets/items/gargoyle_potion_1766394400000.png';
+
 // Background Equipment - Accessories
 import signetRingItem from '@/assets/items/signet_ring_1765887114293.png';
 import holySymbolItem from '@/assets/items/holy_symbol_1765887153452.png';
@@ -134,7 +180,9 @@ export const ITEM_ICONS: Record<string, string> = {
     'greataxe': commonGreataxe,
     'shortbow': commonShortbow,
     'longbow': commonLongbow,
-    'quarterstaff': commonQuarterstaff,
+    'staff': commonQuarterstaff,
+    'greatsword': commonGreatsword,
+    'hand-crossbow': commonHandCrossbow,
 
     // Staves
     'staff-of-the-magi': staffOfTheMagi,
@@ -180,6 +228,7 @@ export const ITEM_ICONS: Record<string, string> = {
     'dragon-scale-mail': dragonScaleMail,
     'animated-shield': animatedShield,
     'spellguard-shield': spellguardShield,
+    'mithral-armor': mithralArmor,
 
     // Wondrous Items
     'bag-of-holding': bagOfHolding,
@@ -237,6 +286,54 @@ export const ITEM_ICONS: Record<string, string> = {
     'holy-symbol': holySymbolItem,
     'lucky-charm': luckyCharmItem,
     'insignia-of-rank': insigniaOfRankItem,
+    // +1 Magic Weapons (using base weapon icons until custom icons are generated)
+    'longbow-plus-1': commonLongbow,
+    'shortbow-plus-1': commonShortbow,
+    'longsword-plus-1': commonLongsword,
+    'rapier-plus-1': rapierWeapon,
+    'battleaxe-plus-1': battleaxeWeapon,
+    'warhammer-plus-1': warhammerWeapon,
+    'hand-crossbow-plus-1': commonHandCrossbow, // Now uses proper icon
+    'dagger-plus-1': commonDagger,
+    'greatsword-plus-1': commonGreatsword, // Now uses proper icon
+    // Potions
+    'healing-potion': healingPotionItem,
+    'greater-healing': greaterHealingPotionItem,
+    // Treasure
+    'gold-coins': goldCoinsItem,
+    'gem': gemItem,
+    // New batch
+    'wand-magic-missiles': wandMagicMissiles,
+    'potion-speed': potionSpeed,
+    // More Weapons
+    'light-crossbow': lightCrossbowItem,
+    'heavy-crossbow': heavyCrossbowItem,
+    'spear': spearItem,
+    'javelin': javelinItem,
+    'mace': maceItem,
+    'handaxe': handaxeItem,
+    // More Cloaks
+    'cloak-of-protection': cloakOfProtectionItem,
+    // More Weapons
+    'club': clubItem,
+    'greatclub': greatclubItem,
+    'light-hammer': lightHammerItem,
+    'sickle': sickleItem,
+    'lance': lanceItem,
+    'maul': maulItem,
+    'war-pick': warPickItem,
+    'halberd': halberdItem,
+    'glaive': glaiveItem,
+    'pike': pikeItem,
+    'trident': tridentItem,
+    'whip': whipItem,
+    'blowgun': blowgunItem,
+    'dart': dartItem,
+    'sling': slingItem,
+    'vial-sanguine': vialSanguineItem,
+    'gargoyle-potion': gargoylePotionItem,
+    // Magic Weapons (Adventure Rewards)
+    'blade-purifier': bladePurifierItem,
 };
 
 /**

@@ -101,6 +101,19 @@
       ]
     },
     {
+      "id": "half-elf",
+      "name": "Half-Elf",
+      "description": "Half-elves combine what some say are the best qualities of their elf and human parents: human curiosity, inventiveness, and ambition tempered by the refined senses, love of nature, and artistic tastes of the elves.",
+      "abilityScoreIncrease": {
+        "charisma": 2
+      },
+      "traits": [
+        "Darkvision",
+        "Fey Ancestry",
+        "Skill Versatility"
+      ]
+    },
+    {
       "id": "half-orc",
       "name": "Half-Orc",
       "description": "Half-orcs' grayish pigmentation, sloping foreheads, jutting jaws, prominent teeth, and towering builds make their orcish heritage plain for all to see.",

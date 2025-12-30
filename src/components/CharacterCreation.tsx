@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { Sparkles, ArrowRight, ArrowLeft, User, CheckCircle2, Shuffle } from 'lucide-react';
 import characterCreationContent from '@/content/characterCreation.json';
 import traitExplanations from '@/content/traitExplanations.json';
-import type { Race, Class, Background, SkillName } from '@/types';
+import type { Race, Class, Background, SkillName, AbilityName } from '@/types';
 import { cn } from '@/lib/utils';
 import { generateRandomName } from '@/utils/nameGenerator';
 import { PortraitSelector } from './PortraitSelector';
@@ -135,6 +135,9 @@ export function CharacterCreation() {
     if (race.id !== 'dragonborn' && draconicAncestry !== null) {
       setDraconicAncestry(null);
     }
+    if (race.id !== 'half-elf' && halfElfAbilityBonuses.length > 0) {
+      setHalfElfAbilityBonuses([]);
+    }
   };
 
   const handleSelectClass = (cls: Class) => {
@@ -175,6 +178,7 @@ export function CharacterCreation() {
   const [draconicAncestry, setDraconicAncestry] = useState<{ type: string; damageType: string; breathCone: boolean } | null>(null);
   const [extraLanguage, setExtraLanguage] = useState<string>('');
   const [humanBonusSkill, setHumanBonusSkill] = useState<SkillName | null>(null);
+  const [halfElfAbilityBonuses, setHalfElfAbilityBonuses] = useState<AbilityName[]>([]);
   const [rogueExpertise, setRogueExpertise] = useState<SkillName[]>([]);
   const [fightingStyle, setFightingStyle] = useState<string | null>(null);
   const [pactBoon, setPactBoon] = useState<string | null>(null);
@@ -311,6 +315,7 @@ export function CharacterCreation() {
 
           // Pass racial options
           draconicAncestry: draconicAncestry || undefined,
+          halfElfAbilityBonuses: halfElfAbilityBonuses.length === 2 ? halfElfAbilityBonuses : undefined,
           // Pass extra language if selected (will be merged with others in GameContext)
           languages: [...(extraLanguage ? [extraLanguage] : []), ...backgroundLanguages],
           bonusSkills: humanBonusSkill ? [humanBonusSkill] : [],
@@ -351,8 +356,11 @@ export function CharacterCreation() {
   const canProceed = () => {
     switch (characterCreationStep) {
       case 0:
-        // Identity step - need both name and race
-        return characterName.trim().length > 0 && selectedRace !== null;
+        // Identity step - need both name and race, plus race-specific requirements
+        if (characterName.trim().length === 0 || selectedRace === null) return false;
+        if (selectedRace.id === 'half-elf' && halfElfAbilityBonuses.length !== 2) return false;
+        if (selectedRace.id === 'dragonborn' && !draconicAncestry) return false;
+        return true;
       case 1:
         if (!selectedClass) return false;
         if (selectedClass.id === 'fighter' && !fightingStyle) return false;
@@ -373,8 +381,9 @@ export function CharacterCreation() {
       case 5: {
         // Review step - ensure all required fields are present
         const hasHumanSkill = selectedRace?.id === 'human' ? Boolean(humanBonusSkill) : true;
+        const hasHalfElfAbilities = selectedRace?.id === 'half-elf' ? halfElfAbilityBonuses.length === 2 : true;
         const hasRequiredLanguages = getBackgroundLanguageSlots() === 0 || backgroundLanguages.length >= getBackgroundLanguageSlots();
-        return selectedRace !== null && selectedClass !== null && selectedBackground !== null && characterName.trim().length > 0 && hasHumanSkill && hasRequiredLanguages;
+        return selectedRace !== null && selectedClass !== null && selectedBackground !== null && characterName.trim().length > 0 && hasHumanSkill && hasHalfElfAbilities && hasRequiredLanguages;
       }
       default:
         return false;
@@ -624,6 +633,47 @@ export function CharacterCreation() {
                         </Tooltip>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {selectedRace?.id === 'half-elf' && (
+                  <div className="p-4 bg-fantasy-dark-card rounded-md border border-fantasy-purple/30 mt-4">
+                    <p className="text-sm font-semibold mb-3">Ability Score Increase</p>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Half-Elves get +2 Charisma and +1 to two other abilities of your choice.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {(['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom'] as AbilityName[]).map((ability) => {
+                        const isSelected = halfElfAbilityBonuses.includes(ability);
+                        const limitReached = halfElfAbilityBonuses.length >= 2 && !isSelected;
+                        return (
+                          <Tooltip key={ability} content={`+1 to ${ability.charAt(0).toUpperCase() + ability.slice(1)}`}>
+                            <Button
+                              type="button"
+                              variant={isSelected ? 'default' : 'outline'}
+                              disabled={limitReached}
+                              className={cn(
+                                "text-xs capitalize cursor-help",
+                                isSelected && "ring-2 ring-fantasy-purple bg-fantasy-purple hover:bg-fantasy-purple/90",
+                                limitReached && "opacity-50"
+                              )}
+                              onClick={() => {
+                                setHalfElfAbilityBonuses((prev) => {
+                                  if (isSelected) return prev.filter((a) => a !== ability);
+                                  if (prev.length >= 2) return prev;
+                                  return [...prev, ability];
+                                });
+                              }}
+                            >
+                              {ability} {isSelected && '+1'}
+                            </Button>
+                          </Tooltip>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Selected: {halfElfAbilityBonuses.length}/2 {halfElfAbilityBonuses.length === 2 && '✓'}
+                    </p>
                   </div>
                 )}
               </div>

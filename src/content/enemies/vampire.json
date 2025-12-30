@@ -10,26 +10,103 @@
   "xpReward": 10000,
   "size": "Medium",
   "alignment": "lawful evil",
-  "speed": { "walk": 30 },
-  "abilityScores": { "strength": 18, "dexterity": 18, "constitution": 18, "intelligence": 17, "wisdom": 15, "charisma": 18 },
-  "savingThrows": { "dex": 9, "wis": 7, "cha": 9 },
-  "skills": { "perception": 7, "stealth": 9 },
-  "damageResistances": ["necrotic", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
-  "senses": ["darkvision 120 ft.", "passive Perception 17"],
-  "languages": ["languages known in life"],
+  "speed": {
+    "walk": 30
+  },
+  "abilityScores": {
+    "strength": 18,
+    "dexterity": 18,
+    "constitution": 18,
+    "intelligence": 17,
+    "wisdom": 15,
+    "charisma": 18
+  },
+  "savingThrows": {
+    "dex": 9,
+    "wis": 7,
+    "cha": 9
+  },
+  "skills": {
+    "perception": 7,
+    "stealth": 9
+  },
+  "damageResistances": [
+    "necrotic",
+    "nonmagical bludgeoning",
+    "nonmagical piercing",
+    "nonmagical slashing"
+  ],
+  "senses": [
+    "darkvision 120 ft.",
+    "passive Perception 17"
+  ],
+  "languages": [
+    "languages known in life"
+  ],
   "challenge": "13",
-  "traits": ["shapechanger", "legendary-resistance", "misty-escape", "regeneration", "spider-climb", "vampire-weaknesses"],
+  "traits": [
+    "shapechanger",
+    "legendary-resistance",
+    "misty-escape",
+    "regeneration",
+    "spider-climb",
+    "vampire-weaknesses"
+  ],
   "actions": [
-    { "name": "Multiattack (Vampire Form Only)", "type": "special", "description": "Makes two attacks, only one of which can be a bite." },
-    { "name": "Unarmed Strike (Vampire Form Only)", "type": "melee", "toHit": 9, "reach": 5, "targets": "one creature", "damage": "1d8+4 bludgeoning", "damageType": "bludgeoning", "description": "Instead of damage, can grapple (escape DC 18)." },
-    { "name": "Bite (Bat or Vampire Form Only)", "type": "melee", "toHit": 9, "reach": 5, "targets": "one willing or grappled/incapacitated/restrained creature", "damage": "1d6+4 piercing plus 3d6 necrotic", "damageType": "piercing", "description": "Target's max HP reduced by necrotic taken; vampire heals same amount. Reduction lasts until long rest; slain humanoid buried rises next night as vampire spawn under vampire's control." },
-    { "name": "Charm", "type": "special", "description": "Humanoid within 30 ft. that can see the vampire makes DC 17 WIS save or is charmed for up to 24 hours; regards vampire as trusted friend and is a willing bite target. Repeats save when harmed by vampire/ally; immune for 24 hours after save success/effect ends." },
-    { "name": "Children of the Night (1/Day)", "type": "special", "description": "Summons 2d4 bat or rat swarms (or 3d6 wolves outdoors, sunless). Arrive in 1d4 rounds and act as allies for 1 hour or until dismissed/death." }
+    {
+      "name": "Multiattack (Vampire Form Only)",
+      "type": "special",
+      "description": "Makes two attacks, only one of which can be a bite."
+    },
+    {
+      "name": "Unarmed Strike (Vampire Form Only)",
+      "type": "melee",
+      "toHit": 9,
+      "reach": 5,
+      "targets": "one creature",
+      "damage": "1d8+4 bludgeoning",
+      "damageType": "bludgeoning",
+      "description": "Instead of damage, can grapple (escape DC 18)."
+    },
+    {
+      "name": "Bite (Bat or Vampire Form Only)",
+      "type": "melee",
+      "toHit": 9,
+      "reach": 5,
+      "targets": "one willing or grappled/incapacitated/restrained creature",
+      "damage": "1d6+4 piercing plus 3d6 necrotic",
+      "damageType": "piercing",
+      "description": "Target's max HP reduced by necrotic taken; vampire heals same amount. Reduction lasts until long rest; slain humanoid buried rises next night as vampire spawn under vampire's control."
+    },
+    {
+      "name": "Charm",
+      "type": "special",
+      "description": "Humanoid within 30 ft. that can see the vampire makes DC 17 WIS save or is charmed for up to 24 hours; regards vampire as trusted friend and is a willing bite target. Repeats save when harmed by vampire/ally; immune for 24 hours after save success/effect ends."
+    },
+    {
+      "name": "Children of the Night (1/Day)",
+      "type": "special",
+      "description": "Summons 2d4 bat or rat swarms (or 3d6 wolves outdoors, sunless). Arrive in 1d4 rounds and act as allies for 1 hour or until dismissed/death."
+    }
   ],
   "legendaryActions": [
-    { "name": "Move", "description": "Moves up to its speed without provoking opportunity attacks." },
-    { "name": "Unarmed Strike", "description": "Makes one unarmed strike." },
-    { "name": "Bite (Costs 2 Actions)", "description": "Makes one bite attack." }
+    {
+      "name": "Move",
+      "description": "Moves up to its speed without provoking opportunity attacks."
+    },
+    {
+      "name": "Unarmed Strike",
+      "description": "Makes one unarmed strike.",
+      "damage": "1d8+4",
+      "damageType": "bludgeoning"
+    },
+    {
+      "name": "Bite",
+      "cost": 2,
+      "description": "Makes one bite attack.",
+      "damage": "1d6+4+3d6",
+      "damageType": "necrotic"
+    }
   ],
   "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/v-monster-stat-block.md",
   "statBlockHeading": "Vampire"

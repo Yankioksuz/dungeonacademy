@@ -10,28 +10,115 @@
   "xpReward": 33000,
   "size": "Large",
   "alignment": "lawful good",
-  "speed": { "walk": 50, "fly": 150 },
-  "abilityScores": { "strength": 26, "dexterity": 22, "constitution": 26, "intelligence": 25, "wisdom": 25, "charisma": 30 },
-  "savingThrows": { "int": 14, "wis": 14, "cha": 17 },
-  "skills": { "perception": 14 },
-  "damageResistances": ["radiant", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
-  "damageImmunities": ["necrotic", "poison"],
-  "conditionImmunities": ["charmed", "exhaustion", "frightened", "poisoned"],
-  "senses": ["truesight 120 ft.", "passive Perception 24"],
-  "languages": ["all, telepathy 120 ft."],
+  "speed": {
+    "walk": 50,
+    "fly": 150
+  },
+  "abilityScores": {
+    "strength": 26,
+    "dexterity": 22,
+    "constitution": 26,
+    "intelligence": 25,
+    "wisdom": 25,
+    "charisma": 30
+  },
+  "savingThrows": {
+    "int": 14,
+    "wis": 14,
+    "cha": 17
+  },
+  "skills": {
+    "perception": 14
+  },
+  "damageResistances": [
+    "radiant",
+    "nonmagical bludgeoning",
+    "nonmagical piercing",
+    "nonmagical slashing"
+  ],
+  "damageImmunities": [
+    "necrotic",
+    "poison"
+  ],
+  "conditionImmunities": [
+    "charmed",
+    "exhaustion",
+    "frightened",
+    "poisoned"
+  ],
+  "senses": [
+    "truesight 120 ft.",
+    "passive Perception 24"
+  ],
+  "languages": [
+    "all, telepathy 120 ft."
+  ],
   "challenge": "21",
-  "traits": ["angelic-weapons", "divine-awareness", "innate-spellcasting", "magic-resistance"],
+  "traits": [
+    "angelic-weapons",
+    "divine-awareness",
+    "innate-spellcasting",
+    "magic-resistance"
+  ],
   "actions": [
-    { "name": "Multiattack", "type": "special", "description": "Makes two greatsword attacks." },
-    { "name": "Greatsword", "type": "melee", "toHit": 15, "reach": 5, "targets": "one target", "damage": "4d6+8 slashing plus 6d8 radiant", "damageType": "slashing" },
-    { "name": "Slaying Longbow", "type": "ranged", "toHit": 13, "range": "150/600", "targets": "one target", "damage": "2d8+6 piercing plus 6d8 radiant", "damageType": "piercing", "description": "If target has 100 HP or fewer, DC 15 CON save or die." },
-    { "name": "Flying Sword", "type": "special", "description": "Releases greatsword to hover within 5 ft.; as bonus action command to fly up to 50 ft. to attack or return. If targeted, solar counts as holding it; falls if solar dies." },
-    { "name": "Healing Touch (4/Day)", "type": "special", "description": "Touches a creature to restore 40 (8d8+4) HP and end any curse, disease, poison, blindness, or deafness." }
+    {
+      "name": "Multiattack",
+      "type": "special",
+      "description": "Makes two greatsword attacks."
+    },
+    {
+      "name": "Greatsword",
+      "type": "melee",
+      "toHit": 15,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "4d6+8 slashing plus 6d8 radiant",
+      "damageType": "slashing"
+    },
+    {
+      "name": "Slaying Longbow",
+      "type": "ranged",
+      "toHit": 13,
+      "range": "150/600",
+      "targets": "one target",
+      "damage": "2d8+6 piercing plus 6d8 radiant",
+      "damageType": "piercing",
+      "description": "If target has 100 HP or fewer, DC 15 CON save or die."
+    },
+    {
+      "name": "Flying Sword",
+      "type": "special",
+      "description": "Releases greatsword to hover within 5 ft.; as bonus action command to fly up to 50 ft. to attack or return. If targeted, solar counts as holding it; falls if solar dies."
+    },
+    {
+      "name": "Healing Touch (4/Day)",
+      "type": "special",
+      "description": "Touches a creature to restore 40 (8d8+4) HP and end any curse, disease, poison, blindness, or deafness."
+    }
   ],
   "legendaryActions": [
-    { "name": "Teleport", "description": "Teleports with equipment up to 120 ft. to an unoccupied space it can see." },
-    { "name": "Searing Burst (Costs 2 Actions)", "description": "Each creature of choice in 10-ft. radius makes DC 23 DEX save, taking 14 (4d6) fire plus 14 (4d6) radiant on fail, half on success." },
-    { "name": "Blinding Gaze (Costs 3 Actions)", "description": "Creature within 30 ft. that can see solar makes DC 15 CON save or is blinded until cured (e.g., lesser restoration)." }
+    {
+      "name": "Teleport",
+      "description": "Teleports with equipment up to 120 ft. to an unoccupied space."
+    },
+    {
+      "name": "Searing Burst",
+      "cost": 2,
+      "description": "Each creature of choice in 10-ft. radius takes fire and radiant damage.",
+      "damage": "4d6+4d6",
+      "damageType": "radiant",
+      "saveDC": 23,
+      "saveAbility": "dexterity",
+      "halfOnSave": true
+    },
+    {
+      "name": "Blinding Gaze",
+      "cost": 3,
+      "description": "Creature within 30 ft. that can see solar makes save or is blinded.",
+      "effect": "blind",
+      "saveDC": 15,
+      "saveAbility": "constitution"
+    }
   ],
   "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/s-monster-stat-block.md",
   "statBlockHeading": "Solar"

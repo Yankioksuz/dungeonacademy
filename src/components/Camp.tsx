@@ -63,6 +63,46 @@ const AVAILABLE_ADVENTURES = [
     length: 'Epic',
     data: sanctumAdventure as unknown as AdventureType,
     artwork: sanctumArtwork,
+  },
+  {
+    id: 'endless-dungeon',
+    title: 'The Infinite Dungeon',
+    description: 'A never-ending delve into the unknown. How deep can you go?',
+    difficulty: 'Scales',
+    length: 'Infinite',
+    data: {
+      id: 'endless-dungeon',
+      title: 'The Infinite Dungeon',
+      description: 'The entrance to the infinite dungeon looms before you.',
+      encounters: [
+        {
+          id: 'endless-entrance',
+          title: 'The Entrance',
+          description: 'You stand before a massive stone archway that seems to spiral into darkness forever. The air is cold and carries the scent of ancient dust. There is no turning back once you enter.',
+          type: 'exploration',
+          completed: false,
+          options: [
+            {
+              id: 'enter-dungeon',
+              text: 'Enter the dungeon',
+              type: 'continue',
+              outcome: 'You step into the darkness...',
+              nextEncounterId: '' // Empty ID triggers generator in GameContext
+            }
+          ]
+        }
+      ],
+      currentEncounterIndex: 0,
+      visitedEncounterIds: [],
+      isEndless: true, // Enable endless mode
+      difficulty: 1,
+      // Floor tracking
+      currentFloor: 1,
+      roomsOnFloor: 0,
+      totalRoomsCleared: 0,
+      highestFloor: 1,
+    } as unknown as AdventureType,
+    artwork: spireArtwork,
   }
 ];
 
@@ -154,7 +194,7 @@ export function Camp() {
   return (
     <div className="container mx-auto px-4 py-8 fade-in">
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-1 space-y-4">
+        <div className="lg:col-span-1 space-y-4 lg:sticky lg:top-4 lg:self-start">
           <Card className="scroll-parchment">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

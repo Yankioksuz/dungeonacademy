@@ -27,7 +27,8 @@ export type ConditionType =
   | 'blinded' | 'charmed' | 'deafened' | 'frightened'
   | 'grappled' | 'incapacitated' | 'invisible' | 'paralyzed'
   | 'petrified' | 'poisoned' | 'prone' | 'restrained'
-  | 'stunned' | 'unconscious' | 'hexed' | 'turned' | 'pacified' | 'hidden' | 'reckless' | 'haste' | 'flying'
+  | 'stunned' | 'unconscious' | 'hexed' | 'turned' | 'pacified' | 'hidden' | 'reckless' | 'haste' | 'flying' | 'surprised'
+  | 'blessed' // Bless spell: +1d4 to attacks and saves
   | 'displacement-broken' // Cloak of Displacement temporarily inactive
   | 'armor-not-proficient' // Wearing armor without proficiency
   | 'exhaustion-1' | 'exhaustion-2' | 'exhaustion-3' | 'exhaustion-4' | 'exhaustion-5' | 'exhaustion-6';
@@ -237,8 +238,10 @@ export interface PlayerCharacter {
     damageType: string; // e.g. "Fire", "Lightning"
     breathCone: boolean; // true for cone, false for line
   };
+  halfElfAbilityBonuses?: AbilityName[]; // Half-Elf gets +1 to two abilities of choice (not CHA)
   fightingStyle?: string; // Fighter choice
   pactBoon?: string; // Warlock Pact
+  eldritchInvocations?: string[]; // Warlock Eldritch Invocations
   sorcerousOrigin?: string; // Sorcerer origin
 
   // Passive Scores (calculated)
@@ -473,9 +476,15 @@ export interface CombatEnemy {
   traits?: string[];
   legendaryActions?: {
     name: string;
-    cost: number;
+    cost?: number;
     damage?: string;
+    damageType?: string;
     description?: string;
+    effect?: string;  // e.g., "frighten", "paralyze", "blind", "stun"
+    saveDC?: number;  // Save DC for effects
+    saveAbility?: string; // e.g., "constitution", "wisdom"
+    halfOnSave?: boolean; // If true, half damage on successful save
+    healing?: string; // e.g., "2d8+2" for self-healing actions
   }[];
   saveDC?: number;
   breathDC?: number;
@@ -544,6 +553,10 @@ export interface FeatureUses {
 
   // Barbarian subclass features
   spiritShield: number; // Ancestral Guardian - unlimited while raging
+
+  // Feat-based features (once per rest)
+  healerFeatUsed: boolean; // Healer feat - once per short rest
+  inspiringLeaderUsed: boolean; // Inspiring Leader - once per short rest
 }
 
 export interface CombatState {
@@ -608,6 +621,11 @@ export interface Encounter {
     successNextEncounterId?: string;
     failureNextEncounterId?: string;
   };
+  stealthCheck?: {
+    difficultyClass: number; // Passive Perception of enemies
+    success: string;
+    failure: string;
+  };
   completed: boolean;
   xpReward?: number;
   // Spatial map position (optional - if not set, auto-layout is used)
@@ -652,6 +670,14 @@ export interface Adventure {
   encounters: Encounter[];
   currentEncounterIndex: number;
   visitedEncounterIds?: string[];
+  isEndless?: boolean; // Flag for endless crawler mode
+  difficulty?: number; // Difficulty scaling factor (increases with floor)
+  seed?: string; // Seed for procedural generation
+  // Endless dungeon tracking
+  currentFloor?: number; // Current floor/depth (starts at 1)
+  roomsOnFloor?: number; // Rooms cleared on current floor (0-4, resets at 5)
+  totalRoomsCleared?: number; // Total rooms ever cleared in this run
+  highestFloor?: number; // Best depth achieved (for display)
 }
 
 export type QuestStatus = 'available' | 'active' | 'completed';

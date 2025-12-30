@@ -67,10 +67,13 @@ const SUBCLASS_LEVELS: Record<string, number> = {
 const itemCollections = [
   itemsData.weapons,
   itemsData.armor,
+  itemsData.shields,
   itemsData.potions,
   itemsData.scrolls,
   itemsData.treasure,
-];
+  itemsData.magicItems,
+  itemsData.clothing,
+].filter(Boolean); // Filter out any undefined collections
 
 const findItemTemplate = (itemId: string): Item | undefined => {
   for (const collection of itemCollections) {
@@ -141,7 +144,9 @@ export function Adventure() {
     unattuneItem,
     equipToSlot,
     unequipSlot,
-    advanceTime // NEW: Time Cost
+    advanceTime, // Time Cost
+    pendingLevelUp, // Level up pending
+    confirmLevelUp, // Confirm level up
   } = useGame();
   const currentEncounter = useMemo<Encounter | null>(() => {
     if (!adventure || !adventure.encounters || adventure.encounters.length === 0) {
@@ -290,14 +295,23 @@ export function Adventure() {
     });
   };
 
-  const grantItems = (itemIds?: string[]) => {
+  const grantItems = (itemIds?: string[], logToNarrative: boolean = true) => {
     if (!itemIds?.length) return;
+    const grantedItems: string[] = [];
     itemIds.forEach((itemId) => {
       const template = findItemTemplate(itemId);
       if (template) {
         addItem(createItemInstance(template));
+        grantedItems.push(template.name);
       }
     });
+    if (logToNarrative && grantedItems.length > 0) {
+      if (grantedItems.length === 1) {
+        addToNarrativeLog(`✨ Acquired: ${grantedItems[0]}`);
+      } else {
+        addToNarrativeLog(`✨ Acquired: ${grantedItems.join(', ')}`);
+      }
+    }
   };
 
   const resetDiceState = () => {
@@ -479,7 +493,62 @@ export function Adventure() {
     return true;
   };
 
-  // Watch for level up to show modal
+  // Track when we just processed a level up to avoid immediate re-trigger
+  const justProcessedLevelUpRef = useRef(false);
+
+  // Watch for pending level up (XP threshold reached)
+  useEffect(() => {
+    // Don't immediately re-show if we just processed one
+    if (justProcessedLevelUpRef.current) {
+      justProcessedLevelUpRef.current = false;
+      return;
+    }
+
+    if (pendingLevelUp && character && !showLevelUp) {
+      const nextLevel = character.level + 1;
+      setShowLevelUp(true);
+      setLevelUpData({
+        level: nextLevel,
+        hpIncrease: 10 // Simplified, ideally calculated based on class hit die
+      });
+      // Generate talents based on new level if needed
+      const newTalents = allTalents.filter(t => !character.talents?.includes(t.id)).slice(0, 3);
+      setAvailableTalents(newTalents);
+
+      // Check for Feats/ASI (Levels 4, 8, 12, 16, 19)
+      const ASI_LEVELS = [4, 8, 12, 16, 19];
+      // Fighter gets extra at 6 and 14
+      if (character.class.id === 'fighter') {
+        ASI_LEVELS.push(6, 14);
+      }
+      // Rogue gets extra at 10
+      if (character.class.id === 'rogue') {
+        ASI_LEVELS.push(10);
+      }
+
+      if (ASI_LEVELS.includes(nextLevel)) {
+        const takenFeats = character.feats || [];
+        const available = allFeats.filter(f => !takenFeats.includes(f.id) && checkFeatPrerequisites(f, character));
+        setAvailableFeats(available);
+      } else {
+        setAvailableFeats([]);
+      }
+
+      // Check for Subclass Selection
+      const subclassLevel = SUBCLASS_LEVELS[character.class.id] || 3;
+      if (nextLevel === subclassLevel && !character.subclass) {
+        const classSubclasses = SUBCLASSES[character.class.id] || [];
+        setAvailableSubclasses(classSubclasses);
+      } else {
+        setAvailableSubclasses([]);
+      }
+
+      // Reset multiclass selection
+      setSelectedMulticlassId(null);
+    }
+  }, [pendingLevelUp, character, showLevelUp, allTalents, allFeats]);
+
+  // Watch for level up to show modal (for auto-level scenarios)
   const prevLevelRef = useRef(character?.level || 1);
   useEffect(() => {
     if (character && character.level > prevLevelRef.current) {
@@ -624,8 +693,11 @@ export function Adventure() {
           }
 
           if (!stayInEncounter) {
+            // Detect hub encounters - don't mark them as completed when returning
             const isReturningToHub = finalTargetId === 'village-square-return' ||
-              finalTargetId === 'village-square';
+              finalTargetId === 'village-square' ||
+              finalTargetId === 'nave-hub' ||
+              (finalTargetId && finalTargetId.endsWith('-hub'));
             const isRepeatableEncounter = currentEncounter.repeatable;
 
             if (!isRepeatableEncounter && !isReturningToHub) {
@@ -635,6 +707,10 @@ export function Adventure() {
 
           if (finalTargetId) {
             advanceToNextEncounter(finalTargetId);
+            setShowTutorial(tutorialsEnabled);
+          } else if (!stayInEncounter && adventure?.isEndless) {
+            // In endless mode, advance to next generated room if no specific target
+            advanceToNextEncounter();
             setShowTutorial(tutorialsEnabled);
           }
         });
@@ -661,9 +737,11 @@ export function Adventure() {
     }
 
     // Only mark encounter as completed if it's progressing the story (not returning to hub)
-    // Social/exploration encounters that return to village square shouldn't be marked completed
+    // Social/exploration encounters that return to hub shouldn't be marked completed
     const isReturningToHub = targetEncounterId === 'village-square-return' ||
-      targetEncounterId === 'village-square';
+      targetEncounterId === 'village-square' ||
+      targetEncounterId === 'nave-hub' ||
+      (targetEncounterId && targetEncounterId.endsWith('-hub'));
     const isRepeatableEncounter = currentEncounter.repeatable;
 
     if (!isRepeatableEncounter && !isReturningToHub) {
@@ -671,12 +749,16 @@ export function Adventure() {
     }
 
     // Navigate to next encounter by ID
-    if (targetEncounterId) {
+    // For endless mode, we always need to advance even if nextEncounterId is undefined
+    const shouldAdvance = targetEncounterId || adventure?.isEndless;
+
+    if (shouldAdvance) {
       setTimeout(() => {
         // Time passes as you move to next encounter
         advanceTime(10);
 
-        advanceToNextEncounter(targetEncounterId);
+        // If no targetEncounterId (or empty string), call without argument to trigger endless mode generator
+        advanceToNextEncounter(targetEncounterId || undefined);
         setShowTutorial(tutorialsEnabled);
       }, delay);
     }
@@ -907,6 +989,13 @@ export function Adventure() {
     setAsiScore2(undefined);
     setAvailableSubclasses([]);
     setSelectedSubclassId(null);
+
+    // Mark that we just processed to prevent immediate re-trigger
+    justProcessedLevelUpRef.current = true;
+
+    // Actually confirm the level up in GameContext
+    confirmLevelUp(selectedMulticlassId);
+
     setSelectedMulticlassId(null);
     setShowLevelUp(false);
   };
@@ -920,7 +1009,9 @@ export function Adventure() {
     // Award random item as reward
     const lootPool = [...itemsData.weapons, ...itemsData.armor, ...itemsData.potions, ...itemsData.treasure];
     const randomTemplate = lootPool[Math.floor(Math.random() * lootPool.length)];
-    addItem(createItemInstance(randomTemplate as unknown as Item));
+    const lootItem = createItemInstance(randomTemplate as unknown as Item);
+    addItem(lootItem);
+    addToNarrativeLog(`✨ Loot acquired: ${randomTemplate.name}`);
 
     // Award XP for victory
     const xpReward = currentEncounter.enemy?.xpReward || currentEncounter.xpReward || 50;
@@ -930,6 +1021,9 @@ export function Adventure() {
       const combatOption = currentEncounter.options.find(opt => opt.type === 'attack');
       if (combatOption?.nextEncounterId) {
         advanceToNextEncounter(combatOption.nextEncounterId);
+      } else if (adventure?.isEndless) {
+        // For endless mode, generate next room when no explicit nextEncounterId
+        advanceToNextEncounter();
       }
       setCombatTransitioning(false); // Allow rendering after transition
     }, 2000);
@@ -1388,6 +1482,28 @@ export function Adventure() {
         <div className="w-full lg:flex-1 order-1 lg:order-2">
           <Card className="w-full scroll-parchment slide-up">
             <CardHeader>
+              {/* Endless Dungeon Floor Display */}
+              {adventure?.isEndless && (
+                <div className="mb-3 flex items-center gap-3">
+                  <Badge variant="fantasy" className="px-3 py-1 text-sm bg-purple-900/60 border-purple-500/50">
+                    <Sword className="h-3 w-3 mr-1" />
+                    Floor {adventure.currentFloor || 1}
+                  </Badge>
+                  <Badge variant="outline" className="px-3 py-1 text-xs">
+                    Room {(adventure.roomsOnFloor || 0) + 1}/5
+                  </Badge>
+                  {(adventure.roomsOnFloor || 0) === 4 && ((adventure.currentFloor || 1) + 1) % 5 === 0 && (
+                    <Badge variant="destructive" className="px-2 py-1 text-xs animate-pulse">
+                      ⚔️ Boss Next!
+                    </Badge>
+                  )}
+                  {adventure.currentFloor && adventure.currentFloor % 5 === 0 && adventure.roomsOnFloor === 0 && (
+                    <Badge variant="destructive" className="px-2 py-1 text-xs animate-pulse">
+                      🔥 BOSS FLOOR!
+                    </Badge>
+                  )}
+                </div>
+              )}
               {currentEncounter.completed && (
                 <div className="mb-2">
                   <Badge variant="gold">
@@ -1432,7 +1548,7 @@ export function Adventure() {
                 {/* NPC Portrait Detection */}
                 {(() => {
                   // Check for NPC names in the encounter title or description
-                  const npcIds = ['thora', 'pip', 'mara', 'kaela', 'eldred', 'vael', 'ryell', 'aris', 'elara', 'krov', 'mal', 'vex', 'librarian', 'matriarch', 'warden', 'bone', 'guardian', 'pain', 'hound', 'elite', 'gargoyle'];
+                  const npcIds = ['thora', 'pip', 'mara', 'kaela', 'eldred', 'vael', 'ryell', 'aris', 'elara', 'krov', 'mal', 'vex', 'librarian', 'matriarch', 'warden', 'bone', 'guardian', 'pain', 'hound', 'elite', 'gargoyle', 'pontiff'];
                   const titleLower = currentEncounter.title.toLowerCase();
                   const descLower = currentEncounter.description.toLowerCase();
 
@@ -1503,7 +1619,7 @@ export function Adventure() {
                 {/* Outcome Message from Last Choice - only show if no NPC portrait handled it */}
                 {outcomeMessage && !isRollingDice && (() => {
                   // Check if an NPC portrait is handling the outcome display
-                  const npcIds = ['thora', 'pip', 'mara', 'kaela', 'eldred', 'vael', 'ryell', 'aris', 'elara', 'krov', 'mal', 'vex', 'librarian', 'matriarch', 'warden', 'bone', 'guardian', 'pain', 'hound', 'elite', 'gargoyle'];
+                  const npcIds = ['thora', 'pip', 'mara', 'kaela', 'eldred', 'vael', 'ryell', 'aris', 'elara', 'krov', 'mal', 'vex', 'librarian', 'matriarch', 'warden', 'bone', 'guardian', 'pain', 'hound', 'elite', 'gargoyle', 'pontiff'];
                   const titleLower = currentEncounter.title.toLowerCase();
                   const descLower = currentEncounter.description.toLowerCase();
 
@@ -1613,7 +1729,11 @@ export function Adventure() {
                             isSelected && "opacity-60 text-muted-foreground"
                           )}
                           onClick={() => handleOptionClick(option)}
-                          disabled={currentEncounter.completed && !option.endsAdventure}
+                          disabled={
+                            currentEncounter.completed &&
+                            !option.endsAdventure &&
+                            !(adventure?.isEndless && option.type === 'continue')
+                          }
                         >
                           <div className="flex flex-wrap items-center gap-3 w-full">
                             <span className="flex items-center gap-2 text-left">

@@ -63,6 +63,10 @@ export const getDefaultFeatureUses = (character: PlayerCharacter): FeatureUses =
 
     // Barbarian
     spiritShield: subclassId === 'ancestral-guardian' && level >= 6 ? 999 : 0, // Unlimited while raging
+
+    // Feat-based features
+    healerFeatUsed: false,
+    inspiringLeaderUsed: false,
   };
 };
 
@@ -105,6 +109,10 @@ export const restoreShortRestUses = (character: PlayerCharacter, current?: Featu
     tidesOfChaos: existing.tidesOfChaos,
     healingLightDice: existing.healingLightDice, // Long rest only
     spiritShield: defaults.spiritShield,
+
+    // Feat-based features reset on short rest
+    healerFeatUsed: false,
+    inspiringLeaderUsed: false,
   };
 };
 

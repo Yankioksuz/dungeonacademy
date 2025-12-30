@@ -10,25 +10,95 @@
   "xpReward": 1800,
   "size": "Large",
   "alignment": "lawful good",
-  "speed": { "walk": 50 },
-  "abilityScores": { "strength": 18, "dexterity": 14, "constitution": 15, "intelligence": 11, "wisdom": 17, "charisma": 16 },
-  "damageImmunities": ["poison"],
-  "conditionImmunities": ["charmed", "paralyzed", "poisoned"],
-  "senses": ["darkvision 60 ft.", "passive Perception 13"],
-  "languages": ["Celestial", "Elvish", "Sylvan", "telepathy 60 ft."],
+  "speed": {
+    "walk": 50
+  },
+  "abilityScores": {
+    "strength": 18,
+    "dexterity": 14,
+    "constitution": 15,
+    "intelligence": 11,
+    "wisdom": 17,
+    "charisma": 16
+  },
+  "damageImmunities": [
+    "poison"
+  ],
+  "conditionImmunities": [
+    "charmed",
+    "paralyzed",
+    "poisoned"
+  ],
+  "senses": [
+    "darkvision 60 ft.",
+    "passive Perception 13"
+  ],
+  "languages": [
+    "Celestial",
+    "Elvish",
+    "Sylvan",
+    "telepathy 60 ft."
+  ],
   "challenge": "5",
-  "traits": ["charge", "innate-spellcasting", "magic-resistance", "magic-weapons"],
+  "traits": [
+    "charge",
+    "innate-spellcasting",
+    "magic-resistance",
+    "magic-weapons"
+  ],
   "actions": [
-    { "name": "Multiattack", "type": "special", "description": "Makes two attacks: one hooves and one horn." },
-    { "name": "Hooves", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "2d6+4 bludgeoning", "damageType": "bludgeoning" },
-    { "name": "Horn", "type": "melee", "toHit": 7, "reach": 5, "targets": "one target", "damage": "1d8+4 piercing", "damageType": "piercing" },
-    { "name": "Healing Touch (3/Day)", "type": "special", "description": "Touch heals 11 (2d8+2) HP and removes all diseases and neutralizes all poisons." },
-    { "name": "Teleport (1/Day)", "type": "special", "description": "Teleports itself and up to three willing creatures within 5 ft., with gear, to a familiar location up to 1 mile away." }
+    {
+      "name": "Multiattack",
+      "type": "special",
+      "description": "Makes two attacks: one hooves and one horn."
+    },
+    {
+      "name": "Hooves",
+      "type": "melee",
+      "toHit": 7,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "2d6+4 bludgeoning",
+      "damageType": "bludgeoning"
+    },
+    {
+      "name": "Horn",
+      "type": "melee",
+      "toHit": 7,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "1d8+4 piercing",
+      "damageType": "piercing"
+    },
+    {
+      "name": "Healing Touch (3/Day)",
+      "type": "special",
+      "description": "Touch heals 11 (2d8+2) HP and removes all diseases and neutralizes all poisons."
+    },
+    {
+      "name": "Teleport (1/Day)",
+      "type": "special",
+      "description": "Teleports itself and up to three willing creatures within 5 ft., with gear, to a familiar location up to 1 mile away."
+    }
   ],
   "legendaryActions": [
-    { "name": "Hooves", "description": "Makes one hooves attack." },
-    { "name": "Shimmering Shield (Costs 2 Actions)", "description": "Creates a magical field around itself or a creature within 60 ft.; target gains +2 AC until end of unicorn's next turn." },
-    { "name": "Heal Self (Costs 3 Actions)", "description": "Regains 11 (2d8+2) HP." }
+    {
+      "name": "Hooves",
+      "description": "Makes one hooves attack.",
+      "damage": "2d6+4",
+      "damageType": "bludgeoning"
+    },
+    {
+      "name": "Shimmering Shield",
+      "cost": 2,
+      "description": "Creates a magical field granting +2 AC until end of unicorn's next turn."
+    },
+    {
+      "name": "Heal Self",
+      "cost": 3,
+      "description": "Regains hit points.",
+      "healing": "2d8+2"
+    }
   ],
   "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/u-monster-stat.block.md",
   "statBlockHeading": "Unicorn"

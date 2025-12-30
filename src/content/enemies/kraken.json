@@ -10,26 +10,116 @@
   "xpReward": 50000,
   "size": "Gargantuan",
   "alignment": "chaotic evil",
-  "speed": { "walk": 20, "swim": 60 },
-  "abilityScores": { "strength": 30, "dexterity": 11, "constitution": 25, "intelligence": 22, "wisdom": 18, "charisma": 20 },
-  "savingThrows": { "str": 17, "dex": 7, "con": 14, "int": 13, "wis": 11 },
-  "damageImmunities": ["lightning", "nonmagical bludgeoning", "nonmagical piercing", "nonmagical slashing"],
-  "conditionImmunities": ["frightened", "paralyzed"],
-  "senses": ["truesight 120 ft.", "passive Perception 14"],
-  "languages": ["understands Abyssal", "understands Celestial", "understands Infernal", "understands Primordial", "telepathy 120 ft."],
+  "speed": {
+    "walk": 20,
+    "swim": 60
+  },
+  "abilityScores": {
+    "strength": 30,
+    "dexterity": 11,
+    "constitution": 25,
+    "intelligence": 22,
+    "wisdom": 18,
+    "charisma": 20
+  },
+  "savingThrows": {
+    "str": 17,
+    "dex": 7,
+    "con": 14,
+    "int": 13,
+    "wis": 11
+  },
+  "damageImmunities": [
+    "lightning",
+    "nonmagical bludgeoning",
+    "nonmagical piercing",
+    "nonmagical slashing"
+  ],
+  "conditionImmunities": [
+    "frightened",
+    "paralyzed"
+  ],
+  "senses": [
+    "truesight 120 ft.",
+    "passive Perception 14"
+  ],
+  "languages": [
+    "understands Abyssal",
+    "understands Celestial",
+    "understands Infernal",
+    "understands Primordial",
+    "telepathy 120 ft."
+  ],
   "challenge": "23",
-  "traits": ["amphibious", "freedom-of-movement", "siege-monster"],
+  "traits": [
+    "amphibious",
+    "freedom-of-movement",
+    "siege-monster"
+  ],
   "actions": [
-    { "name": "Multiattack", "type": "special", "description": "Makes three tentacle attacks; each can be replaced with one Fling." },
-    { "name": "Bite", "type": "melee", "toHit": 17, "reach": 5, "targets": "one target", "damage": "3d8+10 piercing", "damageType": "piercing", "description": "If target is Large or smaller and grappled, it is swallowed and the grapple ends. Swallowed target is blinded/restrained with total cover and takes 42 (12d6) acid at start of kraken's turns; regurgitates on DC 25 CON fail after taking 50+ damage in a turn, or on death (exits prone)." },
-    { "name": "Tentacle", "type": "melee", "toHit": 17, "reach": 30, "targets": "one target", "damage": "3d6+10 bludgeoning", "damageType": "bludgeoning", "description": "Target grappled (escape DC 18) and restrained; kraken has ten tentacles, each can grapple one target." },
-    { "name": "Fling", "type": "special", "description": "Throws a held object or grappled creature up to 60 ft. in a random direction and knocks it prone. If it hits a surface: 1d6 bludgeoning per 10 ft.; if thrown at a creature, that creature makes DC 18 DEX save or takes the same damage and is knocked prone." },
-    { "name": "Lightning Storm", "type": "special", "description": "Creates three lightning bolts at targets within 120 ft.; each target makes DC 23 DEX save, taking 22 (4d10) lightning damage on failure, half on success." }
+    {
+      "name": "Multiattack",
+      "type": "special",
+      "description": "Makes three tentacle attacks; each can be replaced with one Fling."
+    },
+    {
+      "name": "Bite",
+      "type": "melee",
+      "toHit": 17,
+      "reach": 5,
+      "targets": "one target",
+      "damage": "3d8+10 piercing",
+      "damageType": "piercing",
+      "description": "If target is Large or smaller and grappled, it is swallowed and the grapple ends. Swallowed target is blinded/restrained with total cover and takes 42 (12d6) acid at start of kraken's turns; regurgitates on DC 25 CON fail after taking 50+ damage in a turn, or on death (exits prone)."
+    },
+    {
+      "name": "Tentacle",
+      "type": "melee",
+      "toHit": 17,
+      "reach": 30,
+      "targets": "one target",
+      "damage": "3d6+10 bludgeoning",
+      "damageType": "bludgeoning",
+      "description": "Target grappled (escape DC 18) and restrained; kraken has ten tentacles, each can grapple one target."
+    },
+    {
+      "name": "Fling",
+      "type": "special",
+      "description": "Throws a held object or grappled creature up to 60 ft. in a random direction and knocks it prone. If it hits a surface: 1d6 bludgeoning per 10 ft.; if thrown at a creature, that creature makes DC 18 DEX save or takes the same damage and is knocked prone."
+    },
+    {
+      "name": "Lightning Storm",
+      "type": "special",
+      "description": "Creates three lightning bolts at targets within 120 ft.; each target makes DC 23 DEX save, taking 22 (4d10) lightning damage on failure, half on success."
+    }
   ],
   "legendaryActions": [
-    { "name": "Tentacle Attack or Fling", "description": "Makes one tentacle attack or uses Fling." },
-    { "name": "Lightning Storm (Costs 2 Actions)", "description": "Uses Lightning Storm." },
-    { "name": "Ink Cloud (Costs 3 Actions)", "description": "While underwater, creates a 60-ft.-radius heavily obscuring ink cloud; creatures ending turn there make DC 23 CON save or take 16 (3d10) poison (half on success). Cloud dispersed by strong current; ends at end of kraken's next turn." }
+    {
+      "name": "Tentacle Attack",
+      "description": "Makes one tentacle attack.",
+      "damage": "3d6+10",
+      "damageType": "bludgeoning"
+    },
+    {
+      "name": "Lightning Storm",
+      "cost": 2,
+      "description": "Creates lightning bolts at targets within 120 ft.",
+      "damage": "4d10",
+      "damageType": "lightning",
+      "saveDC": 23,
+      "saveAbility": "dexterity",
+      "halfOnSave": true
+    },
+    {
+      "name": "Ink Cloud",
+      "cost": 3,
+      "description": "Creates a heavily obscuring ink cloud; creatures ending turn there take poison damage.",
+      "damage": "3d10",
+      "damageType": "poison",
+      "saveDC": 23,
+      "saveAbility": "constitution",
+      "halfOnSave": true
+    }
   ],
   "statBlockSource": "ddguide/ch12-monsters/monster-stat-blocks/k-monster-stat-block.md",
   "statBlockHeading": "Kraken"

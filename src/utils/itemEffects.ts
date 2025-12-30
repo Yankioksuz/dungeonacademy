@@ -26,6 +26,59 @@ export function formatItemEffect(effect: ItemEffect): string {
 }
 
 /**
+ * Format weapon/armor property for display
+ * Handles compound properties like "versatile-1d8" -> "Versatile (1d8)"
+ */
+export function formatItemProperty(property: string): string {
+    // Map of known properties to their display format
+    const propertyMap: Record<string, string> = {
+        'finesse': 'Finesse',
+        'light': 'Light',
+        'melee': 'Melee',
+        'ranged': 'Ranged',
+        'two-handed': 'Two-Handed',
+        'heavy': 'Heavy',
+        'thrown': 'Thrown',
+        'reach': 'Reach',
+        'loading': 'Loading',
+        'magic': 'Magic',
+        'special': 'Special',
+        'attunement': 'Requires Attunement',
+    };
+
+    // Check for exact match first
+    if (propertyMap[property]) {
+        return propertyMap[property];
+    }
+
+    // Handle compound properties with values
+    if (property.startsWith('versatile-')) {
+        const die = property.split('-')[1];
+        return `Versatile (${die})`;
+    }
+
+    if (property.startsWith('disadvantage-')) {
+        return `Stealth Disadvantage`;
+    }
+
+    if (property.startsWith('strength-')) {
+        const requirement = property.split('-')[1];
+        return `Str ${requirement} Required`;
+    }
+
+    if (property.endsWith('-only')) {
+        const className = property.split('-')[0];
+        return `${className.charAt(0).toUpperCase() + className.slice(1)} Only`;
+    }
+
+    // Default: capitalize and replace hyphens with spaces
+    return property
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
+/**
  * Get all equipped items that could provide effects
  */
 export function getEquippedItems(character: PlayerCharacter): Item[] {

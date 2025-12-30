@@ -41,3 +41,35 @@ export function calculateMaxHitPoints(character: PlayerCharacter): number {
 
     return Math.max(1, totalHp); // Minimum 1 HP
 }
+
+/**
+ * Get the number of levels a character has in a specific class.
+ * Supports both legacy single-class (`character.class`) and multiclass (`character.classes`) formats.
+ * @param character The player character
+ * @param classId The class ID to check (e.g., 'rogue', 'fighter')
+ * @returns The number of levels in that class (0 if none)
+ */
+export function getLevelInClass(character: PlayerCharacter, classId: string): number {
+    // Check new multiclass array first
+    if (character.classes && character.classes.length > 0) {
+        const classEntry = character.classes.find(c => c.class.id === classId);
+        return classEntry?.level || 0;
+    }
+    // Fallback to legacy single-class check
+    if (character.class?.id === classId) {
+        return character.level || 1;
+    }
+    return 0;
+}
+
+/**
+ * Check if a character has levels in a class sufficient for a specific feature.
+ * @param character The player character
+ * @param classId The class ID to check
+ * @param minLevel The minimum level required in that class
+ * @returns True if the character has at least minLevel in the specified class
+ */
+export function hasClassFeature(character: PlayerCharacter, classId: string, minLevel: number): boolean {
+    return getLevelInClass(character, classId) >= minLevel;
+}
+

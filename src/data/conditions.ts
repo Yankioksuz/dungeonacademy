@@ -367,6 +367,28 @@ export const CONDITIONS: Record<ConditionType, ConditionDefinition> = {
         ],
         icon: Skull,
         color: "bg-black"
+    },
+    surprised: {
+        id: 'surprised',
+        name: 'Surprised',
+        description: "You are caught off guard.",
+        effects: [
+            "Can't move or take actions on first turn",
+            "Can't take reactions until first turn ends"
+        ],
+        icon: AlertTriangle,
+        color: "bg-yellow-400 text-yellow-900"
+    },
+    blessed: {
+        id: 'blessed',
+        name: 'Blessed',
+        description: "You are blessed by divine power.",
+        effects: [
+            "Add 1d4 to attack rolls",
+            "Add 1d4 to saving throws"
+        ],
+        icon: Feather,
+        color: "bg-yellow-300 text-yellow-900"
     }
 };
 
